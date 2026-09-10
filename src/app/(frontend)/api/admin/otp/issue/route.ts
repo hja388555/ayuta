@@ -21,6 +21,9 @@ export async function POST(): Promise<Response> {
   }
 
   const result = await issueAdminOtp(user)
+  if (!result.ok && result.reason === 'mail_not_configured') {
+    return NextResponse.json({ error: 'mail_not_configured' }, { status: 503 })
+  }
   if (!result.ok) return NextResponse.json({ error: 'otp_rate_limited' }, { status: 429 })
   // 코드는 응답에 싣지 않는다 — 메일(개발 중에는 서버 로그)로만 간다
   return NextResponse.json({ ok: true })

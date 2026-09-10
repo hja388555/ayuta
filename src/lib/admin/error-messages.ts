@@ -23,6 +23,7 @@ const MESSAGES: Record<string, string> = {
   login_failed: '이메일 또는 비밀번호가 맞지 않거나, 관리자 계정이 아닙니다. 5회 틀리면 10분간 잠깁니다.',
   invalid_code: '코드가 맞지 않거나 만료됐습니다. 코드를 다시 받아 입력해 주세요.',
   otp_rate_limited: '코드 발급 횟수를 넘었습니다. 1시간 뒤에 다시 시도해 주세요.',
+  mail_not_configured: '확인 코드를 보낼 메일이 아직 설정되지 않았습니다. 개발 담당자에게 문의해 주세요.',
 }
 
 export const GENERIC_ERROR = '처리하지 못했습니다. 잠시 후 다시 시도해 주세요.'
