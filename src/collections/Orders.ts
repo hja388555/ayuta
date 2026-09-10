@@ -14,8 +14,19 @@ export const ORDER_STATUSES = [
 ] as const
 export type OrderStatus = (typeof ORDER_STATUSES)[number]
 
+// 스냅샷 필드에 붙이는 필드 레벨 잠금. 결제 시점에 값으로 복사해 둔 것들이라
+// 나중에 어떤 경로로도 바뀌면 안 된다(계약서 전문·금액·항목·서명·주문자·주문번호 등).
+// 서버 코드는 payload.create(overrideAccess: true) 또는 raw SQL로 쓰므로 이 잠금에
+// 걸리지 않는다 — 막히는 건 admin UI와 REST/GraphQL 의 update 뿐이다.
+const IMMUTABLE = { update: () => false } as const
+
 export const Orders: CollectionConfig = {
   slug: 'orders',
+  admin: {
+    useAsTitle: 'orderNumber',
+    defaultColumns: ['orderNumber', 'status', 'currency', 'amount', 'category', 'createdAt'],
+    listSearchableFields: ['orderNumber', 'paymentId'],
+  },
   access: {
     // 주문 조회는 전부 서버 코드(DAL)를 거친다. REST 로는 아무도 못 읽는다
     read: ({ req: { user } }) => isAdminRole(user?.role),
@@ -26,7 +37,7 @@ export const Orders: CollectionConfig = {
     admin: ({ req: { user } }) => isAdminRole(user?.role),
   },
   fields: [
-    { name: 'orderNumber', type: 'text', required: true, unique: true, index: true },
+    { name: 'orderNumber', type: 'text', required: true, unique: true, index: true, access: IMMUTABLE },
     // 포트원에 넘긴 결제 식별자. 웹훅과 복귀 경로가 이 값으로 주문을 찾는다
     { name: 'paymentId', type: 'text', required: true, unique: true, index: true },
     // 결제 버튼 더블클릭·재시도로 같은 요청이 두 번 와도 주문이 두 벌 생기지 않도록
@@ -37,22 +48,29 @@ export const Orders: CollectionConfig = {
       name: 'status',
       type: 'select',
       required: true,
+      // 상태는 transitionOrder()만 바꾼다. 그 함수는 조건부 UPDATE 한 번과 order_transitions
+      // INSERT 를 같은 트랜잭션으로 묶어 원자적 전이와 append-only 감사 기록을 보장한다.
+      // admin UI 의 일반 저장이 그 경로를 우회하면 전이 기록에 구멍이 생기고, append-only
+      // 표라서 나중에 메워 넣을 수도 없다 — 그래서 읽기전용 + update 거부로 잠근다.
+      admin: { readOnly: true },
+      access: { update: () => false },
       defaultValue: 'pending',
       index: true,
       options: ORDER_STATUSES.map((s) => ({ label: s, value: s })),
     },
-    { name: 'currency', type: 'select', required: true, options: ['KRW', 'JPY'] },
+    { name: 'currency', type: 'select', required: true, options: ['KRW', 'JPY'], access: IMMUTABLE },
     // 정수 최소단위. 원 = 1, 엔 = 1
-    { name: 'amount', type: 'number', required: true },
+    { name: 'amount', type: 'number', required: true, access: IMMUTABLE },
     { name: 'locale', type: 'select', required: true, options: ['ko', 'ja'] },
     // 계약서 템플릿을 고른 카테고리 번호. 계약서·동의 항목을 나중에 다시 찾을 때 쓴다
-    { name: 'category', type: 'number', required: true, min: 1, max: 5 },
+    { name: 'category', type: 'number', required: true, min: 1, max: 5, access: IMMUTABLE },
     {
       // 금액과 항목명을 값으로 복사해 둔다.
       // 단가 ID만 참조하면 관리자가 단가를 고치는 순간 과거 주문 금액이 전부 바뀐다
       name: 'items',
       type: 'array',
       required: true,
+      access: IMMUTABLE,
       fields: [
         { name: 'code', type: 'text', required: true },
         { name: 'label', type: 'text', required: true },
@@ -67,6 +85,7 @@ export const Orders: CollectionConfig = {
       name: 'contractItems',
       type: 'array',
       required: true,
+      access: IMMUTABLE,
       fields: [
         { name: 'label', type: 'text', required: true },
         { name: 'value', type: 'text', required: true },
@@ -89,6 +108,7 @@ export const Orders: CollectionConfig = {
       name: 'orderer',
       type: 'group',
       required: true,
+      access: IMMUTABLE,
       fields: [
         { name: 'name', type: 'text', required: true },
         { name: 'phone', type: 'text', required: true },
@@ -102,10 +122,10 @@ export const Orders: CollectionConfig = {
     },
     // 전자서명 이름. 동의 체크 시 주문자 이름이 그대로 들어간다(손으로 그리는 서명이 아니다) —
     // createOrder 가 orderer.name 과 다르면 거부하므로 여기 저장된 값은 항상 orderer.name 과 같다
-    { name: 'signature', type: 'text', required: true },
+    { name: 'signature', type: 'text', required: true, access: IMMUTABLE },
     // 결제 시점 계약서 전문. 값으로 복사한다 — 나중에 템플릿을 고쳐도 이미 체결된 주문은
     // 그 순간 고객이 읽고 서명한 문서 그대로 남아야 한다
-    { name: 'contractText', type: 'textarea', required: true },
+    { name: 'contractText', type: 'textarea', required: true, access: IMMUTABLE },
     { name: 'paidAt', type: 'date' },
     { name: 'failReason', type: 'text' },
   ],
