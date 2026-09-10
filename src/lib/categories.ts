@@ -28,10 +28,11 @@ export const CATEGORIES: readonly CategoryDef[] = [
   {
     no: 4,
     slug: 'transit',
-    // 배수는 category-groups.ts의 periods(1w·2w·1m·3m)와 짝이 맞아야 한다 — 여기 없는
-    // 기간을 고르면 calculateSumMultiplier가 거부한다. 값 자체는 금액과 마찬가지로
-    // 임시값이며 대표님이 확정해야 한다.
-    model: { kind: 'sumMultiplier', category: 4, items: [], multipliers: { '1w': 1, '2w': 1.8, '1m': 3, '3m': 8 } },
+    // 기간 배수는 여기 두지 않는다 — 관리자가 고치는 값이라 DB(pricing-settings global)에 있고,
+    // loadCategoryModel()(src/lib/pricing-model.ts)이 요청마다 채운다. 일부러 비워 둔다:
+    // 로더를 거치지 않고 이 모델을 그대로 계산에 쓰면 옛 임시값으로 조용히 청구하는 대신
+    // "기간을 선택해 주세요"로 막힌다.
+    model: { kind: 'sumMultiplier', category: 4, items: [], multipliers: {} },
   },
   {
     no: 5,

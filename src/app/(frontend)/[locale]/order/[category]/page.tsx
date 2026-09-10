@@ -7,6 +7,7 @@ import { GroupForm } from '@/components/GroupForm'
 import { categoryBySlug } from '@/lib/categories'
 import { formFor } from '@/lib/category-groups'
 import { loadPriceBook } from '@/lib/price-book'
+import { loadCategoryModel } from '@/lib/pricing-model'
 import { currencyForLocale } from '@/lib/payments/channel'
 
 export const dynamic = 'force-dynamic'
@@ -36,6 +37,9 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
   const currency = currencyForLocale(locale)
   const book = await loadPriceBook(def.no, currency)
+  // 미리보기 계산에 쓰는 모델 — 4번 기간 배수는 DB(관리자 설정) 값이다. 결제 화면·주문 생성과
+  // 같은 로더를 써야 미리보기와 청구 금액이 갈라지지 않는다
+  const model = await loadCategoryModel(def)
   // formFor가 null이면(1·5번) 아래에서 GroupForm 갈래로 안 간다 — 던지지 않는다
   const groupFormDef = formFor(def.no)
 
@@ -50,7 +54,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
           {def.model.kind === 'tier' ? (
             <TierForm
               book={book}
-              model={def.model}
+              model={model}
               locale={locale}
               categorySlug={def.slug}
               country={country}
@@ -65,7 +69,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
           ) : groupFormDef ? (
             <GroupForm
               form={groupFormDef}
-              model={def.model}
+              model={model}
               book={book}
               locale={locale}
               categorySlug={def.slug}

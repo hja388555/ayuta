@@ -1,6 +1,7 @@
 import type { CollectionConfig, NumberFieldSingleValidation } from 'payload'
 import { number } from 'payload/shared'
-import { isAdminRole, isSuperRole } from '../lib/roles'
+import { isAdminRole } from '../lib/roles'
+import { isVerifiedSuper } from '../lib/admin-access'
 
 // 금액은 정수 최소단위다. src/lib/price-book.ts 의 minor() 가 소수·음수를 런타임에 던지는데,
 // 그 시점은 이미 고객이 견적을 요청한 뒤라 화면이 통째로 500 이 된다. 입력에서 막는다.
@@ -30,10 +31,12 @@ export const PriceEntries: CollectionConfig = {
   access: {
     // 단가는 견적 화면에 그대로 나가므로 읽기는 공개
     read: () => true,
-    // 단가 변경은 곧 매출 변경이다. 최고관리자만
-    create: ({ req: { user } }) => isSuperRole(user?.role),
-    update: ({ req: { user } }) => isSuperRole(user?.role),
-    delete: ({ req: { user } }) => isSuperRole(user?.role),
+    // 단가 변경은 곧 매출 변경이다. 최고관리자만, 그리고 2단계 인증까지 — role 만 보면
+    // OTP 를 거치지 않은 super 세션이 REST(PATCH /api/price-entries/:id)로 단가를 바꾼다.
+    // 시드 스크립트는 overrideAccess 로 돌아 이 제한에 걸리지 않는다
+    create: ({ req }) => isVerifiedSuper(req),
+    update: ({ req }) => isVerifiedSuper(req),
+    delete: ({ req }) => isVerifiedSuper(req),
     unlock: () => false,
     admin: ({ req: { user } }) => isAdminRole(user?.role),
   },

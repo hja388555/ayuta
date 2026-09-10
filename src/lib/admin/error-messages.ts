@@ -16,6 +16,9 @@ const MESSAGES: Record<string, string> = {
   schedule_failed: '계약기간을 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
   note_failed: '메모를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
   empty_note: '메모 내용을 입력해 주세요.',
+  price_failed: '단가를 저장하지 못했습니다. 금액은 0 이상의 정수여야 합니다.',
+  invalid_multiplier: '기간 배수는 0보다 크고 100 이하인 숫자, 소수 둘째 자리까지 입력해 주세요.',
+  settings_failed: '기간 배수를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
   network: '서버에 연결하지 못했습니다. 네트워크를 확인해 주세요.',
 }
 

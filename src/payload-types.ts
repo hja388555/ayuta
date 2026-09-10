@@ -99,8 +99,12 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'pricing-settings': PricingSetting;
+  };
+  globalsSelect: {
+    'pricing-settings': PricingSettingsSelect<false> | PricingSettingsSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -626,6 +630,38 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricing-settings".
+ */
+export interface PricingSetting {
+  id: number;
+  periodMultipliers: {
+    '1w': number;
+    '2w': number;
+    '1m': number;
+    '3m': number;
+  };
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pricing-settings_select".
+ */
+export interface PricingSettingsSelect<T extends boolean = true> {
+  periodMultipliers?:
+    | T
+    | {
+        '1w'?: T;
+        '2w'?: T;
+        '1m'?: T;
+        '3m'?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

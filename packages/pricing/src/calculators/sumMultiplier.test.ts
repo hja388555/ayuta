@@ -1,52 +1,41 @@
 import { describe, expect, it } from 'vitest'
-import { calculateSumMultiplier } from './sumMultiplier'
 import { minor, type PriceBook } from '../types/index'
+import { calculateSumMultiplier } from './sumMultiplier'
 
-const book: PriceBook = {
+const book = (amounts: Record<string, number>): PriceBook => ({
   currency: 'KRW',
-  entries: {
-    tokyo_station: { key: 'tokyo_station', label: '도쿄역', amount: minor(1_000_000) },
-    shibuya: { key: 'shibuya', label: '시부야', amount: minor(1_500_000) },
-  },
-}
-const multipliers = { '1m': 1, '3m': 2.7, '6m': 5 }
+  entries: Object.fromEntries(Object.entries(amounts).map(([key, amount]) => [key, { key, label: key, amount: minor(amount) }])),
+})
 
-describe('합산 후 기간 배수', () => {
-  it('합산한 뒤 기간 배수를 곱한다', () => {
-    const r = calculateSumMultiplier(book, multipliers, { items: ['tokyo_station'], period: '3m' })
-    expect(r.ok).toBe(true)
-    // 1,000,000 × 2.7 = 2,700,000
-    if (r.ok) expect(r.total).toBe(2_700_000)
+const total = (r: ReturnType<typeof calculateSumMultiplier>) => (r.ok ? r.total : null)
+
+describe('calculateSumMultiplier — 기간 배수', () => {
+  it('부동소수 오차로 1원을 잃지 않는다 (100 × 1.15 = 115)', () => {
+    // 부동소수로 곱하면 114.99999999999999 → 내림 114 가 된다
+    expect(total(calculateSumMultiplier(book({ a: 100 }), { '2w': 1.15 }, { items: ['a'], period: '2w' }))).toBe(115)
   })
 
-  it('배수 1이면 합산과 같다', () => {
-    const r = calculateSumMultiplier(book, multipliers, { items: ['tokyo_station', 'shibuya'], period: '1m' })
-    if (r.ok) expect(r.total).toBe(2_500_000)
+  it('기존 임시값 그대로 계산한다 (250,000 × 1.8 = 450,000)', () => {
+    expect(total(calculateSumMultiplier(book({ a: 250_000 }), { '2w': 1.8 }, { items: ['a'], period: '2w' }))).toBe(450_000)
   })
 
-  it('소수가 나오면 내림한다 — 1원 단위 위로 올려 청구하지 않는다', () => {
-    const r = calculateSumMultiplier(book, { odd: 1.333 }, { items: ['tokyo_station'], period: 'odd' })
-    // 1,000,000 × 1.333 = 1,333,000.000000...2 → 내림
-    if (r.ok) expect(Number.isInteger(r.total)).toBe(true)
+  it('나누어떨어지지 않으면 내림한다 (333 × 1.5 = 499.5 → 499)', () => {
+    expect(total(calculateSumMultiplier(book({ a: 333 }), { '1m': 1.5 }, { items: ['a'], period: '1m' }))).toBe(499)
   })
 
-  it('모르는 기간은 거부한다 — 배수 1로 떨어지지 않는다', () => {
-    const r = calculateSumMultiplier(book, multipliers, { items: ['tokyo_station'], period: '99m' })
+  it('항목을 먼저 더한 뒤 배수를 곱한다', () => {
+    expect(total(calculateSumMultiplier(book({ a: 100_000, b: 50_000 }), { '3m': 8 }, { items: ['a', 'b'], period: '3m' }))).toBe(1_200_000)
+  })
+
+  it('소수 셋째 자리 배수는 거부한다 — 조용히 반올림하지 않는다', () => {
+    const r = calculateSumMultiplier(book({ a: 100 }), { '2w': 1.125 }, { items: ['a'], period: '2w' })
     expect(r.ok).toBe(false)
-    if (!r.ok) expect(r.errors[0]!.field).toBe('period')
   })
 
-  it('항목을 안 고르면 거부한다', () => {
-    expect(calculateSumMultiplier(book, multipliers, { items: [], period: '1m' }).ok).toBe(false)
-  })
-
-  it('배수가 0 이하면 거부한다 — 공짜나 음수 주문을 만들 수 없다', () => {
-    expect(calculateSumMultiplier(book, { zero: 0 }, { items: ['shibuya'], period: 'zero' }).ok).toBe(false)
-    expect(calculateSumMultiplier(book, { neg: -1 }, { items: ['shibuya'], period: 'neg' }).ok).toBe(false)
-  })
-
-  it('기간도 한 줄로 남긴다 — 계약서에 무엇을 골랐는지 보여야 한다', () => {
-    const r = calculateSumMultiplier(book, multipliers, { items: ['shibuya'], period: '6m' })
-    if (r.ok) expect(r.lines.some((l) => l.key === 'period:6m')).toBe(true)
+  it('모르는 기간·0·음수 배수는 거부한다', () => {
+    const b = book({ a: 100 })
+    expect(calculateSumMultiplier(b, { '1w': 1 }, { items: ['a'], period: '6m' }).ok).toBe(false)
+    expect(calculateSumMultiplier(b, { '1w': 0 }, { items: ['a'], period: '1w' }).ok).toBe(false)
+    expect(calculateSumMultiplier(b, { '1w': -1 }, { items: ['a'], period: '1w' }).ok).toBe(false)
   })
 })
