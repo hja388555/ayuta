@@ -1,17 +1,14 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
+import { AuthError, requireAdmin } from '@/lib/dal'
 import { authedPayload } from '@/lib/admin/orders-data'
 
 /**
  * 관리자가 주문 건에 연락메모를 남기는 경로.
  *
  * Payload REST(/api/order-notes)를 화면에서 직접 부르지 않고 이 경로를 따로 두는 이유는
- * 게이트가 다르기 때문이다 — REST 는 세션(로그인)만 보고 2단계 인증을 모른다. 화면과
- * 상태 변경·계약기간 API 는 전부 requireAdminVerified() 를 요구하는데 메모만 REST 로
- * 열어 두면, 로그인만 된 관리자 계정이 2단계 인증 없이 주문에 기록을 남길 수 있다 —
- * 그 순간 감사 기록의 "누가"가 게이트를 통과하지 않은 주체가 된다. 응답 코드 규약도
- * transition·schedule 라우트와 같게 맞춘다(화면의 에러 번역표가 하나다).
+ * 관리자 API 의 게이트(requireAdmin — 탈퇴 계정 차단 포함)와 응답 코드 규약을
+ * transition·schedule 라우트와 한 가지로 맞추기 위해서다(화면의 에러 번역표가 하나다).
  */
 const BodySchema = z.object({
   orderId: z.number().int().positive(),
@@ -21,13 +18,9 @@ const BodySchema = z.object({
 
 export async function POST(req: Request): Promise<Response> {
   // transition·schedule 라우트와 같은 순서: 인증 먼저, 그다음 바디.
-  // OtpRequiredError 는 AuthError 의 하위 타입이라 반드시 먼저 검사한다.
   try {
-    await requireAdminVerified()
+    await requireAdmin()
   } catch (err) {
-    if (err instanceof OtpRequiredError) {
-      return NextResponse.json({ error: 'otp_required' }, { status: 403 })
-    }
     if (err instanceof AuthError) {
       const status = err.code === 'UNAUTHENTICATED' ? 401 : 403
       const error = err.code === 'UNAUTHENTICATED' ? 'unauthenticated' : 'forbidden'

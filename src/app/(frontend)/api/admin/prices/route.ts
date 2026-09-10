@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { authedPayload } from '@/lib/admin/orders-data'
-import { requireSuperVerifiedForApi } from '@/lib/admin/require-super-verified'
+import { requireSuperForApi } from '@/lib/admin/require-super'
 
 /**
  * 단가 한 줄(KRW·JPY 금액, 사용 여부)을 고친다. 관리자 단가 화면(/manage/prices)이 부른다.
@@ -12,7 +12,7 @@ import { requireSuperVerifiedForApi } from '@/lib/admin/require-super-verified'
  * 단가를 못 찾는다).
  *
  * 금액 규칙(정수 최소단위, 0 이상)은 컬렉션 validate 가 최종 판정한다. 여기 zod 는 모양만 본다.
- * 저장은 overrideAccess 없이 세션 사용자로 한다 — 컬렉션 access(isVerifiedSuper)를 한 번 더 탄다.
+ * 저장은 overrideAccess 없이 세션 사용자로 한다 — 컬렉션 access(isActiveSuper)를 한 번 더 탄다.
  */
 const BodySchema = z.object({
   id: z.number().int().positive(),
@@ -22,7 +22,7 @@ const BodySchema = z.object({
 })
 
 export async function POST(req: Request): Promise<Response> {
-  const gate = await requireSuperVerifiedForApi()
+  const gate = await requireSuperForApi()
   if ('response' in gate) return gate.response
 
   let raw: unknown

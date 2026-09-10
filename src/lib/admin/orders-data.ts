@@ -13,7 +13,7 @@ import type { OrderListQuery } from './order-list-query'
  * 아무것도 나가지 않는다. overrideAccess: true 로 열어 두면 그 잠금이 화면마다
  * 다시 검증해야 하는 것이 되고, 한 군데만 빠뜨려도 고객 개인정보가 새 나간다.
  *
- * 게이트(requireAdminVerified)는 별개다 — 그건 "들어올 수 있는가"이고 여기는
+ * 게이트(requireAdmin)는 별개다 — 그건 "들어올 수 있는가"이고 여기는
  * "무엇이 보이는가"다. 호출자는 둘 다 통과시켜야 한다.
  */
 export async function authedPayload() {

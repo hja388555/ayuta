@@ -9,19 +9,15 @@ const PW = 'Ayuta!Test-2026'
 const CUSTOMER = { email: `tr-cust+${RUN}@ayuta.test`, password: PW }
 const MANAGER = { email: `tr-mgr+${RUN}@ayuta.test`, password: PW }
 const SUPER = { email: `tr-super+${RUN}@ayuta.test`, password: PW }
-// 2단계 인증을 끝내지 않은 관리자. 이 계정에는 소비된 OTP 행을 심지 않는다
-const UNVERIFIED = { email: `tr-unverified+${RUN}@ayuta.test`, password: PW }
 
 const base = { name: '홍길동', phone: '010-0000-0000', postalCode: '00000', address1: '서울시' }
 
 const userIds: number[] = []
-const otpIds: number[] = []
 const orderIds: number[] = []
 
 let customerToken: string | undefined
 let managerToken: string | undefined
 let superToken: string | undefined
-let unverifiedToken: string | undefined
 
 const ENDPOINT = '/api/admin/orders/transition'
 
@@ -75,11 +71,10 @@ const transitionCount = async (orderId: number) => {
 
 beforeAll(async () => {
   const payload = await localPayload()
-  for (const [creds, role, verified] of [
-    [CUSTOMER, 'customer', false],
-    [MANAGER, 'manager', true],
-    [SUPER, 'super', true],
-    [UNVERIFIED, 'manager', false],
+  for (const [creds, role] of [
+    [CUSTOMER, 'customer'],
+    [MANAGER, 'manager'],
+    [SUPER, 'super'],
   ] as const) {
     const created = await payload.create({
       collection: 'users',
@@ -91,30 +86,12 @@ beforeAll(async () => {
     const id = created.id as number
     userIds.push(id)
 
-    // requireAdminVerified()를 만족시키는 "이미 소비된 OTP" 행을 심는다.
-    // 발급·메일 발송은 이 태스크 범위 밖이라 소비 기록만 직접 만든다
-    // (auth.integration.test.ts의 /manage 픽스처와 같은 방식).
-    if (!verified) continue
-    const otp = await payload.create({
-      collection: 'admin-otps',
-      data: {
-        user: id,
-        hash: 'x'.repeat(64),
-        salt: 'y'.repeat(32),
-        expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-        consumedAt: new Date().toISOString(),
-        attempts: 1,
-      },
-      overrideAccess: true,
-    })
-    otpIds.push(otp.id as number)
   }
 
   customerToken = (await login(CUSTOMER.email, CUSTOMER.password)).token
   managerToken = (await login(MANAGER.email, MANAGER.password)).token
   superToken = (await login(SUPER.email, SUPER.password)).token
-  unverifiedToken = (await login(UNVERIFIED.email, UNVERIFIED.password)).token
-  expect(customerToken && managerToken && superToken && unverifiedToken).toBeTruthy()
+  expect(customerToken && managerToken && superToken).toBeTruthy()
 })
 
 afterAll(async () => {
@@ -135,11 +112,6 @@ afterAll(async () => {
     await payload
       .delete({ collection: 'orders', id, overrideAccess: true })
       .catch((err) => errors.push(`order id=${id}: ${String(err)}`))
-  }
-  for (const id of otpIds) {
-    await payload
-      .delete({ collection: 'admin-otps', id, overrideAccess: true })
-      .catch((err) => errors.push(`otp id=${id}: ${String(err)}`))
   }
   for (const id of userIds) {
     await payload
@@ -165,15 +137,6 @@ describe('POST /api/admin/orders/transition', () => {
     expect(await transitionCount(orderId)).toBe(0)
   })
 
-  it('2단계 인증을 끝내지 않은 관리자는 403 otp_required 다', async () => {
-    // /manage 화면이 OTP를 요구하는데 이 API가 세션만으로 통과하면 게이트의 뒷문이 된다.
-    // pin: route.ts의 requireAdminVerified() + OtpRequiredError 분기.
-    const orderId = await createOrder('paid')
-    const res = await post({ orderId, to: 'in_progress' }, unverifiedToken)
-    expect(res.status).toBe(403)
-    expect(await res.json()).toEqual({ error: 'otp_required' })
-    expect(await transitionCount(orderId)).toBe(0)
-  })
 
   it('manager는 paid → in_progress 를 통과시키고 전이 기록이 1행 남는다', async () => {
     const payload = await localPayload()

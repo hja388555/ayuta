@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
+import { notFound } from 'next/navigation'
+import { AuthError, requireAdmin } from '@/lib/dal'
 import { authedPayload } from '@/lib/admin/orders-data'
 import { formatDateTime } from '@/lib/admin/format'
 import { card } from '@/components/admin/styles'
@@ -12,9 +12,8 @@ type Props = { params: Promise<{ id: string }> }
 
 export default async function InquiryDetailPage({ params }: Props) {
   try {
-    await requireAdminVerified()
+    await requireAdmin()
   } catch (err) {
-    if (err instanceof OtpRequiredError) redirect('/manage/verify')
     if (err instanceof AuthError) notFound()
     throw err
   }

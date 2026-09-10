@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
+import { notFound } from 'next/navigation'
+import { AuthError, requireAdmin } from '@/lib/dal'
 import { isSuperRole } from '@/lib/roles'
 import { findOrderForAdmin, findOrderNotes, findOrderTransitions } from '@/lib/admin/orders-data'
 import { formatAmount, formatDateTime, toDateInputValue } from '@/lib/admin/format'
@@ -30,9 +30,8 @@ const row = (label: string, value: React.ReactNode) => (
 export default async function OrderDetailPage({ params }: Props) {
   let user
   try {
-    user = await requireAdminVerified()
+    user = await requireAdmin()
   } catch (err) {
-    if (err instanceof OtpRequiredError) redirect('/manage/verify')
     if (err instanceof AuthError) notFound()
     throw err
   }

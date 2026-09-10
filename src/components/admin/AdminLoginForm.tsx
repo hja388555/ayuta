@@ -3,12 +3,13 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
+import { isAdminRole } from '@/lib/roles'
 import { button, errorBox, input } from './styles'
 
 /**
- * 관리자 로그인. 비밀번호 확인은 Payload 내장 로그인(/api/users/login)이 한다 — 5회 실패 시
- * 10분 잠금도 거기서 걸린다. 로그인되면 곧바로 2단계 인증 코드를 발급받고 입력 화면으로 간다.
- * 관리자가 아닌 계정이면 세션을 즉시 끊는다(고객 세션을 /manage 에 남겨 두지 않는다).
+ * 관리자 로그인(이메일·비밀번호). 비밀번호 확인은 Payload 내장 로그인(/api/users/login)이
+ * 한다 — 5회 실패 시 10분 잠금도 거기서 걸린다. 관리자가 아닌 계정이면 세션을 즉시 끊는다.
+ * 여기서 role 을 보는 건 안내용일 뿐이다 — /manage 게이트는 서버가 매 요청 다시 판정한다.
  */
 export function AdminLoginForm() {
   const router = useRouter()
@@ -33,18 +34,15 @@ export function AdminLoginForm() {
         setError(adminErrorMessage('login_failed'))
         return
       }
-      const issue = await fetch('/api/admin/otp/issue', { method: 'POST' })
-      const body = await issue.json().catch(() => ({}))
-      if (issue.status === 403) {
+      const body = await login.json().catch(() => ({}))
+      if (!isAdminRole(body?.user?.role)) {
+        // 고객 계정 세션을 /manage 에 남겨 두지 않는다
         await fetch('/api/users/logout', { method: 'POST' }).catch(() => {})
         setError(adminErrorMessage('login_failed'))
         return
       }
-      if (!issue.ok) {
-        setError(adminErrorMessage(body?.error))
-        return
-      }
-      router.push('/manage/verify')
+      router.push('/manage')
+      router.refresh()
     } catch {
       setError(adminErrorMessage('network'))
     } finally {

@@ -6,7 +6,6 @@
  * 한 곳에서만 한다. 모르는 코드는 코드를 노출하지 않고 일반 문구로 떨어뜨린다.
  */
 const MESSAGES: Record<string, string> = {
-  otp_required: '2단계 인증이 만료됐습니다. 다시 인증한 뒤 시도해 주세요.',
   unauthenticated: '로그인이 풀렸습니다. 다시 로그인해 주세요.',
   forbidden: '이 작업을 할 권한이 없습니다.',
   invalid_input: '입력값이 올바르지 않습니다. 다시 확인해 주세요.',
@@ -21,9 +20,6 @@ const MESSAGES: Record<string, string> = {
   settings_failed: '기간 배수를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
   network: '서버에 연결하지 못했습니다. 네트워크를 확인해 주세요.',
   login_failed: '이메일 또는 비밀번호가 맞지 않거나, 관리자 계정이 아닙니다. 5회 틀리면 10분간 잠깁니다.',
-  invalid_code: '코드가 맞지 않거나 만료됐습니다. 코드를 다시 받아 입력해 주세요.',
-  otp_rate_limited: '코드 발급 횟수를 넘었습니다. 1시간 뒤에 다시 시도해 주세요.',
-  mail_not_configured: '확인 코드를 보낼 메일이 아직 설정되지 않았습니다. 개발 담당자에게 문의해 주세요.',
 }
 
 export const GENERIC_ERROR = '처리하지 못했습니다. 잠시 후 다시 시도해 주세요.'

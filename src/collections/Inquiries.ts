@@ -1,12 +1,12 @@
 import type { CollectionConfig } from 'payload'
-import { isVerifiedAdmin } from '../lib/admin-access'
+import { isActiveAdmin } from '../lib/admin-access'
 
 export const INQUIRY_STATUSES = ['new', 'quoted', 'closed'] as const
 export type InquiryStatus = (typeof INQUIRY_STATUSES)[number]
 
 /**
  * 5번(기타 광고) 문의. 금액이 정해져 있지 않아 계산기 대신 관리자가 이 문의를 보고 견적을
- * 발행한다(Q14-B, 요구사항 1-12). 연락처·내용이 담기므로 읽기는 관리자 2단계 인증 뒤에서만.
+ * 발행한다(Q14-B, 요구사항 1-12). 연락처·내용이 담기므로 읽기는 관리자만.
  *
  * 만드는 경로는 제출 API(POST /api/inquiries) 하나다 — 유형 대조·첨부 매직바이트 확인을
  * 거치지 않은 문의가 REST 로 들어오지 않도록 create 를 닫는다.
@@ -16,11 +16,11 @@ export const Inquiries: CollectionConfig = {
   admin: { useAsTitle: 'name', defaultColumns: ['name', 'type', 'status', 'createdAt'] },
   access: {
     create: () => false,
-    read: ({ req }) => isVerifiedAdmin(req),
-    update: ({ req }) => isVerifiedAdmin(req),
+    read: ({ req }) => isActiveAdmin(req),
+    update: ({ req }) => isActiveAdmin(req),
     delete: () => false,
     unlock: () => false,
-    admin: ({ req }) => isVerifiedAdmin(req),
+    admin: ({ req }) => isActiveAdmin(req),
   },
   fields: [
     // 문의 유형 = 카테고리 슬러그(src/lib/categories.ts). 비워 둘 수 있다(1-18: 모르면 미선택)

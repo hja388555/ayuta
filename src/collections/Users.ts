@@ -32,7 +32,7 @@ export const Users: CollectionConfig = {
     // 채운다(collections/config/defaults.js). unlock을 비워두면 /api/users/unlock이
     // 아무 고객 계정으로나 열려서, 5회 실패로 잠긴 관리자 계정을 무한히 풀 수 있다 —
     // maxLoginAttempts가 장식이 된다. PBKDF2 25,000라운드라는 약한 해싱을 보정하는
-    // 두 축(시도 제한 + 관리자 2단계 인증) 중 하나가 통째로 사라지므로 super로 좁힌다.
+    // 유일한 축(시도 제한)이 통째로 사라지므로 super로 좁힌다.
     unlock: ({ req: { user } }) => isSuperRole(user?.role),
     // admin은 defaultAccess가 주입되지 않는 대신, 미지정이면 canAccessAdmin이
     // "config.admin.user 컬렉션이면 통과"로 판정한다. 이 프로젝트는 users가 곧

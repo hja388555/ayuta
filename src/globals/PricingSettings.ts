@@ -1,6 +1,6 @@
 import type { GlobalConfig, NumberFieldSingleValidation } from 'payload'
 import { number } from 'payload/shared'
-import { isVerifiedAdmin, isVerifiedSuper } from '../lib/admin-access'
+import { isActiveAdmin, isActiveSuper } from '../lib/admin-access'
 
 /**
  * 가격 계산에 쓰는 설정값 중 단가표(price-entries)에 담을 수 없는 것.
@@ -43,10 +43,10 @@ export const PricingSettings: GlobalConfig = {
   slug: 'pricing-settings',
   access: {
     // 서버 로더(loadCategoryModel)는 overrideAccess 로 읽는다. REST·GraphQL 로 여는 쪽은
-    // 관리자 화면과 같은 게이트(2단계 인증)를 탄다
-    read: ({ req }) => isVerifiedAdmin(req),
+    // 관리자 화면과 같은 게이트(관리자 role)를 탄다
+    read: ({ req }) => isActiveAdmin(req),
     // 배수 변경은 곧 가격 변경이다. 단가와 같이 최고관리자만
-    update: ({ req }) => isVerifiedSuper(req),
+    update: ({ req }) => isActiveSuper(req),
   },
   fields: [
     {

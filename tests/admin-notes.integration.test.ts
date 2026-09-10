@@ -1,5 +1,5 @@
 // 연락메모 작성 경로(POST /api/admin/orders/notes)와 관리자 주문 화면의 게이트를
-// 실제 서버·DB 앞에서 고정한다. 단위 테스트로는 세션·2단계 인증 게이트가 검증되지 않는다.
+// 실제 서버·DB 앞에서 고정한다. 단위 테스트로는 세션 게이트가 검증되지 않는다.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { api, login } from './helpers/server.js'
 import { localPayload } from './helpers/localApi.js'
@@ -8,20 +8,16 @@ const RUN = Date.now()
 const PW = 'Ayuta!Test-2026'
 const CUSTOMER = { email: `note-cust+${RUN}@ayuta.test`, password: PW }
 const MANAGER = { email: `note-mgr+${RUN}@ayuta.test`, password: PW }
-// 2단계 인증을 끝내지 않은 관리자. 이 계정에는 소비된 OTP 행을 심지 않는다
-const UNVERIFIED = { email: `note-unverified+${RUN}@ayuta.test`, password: PW }
 
 const base = { name: '홍길동', phone: '010-0000-0000', postalCode: '00000', address1: '서울시' }
 
 const userIds: number[] = []
-const otpIds: number[] = []
 const noteIds: number[] = []
 let orderId: number
 let orderNumber: string
 
 let customerToken: string | undefined
 let managerToken: string | undefined
-let unverifiedToken: string | undefined
 
 const ENDPOINT = '/api/admin/orders/notes'
 
@@ -44,10 +40,9 @@ const noteCount = async () => {
 
 beforeAll(async () => {
   const payload = await localPayload()
-  for (const [creds, role, verified] of [
-    [CUSTOMER, 'customer', false],
-    [MANAGER, 'manager', true],
-    [UNVERIFIED, 'manager', false],
+  for (const [creds, role] of [
+    [CUSTOMER, 'customer'],
+    [MANAGER, 'manager'],
   ] as const) {
     const created = await payload.create({
       collection: 'users',
@@ -57,21 +52,6 @@ beforeAll(async () => {
     })
     const id = created.id as number
     userIds.push(id)
-    if (!verified) continue
-    // requireAdminVerified()를 만족시키는 "이미 소비된 OTP" 행을 심는다
-    const otp = await payload.create({
-      collection: 'admin-otps',
-      data: {
-        user: id,
-        hash: 'x'.repeat(64),
-        salt: 'y'.repeat(32),
-        expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-        consumedAt: new Date().toISOString(),
-        attempts: 1,
-      },
-      overrideAccess: true,
-    })
-    otpIds.push(otp.id as number)
   }
 
   orderNumber = `AY-NT-${RUN}`
@@ -103,14 +83,13 @@ beforeAll(async () => {
 
   customerToken = (await login(CUSTOMER.email, CUSTOMER.password)).token
   managerToken = (await login(MANAGER.email, MANAGER.password)).token
-  unverifiedToken = (await login(UNVERIFIED.email, UNVERIFIED.password)).token
-  expect(customerToken && managerToken && unverifiedToken).toBeTruthy()
+  expect(customerToken && managerToken).toBeTruthy()
 })
 
 afterAll(async () => {
   const payload = await localPayload()
   const errors: string[] = []
-  const drop = async (collection: 'order-notes' | 'orders' | 'admin-otps' | 'users', id: number) => {
+  const drop = async (collection: 'order-notes' | 'orders' | 'users', id: number) => {
     try {
       await payload.delete({ collection, id, overrideAccess: true })
     } catch (err) {
@@ -125,7 +104,6 @@ afterAll(async () => {
   })
   for (const doc of docs) await drop('order-notes', doc.id as number)
   await drop('orders', orderId)
-  for (const id of otpIds) await drop('admin-otps', id)
   for (const id of userIds) await drop('users', id)
   if (errors.length > 0) throw new Error(`테스트 데이터 정리 실패:\n${errors.join('\n')}`)
 })
@@ -143,14 +121,6 @@ describe('POST /api/admin/orders/notes', () => {
     expect(await noteCount()).toBe(0)
   })
 
-  it('2단계 인증을 끝내지 않은 관리자는 403 otp_required 다', async () => {
-    // Payload REST(/api/order-notes)는 이 게이트를 모른다 — 그래서 전용 경로를 둔다.
-    // pin: notes/route.ts 의 requireAdminVerified() + OtpRequiredError 분기
-    const res = await post({ orderId, body: '인증 전 메모' }, unverifiedToken)
-    expect(res.status).toBe(403)
-    expect(await res.json()).toEqual({ error: 'otp_required' })
-    expect(await noteCount()).toBe(0)
-  })
 
   it('빈 메모는 400 invalid_input 이다', async () => {
     const res = await post({ orderId, body: '   ' }, managerToken)
@@ -159,7 +129,7 @@ describe('POST /api/admin/orders/notes', () => {
     expect(await noteCount()).toBe(0)
   })
 
-  it('2단계 인증을 끝낸 관리자는 메모를 남기고 author 가 세션 사용자로 박힌다', async () => {
+  it('관리자는 메모를 남기고 author 가 세션 사용자로 박힌다', async () => {
     const res = await post({ orderId, body: '고객에게 시작일 안내함' }, managerToken)
     expect(res.status).toBe(200)
     const body = await res.json()
@@ -195,7 +165,7 @@ describe('관리자 주문 화면 게이트', () => {
     expect((await page(`/manage/orders/${orderId}`, customerToken)).status).toBe(404)
   })
 
-  it('2단계 인증을 끝낸 관리자에게는 주문번호와 고객 연락처가 보인다', async () => {
+  it('관리자에게는 주문번호와 고객 연락처가 보인다', async () => {
     const res = await page(`/manage/orders/${orderId}`, managerToken)
     expect(res.status).toBe(200)
     const html = await res.text()

@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { isAdminRole } from '../lib/roles'
-import { isVerifiedAdmin } from '../lib/admin-access'
+import { isActiveAdmin } from '../lib/admin-access'
 
 /**
  * 주문 상태가 언제 왜 바뀌었는지의 유일한 기록.
@@ -9,7 +9,7 @@ import { isVerifiedAdmin } from '../lib/admin-access'
 export const OrderTransitions: CollectionConfig = {
   slug: 'order-transitions',
   access: {
-    read: ({ req }) => isVerifiedAdmin(req), // 전이 사유에 고객 연락 내용이 섞일 수 있다
+    read: ({ req }) => isActiveAdmin(req), // 전이 사유에 고객 연락 내용이 섞일 수 있다
     create: () => false, // 서버 코드만 (overrideAccess)
     update: () => false,
     delete: () => false,

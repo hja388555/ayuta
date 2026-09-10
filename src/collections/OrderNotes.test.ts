@@ -2,36 +2,27 @@ import { describe, expect, it } from 'vitest'
 import { OrderNotes } from './OrderNotes'
 
 const access = OrderNotes.access!
-// otp: 소비된 2단계 인증 코드가 창 안에 있는지. admin-otps 조회를 흉내 낸다
-const req = (role: string | null, otp = true) =>
-  ({
-    req: {
-      user: role ? { id: 1, role } : null,
-      context: {},
-      payload: { find: async () => ({ docs: otp ? [{ id: 1 }] : [] }) },
-    },
-  }) as never
+const req = (role: string | null, deletedAt?: string) => ({ req: { user: role ? { id: 1, role, deletedAt } : null } }) as never
 
 describe('order-notes 접근 권한', () => {
-  it('2단계 인증을 끝낸 관리자만 읽는다', async () => {
-    expect(await access.read!(req('manager'))).toBe(true)
-    expect(await access.read!(req('super'))).toBe(true)
-    expect(await access.read!(req('customer'))).toBe(false)
-    expect(await access.read!(req(null))).toBe(false)
+  it('관리자만 읽는다', () => {
+    expect(access.read!(req('manager'))).toBe(true)
+    expect(access.read!(req('super'))).toBe(true)
+    expect(access.read!(req('customer'))).toBe(false)
+    expect(access.read!(req(null))).toBe(false)
   })
 
-  it('2단계 인증을 끝낸 관리자만 만든다', async () => {
-    expect(await access.create!(req('manager'))).toBe(true)
-    expect(await access.create!(req('super'))).toBe(true)
-    expect(await access.create!(req('customer'))).toBe(false)
-    expect(await access.create!(req(null))).toBe(false)
+  it('관리자만 만든다', () => {
+    expect(access.create!(req('manager'))).toBe(true)
+    expect(access.create!(req('super'))).toBe(true)
+    expect(access.create!(req('customer'))).toBe(false)
+    expect(access.create!(req(null))).toBe(false)
   })
 
-  // REST·GraphQL 이 /manage 게이트의 우회로가 되지 않도록
-  it('2단계 인증을 안 끝낸 관리자는 읽지도 만들지도 못한다', async () => {
-    expect(await access.read!(req('manager', false))).toBe(false)
-    expect(await access.read!(req('super', false))).toBe(false)
-    expect(await access.create!(req('manager', false))).toBe(false)
+  // 탈퇴한 관리자 세션이 REST 로 메모를 읽지 못하게 — dal.ts getSessionUser 와 같은 판정
+  it('탈퇴한 관리자는 읽지도 만들지도 못한다', () => {
+    expect(access.read!(req('manager', '2026-09-01T00:00:00.000Z'))).toBe(false)
+    expect(access.create!(req('super', '2026-09-01T00:00:00.000Z'))).toBe(false)
   })
 
   // append-only 감사 기록: 누구도 고치거나 지울 수 없다

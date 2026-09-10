@@ -68,7 +68,6 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
-    'admin-otps': AdminOtp;
     'price-entries': PriceEntry;
     orders: Order;
     'order-transitions': OrderTransition;
@@ -85,7 +84,6 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
-    'admin-otps': AdminOtpsSelect<false> | AdminOtpsSelect<true>;
     'price-entries': PriceEntriesSelect<false> | PriceEntriesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-transitions': OrderTransitionsSelect<false> | OrderTransitionsSelect<true>;
@@ -169,21 +167,6 @@ export interface User {
     | null;
   password?: string | null;
   collection: 'users';
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "admin-otps".
- */
-export interface AdminOtp {
-  id: number;
-  user: number | User;
-  hash: string;
-  salt: string;
-  expiresAt: string;
-  consumedAt?: string | null;
-  attempts: number;
-  updatedAt: string;
-  createdAt: string;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -391,10 +374,6 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
-        relationTo: 'admin-otps';
-        value: number | AdminOtp;
-      } | null)
-    | ({
         relationTo: 'price-entries';
         value: number | PriceEntry;
       } | null)
@@ -497,20 +476,6 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "admin-otps_select".
- */
-export interface AdminOtpsSelect<T extends boolean = true> {
-  user?: T;
-  hash?: T;
-  salt?: T;
-  expiresAt?: T;
-  consumedAt?: T;
-  attempts?: T;
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

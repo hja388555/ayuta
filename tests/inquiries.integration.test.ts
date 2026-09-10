@@ -10,7 +10,6 @@ const base = { name: '홍길동', phone: '010-0000-0000', postalCode: '00000', a
 const marker = `문의테스트-${RUN}`
 
 const userIds: number[] = []
-const otpIds: number[] = []
 const tokens: Record<string, string | undefined> = {}
 
 // 실제로 열리는 1×1 PNG. Payload 도 업로드 내용을 검사하므로 시그니처만 있는 가짜 바이트는 쓰지 않는다
@@ -45,10 +44,9 @@ const markerCount = async () => {
 
 beforeAll(async () => {
   const payload = await localPayload()
-  for (const [name, role, verified] of [
-    ['customer', 'customer', false],
-    ['manager', 'manager', true],
-    ['unverified', 'manager', false],
+  for (const [name, role] of [
+    ['customer', 'customer'],
+    ['manager', 'manager'],
   ] as const) {
     const email = `inq-${name}+${RUN}@ayuta.test`
     const u = await payload.create({
@@ -58,21 +56,6 @@ beforeAll(async () => {
       context: { allowRoleAssignment: true },
     })
     userIds.push(u.id as number)
-    if (verified) {
-      const otp = await payload.create({
-        collection: 'admin-otps',
-        data: {
-          user: u.id as number,
-          hash: 'x'.repeat(64),
-          salt: 'y'.repeat(32),
-          expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-          consumedAt: new Date().toISOString(),
-          attempts: 1,
-        },
-        overrideAccess: true,
-      })
-      otpIds.push(otp.id as number)
-    }
     tokens[name] = (await login(email, PW)).token
   }
 })
@@ -94,7 +77,6 @@ afterAll(async () => {
       await attempt(`file ${fid}`, () => payload.db.pool.query('DELETE FROM inquiry_files WHERE id = $1', [fid]))
     }
   }
-  for (const id of otpIds) await attempt(`otp ${id}`, () => payload.delete({ collection: 'admin-otps', id, overrideAccess: true }))
   for (const id of userIds) await attempt(`user ${id}`, () => payload.delete({ collection: 'users', id, overrideAccess: true }))
   if (errors.length > 0) throw new Error(`테스트 데이터 정리 실패:\n${errors.join('\n')}`)
 })
@@ -200,16 +182,15 @@ describe('관리자 문의 화면 · 첨부 다운로드', () => {
     expect((await get(`/manage/inquiries/${inquiryId}`, 'customer')).status).toBe(404)
   })
 
-  it('2단계 인증을 끝낸 관리자에게는 연락처와 첨부 링크가 보인다', async () => {
+  it('관리자에게는 연락처와 첨부 링크가 보인다', async () => {
     const html = await (await get(`/manage/inquiries/${inquiryId}`, 'manager')).text()
     expect(html).toContain('010-9999-0000')
     expect(html).toContain('자료.pdf')
   })
 
-  it('첨부 다운로드: 비로그인 401, 고객 403, OTP 미완료 403, 인증 관리자 200 attachment', async () => {
+  it('첨부 다운로드: 비로그인 401, 고객 403, 관리자 200 attachment', async () => {
     expect((await get(`/api/admin/inquiries/files/${fileId}`)).status).toBe(401)
     expect((await get(`/api/admin/inquiries/files/${fileId}`, 'customer')).status).toBe(403)
-    expect((await get(`/api/admin/inquiries/files/${fileId}`, 'unverified')).status).toBe(403)
     const res = await get(`/api/admin/inquiries/files/${fileId}`, 'manager')
     expect(res.status).toBe(200)
     expect(res.headers.get('content-type')).toBe('application/pdf')
@@ -218,10 +199,10 @@ describe('관리자 문의 화면 · 첨부 다운로드', () => {
     expect(new Uint8Array(await res.arrayBuffer())).toEqual(PDF)
   })
 
-  it('Payload 가 여는 파일 URL 도 OTP 미완료 관리자에게는 막혀 있다', async () => {
+  it('Payload 가 여는 파일 URL 도 고객에게는 막혀 있다', async () => {
     const payload = await localPayload()
     const f = await payload.findByID({ collection: 'inquiry-files', id: fileId, overrideAccess: true })
-    const res = await get(`/api/inquiry-files/file/${f.filename}`, 'unverified')
+    const res = await get(`/api/inquiry-files/file/${f.filename}`, 'customer')
     expect(res.status).toBe(403)
   })
 })

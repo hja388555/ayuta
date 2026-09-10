@@ -3,10 +3,10 @@ import path from 'node:path'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
+import { AuthError, requireAdmin } from '@/lib/dal'
 
 /**
- * 문의 첨부 다운로드. 관리자 2단계 인증 뒤에서만 열린다.
+ * 문의 첨부 다운로드. 관리자만 열 수 있다.
  *
  * 항상 첨부(attachment)로 내려보내고 nosniff 를 건다 — 업로드 시 매직바이트로 형식을
  * 확인했지만, 관리자 브라우저가 파일을 페이지처럼 해석해 스크립트를 돌릴 여지를 두 번째로 막는다.
@@ -16,9 +16,8 @@ type Ctx = { params: Promise<{ id: string }> }
 
 export async function GET(_req: Request, { params }: Ctx): Promise<Response> {
   try {
-    await requireAdminVerified()
+    await requireAdmin()
   } catch (err) {
-    if (err instanceof OtpRequiredError) return NextResponse.json({ error: 'otp_required' }, { status: 403 })
     if (err instanceof AuthError) {
       const status = err.code === 'UNAUTHENTICATED' ? 401 : 403
       return NextResponse.json({ error: status === 401 ? 'unauthenticated' : 'forbidden' }, { status })
