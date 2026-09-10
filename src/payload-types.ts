@@ -76,6 +76,7 @@ export interface Config {
     'contract-templates': ContractTemplate;
     inquiries: Inquiry;
     'inquiry-files': InquiryFile;
+    quotes: Quote;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -92,6 +93,7 @@ export interface Config {
     'contract-templates': ContractTemplatesSelect<false> | ContractTemplatesSelect<true>;
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
     'inquiry-files': InquiryFilesSelect<false> | InquiryFilesSelect<true>;
+    quotes: QuotesSelect<false> | QuotesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -347,6 +349,31 @@ export interface InquiryFile {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quotes".
+ */
+export interface Quote {
+  id: number;
+  quoteNumber: string;
+  inquiry: number | Inquiry;
+  lines: {
+    label: string;
+    quantity: number;
+    unitAmount: number;
+    id?: string | null;
+  }[];
+  currency: 'KRW' | 'JPY';
+  total: number;
+  tokenHash: string;
+  status: 'issued' | 'revoked';
+  issuedAt: string;
+  expiresAt: string;
+  issuedBy?: (number | null) | User;
+  revokedAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -404,6 +431,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'inquiry-files';
         value: number | InquiryFile;
+      } | null)
+    | ({
+        relationTo: 'quotes';
+        value: number | Quote;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -641,6 +672,32 @@ export interface InquiryFilesSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "quotes_select".
+ */
+export interface QuotesSelect<T extends boolean = true> {
+  quoteNumber?: T;
+  inquiry?: T;
+  lines?:
+    | T
+    | {
+        label?: T;
+        quantity?: T;
+        unitAmount?: T;
+        id?: T;
+      };
+  currency?: T;
+  total?: T;
+  tokenHash?: T;
+  status?: T;
+  issuedAt?: T;
+  expiresAt?: T;
+  issuedBy?: T;
+  revokedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

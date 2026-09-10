@@ -99,6 +99,28 @@
       "network": "서버에 연결하지 못했습니다. 네트워크를 확인해 주세요."
     }
   },
+  "quote": {
+    "title": "견적서",
+    "number": "견적번호",
+    "issuedAt": "발행일",
+    "validUntil": "유효기간",
+    "issuer": "발행처",
+    "item": "항목",
+    "quantity": "수량",
+    "unitPrice": "단가",
+    "amount": "금액",
+    "total": "총 금액",
+    "payButton": "결제 준비 중입니다",
+    "payNotice": "온라인 결제는 곧 열립니다. 결제를 원하시면 아래 번호로 연락해 주세요.",
+    "invalidTitle": "유효하지 않은 견적 링크입니다",
+    "invalidBody": "링크가 정확한지 확인해 주세요. 계속 열리지 않으면 견적을 다시 요청해 주세요.",
+    "expiredTitle": "견적 유효기간이 지났습니다",
+    "expiredBody": "유효기간이 지난 견적은 결제할 수 없습니다. 견적을 다시 요청해 주세요.",
+    "revokedTitle": "회수된 견적입니다",
+    "revokedBody": "이 견적은 더 이상 유효하지 않습니다. 새 견적을 받으셨다면 새 링크를 이용해 주세요.",
+    "requestAgain": "견적 다시 요청하기",
+    "phoneLabel": "전화 상담"
+  },
   "checkout": {
     "title": "주문자 정보 및 계약 동의",
     "summaryTitle": "주문 내역",

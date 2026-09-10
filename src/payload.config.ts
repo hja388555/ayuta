@@ -14,6 +14,7 @@ import { OrderScheduleChanges } from './collections/OrderScheduleChanges'
 import { ContractTemplates } from './collections/ContractTemplates'
 import { Inquiries } from './collections/Inquiries'
 import { InquiryFiles } from './collections/InquiryFiles'
+import { Quotes } from './collections/Quotes'
 import { PricingSettings } from './globals/PricingSettings'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -33,6 +34,7 @@ export default buildConfig({
     ContractTemplates,
     Inquiries,
     InquiryFiles,
+    Quotes,
   ],
   globals: [PricingSettings],
   editor: lexicalEditor(),

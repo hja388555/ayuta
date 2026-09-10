@@ -2,8 +2,10 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { authedPayload } from '@/lib/admin/orders-data'
-import { formatDateTime } from '@/lib/admin/format'
+import { formatAmount, formatDateTime } from '@/lib/admin/format'
+import { currencyForLocale } from '@/lib/payments/channel'
 import { card } from '@/components/admin/styles'
+import { QuoteIssueForm, QuoteRevokeButton } from '@/components/admin/QuoteIssueForm'
 import koMessages from '../../../../../../../messages/ko.json'
 import { INQUIRY_STATUS_LABELS } from '../page'
 
@@ -33,6 +35,16 @@ export default async function InquiryDetailPage({ params }: Props) {
   const files = (Array.isArray(doc.files) ? doc.files : []).flatMap((f) =>
     typeof f === 'object' && f !== null ? [{ id: f.id, originalName: f.originalName ?? null, filesize: f.filesize ?? null }] : [],
   )
+
+  const { docs: quotes } = await payload.find({
+    collection: 'quotes',
+    where: { inquiry: { equals: id } },
+    sort: '-issuedAt',
+    limit: 50,
+    depth: 0,
+    user,
+    overrideAccess: false,
+  })
 
   const row = (label: string, value: React.ReactNode) => (
     <div style={{ display: 'flex', gap: 16, padding: '6px 0', fontSize: 14 }}>
@@ -76,6 +88,44 @@ export default async function InquiryDetailPage({ params }: Props) {
             ))}
           </ul>
         )}
+      </section>
+      <section style={card}>
+        <h2 style={{ fontSize: 15, margin: '0 0 8px' }}>견적</h2>
+        {quotes.length > 0 ? (
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 13, marginBottom: 16 }}>
+            <thead>
+              <tr>
+                <th style={{ textAlign: 'left', padding: 4 }}>견적번호</th>
+                <th style={{ textAlign: 'right', padding: 4 }}>합계</th>
+                <th style={{ textAlign: 'left', padding: 4 }}>상태</th>
+                <th style={{ textAlign: 'left', padding: 4 }}>유효기간</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {quotes.map((q) => {
+                const expired = new Date(q.expiresAt as string).getTime() <= Date.now()
+                const state = q.status === 'revoked' ? '회수됨' : expired ? '만료' : '발행됨'
+                return (
+                  <tr key={q.id}>
+                    <td style={{ padding: 4 }}>{q.quoteNumber as string}</td>
+                    <td style={{ padding: 4, textAlign: 'right' }}>{formatAmount(q.total as number, q.currency as 'KRW' | 'JPY')}</td>
+                    <td style={{ padding: 4 }}>{state}</td>
+                    <td style={{ padding: 4 }}>{formatDateTime(q.expiresAt as string)}</td>
+                    <td style={{ padding: 4 }}>{state === '발행됨' ? <QuoteRevokeButton quoteId={q.id as number} /> : null}</td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        ) : (
+          <p style={{ fontSize: 13, color: '#767B85', margin: '0 0 12px' }}>아직 발행한 견적이 없습니다.</p>
+        )}
+        <QuoteIssueForm
+          inquiryId={doc.id as number}
+          currency={currencyForLocale(doc.locale === 'ja' ? 'ja' : 'ko')}
+          hasLive={quotes.some((q) => q.status === 'issued' && new Date(q.expiresAt as string).getTime() > Date.now())}
+        />
       </section>
     </main>
   )
