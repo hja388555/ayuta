@@ -127,6 +127,18 @@ jobs:
           DATABASE_URI: postgres://ayuta:ayuta@127.0.0.1:5432/ayuta
           PAYLOAD_SECRET: ci-only-secret-not-for-production
 
+      # 5-B. 단가와 계약서 시드. checkout 통합 테스트는 실제 단가로 금액을 재계산하고
+      #      계약서 템플릿의 빈칸을 채우므로, 시드가 없으면 pricing_failed / no_contract 로
+      #      전부 실패한다. 로컬에서는 이미 시드돼 있어 드러나지 않는다.
+      - run: pnpm seed:prices
+        env:
+          DATABASE_URI: postgres://ayuta:ayuta@127.0.0.1:5432/ayuta
+          PAYLOAD_SECRET: ci-only-secret-not-for-production
+      - run: pnpm seed:contracts
+        env:
+          DATABASE_URI: postgres://ayuta:ayuta@127.0.0.1:5432/ayuta
+          PAYLOAD_SECRET: ci-only-secret-not-for-production
+
       # 6. 통합 테스트 실행. 서버가 준비된 상태에서 권한 경계를 검증한다.
       #    이 테스트가 실패하면 role-forcing 훅이 제거되었거나, /manage 게이트가
       #    약해졌거나, OTP 시도 제한이 무너졌을 가능성이 높다
