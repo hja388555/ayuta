@@ -1,8 +1,12 @@
 import React from 'react'
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
+import { BRAND_BLUE } from '../manifest'
 import { siteUrl } from '@/lib/seo'
 import { getLocale } from 'next-intl/server'
 import './globals.css'
+
+// 모바일 주소창·설치 앱 상단 색(큐 Q29). manifest 의 theme_color 와 같은 값
+export const viewport: Viewport = { themeColor: BRAND_BLUE }
 
 // canonical·hreflang 을 상대 경로로 적어도 절대 주소로 나가게 하는 기준(큐 Q27). 도메인을 받으면
 // NEXT_PUBLIC_SITE_URL 만 바꾼다. 네이버 소유확인 토큰도 도메인 연결 후 환경변수로 넣는다

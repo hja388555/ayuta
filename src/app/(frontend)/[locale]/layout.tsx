@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
+import { InstallBanner } from '@/components/InstallBanner'
 import { loadFooterInfo } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
 import { isAdminRole } from '@/lib/roles'
@@ -49,6 +50,7 @@ export default async function LocaleLayout({
   const user = await getSessionUser()
   const t = await getTranslations('header')
   const tFooter = await getTranslations('footer')
+  const tInstall = await getTranslations('install')
 
   return (
     <NextIntlClientProvider>
@@ -59,6 +61,7 @@ export default async function LocaleLayout({
         labels={{ home: t('home'), inquiry: t('inquiry'), login: t('login'), signup: t('signup'), mypage: t('mypage'), logout: t('logout'), admin: t('admin') }}
       />
       {children}
+      <InstallBanner labels={{ title: tInstall('title'), install: tInstall('install'), close: tInstall('close'), iosHint: tInstall('iosHint') }} />
       <SiteFooter
         info={await loadFooterInfo(locale === 'ja' ? 'ja' : 'ko')}
         labels={{ businessNo: tFooter('businessNo'), phone: tFooter('phone'), ceo: tFooter('ceo'), contact: tFooter('contact'), mailOrder: tFooter('mailOrder') }}
