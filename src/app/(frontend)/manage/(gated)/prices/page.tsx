@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
+import { notFound } from 'next/navigation'
+import { AuthError, requireAdmin } from '@/lib/dal'
 import { isSuperRole } from '@/lib/roles'
 import { authedPayload } from '@/lib/admin/orders-data'
 import { PERIOD_KEYS } from '@/globals/PricingSettings'
@@ -12,7 +12,7 @@ import koMessages from '../../../../../../messages/ko.json'
 /**
  * 단가·기간 배수 관리. 대표님이 임시값을 실제 값으로 바꾸는 화면이다.
  *
- * 조회는 2단계 인증을 끝낸 관리자 전부, 저장은 super 만(API 가 최종 판정한다).
+ * 조회는 관리자 전부, 저장은 super 만(API 가 최종 판정한다).
  * 카테고리 1~4 만 다룬다 — 5번은 문의 후 관리자가 견적을 발행하는 흐름이라 단가표가 없다.
  */
 const CATEGORY_TABS = [
@@ -27,9 +27,8 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 export default async function PricesPage({ searchParams }: Props) {
   let user
   try {
-    user = await requireAdminVerified()
+    user = await requireAdmin()
   } catch (err) {
-    if (err instanceof OtpRequiredError) redirect('/manage/verify')
     if (err instanceof AuthError) notFound()
     throw err
   }

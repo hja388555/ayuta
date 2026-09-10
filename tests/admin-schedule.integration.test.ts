@@ -12,18 +12,14 @@ const uid = () => Math.random().toString(36).slice(2, 8)
 
 const CUSTOMER = { email: `sch-cust+${RUN}@ayuta.test`, password: PW }
 const MANAGER = { email: `sch-mgr+${RUN}@ayuta.test`, password: PW }
-// 2단계 인증을 끝내지 않은 관리자. 이 계정에는 소비된 OTP 행을 심지 않는다
-const UNVERIFIED = { email: `sch-unverified+${RUN}@ayuta.test`, password: PW }
 
 const base = { name: '홍길동', phone: '010-0000-0000', postalCode: '00000', address1: '서울시' }
 
 const userIds: number[] = []
-const otpIds: number[] = []
 const orderIds: number[] = []
 
 let customerToken: string | undefined
 let managerToken: string | undefined
-let unverifiedToken: string | undefined
 let managerId: number
 
 const ENDPOINT = '/api/admin/orders/schedule'
@@ -83,10 +79,9 @@ const changes = async (orderId: number, field?: string) => {
 
 beforeAll(async () => {
   const payload = await localPayload()
-  for (const [creds, role, verified] of [
-    [CUSTOMER, 'customer', false],
-    [MANAGER, 'manager', true],
-    [UNVERIFIED, 'manager', false],
+  for (const [creds, role] of [
+    [CUSTOMER, 'customer'],
+    [MANAGER, 'manager'],
   ] as const) {
     const created = await payload.create({
       collection: 'users',
@@ -99,27 +94,11 @@ beforeAll(async () => {
     userIds.push(id)
     if (creds === MANAGER) managerId = id
 
-    // requireAdminVerified()를 만족시키는 "이미 소비된 OTP" 행을 심는다
-    if (!verified) continue
-    const otp = await payload.create({
-      collection: 'admin-otps',
-      data: {
-        user: id,
-        hash: 'x'.repeat(64),
-        salt: 'y'.repeat(32),
-        expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-        consumedAt: new Date().toISOString(),
-        attempts: 1,
-      },
-      overrideAccess: true,
-    })
-    otpIds.push(otp.id as number)
   }
 
   customerToken = (await login(CUSTOMER.email, CUSTOMER.password)).token
   managerToken = (await login(MANAGER.email, MANAGER.password)).token
-  unverifiedToken = (await login(UNVERIFIED.email, UNVERIFIED.password)).token
-  expect(customerToken && managerToken && unverifiedToken).toBeTruthy()
+  expect(customerToken && managerToken).toBeTruthy()
 })
 
 afterAll(async () => {
@@ -135,11 +114,6 @@ afterAll(async () => {
     await payload
       .delete({ collection: 'orders', id, overrideAccess: true })
       .catch((err) => errors.push(`order id=${id}: ${String(err)}`))
-  }
-  for (const id of otpIds) {
-    await payload
-      .delete({ collection: 'admin-otps', id, overrideAccess: true })
-      .catch((err) => errors.push(`otp id=${id}: ${String(err)}`))
   }
   for (const id of userIds) {
     await payload
@@ -159,14 +133,6 @@ describe('POST /api/admin/orders/schedule', () => {
     expect(await changes(orderId)).toHaveLength(0)
   })
 
-  it('2단계 인증을 끝내지 않은 관리자는 403 otp_required 다', async () => {
-    // /manage 화면이 OTP를 요구하는데 이 API가 세션만으로 통과하면 게이트의 뒷문이 된다
-    const orderId = await createOrder()
-    const res = await post({ orderId, adStartDate: '2026-10-01' }, unverifiedToken)
-    expect(res.status).toBe(403)
-    expect(await res.json()).toEqual({ error: 'otp_required' })
-    expect(await changes(orderId)).toHaveLength(0)
-  })
 
   it('로그인한 고객은 403이다', async () => {
     const orderId = await createOrder()

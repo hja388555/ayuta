@@ -99,9 +99,6 @@ jobs:
           DATABASE_URI: postgres://ayuta:ayuta@127.0.0.1:5432/ayuta
           PAYLOAD_SECRET: ci-only-secret-not-for-production
           NODE_ENV: production
-          # 메일 어댑터가 없는 운영 모드에서는 관리자 2단계 코드 발급이 거부된다(src/lib/admin/otp-delivery.ts).
-          # 이 테스트 서버에서만 코드를 서버 로그로 보내 발급 경로를 검증한다. 실제 배포에는 절대 넣지 않는다
-          ALLOW_OTP_IN_SERVER_LOG: '1'
 
       # 4. 서버 준비 대기. curl을 폴링해서 서버가 HTTP 요청에 응답하는지 확인한다.
       #    최대 30초 대기, 1초 간격. 서버 프로세스가 죽었다면 로그를 보여주고 실패

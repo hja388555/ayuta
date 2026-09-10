@@ -4,7 +4,6 @@ import { adminErrorMessage, GENERIC_ERROR } from './error-messages'
 describe('adminErrorMessage', () => {
   it('API 가 실제로 내는 코드를 전부 번역한다', () => {
     const codes = [
-      'otp_required',
       'unauthenticated',
       'forbidden',
       'invalid_input',

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { authedPayload } from '@/lib/admin/orders-data'
-import { requireSuperVerifiedForApi } from '@/lib/admin/require-super-verified'
+import { requireSuperForApi } from '@/lib/admin/require-super'
 import { multiplierError, PERIOD_KEYS } from '@/globals/PricingSettings'
 
 /**
@@ -17,7 +17,7 @@ const BodySchema = z.object({
 })
 
 export async function POST(req: Request): Promise<Response> {
-  const gate = await requireSuperVerifiedForApi()
+  const gate = await requireSuperForApi()
   if ('response' in gate) return gate.response
 
   let raw: unknown

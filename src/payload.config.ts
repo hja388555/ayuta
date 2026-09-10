@@ -6,7 +6,6 @@ import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { integer, pgTable, serial, text, unique } from 'drizzle-orm/pg-core'
 
 import { Users } from './collections/Users'
-import { AdminOtps } from './collections/AdminOtps'
 import { PriceEntries } from './collections/PriceEntries'
 import { Orders } from './collections/Orders'
 import { OrderTransitions } from './collections/OrderTransitions'
@@ -26,7 +25,6 @@ export default buildConfig({
   },
   collections: [
     Users,
-    AdminOtps,
     PriceEntries,
     Orders,
     OrderTransitions,

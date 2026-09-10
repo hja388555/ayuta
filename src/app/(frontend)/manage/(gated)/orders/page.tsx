@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
+import { notFound } from 'next/navigation'
+import { AuthError, requireAdmin } from '@/lib/dal'
 import { findOrdersForAdmin } from '@/lib/admin/orders-data'
 import { buildOrderListQuery, orderListHref, parseOrderListParams } from '@/lib/admin/order-list-query'
 import { formatAmount, formatDateTime } from '@/lib/admin/format'
@@ -11,18 +11,17 @@ import { card, td, th } from '@/components/admin/styles'
 /**
  * 주문 목록.
  *
- * (gated) 레이아웃이 이미 게이트를 걸지만 여기서도 requireAdminVerified() 를 부른다 —
+ * (gated) 레이아웃이 이미 게이트를 걸지만 여기서도 requireAdmin() 를 부른다 —
  * 레이아웃 하나에만 의존하면 나중에 이 페이지가 다른 곳으로 옮겨졌을 때 조용히 열린다.
- * 실패 처리도 기존 /manage 화면과 같다: OTP 미완료는 verify 로, 그 외 인증 실패는 404,
+ * 실패 처리도 기존 /manage 화면과 같다: 인증 실패는 404,
  * 진짜 장애는 그대로 올려보내 500 으로 드러낸다.
  */
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> }
 
 export default async function OrdersPage({ searchParams }: Props) {
   try {
-    await requireAdminVerified()
+    await requireAdmin()
   } catch (err) {
-    if (err instanceof OtpRequiredError) redirect('/manage/verify')
     if (err instanceof AuthError) notFound()
     throw err
   }

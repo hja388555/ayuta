@@ -1,12 +1,12 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
+import { AuthError, requireAdmin } from '@/lib/dal'
 import { SCHEDULE_FIELDS, setOrderSchedule, type SchedulePatch } from '@/lib/orders/schedule'
 
 /**
  * 관리자가 계약기간·광고시작일을 확정하는 유일한 경로 (Q22-B).
  *
- * 게이트는 transition 라우트와 같은 requireAdminVerified() 다 — /manage 화면이 2단계
+ * 게이트는 transition 라우트와 같은 requireAdmin() 다 — /manage 화면이
  * 인증을 요구하는데 이 API 가 세션만으로 통과하면 그 게이트의 뒷문이 된다.
  *
  * admin UI 의 일반 저장은 세 필드가 잠겨 있어 통하지 않는다(src/collections/Orders.ts).
@@ -31,14 +31,10 @@ const BodySchema = z
 
 export async function POST(req: Request): Promise<Response> {
   // 인증을 먼저 본다 — 바디 파싱 결과(400 vs 401)로 로그인 여부를 알려주지 않는다.
-  // OtpRequiredError 는 AuthError 의 하위 타입이므로 반드시 먼저 검사한다.
-  let user: Awaited<ReturnType<typeof requireAdminVerified>>
+  let user: Awaited<ReturnType<typeof requireAdmin>>
   try {
-    user = await requireAdminVerified()
+    user = await requireAdmin()
   } catch (err) {
-    if (err instanceof OtpRequiredError) {
-      return NextResponse.json({ error: 'otp_required' }, { status: 403 })
-    }
     if (err instanceof AuthError) {
       const status = err.code === 'UNAUTHENTICATED' ? 401 : 403
       const error = err.code === 'UNAUTHENTICATED' ? 'unauthenticated' : 'forbidden'

@@ -14,7 +14,7 @@ import { dayKey, formatOrderNumber, type OrderScope } from './order-number'
  * 증가와 반환을 한 문장에서 끝낸다. 읽고 나서 더해 쓰면 동시 요청이 같은 번호를 받는다.
  * PostgreSQL 은 같은 행에 대한 UPDATE 를 직렬화하므로 이 문장은 동시성 아래에서도 안전하다.
  * `order_counters` 테이블은 Payload 컬렉션이 아니라 순수 SQL 테이블이다 —
- * `payload.db.pool` 로 원시 SQL을 쓴다 (src/lib/dal.ts 의 admin_otps 원자적 갱신과 같은 패턴).
+ * `payload.db.pool` 로 원시 SQL을 쓴다 (원자적 UPDATE ... RETURNING 패턴).
  */
 export async function nextOrderNumber(scope: OrderScope, at: Date = new Date()): Promise<string> {
   const day = dayKey(at)

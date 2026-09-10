@@ -1,6 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { isAdminRole } from '../lib/roles'
-import { isVerifiedAdmin } from '../lib/admin-access'
+import { isActiveAdmin } from '../lib/admin-access'
 
 /**
  * 관리자가 주문 건으로 고객과 연락한 내용을 남기는 메모.
@@ -15,9 +15,9 @@ export const OrderNotes: CollectionConfig = {
     defaultColumns: ['order', 'body', 'author', 'createdAt'],
   },
   access: {
-    // 2단계 인증까지 확인한다 — role 만 보면 REST·GraphQL 이 /manage 게이트의 우회로가 된다
-    read: ({ req }) => isVerifiedAdmin(req),
-    create: ({ req }) => isVerifiedAdmin(req),
+    // 관리자만(탈퇴 계정 제외) — REST·GraphQL 도 /manage 와 같은 판정을 탄다
+    read: ({ req }) => isActiveAdmin(req),
+    create: ({ req }) => isActiveAdmin(req),
     update: () => false, // 감사 기록 — 사후 수정 금지
     delete: () => false, // 감사 기록 — 사후 삭제 금지
     unlock: () => false,

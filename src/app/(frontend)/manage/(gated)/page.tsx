@@ -1,13 +1,12 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
+import { notFound } from 'next/navigation'
+import { AuthError, requireAdmin } from '@/lib/dal'
 
 export default async function ManagePage() {
   let user
   try {
-    user = await requireAdminVerified()
+    user = await requireAdmin()
   } catch (err) {
-    if (err instanceof OtpRequiredError) redirect('/manage/verify')
     // 예상된 인증 실패만 404로 감춘다. 진짜 장애는 그대로 올려보내 500으로 드러낸다
     if (err instanceof AuthError) notFound()
     throw err

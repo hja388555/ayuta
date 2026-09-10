@@ -23,8 +23,6 @@ const trackId = (id: number) => {
   createdIds.push(id)
   return id
 }
-// admin-otps 행도 같은 원칙으로 이번 실행분만 지운다
-const createdOtpIds: number[] = []
 
 beforeAll(async () => {
   // super 로그인이 필요한 테스트(9번)를 위한 계정. Local API로 직접 만들되
@@ -44,13 +42,6 @@ beforeAll(async () => {
 afterAll(async () => {
   const payload = await localPayload()
   const errors: string[] = []
-  for (const id of createdOtpIds) {
-    try {
-      await payload.delete({ collection: 'admin-otps', id, overrideAccess: true })
-    } catch (err) {
-      errors.push(`otp id=${id}: ${err instanceof Error ? err.message : String(err)}`)
-    }
-  }
   for (const id of createdIds) {
     try {
       await payload.delete({ collection: 'users', id, overrideAccess: true })
@@ -228,8 +219,8 @@ describe('권한 상승 차단', () => {
 // dal.ts의 게이트 + 레이아웃이 지키므로, users REST 테스트로는 전혀 pin되지 않는다.
 // (이 describe가 없으면 manage/(gated)/layout.tsx를 통째로 지워도 전 테스트가 통과한다)
 describe('/manage 관리자 경계', () => {
-  // redirect: 'manual' — OTP 미완료 시의 307을 200/404와 확실히 구분하기 위해
-  // fetch가 리다이렉트를 따라가지 않게 한다
+  // redirect: 'manual' — 게이트가 redirect 로 바뀌어도 200/404 와 섞이지 않게 fetch 가
+  // 리다이렉트를 따라가지 않게 한다
   const getManage = (token?: string) =>
     api('/manage', {
       redirect: 'manual',
@@ -266,22 +257,6 @@ describe('/manage 관리자 경계', () => {
     })
     trackId(cust.id as number)
 
-    // requireAdminVerified()를 만족시키는 "이미 소비된 OTP" 행을 심는다.
-    // 발급·메일 발송은 이 브랜치 범위 밖이므로 소비 기록만 직접 만든다.
-    // hash/salt는 검증에 쓰이지 않는다(소비 완료 행은 consumedAt만 본다)
-    const otp = await payload.create({
-      collection: 'admin-otps',
-      data: {
-        user: adminId,
-        hash: 'x'.repeat(64),
-        salt: 'y'.repeat(32),
-        expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-        consumedAt: new Date().toISOString(),
-        attempts: 1,
-      },
-      overrideAccess: true,
-    })
-    createdOtpIds.push(otp.id as number)
   })
 
   it('비로그인은 /manage에서 404를 받는다 (존재 자체를 감춘다)', async () => {
@@ -299,8 +274,8 @@ describe('/manage 관리자 경계', () => {
     expect(res.status).toBe(404)
   })
 
-  it('2단계 인증까지 끝난 관리자는 /manage에서 200을 받는다', async () => {
-    // pin: requireAdminVerified()의 admin-otps 조회가 소비 기록을 실제로 인정하는 경로.
+  it('관리자는 /manage에서 200을 받는다', async () => {
+    // pin: requireAdmin()이 관리자 role 을 실제로 통과시키는 경로.
     // 이 케이스가 없으면 "게이트가 아무도 통과시키지 않는" 상태를 눈치채지 못한다.
     const { token } = await login(MANAGE_ADMIN.email, MANAGE_ADMIN.password)
     expect(token).toBeTruthy()

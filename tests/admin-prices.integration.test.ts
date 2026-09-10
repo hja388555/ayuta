@@ -1,6 +1,6 @@
 // 관리자 단가·기간 배수 수정 경로(POST /api/admin/prices, /api/admin/pricing-settings)와
 // 단가 관리 화면 게이트를 실제 서버·DB 앞에서 고정한다. 저장한 값이 견적 계산에 바로 쓰이는지,
-// 가격을 바꾸는 권한이 2단계 인증을 끝낸 super 에게만 있는지를 본다.
+// 가격을 바꾸는 권한이 super 에게만 있는지를 본다.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { calculate } from '@ayuta/pricing'
 import { api, login } from './helpers/server.js'
@@ -13,15 +13,13 @@ const RUN = Date.now()
 const PW = 'Ayuta!Test-2026'
 const base = { name: '홍길동', phone: '010-0000-0000', postalCode: '00000', address1: '서울시' }
 const ACCOUNTS = {
-  super: { email: `ap-super+${RUN}@ayuta.test`, role: 'super', verified: true },
-  manager: { email: `ap-mgr+${RUN}@ayuta.test`, role: 'manager', verified: true },
-  unverified: { email: `ap-unverified+${RUN}@ayuta.test`, role: 'super', verified: false },
-  customer: { email: `ap-cust+${RUN}@ayuta.test`, role: 'customer', verified: false },
+  super: { email: `ap-super+${RUN}@ayuta.test`, role: 'super' },
+  manager: { email: `ap-mgr+${RUN}@ayuta.test`, role: 'manager' },
+  customer: { email: `ap-cust+${RUN}@ayuta.test`, role: 'customer' },
 } as const
 type Who = keyof typeof ACCOUNTS
 
 const userIds: number[] = []
-const otpIds: number[] = []
 const tokens: Partial<Record<Who, string>> = {}
 let entryId: number
 const entryKey = `ap-transit-${RUN}`
@@ -49,21 +47,6 @@ beforeAll(async () => {
       context: { allowRoleAssignment: true },
     })
     userIds.push(u.id as number)
-    if (acc.verified) {
-      const otp = await payload.create({
-        collection: 'admin-otps',
-        data: {
-          user: u.id as number,
-          hash: 'x'.repeat(64),
-          salt: 'y'.repeat(32),
-          expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-          consumedAt: new Date().toISOString(),
-          attempts: 1,
-        },
-        overrideAccess: true,
-      })
-      otpIds.push(otp.id as number)
-    }
     tokens[who] = (await login(acc.email, PW)).token
   }
 
@@ -92,7 +75,6 @@ afterAll(async () => {
     payload.updateGlobal({ slug: 'pricing-settings', overrideAccess: true, data: { periodMultipliers: originalMultipliers } }),
   )
   await attempt('price-entries', () => payload.delete({ collection: 'price-entries', id: entryId, overrideAccess: true }))
-  for (const id of otpIds) await attempt(`admin-otps ${id}`, () => payload.delete({ collection: 'admin-otps', id, overrideAccess: true }))
   for (const id of userIds) await attempt(`users ${id}`, () => payload.delete({ collection: 'users', id, overrideAccess: true }))
   if (errors.length > 0) throw new Error(`테스트 데이터 정리 실패:\n${errors.join('\n')}`)
 })
@@ -100,12 +82,9 @@ afterAll(async () => {
 describe('POST /api/admin/prices', () => {
   const body = () => ({ id: entryId, priceKrw: 123_000, priceJpy: 12_300, active: true })
 
-  it('게이트: 비로그인 401, 고객 403, OTP 미완료 403 otp_required, manager 403', async () => {
+  it('게이트: 비로그인 401, 고객 403, manager 403', async () => {
     expect((await post('/api/admin/prices', body())).status).toBe(401)
     expect((await post('/api/admin/prices', body(), 'customer')).status).toBe(403)
-    const unverified = await post('/api/admin/prices', body(), 'unverified')
-    expect(unverified.status).toBe(403)
-    expect(await unverified.json()).toEqual({ error: 'otp_required' })
     const manager = await post('/api/admin/prices', body(), 'manager')
     expect(manager.status).toBe(403)
     expect(await manager.json()).toEqual({ error: 'forbidden' })
@@ -139,8 +118,8 @@ describe('POST /api/admin/prices', () => {
 describe('POST /api/admin/pricing-settings', () => {
   const valid = { periodMultipliers: { '1w': 1, '2w': 1.5, '1m': 2.75, '3m': 7 } }
 
-  it('게이트: OTP 미완료 super 와 manager 는 403 이고 값이 바뀌지 않는다', async () => {
-    expect((await post('/api/admin/pricing-settings', valid, 'unverified')).status).toBe(403)
+  it('게이트: 고객과 manager 는 403 이고 값이 바뀌지 않는다', async () => {
+    expect((await post('/api/admin/pricing-settings', valid, 'customer')).status).toBe(403)
     expect((await post('/api/admin/pricing-settings', valid, 'manager')).status).toBe(403)
     const model = await loadCategoryModel(CATEGORIES.find((c) => c.no === 4)!)
     expect(model.kind === 'sumMultiplier' && model.multipliers['2w']).toBe(originalMultipliers['2w'])
@@ -170,10 +149,10 @@ describe('POST /api/admin/pricing-settings', () => {
     expect((await post('/api/admin/pricing-settings', { periodMultipliers: missing }, 'super')).status).toBe(400)
   })
 
-  it('REST 로 global 을 직접 고치는 길도 OTP 미완료 super 에게는 막혀 있다', async () => {
+  it('REST 로 global 을 직접 고치는 길도 super 가 아닌 관리자에게는 막혀 있다', async () => {
     const res = await api('/api/globals/pricing-settings', {
       method: 'POST',
-      headers: { Authorization: `JWT ${tokens.unverified}` },
+      headers: { Authorization: `JWT ${tokens.manager}` },
       body: JSON.stringify(valid),
     })
     expect(res.status).toBe(403)

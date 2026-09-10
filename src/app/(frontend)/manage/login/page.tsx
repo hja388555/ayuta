@@ -5,16 +5,16 @@ import { isAdminRole } from '@/lib/roles'
 import { AdminLoginForm } from '@/components/admin/AdminLoginForm'
 
 /**
- * 관리자 로그인. (gated) 그룹 밖에 둔다 — 그 레이아웃은 로그인·2단계 인증을 요구하므로
- * 안에 두면 로그인 화면에 들어갈 방법이 없다(verify 와 같은 이유, (gated)/layout.tsx 주석).
- * 이미 로그인한 관리자는 코드 입력 화면으로 보낸다. 거기서 인증이 끝났으면 /manage 로 간다.
+ * 관리자 로그인(이메일·비밀번호). (gated) 그룹 밖에 둔다 — 그 레이아웃은 로그인을 요구하므로
+ * 안에 두면 로그인 화면에 들어갈 방법이 없다((gated)/layout.tsx 주석).
+ * 이미 로그인한 관리자는 관리자 홈으로 보낸다.
  */
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { title: 'AYUTA 관리자 로그인', robots: { index: false, follow: false } }
 
 export default async function AdminLoginPage() {
   const user = await getSessionUser()
-  if (user && isAdminRole(user.role)) redirect('/manage/verify')
+  if (user && isAdminRole(user.role)) redirect('/manage')
 
   return (
     <main style={{ padding: 40, fontFamily: 'sans-serif', color: '#3D4046' }}>

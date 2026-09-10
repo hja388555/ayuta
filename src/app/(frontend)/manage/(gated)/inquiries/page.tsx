@@ -1,6 +1,6 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
-import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
+import { notFound } from 'next/navigation'
+import { AuthError, requireAdmin } from '@/lib/dal'
 import { authedPayload } from '@/lib/admin/orders-data'
 import { formatDateTime } from '@/lib/admin/format'
 import { card, td, th } from '@/components/admin/styles'
@@ -11,9 +11,8 @@ export const INQUIRY_STATUS_LABELS: Record<string, string> = { new: '새 문의'
 
 export default async function InquiriesPage() {
   try {
-    await requireAdminVerified()
+    await requireAdmin()
   } catch (err) {
-    if (err instanceof OtpRequiredError) redirect('/manage/verify')
     if (err instanceof AuthError) notFound()
     throw err
   }

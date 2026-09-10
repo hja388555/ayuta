@@ -1,24 +1,23 @@
-// Payload 가 자동으로 여는 REST(/api/<slug>)·GraphQL 이 /manage 의 2단계 인증 게이트를
-// 옆으로 돌아가지 못하는지 고정한다. 컬렉션 access 가 role 만 보던 시절에는 OTP 를 거치지
-// 않은 관리자 세션이 이 경로로 고객 개인정보·계약서 전문·연락메모를 그대로 읽었다.
+// Payload 가 자동으로 여는 REST(/api/<slug>)·GraphQL 이 /manage 게이트를 옆으로 돌아가지
+// 못하는지 고정한다. 주문·연락메모에는 고객 개인정보와 계약서 전문이 담긴다 — 관리자가 아닌
+// 세션(로그인한 고객)이 이 경로로 읽거나 고치면 /manage 를 404 로 감춘 의미가 없어진다.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { api, login } from './helpers/server.js'
 import { localPayload } from './helpers/localApi.js'
 
 const RUN = Date.now()
 const PW = 'Ayuta!Test-2026'
-const VERIFIED = { email: `rest-mgr+${RUN}@ayuta.test`, password: PW }
-const UNVERIFIED = { email: `rest-unverified+${RUN}@ayuta.test`, password: PW }
+const MANAGER = { email: `rest-mgr+${RUN}@ayuta.test`, password: PW }
+const CUSTOMER = { email: `rest-cust+${RUN}@ayuta.test`, password: PW }
 
 const base = { name: '홍길동', phone: '010-0000-0000', postalCode: '00000', address1: '서울시' }
 
 const userIds: number[] = []
-const otpIds: number[] = []
 let orderId: number
 let noteId: number
 let orderNumber: string
-let verifiedToken: string | undefined
-let unverifiedToken: string | undefined
+let managerToken: string | undefined
+let customerToken: string | undefined
 
 const CONTRACT = `REST우회테스트계약서-${RUN}`
 const NOTE = `REST우회테스트메모-${RUN}`
@@ -28,32 +27,17 @@ const get = (path: string, token?: string) => api(path, { headers: auth(token) }
 
 beforeAll(async () => {
   const payload = await localPayload()
-  for (const [creds, verified] of [
-    [VERIFIED, true],
-    [UNVERIFIED, false],
+  for (const [creds, role] of [
+    [MANAGER, 'manager'],
+    [CUSTOMER, 'customer'],
   ] as const) {
     const created = await payload.create({
       collection: 'users',
-      data: { ...creds, ...base, role: 'manager' },
+      data: { ...creds, ...base, role },
       overrideAccess: true,
       context: { allowRoleAssignment: true },
     })
-    const id = created.id as number
-    userIds.push(id)
-    if (!verified) continue
-    const otp = await payload.create({
-      collection: 'admin-otps',
-      data: {
-        user: id,
-        hash: 'x'.repeat(64),
-        salt: 'y'.repeat(32),
-        expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
-        consumedAt: new Date().toISOString(),
-        attempts: 1,
-      },
-      overrideAccess: true,
-    })
-    otpIds.push(otp.id as number)
+    userIds.push(created.id as number)
   }
 
   orderNumber = `AY-RB-${RUN}`
@@ -89,15 +73,15 @@ beforeAll(async () => {
   })
   noteId = note.id as number
 
-  verifiedToken = (await login(VERIFIED.email, VERIFIED.password)).token
-  unverifiedToken = (await login(UNVERIFIED.email, UNVERIFIED.password)).token
-  expect(verifiedToken && unverifiedToken).toBeTruthy()
+  managerToken = (await login(MANAGER.email, MANAGER.password)).token
+  customerToken = (await login(CUSTOMER.email, CUSTOMER.password)).token
+  expect(managerToken && customerToken).toBeTruthy()
 })
 
 afterAll(async () => {
   const payload = await localPayload()
   const errors: string[] = []
-  const drop = async (collection: 'order-notes' | 'orders' | 'admin-otps' | 'users', id: number) => {
+  const drop = async (collection: 'order-notes' | 'orders' | 'users', id: number) => {
     try {
       await payload.delete({ collection, id, overrideAccess: true })
     } catch (err) {
@@ -106,15 +90,14 @@ afterAll(async () => {
   }
   await drop('order-notes', noteId)
   await drop('orders', orderId)
-  for (const id of otpIds) await drop('admin-otps', id)
   for (const id of userIds) await drop('users', id)
   if (errors.length > 0) throw new Error(`테스트 데이터 정리 실패:\n${errors.join('\n')}`)
 })
 
-describe('2단계 인증을 안 끝낸 관리자 — Payload REST', () => {
+describe('로그인한 고객 — Payload REST 로 주문 데이터에 닿지 못한다', () => {
   for (const path of ['/api/orders', '/api/order-notes', '/api/order-schedule-changes', '/api/order-transitions']) {
     it(`GET ${path} 는 403 이고 데이터가 나가지 않는다`, async () => {
-      const res = await get(path, unverifiedToken)
+      const res = await get(path, customerToken)
       expect(res.status).toBe(403)
       const text = await res.text()
       expect(text).not.toContain(orderNumber)
@@ -122,8 +105,12 @@ describe('2단계 인증을 안 끝낸 관리자 — Payload REST', () => {
     })
   }
 
+  it('비로그인도 GET /api/orders 는 403 이다', async () => {
+    expect((await get('/api/orders')).status).toBe(403)
+  })
+
   it('GET /api/orders/:id 는 403 이고 계약서 전문이 나가지 않는다', async () => {
-    const res = await get(`/api/orders/${orderId}`, unverifiedToken)
+    const res = await get(`/api/orders/${orderId}`, customerToken)
     expect(res.status).toBe(403)
     expect(await res.text()).not.toContain(CONTRACT)
   })
@@ -131,7 +118,7 @@ describe('2단계 인증을 안 끝낸 관리자 — Payload REST', () => {
   it('PATCH /api/orders/:id 는 403 이고 값이 바뀌지 않는다', async () => {
     const res = await api(`/api/orders/${orderId}`, {
       method: 'PATCH',
-      headers: auth(unverifiedToken),
+      headers: auth(customerToken),
       body: JSON.stringify({ failReason: '우회 변경', locale: 'ja' }),
     })
     expect(res.status).toBe(403)
@@ -144,18 +131,18 @@ describe('2단계 인증을 안 끝낸 관리자 — Payload REST', () => {
   it('POST /api/order-notes 는 403 이다', async () => {
     const res = await api('/api/order-notes', {
       method: 'POST',
-      headers: auth(unverifiedToken),
+      headers: auth(customerToken),
       body: JSON.stringify({ order: orderId, body: '우회 메모' }),
     })
     expect(res.status).toBe(403)
   })
 })
 
-describe('2단계 인증을 안 끝낸 관리자 — GraphQL', () => {
+describe('로그인한 고객 — GraphQL', () => {
   it('Orders · OrderNotes 조회에 데이터가 실리지 않는다', async () => {
     const res = await api('/api/graphql', {
       method: 'POST',
-      headers: auth(unverifiedToken),
+      headers: auth(customerToken),
       body: JSON.stringify({
         query: '{ Orders { docs { orderNumber contractText } } OrderNotes { docs { body } } }',
       }),
@@ -167,9 +154,9 @@ describe('2단계 인증을 안 끝낸 관리자 — GraphQL', () => {
   })
 })
 
-describe('2단계 인증을 끝낸 관리자는 그대로 읽는다 (회귀 방지)', () => {
+describe('관리자는 그대로 읽는다 (회귀 방지)', () => {
   it('GET /api/orders/:id 는 200 이다', async () => {
-    const res = await get(`/api/orders/${orderId}`, verifiedToken)
+    const res = await get(`/api/orders/${orderId}`, managerToken)
     expect(res.status).toBe(200)
     expect((await res.json()).orderNumber).toBe(orderNumber)
   })

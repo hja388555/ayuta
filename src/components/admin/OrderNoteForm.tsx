@@ -9,7 +9,7 @@ import { button, errorBox, input } from './styles'
  * 연락메모 작성 폼.
  *
  * Payload REST(/api/order-notes)가 아니라 /api/admin/orders/notes 를 부른다 —
- * REST 는 2단계 인증을 모르기 때문이다(라우트 주석 참고). 메모는 append-only 라
+ * 응답 규약과 에러 번역표를 관리자 API 하나로 맞춘다(라우트 주석 참고). 메모는 append-only 라
  * 저장 후 수정·삭제 수단을 두지 않는다.
  */
 export function OrderNoteForm({ orderId }: { orderId: number }) {
