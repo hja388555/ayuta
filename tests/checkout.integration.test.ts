@@ -70,16 +70,70 @@ describe('createOrder', () => {
   })
 
   it('계약서 빈칸을 못 채우면(=템플릿이 없으면) 주문을 만들지 않는다', async () => {
-    // 3번(press-blog)은 계약서 템플릿이 없다 — blog-note는 실제 priced 키다
+    // 예전에는 "3번은 템플릿이 없다"는 시드 상태에 기댔다 — 3번 원문이 들어오면서 그 전제가
+    // 깨졌다. 시드에 기대지 않도록 3번 한국어 템플릿을 잠시 내려(active:false) 부재를 만든다.
+    // createOrder 는 active 템플릿만 찾는다(create-order.ts). 5번은 계산 단계에서 먼저 막혀
+    // no_contract 까지 오지 않으므로 대신 쓸 수 없다
+    const payload = await localPayload()
+    const { docs } = await payload.find({
+      collection: 'contract-templates',
+      where: { and: [{ category: { equals: 3 } }, { locale: { equals: 'ko' } }, { active: { equals: true } }] },
+      overrideAccess: true,
+    })
+    try {
+      for (const d of docs) {
+        await payload.update({ collection: 'contract-templates', id: d.id, data: { active: false }, overrideAccess: true })
+      }
+      const result = await createOrder({
+        categorySlug: 'press-blog',
+        locale: 'ko' as const,
+        selection: { items: ['blog-note'], country: ['kr'] },
+        consents: {},
+        orderer: { ...validOrderer },
+        signature: validOrderer.name,
+      })
+      expect(result).toEqual({ ok: false, reason: 'no_contract' })
+    } finally {
+      for (const d of docs) {
+        await payload.update({ collection: 'contract-templates', id: d.id, data: { active: true }, overrideAccess: true })
+      }
+    }
+  })
+
+  it('3번(대표신문·지역신문·블로그)은 계약서를 채워 주문을 만든다', async () => {
+    const result = await createOrder({
+      categorySlug: 'press-blog',
+      locale: 'ko' as const,
+      selection: { items: ['national-kr-hankyung', 'blog-note'], country: ['kr', 'jp'] },
+      consents: { terms: true, privacy: true, contract: true },
+      orderer: { ...validOrderer },
+      signature: validOrderer.name,
+    })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    createdOrderIds.push(result.orderId)
+
+    const payload = await localPayload()
+    const order = await payload.findByID({ collection: 'orders', id: result.orderId, overrideAccess: true })
+    const text = order.contractText as string
+    expect(text).toContain('AYUTA 대표신문·지역신문·블로그 광고 서비스 계약서')
+    expect(text).toContain('광고 국가: 한국, 일본')
+    expect(text).toContain('02-3394-8838')
+    expect(text).toContain(`전자서명: ${validOrderer.name}`)
+    // 채우지 못한 자리표시자가 남으면 contract_incomplete 로 막혔어야 한다 — 이중 확인
+    expect(text).not.toContain('{{')
+  })
+
+  it('3번은 계약서 동의 3종이 모두 있어야 한다', async () => {
     const result = await createOrder({
       categorySlug: 'press-blog',
       locale: 'ko' as const,
       selection: { items: ['blog-note'], country: ['kr'] },
-      consents: {},
+      consents: { terms: true, privacy: true },
       orderer: { ...validOrderer },
       signature: validOrderer.name,
     })
-    expect(result).toEqual({ ok: false, reason: 'no_contract' })
+    expect(result).toEqual({ ok: false, reason: 'consent_required' })
   })
 
   it('비회원도 주문할 수 있고 주문자 정보가 저장된다', async () => {

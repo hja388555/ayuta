@@ -18,9 +18,10 @@ const PLATFORM_LABELS: Record<string, { ko: string; ja: string }> = {
   line: { ko: 'LINE', ja: 'LINE' },
 }
 
-// 4번(지하철·버스·블로그) 계약서 자동 채움 목록에 "광고 국가"가 명시돼 있다
-// (docs/법무문서-확정본.md G절). 1번은 별도 자리({{country}})로 채우므로 여기 섞지 않고,
-// 2번은 "촬영 국가"라는 다른 필드라 이 라벨을 쓰지 않는다(카테고리별 소스가 다르다).
+// 3번(대표신문·지역신문·블로그)·4번(지하철·버스·블로그) 계약서 자동 채움 목록에 "광고 국가"가
+// 명시돼 있다(docs/법무문서-확정본.md H절 · G절). 1번은 별도 자리({{country}})로 채우므로 여기
+// 섞지 않고, 2번은 "촬영 국가"라는 다른 필드라 이 라벨을 쓰지 않는다(카테고리별 소스가 다르다).
+const COUNTRY_ITEM_CATEGORIES = new Set([3, 4])
 const COUNTRY_ITEM_LABEL: { ko: string; ja: string } = { ko: '광고 국가', ja: '広告国' }
 
 type Messages = typeof koMessages
@@ -80,9 +81,9 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
   const size = typeof sel.size === 'string' ? sel.size.trim() : ''
   if (size) items.push({ label: messages.groupForm.sizeLabel, value: size })
 
-  // 4번만 — G절 자동 채움 목록에 "광고 국가"가 있는 카테고리는 4번뿐이다(2번은 "촬영
-  // 국가"라는 별개 필드, 3번은 계약서 원문이 아직 없다). 표지에서 고른 나라를 그대로 싣는다.
-  if (def.no === 4) {
+  // 3·4번 — 자동 채움 목록에 "광고 국가"가 있는 카테고리다(2번은 "촬영 국가"라는 별개
+  // 필드). 표지에서 고른 나라를 그대로 싣는다.
+  if (COUNTRY_ITEM_CATEGORIES.has(def.no)) {
     const country = 'country' in (rawSelection as Record<string, unknown>) ? asStringArray((rawSelection as { country?: unknown }).country) : []
     if (country.length > 0) items.push({ label: COUNTRY_ITEM_LABEL[locale], value: formatCountries(country, locale) })
   }

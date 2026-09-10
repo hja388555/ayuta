@@ -148,7 +148,7 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
 
   // 템플릿은 있는데 동의 항목이 하나도 정의돼 있지 않으면(관리자 설정 실수) 동의 없이
   // 결제가 통과해 버린다 — allRequiredChecked([], ...)는 빈 배열에 대해 항상 참이다
-  // (정의 자체가 없는 3·5번 카테고리에서는 정상 동작이라 그건 그대로 둔다. 템플릿이
+  // (정의 자체가 없는 5번 카테고리에서는 정상 동작이라 그건 그대로 둔다. 템플릿이
   // '있는데' consents가 빈 경우만 막는다)
   if (template && consentDefs.length === 0) return { ok: false, reason: 'contract_incomplete', detail: ['consents'] }
 
@@ -177,7 +177,8 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
     day: 'numeric',
   }).format(now)
 
-  // 5. 계약서 템플릿을 읽어 빈칸을 채운다 — 템플릿이 없거나(3·5번) missing 이 있으면 거부.
+  // 5. 계약서 템플릿을 읽어 빈칸을 채운다 — 템플릿이 없거나 missing 이 있으면 거부.
+  // (5번은 문의 → 관리자 견적 → 계약 흐름이라 고정 템플릿이 없다. 위 계산 단계에서 먼저 막힌다)
   // 구멍 뚫린 계약서에 서명하게 두느니 결제를 막는 게 낫다
   if (!template) return { ok: false, reason: 'no_contract' }
 

@@ -33,6 +33,25 @@ describe('buildContractItems — 4번(지하철·버스·블로그) 광고 국�
   })
 })
 
+describe('buildContractItems — 3번(대표신문·지역신문·블로그) 광고 국가', () => {
+  const def3 = CATEGORIES.find((c) => c.no === 3)!
+
+  it('3번은 H절 "계약 및 광고 신청정보" 대로 광고 국가 항목을 items에 싣는다', () => {
+    const items = buildContractItems(def3, emptyBook, { items: [], country: ['jp', 'kr'] }, 'ko')
+    expect(items).toContainEqual({ label: '광고 국가', value: '한국, 일본' })
+  })
+
+  it('일본어 계약서에는 일본어 라벨로 싣는다', () => {
+    const items = buildContractItems(def3, emptyBook, { items: [], country: ['kr'] }, 'ja')
+    expect(items.some((i) => i.label === '広告国')).toBe(true)
+  })
+
+  it('나라를 안 골랐으면 광고 국가 항목을 넣지 않는다', () => {
+    const items = buildContractItems(def3, emptyBook, { items: [] }, 'ko')
+    expect(items.some((i) => i.label === '광고 국가')).toBe(false)
+  })
+})
+
 describe('buildContractItems — 2번은 촬영 국가라는 별개 필드다 (광고 국가를 섞지 않는다)', () => {
   const def2 = CATEGORIES.find((c) => c.no === 2)!
 
