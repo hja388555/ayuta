@@ -1,4 +1,6 @@
+import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
+import { NO_INDEX } from '@/lib/seo'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
@@ -16,6 +18,8 @@ import { loadCompanyContractFields } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
 
 export const dynamic = 'force-dynamic'
+// 결제 화면은 선택값이 쿼리에 실린 개인 화면이다 — 검색에 올리지 않는다(robots.ts 와 두 겹)
+export const metadata: Metadata = { robots: NO_INDEX }
 
 type Props = {
   params: Promise<{ locale: string; category: string }>

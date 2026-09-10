@@ -1,5 +1,7 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
+import { localeAlternates } from '@/lib/seo'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
@@ -20,6 +22,15 @@ export const dynamic = 'force-dynamic'
 type Props = {
   params: Promise<{ locale: string; category: string }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
+}
+
+// 카테고리 이름을 제목으로, canonical 자기참조 + ko/ja hreflang(큐 Q27). 없는 슬러그는 페이지가 404 로 처리한다
+export async function generateMetadata({ params }: Pick<Props, 'params'>): Promise<Metadata> {
+  const { locale, category } = await params
+  const def = categoryBySlug(category)
+  if (!def) return {}
+  const tCat = await getTranslations({ locale, namespace: 'categories' })
+  return { title: tCat(def.slug), alternates: localeAlternates(locale, `/order/${def.slug}`) }
 }
 
 export default async function OrderPage({ params, searchParams }: Props) {
