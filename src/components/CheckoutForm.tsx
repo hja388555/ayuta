@@ -103,6 +103,10 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
   const [showContract, setShowContract] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // 결제 버튼 더블클릭·네트워크 재시도로 같은 주문이 두 번 만들어지지 않게, 폼이 마운트될
+  // 때 한 번만 키를 만들어 재시도에도 같은 값을 쓴다(Ruling 15) — 매 제출마다 새로 만들면
+  // 재시도가 그냥 새 주문이 돼 버려서 멱등키의 의미가 없어진다
+  const [idempotencyKey] = useState(() => crypto.randomUUID())
 
   const signature = useMemo(() => autoSignature(orderer, template.consents, checked), [orderer, template.consents, checked])
   const canPay = useMemo(() => canSubmit(orderer, template.consents, checked, signature), [orderer, template.consents, checked, signature])
@@ -135,6 +139,7 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
             representative: orderer.representative || undefined,
           },
           signature,
+          idempotencyKey,
         }),
       })
       const body = (await res.json()) as { ok: boolean; orderNumber?: string }
@@ -142,7 +147,10 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
         setError(labels.errorGeneric)
         return
       }
-      router.push(`/${locale}/order/complete?order=${encodeURIComponent(body.orderNumber)}&email=${encodeURIComponent(orderer.email)}&phone=${encodeURIComponent(orderer.phone)}`)
+      // 이메일·연락처는 URL에 싣지 않는다(I6) — /api/checkout이 응답에 실어 준 서명된
+      // 쿠키로 완료 화면이 본인 확인을 한다. 주문번호는 URL에 남아도 된다(추측만으로는
+      // 남의 주문을 못 연다)
+      router.push(`/${locale}/order/complete?order=${encodeURIComponent(body.orderNumber)}`)
     } catch {
       setError(labels.errorGeneric)
     } finally {
