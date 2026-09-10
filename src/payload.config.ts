@@ -10,6 +10,7 @@ import { AdminOtps } from './collections/AdminOtps'
 import { PriceEntries } from './collections/PriceEntries'
 import { Orders } from './collections/Orders'
 import { OrderTransitions } from './collections/OrderTransitions'
+import { OrderNotes } from './collections/OrderNotes'
 import { ContractTemplates } from './collections/ContractTemplates'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -19,7 +20,7 @@ export default buildConfig({
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
   },
-  collections: [Users, AdminOtps, PriceEntries, Orders, OrderTransitions, ContractTemplates],
+  collections: [Users, AdminOtps, PriceEntries, Orders, OrderTransitions, OrderNotes, ContractTemplates],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },

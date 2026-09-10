@@ -72,6 +72,7 @@ export interface Config {
     'price-entries': PriceEntry;
     orders: Order;
     'order-transitions': OrderTransition;
+    'order-notes': OrderNote;
     'contract-templates': ContractTemplate;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -85,6 +86,7 @@ export interface Config {
     'price-entries': PriceEntriesSelect<false> | PriceEntriesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-transitions': OrderTransitionsSelect<false> | OrderTransitionsSelect<true>;
+    'order-notes': OrderNotesSelect<false> | OrderNotesSelect<true>;
     'contract-templates': ContractTemplatesSelect<false> | ContractTemplatesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -179,6 +181,9 @@ export interface AdminOtp {
  */
 export interface PriceEntry {
   id: number;
+  /**
+   * 생성 후에는 변경할 수 없습니다. 계산기·시드 스크립트가 이 키로 단가를 찾습니다.
+   */
   key: string;
   labelKo: string;
   labelJa: string;
@@ -252,6 +257,18 @@ export interface OrderTransition {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-notes".
+ */
+export interface OrderNote {
+  id: number;
+  order: number | Order;
+  body: string;
+  author?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "contract-templates".
  */
 export interface ContractTemplate {
@@ -313,6 +330,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'order-transitions';
         value: number | OrderTransition;
+      } | null)
+    | ({
+        relationTo: 'order-notes';
+        value: number | OrderNote;
       } | null)
     | ({
         relationTo: 'contract-templates';
@@ -481,6 +502,17 @@ export interface OrderTransitionsSelect<T extends boolean = true> {
   actor?: T;
   reason?: T;
   at?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-notes_select".
+ */
+export interface OrderNotesSelect<T extends boolean = true> {
+  order?: T;
+  body?: T;
+  author?: T;
   updatedAt?: T;
   createdAt?: T;
 }
