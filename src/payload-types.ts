@@ -77,6 +77,7 @@ export interface Config {
     inquiries: Inquiry;
     'inquiry-files': InquiryFile;
     quotes: Quote;
+    'admin-login-logs': AdminLoginLog;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -94,6 +95,7 @@ export interface Config {
     inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
     'inquiry-files': InquiryFilesSelect<false> | InquiryFilesSelect<true>;
     quotes: QuotesSelect<false> | QuotesSelect<true>;
+    'admin-login-logs': AdminLoginLogsSelect<false> | AdminLoginLogsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -150,6 +152,8 @@ export interface User {
   address1: string;
   address2?: string | null;
   businessNo?: string | null;
+  termsAgreedAt?: string | null;
+  privacyAgreedAt?: string | null;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -374,6 +378,20 @@ export interface Quote {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "admin-login-logs".
+ */
+export interface AdminLoginLog {
+  id: number;
+  user?: (number | null) | User;
+  email: string;
+  at: string;
+  ip?: string | null;
+  userAgent?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -435,6 +453,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'quotes';
         value: number | Quote;
+      } | null)
+    | ({
+        relationTo: 'admin-login-logs';
+        value: number | AdminLoginLog;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -490,6 +512,8 @@ export interface UsersSelect<T extends boolean = true> {
   address1?: T;
   address2?: T;
   businessNo?: T;
+  termsAgreedAt?: T;
+  privacyAgreedAt?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -696,6 +720,19 @@ export interface QuotesSelect<T extends boolean = true> {
   expiresAt?: T;
   issuedBy?: T;
   revokedAt?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "admin-login-logs_select".
+ */
+export interface AdminLoginLogsSelect<T extends boolean = true> {
+  user?: T;
+  email?: T;
+  at?: T;
+  ip?: T;
+  userAgent?: T;
   updatedAt?: T;
   createdAt?: T;
 }

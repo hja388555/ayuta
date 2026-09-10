@@ -42,8 +42,33 @@ export const Users: CollectionConfig = {
     admin: ({ req }) => isAdminRole(req.user?.role),
   },
   hooks: {
+    // 관리자 계정 로그인 시각·IP 기록(요구사항 1-16 규칙 5). 고객 로그인은 남기지 않는다.
+    // 기록 실패가 로그인을 막으면 안 되므로 예외를 삼키고 서버 로그로만 남긴다
+    afterLogin: [
+      async ({ req, user }) => {
+        if (!isAdminRole((user as { role?: unknown }).role)) return
+        const forwarded = req.headers.get('x-forwarded-for')
+        const ip = (forwarded ? forwarded.split(',')[0]?.trim() : null) || req.headers.get('x-real-ip') || null
+        try {
+          await req.payload.create({
+            collection: 'admin-login-logs',
+            data: {
+              user: user.id,
+              email: String((user as { email?: unknown }).email ?? ''),
+              at: new Date().toISOString(),
+              ip,
+              userAgent: req.headers.get('user-agent')?.slice(0, 300) ?? null,
+            },
+            overrideAccess: true,
+            req,
+          })
+        } catch (err) {
+          req.payload.logger.error({ err, msg: '관리자 로그인 기록 실패' })
+        }
+      },
+    ],
     beforeValidate: [
-      ({ data, operation, req }) => {
+      ({ data, operation, originalDoc, req }) => {
         if (!data) return data
         // req.context는 Local API 호출 코드(예: 시딩 스크립트)만 채울 수 있고
         // HTTP 요청 바디로는 절대 설정할 수 없다. 그래서 이 탈출구를 훅에 둬도
@@ -53,9 +78,11 @@ export const Users: CollectionConfig = {
           // 클라이언트가 role을 보내와도 무시한다
           return { ...data, role: 'customer' }
         }
-        if (operation === 'update' && 'role' in data && !canManageRoles(req.user?.role)) {
-          const { role: _ignored, ...rest } = data
-          return rest
+        // 권한 없이 role 을 바꾸려 하면 원래 값으로 되돌린다. 필드를 빼 버리면(예전 방식) role 이
+        // 필수라 검증에서 터진다 — 서버가 세션 없이 부르는 Local API 업데이트(정보 수정·비밀번호
+        // 변경·탈퇴)가 Payload 가 합쳐 넣은 기존 role 때문에 전부 500 이 됐다
+        if (operation === 'update' && 'role' in data && data.role !== originalDoc?.role && !canManageRoles(req.user?.role)) {
+          return { ...data, role: originalDoc?.role }
         }
         return data
       },
@@ -80,6 +107,10 @@ export const Users: CollectionConfig = {
     { name: 'address1', type: 'text', required: true },
     { name: 'address2', type: 'text' },
     { name: 'businessNo', type: 'text' },
+    // 가입 시 필수 동의 시각. 가입 경로(POST /api/signup)가 서버 시계로 overrideAccess 로만 쓴다 —
+    // 클라이언트가 보낸 시각을 받으면 동의 기록이 근거가 못 된다
+    { name: 'termsAgreedAt', type: 'date', access: { create: () => false, update: () => false } },
+    { name: 'privacyAgreedAt', type: 'date', access: { create: () => false, update: () => false } },
     {
       name: 'deletedAt',
       type: 'date',
