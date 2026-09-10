@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 import { localPayload } from './helpers/localApi'
-import { ensureOrderCounters } from '../scripts/ensure-order-counters'
+import { ensureOrderCounters } from '../scripts/order-counters-ddl'
 import { nextOrderNumber } from '../src/lib/order-counter'
 import { parseOrderNumber } from '../src/lib/order-number'
 
