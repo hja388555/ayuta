@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
-import { getSessionUser } from '@/lib/dal'
-import { isAdminRole, isSuperRole } from '@/lib/roles'
+import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
+import { isSuperRole } from '@/lib/roles'
 import { transitionOrder } from '@/lib/order-state'
 import { ORDER_STATUSES } from '@/collections/Orders'
 
 /**
  * 관리자가 주문 상태를 바꾸는 유일한 경로.
+ *
+ * 게이트는 /manage 화면과 똑같이 requireAdminVerified() 다 — 화면이 2단계 인증을
+ * 요구하는데 API 가 세션만으로 통과하면 이 경로가 그 게이트의 뒷문이 된다.
  *
  * admin UI 의 일반 저장은 status 필드가 잠겨 있어 통하지 않는다 — 상태는 반드시
  * transitionOrder() 의 전이표·원자적 UPDATE·append-only 기록을 거쳐야 한다.
@@ -22,10 +25,23 @@ const BodySchema = z.object({
 })
 
 export async function POST(req: Request): Promise<Response> {
-  // 인증을 먼저 본다 — 바디 파싱 결과(400 vs 401)로 로그인 여부를 알려주지 않는다
-  const user = await getSessionUser()
-  if (!user) return NextResponse.json({ error: 'unauthenticated' }, { status: 401 })
-  if (!isAdminRole(user.role)) return NextResponse.json({ error: 'forbidden' }, { status: 403 })
+  // 인증을 먼저 본다 — 바디 파싱 결과(400 vs 401)로 로그인 여부를 알려주지 않는다.
+  // OtpRequiredError 는 AuthError 의 하위 타입이므로 반드시 먼저 검사한다 —
+  // 순서를 뒤집으면 2단계 인증 미완료가 그냥 '권한 없음'으로 뭉개진다.
+  let user: Awaited<ReturnType<typeof requireAdminVerified>>
+  try {
+    user = await requireAdminVerified()
+  } catch (err) {
+    if (err instanceof OtpRequiredError) {
+      return NextResponse.json({ error: 'otp_required' }, { status: 403 })
+    }
+    if (err instanceof AuthError) {
+      const status = err.code === 'UNAUTHENTICATED' ? 401 : 403
+      const error = err.code === 'UNAUTHENTICATED' ? 'unauthenticated' : 'forbidden'
+      return NextResponse.json({ error }, { status })
+    }
+    throw err
+  }
 
   let raw: unknown
   try {
