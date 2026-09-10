@@ -11,13 +11,17 @@ const asArray = (v: string | string[] | undefined): string[] => (v === undefined
  * 저기서 만든 쿼리를 여기서 그대로 복원한다.
  */
 export function selectionFromQuery(model: PricingModel, sp: SearchParams): unknown {
+  // size는 금액에 관여하지 않는 자유 입력(GroupForm.buildGroupQuery가 담아 보낸다)이지만
+  // 계약서 항목(국가/사이즈 등)에는 들어가야 한다 — calculate()로 가는 selection과 계약서
+  // 사실(facts)로 가는 selection이 같은 값이어야 나중에 둘이 따로 놀지 않는다.
+  const size = typeof sp.size === 'string' ? sp.size : undefined
   switch (model.kind) {
     case 'tier':
       return { tiers: asArray(sp.tier), platforms: asArray(sp.platform) }
     case 'sum':
-      return { items: asArray(sp.item) }
+      return { items: asArray(sp.item), size }
     case 'sumMultiplier':
-      return { items: asArray(sp.item), period: typeof sp.period === 'string' ? sp.period : '' }
+      return { items: asArray(sp.item), period: typeof sp.period === 'string' ? sp.period : '', size }
     case 'inquiry':
       return {}
   }

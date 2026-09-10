@@ -197,6 +197,7 @@ export interface Order {
   id: number;
   orderNumber: string;
   paymentId: string;
+  idempotencyKey?: string | null;
   status: 'pending' | 'paid' | 'in_progress' | 'done' | 'failed' | 'cancelled' | 'fraud_suspected';
   currency: 'KRW' | 'JPY';
   amount: number;
@@ -207,6 +208,11 @@ export interface Order {
     label: string;
     unitAmount: number;
     quantity: number;
+    id?: string | null;
+  }[];
+  contractItems: {
+    label: string;
+    value: string;
     id?: string | null;
   }[];
   customer?: (number | null) | User;
@@ -418,6 +424,7 @@ export interface PriceEntriesSelect<T extends boolean = true> {
 export interface OrdersSelect<T extends boolean = true> {
   orderNumber?: T;
   paymentId?: T;
+  idempotencyKey?: T;
   status?: T;
   currency?: T;
   amount?: T;
@@ -430,6 +437,13 @@ export interface OrdersSelect<T extends boolean = true> {
         label?: T;
         unitAmount?: T;
         quantity?: T;
+        id?: T;
+      };
+  contractItems?:
+    | T
+    | {
+        label?: T;
+        value?: T;
         id?: T;
       };
   customer?: T;

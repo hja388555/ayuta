@@ -23,6 +23,15 @@ export type ContractFacts = {
   buyerContactPhone?: string
   buyerAddress?: string
   buyerEmail?: string
+  // 을(회사) 정보. 계약서 본문에 직접 박지 않고 플레이스홀더로 두고 여기서 채운다 —
+  // 전화번호 하나가 여러 계약서 원문에 따로 박혀 있으면 한 군데만 고칠 때 나머지가
+  // 오타로 남는다(src/lib/company.ts 참조).
+  companyName?: string
+  companyCeo?: string
+  companyRegNo?: string
+  companyAddress?: string
+  companyPhone?: string
+  companyEmail?: string
 }
 
 const SIGN: Record<ContractFacts['currency'], string> = { KRW: '₩', JPY: '¥' }
@@ -54,6 +63,12 @@ export function fillContract(template: string, facts: ContractFacts): { text: st
     buyerContactPhone: facts.buyerContactPhone,
     buyerAddress: facts.buyerAddress,
     buyerEmail: facts.buyerEmail,
+    companyName: facts.companyName,
+    companyCeo: facts.companyCeo,
+    companyRegNo: facts.companyRegNo,
+    companyAddress: facts.companyAddress,
+    companyPhone: facts.companyPhone,
+    companyEmail: facts.companyEmail,
   }
 
   const missing: string[] = []

@@ -169,4 +169,112 @@ describe('createOrder', () => {
     createdOrderIds.push(r1.orderId, r2.orderId)
     expect(r1.orderNumber).not.toBe(r2.orderNumber)
   })
+
+  it('같은 멱등키로 두 번 보내면 주문이 하나만 만들어진다 (Ruling 15)', async () => {
+    const key = `idem-${RUN}-${Math.random().toString(36).slice(2, 8)}`
+    const r1 = await createOrder({ ...baseInput(), idempotencyKey: key })
+    expect(r1.ok).toBe(true)
+    if (!r1.ok) return
+    createdOrderIds.push(r1.orderId)
+
+    const r2 = await createOrder({ ...baseInput(), idempotencyKey: key })
+    expect(r2.ok).toBe(true)
+    if (!r2.ok) return
+    // 두 번째 호출이 새 행을 만들었다면 createdOrderIds에도 추가해 정리해야 하지만,
+    // 멱등이 지켜진다면 orderId가 같아서 추가할 필요가 없다 — 그게 이 테스트의 요점이다
+    expect(r2.orderId).toBe(r1.orderId)
+    expect(r2.orderNumber).toBe(r1.orderNumber)
+  })
+
+  it('템플릿이 있어도 채우지 못한 빈칸이 있으면 주문을 만들지 않는다 (I4)', async () => {
+    const payload = await localPayload()
+    const { docs } = await payload.find({
+      collection: 'contract-templates',
+      where: { and: [{ category: { equals: 1 } }, { locale: { equals: 'ko' } }] },
+      limit: 1,
+      overrideAccess: true,
+    })
+    const template = docs[0]
+    if (!template) throw new Error('1번 계약서 템플릿을 찾지 못했습니다 — pnpm seed:contracts 를 먼저 실행하세요')
+    const originalBody = template.body as string
+    try {
+      await payload.update({
+        collection: 'contract-templates',
+        id: template.id,
+        overrideAccess: true,
+        // fillContract가 알지 못하는 자리표시자를 하나 심는다 — 템플릿은 존재하지만
+        // 빈칸을 다 못 채우는 상황을 재현한다(지금까지는 템플릿 부재만 테스트했다)
+        data: { body: `${originalBody}\n{{unknownPlaceholder}}` },
+      })
+
+      const result = await createOrder(baseInput())
+      expect(result).toEqual({ ok: false, reason: 'contract_incomplete', detail: ['unknownPlaceholder'] })
+    } finally {
+      await payload.update({
+        collection: 'contract-templates',
+        id: template.id,
+        overrideAccess: true,
+        data: { body: originalBody },
+      })
+    }
+  })
+
+  it('주문 생성 후 계약서 템플릿을 고쳐도 이미 만든 주문의 스냅샷은 바뀌지 않는다 (I4)', async () => {
+    const result = await createOrder(baseInput())
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    createdOrderIds.push(result.orderId)
+
+    const payload = await localPayload()
+    const before = await payload.findByID({ collection: 'orders', id: result.orderId, overrideAccess: true })
+
+    const { docs } = await payload.find({
+      collection: 'contract-templates',
+      where: { and: [{ category: { equals: 1 } }, { locale: { equals: 'ko' } }] },
+      limit: 1,
+      overrideAccess: true,
+    })
+    const template = docs[0]
+    if (!template) throw new Error('1번 계약서 템플릿을 찾지 못했습니다')
+    const originalBody = template.body as string
+    try {
+      await payload.update({
+        collection: 'contract-templates',
+        id: template.id,
+        overrideAccess: true,
+        data: { body: `${originalBody}\n[나중에 추가된 문구 — 과거 주문에는 없어야 한다]` },
+      })
+
+      const after = await payload.findByID({ collection: 'orders', id: result.orderId, overrideAccess: true })
+      expect(after.contractText).toBe(before.contractText)
+      expect(after.contractText as string).not.toContain('나중에 추가된 문구')
+    } finally {
+      await payload.update({
+        collection: 'contract-templates',
+        id: template.id,
+        overrideAccess: true,
+        data: { body: originalBody },
+      })
+    }
+  })
+
+  it('계약서 항목이 국가·채널 등 가격 없는 선택까지 사람이 읽을 이름으로 담긴다 (C1)', async () => {
+    const result = await createOrder({ ...baseInput(), selection: { tiers: ['standard'], platforms: ['instagram', 'youtube'] } })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    createdOrderIds.push(result.orderId)
+
+    const payload = await localPayload()
+    const order = await payload.findByID({ collection: 'orders', id: result.orderId, overrideAccess: true })
+    const text = order.contractText as string
+    // 바로 금액(숫자)이 아니라 사람이 읽을 라벨이어야 한다
+    expect(text).toContain('인스타그램')
+    expect(text).toContain('유튜브')
+    expect(order.contractItems).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ label: '등급', value: expect.stringContaining('스탠다드') }),
+        expect.objectContaining({ label: '플랫폼', value: expect.stringContaining('인스타그램') }),
+      ]),
+    )
+  })
 })

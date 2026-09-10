@@ -48,6 +48,7 @@ describe('상태 전이 (DB)', () => {
         locale: 'ko',
         category: 1,
         items: [{ code: 'standard', label: '스탠다드', unitAmount: 100_000, quantity: 1 }],
+        contractItems: [{ label: '등급', value: '스탠다드' }],
         orderer: {
           name: '홍길동',
           phone: '010-1234-5678',

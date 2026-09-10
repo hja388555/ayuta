@@ -18,19 +18,12 @@ type SeedTemplate = {
   consents: ConsentDef[]
 }
 
-// 을(아유타) 정보. 회사 정보를 관리자 설정에서 끌어오는 기능(Q25)은 아직 없으므로
-// 현재 확정값을 계약서 본문에 직접 심는다 — 전화번호는 대표님이 확인한 02-3394-8838
-// (계약서 원문 F절의 02-3393-8838은 오타).
-const COMPANY = {
-  nameKo: 'AYUTA(아유타)',
-  nameJa: 'AYUTA(アユタ)',
-  ceo: '황지원',
-  businessNo: '259-23-02007',
-  addressKo: '서울특별시 동대문구 답십리동 323',
-  addressJa: 'ソウル特別市東大門区踏十里洞323',
-  phone: '02-3394-8838',
-  email: 'gggwon@gmail.com',
-}
+// 을(아유타) 정보는 계약서 본문에 직접 박지 않는다 — {{companyName}} 등 플레이스홀더로
+// 두고 fillContract 호출부(createOrder / checkout 미리보기)가 src/lib/company.ts의 단일
+// 출처 값으로 채운다. 전화번호가 계약서 원문마다 따로 박혀 있다가 어긋난 적이 있다
+// (F절 원문의 02-3393-8838은 오타, 실제는 02-3394-8838) — 값을 여러 곳에 복사하면
+// 이런 사고가 반복된다. 관리자 설정 화면(Q25)이 생기면 그 값이 이 플레이스홀더를 채우는
+// 출처가 DB로 바뀔 뿐, 계약서 본문은 고칠 필요가 없다.
 
 const AGREE_CONSENT_KO: ConsentDef = {
   key: 'agree',
@@ -56,6 +49,7 @@ const CONTRACT_1_KO = `디지털 / SNS·커뮤니티 광고 서비스 계약서
 
 제1조 계약 상품
 {{items}}
+계약금액: {{amount}}
 ※ 위 내용은 고객이 사이트에서 선택한 상품에 따라 자동 입력됩니다.
 
 제2조 제공 서비스
@@ -118,12 +112,12 @@ SNS 업로드
 계약일: {{contractDate}}
 
 을 (아유타)
-상호: ${COMPANY.nameKo}
-대표자: ${COMPANY.ceo}
-사업자등록번호: ${COMPANY.businessNo}
-전화번호: ${COMPANY.phone}
-담당자 연락처: ${COMPANY.phone}
-사업장 주소: ${COMPANY.addressKo}
+상호: {{companyName}}
+대표자: {{companyCeo}}
+사업자등록번호: {{companyRegNo}}
+전화번호: {{companyPhone}}
+담당자 연락처: {{companyPhone}}
+사업장 주소: {{companyAddress}}
 대표자 서명 또는 날인: [등록된 서명/날인 자동 표시]
 계약일: {{contractDate}}
 
@@ -138,6 +132,7 @@ const CONTRACT_1_JA = `デジタル / SNS・コミュニティ広告サービス
 
 第1条 契約商品
 {{items}}
+契約金額: {{amount}}
 ※ 上記内容はお客様がサイトで選択した商品に従って自動入力されます。
 
 第2条 提供サービス
@@ -202,12 +197,12 @@ SNS投稿
 契約日: {{contractDate}}
 
 乙（AYUTA）
-商号: ${COMPANY.nameJa}
-代表者: ${COMPANY.ceo}
-事業者登録番号: ${COMPANY.businessNo}
-電話番号: ${COMPANY.phone}
-担当者連絡先: ${COMPANY.phone}
-事業場住所: ${COMPANY.addressJa}
+商号: {{companyName}}
+代表者: {{companyCeo}}
+事業者登録番号: {{companyRegNo}}
+電話番号: {{companyPhone}}
+担当者連絡先: {{companyPhone}}
+事業場住所: {{companyAddress}}
 代表者署名または捺印: [登録された署名/捺印自動表示]
 契約日: {{contractDate}}
 
@@ -299,7 +294,7 @@ const CONTRACT_2_KO = `AYUTA 현지 전문 영상 제작 및 촬영 서비스 �
 {{items}}
 총 계약금액: {{amount}}
 
-갑（お客様）
+갑 (고객)
 성명/회사명: {{buyerName}}
 연락처: {{buyerPhone}}
 이메일: {{buyerEmail}}
@@ -307,12 +302,12 @@ const CONTRACT_2_KO = `AYUTA 현지 전문 영상 제작 및 촬영 서비스 �
 계약일: {{contractDate}}
 
 을 (AYUTA)
-상호: ${COMPANY.nameKo}
-대표자: ${COMPANY.ceo}
-사업자등록번호: ${COMPANY.businessNo}
-사업장 주소: ${COMPANY.addressKo}
-대표전화: ${COMPANY.phone}
-이메일: ${COMPANY.email}
+상호: {{companyName}}
+대표자: {{companyCeo}}
+사업자등록번호: {{companyRegNo}}
+사업장 주소: {{companyAddress}}
+대표전화: {{companyPhone}}
+이메일: {{companyEmail}}
 계약일: {{contractDate}}
 
 □ 위 계약 내용을 모두 확인하였으며 이에 동의합니다.`
@@ -405,12 +400,12 @@ YouTube及び広告等に使用できます。
 契約日: {{contractDate}}
 
 乙（AYUTA）
-商号: ${COMPANY.nameJa}
-代表者: ${COMPANY.ceo}
-事業者登録番号: ${COMPANY.businessNo}
-事業場住所: ${COMPANY.addressJa}
-代表電話: ${COMPANY.phone}
-メール: ${COMPANY.email}
+商号: {{companyName}}
+代表者: {{companyCeo}}
+事業者登録番号: {{companyRegNo}}
+事業場住所: {{companyAddress}}
+代表電話: {{companyPhone}}
+メール: {{companyEmail}}
 契約日: {{contractDate}}
 
 □ 上記契約内容をすべて確認しており、これに同意します。`
@@ -504,12 +499,12 @@ const CONTRACT_4_KO = `AYUTA 지하철·버스·블로그 서비스 계약서
 계약일: {{contractDate}}
 
 을 (AYUTA)
-상호: ${COMPANY.nameKo}
-대표자: ${COMPANY.ceo}
-사업자등록번호: ${COMPANY.businessNo}
-사업장 주소: ${COMPANY.addressKo}
-대표전화: ${COMPANY.phone}
-이메일: ${COMPANY.email}
+상호: {{companyName}}
+대표자: {{companyCeo}}
+사업자등록번호: {{companyRegNo}}
+사업장 주소: {{companyAddress}}
+대표전화: {{companyPhone}}
+이메일: {{companyEmail}}
 계약일: {{contractDate}}
 
 □ 서비스 이용약관을 확인하고 동의합니다.
@@ -597,12 +592,12 @@ const CONTRACT_4_JA = `AYUTA 地下鉄・バス・ブログサービス契約書
 契約日: {{contractDate}}
 
 乙（AYUTA）
-商号: ${COMPANY.nameJa}
-代表者: ${COMPANY.ceo}
-事業者登録番号: ${COMPANY.businessNo}
-事業場住所: ${COMPANY.addressJa}
-代表電話: ${COMPANY.phone}
-メール: ${COMPANY.email}
+商号: {{companyName}}
+代表者: {{companyCeo}}
+事業者登録番号: {{companyRegNo}}
+事業場住所: {{companyAddress}}
+代表電話: {{companyPhone}}
+メール: {{companyEmail}}
 契約日: {{contractDate}}
 
 □ サービス利用規約を確認し同意します。
@@ -629,6 +624,11 @@ const TEMPLATES: SeedTemplate[] = [
   { category: 4, locale: 'ja', title: 'AYUTA 地下鉄・バス・ブログサービス契約書', body: CONTRACT_4_JA, consents: CONSENTS_4_JA },
 ]
 
+// 기본은 생성 전용이다 — 관리자가 화면에서 계약서를 고쳤는데 이 스크립트를 다시 돌리면
+// 그 수정이 조용히 덮어써지면 안 된다(계약서는 코드가 아니라 데이터다, 계획서 서두 참고).
+// 정말로 시드 원문으로 되돌리고 싶을 때만 SEED_FORCE=1로 명시적으로 켠다.
+const FORCE = process.env.SEED_FORCE === '1'
+
 const main = async () => {
   const payload = await getPayload({ config })
 
@@ -641,13 +641,19 @@ const main = async () => {
     })
 
     if (existing.docs[0]) {
+      if (!FORCE) {
+        console.log(`건너뜀(이미 있음): category=${tpl.category} locale=${tpl.locale}`)
+        continue
+      }
+      // active는 절대 건드리지 않는다 — 관리자가 특정 버전을 의도적으로 내려 둔(active:false)
+      // 상태를 시드가 되살리면 안 된다. 내용을 되돌리는 것과 게시 여부를 바꾸는 것은 별개다
       await payload.update({
         collection: 'contract-templates',
         id: existing.docs[0].id,
-        data: { ...tpl, active: true },
+        data: { category: tpl.category, locale: tpl.locale, title: tpl.title, body: tpl.body, consents: tpl.consents },
         overrideAccess: true,
       })
-      console.log(`갱신: category=${tpl.category} locale=${tpl.locale}`)
+      console.log(`갱신(SEED_FORCE=1): category=${tpl.category} locale=${tpl.locale}`)
       continue
     }
 

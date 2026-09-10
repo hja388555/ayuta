@@ -29,6 +29,10 @@ export const Orders: CollectionConfig = {
     { name: 'orderNumber', type: 'text', required: true, unique: true, index: true },
     // 포트원에 넘긴 결제 식별자. 웹훅과 복귀 경로가 이 값으로 주문을 찾는다
     { name: 'paymentId', type: 'text', required: true, unique: true, index: true },
+    // 결제 버튼 더블클릭·재시도로 같은 요청이 두 번 와도 주문이 두 벌 생기지 않도록
+    // createOrder가 이 값으로 기존 주문을 먼저 찾는다(Ruling 15). 없을 수도 있으므로
+    // unique이되 required는 아니다 — Postgres는 NULL끼리 유니크 충돌로 안 본다
+    { name: 'idempotencyKey', type: 'text', unique: true, index: true },
     {
       name: 'status',
       type: 'select',
@@ -54,6 +58,18 @@ export const Orders: CollectionConfig = {
         { name: 'label', type: 'text', required: true },
         { name: 'unitAmount', type: 'number', required: true },
         { name: 'quantity', type: 'number', required: true, defaultValue: 1 },
+      ],
+    },
+    {
+      // 가격이 없는 선택(국가, 채널, 사이즈 등)까지 포함한 전체 선택 — 계약서 전문에 이미
+      // 들어 있지만, 관리자가 주문 목록에서 계약서 전문을 열지 않고도 "뭘 샀는지" 바로
+      // 보게 하려고 값으로 따로 복사해 둔다(items는 금액칸이 있는 것만 담는다)
+      name: 'contractItems',
+      type: 'array',
+      required: true,
+      fields: [
+        { name: 'label', type: 'text', required: true },
+        { name: 'value', type: 'text', required: true },
       ],
     },
     { name: 'customer', type: 'relationship', relationTo: 'users', hasMany: false },

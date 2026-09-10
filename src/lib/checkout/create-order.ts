@@ -7,10 +7,14 @@ import config from '@payload-config'
 import { z } from 'zod'
 import { calculate, fillContract, type Currency } from '@ayuta/pricing'
 import { categoryBySlug } from '../categories'
+import { formFor } from '../category-groups'
 import { loadPriceBook } from '../price-book'
 import { nextOrderNumber } from '../order-counter'
+import { companyContractFields } from '../company'
 import { OrdererSchema, buyerContractFields } from './orderer'
 import { allRequiredChecked, type ConsentDef } from './consents'
+import { buildContractItems } from './contract-items'
+import { filterPricedSelection } from './selection-from-query'
 
 // 1. 입력 모양 검증. 금액 필드는 여기 아예 없다 — 클라이언트가 뭘 보내든 서버가 쓸 값은
 // selection(선택 항목 키)뿐이고, 금액은 서버가 스스로 재계산한다
@@ -18,19 +22,26 @@ const CreateOrderInputSchema = z.object({
   categorySlug: z.string().trim().min(1).max(100),
   locale: z.enum(['ko', 'ja']),
   // 계산기(calculate)가 카테고리 종류(tier/sum/sumMultiplier/inquiry)별로 모양을 검증한다.
-  // 여기서 한 번 더 좁히면 새 계산기 종류가 늘 때마다 이 스키마도 고쳐야 한다
+  // 여기서 한 번 더 좁히면 새 계산기 종류가 늘 때마다 이 스키마도 고쳐야 한다.
+  // 화면이 필터링 없이 통째로 보낸다 — priced/unpriced를 가리는 건 calculate() 호출
+  // 직전 한 곳뿐이어야 계약서에 "뭘 샀는지"가 온전히 남는다(country 같은 무료 선택이
+  // 서버에 아예 안 알려지면 계약서에도 못 넣는다)
   selection: z.unknown(),
   consents: z.record(z.string(), z.boolean()).default({}),
   orderer: OrdererSchema,
   // 전자서명 이름. 화면은 동의 체크 시 orderer.name 을 그대로 채워 보내므로 정상 흐름에서는
   // 항상 orderer.name 과 같다 — 다르면 클라이언트가 조작했거나 화면이 고장난 것이다
   signature: z.string().trim().min(1).max(100),
+  // 더블클릭·네트워크 재시도로 같은 주문이 두 번 만들어지지 않게 클라이언트가 붙이는 값
+  // (Ruling 15). 서버는 이 키로 기존 주문이 있으면 새로 만들지 않고 그 결과를 그대로 돌려준다.
+  // IP 기준 요청 제한은 여기서 다루지 않는다 — 보안 강화 큐(Q30)로 미룬다.
+  idempotencyKey: z.string().trim().min(1).max(100).optional(),
 })
 
 export type CreateOrderInput = z.input<typeof CreateOrderInputSchema>
 
 export type CreateOrderResult =
-  | { ok: true; orderId: number; orderNumber: string; amount: number; currency: Currency }
+  | { ok: true; orderId: number; orderNumber: string; amount: number; currency: Currency; orderer: { email: string; phone: string } }
   | { ok: false; reason: CreateOrderRejectionReason; detail?: unknown }
 
 export type CreateOrderRejectionReason =
@@ -69,6 +80,28 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
   const payload = await getPayload({ config })
   const currency: Currency = input.locale === 'ja' ? 'JPY' : 'KRW'
 
+  // 0. 멱등키가 있고 이미 그 키로 만든 주문이 있으면 새로 만들지 않고 그 결과를 그대로
+  // 돌려준다 — 결제 버튼 더블클릭이나 네트워크 재시도가 주문을 두 벌로 만들면 안 된다
+  if (input.idempotencyKey) {
+    const { docs: existing } = await payload.find({
+      collection: 'orders',
+      where: { idempotencyKey: { equals: input.idempotencyKey } },
+      limit: 1,
+      overrideAccess: true,
+    })
+    const dup = existing[0]
+    if (dup) {
+      return {
+        ok: true,
+        orderId: dup.id as number,
+        orderNumber: dup.orderNumber as string,
+        amount: dup.amount as number,
+        currency: dup.currency as Currency,
+        orderer: { email: (dup.orderer as { email: string }).email, phone: (dup.orderer as { phone: string }).phone },
+      }
+    }
+  }
+
   // 계약서 템플릿을 한 번만 읽어 동의 확인(3)과 빈칸 채우기(5) 양쪽에 쓴다.
   // 3·5번처럼 템플릿이 없는 카테고리는 여기서 null 이 되고, 동의 항목이 없어 3번 검사는
   // 통과할 수 있지만 5번 검사(no_contract)에서 반드시 막힌다
@@ -81,13 +114,25 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
   const template = templates[0] ?? null
   const consentDefs: ConsentDef[] = (template?.consents as ConsentDef[] | undefined) ?? []
 
+  // 템플릿은 있는데 동의 항목이 하나도 정의돼 있지 않으면(관리자 설정 실수) 동의 없이
+  // 결제가 통과해 버린다 — allRequiredChecked([], ...)는 빈 배열에 대해 항상 참이다
+  // (정의 자체가 없는 3·5번 카테고리에서는 정상 동작이라 그건 그대로 둔다. 템플릿이
+  // '있는데' consents가 빈 경우만 막는다)
+  if (template && consentDefs.length === 0) return { ok: false, reason: 'contract_incomplete', detail: ['consents'] }
+
   // 3. 동의 확인 — 필수 항목이 전부 체크됐는지 서버가 다시 본다.
   // allRequiredChecked 는 defs 에 정의된 키만 보므로 클라이언트가 보낸 임의의 키는 무시된다
   if (!allRequiredChecked(consentDefs, input.consents)) return { ok: false, reason: 'consent_required' }
 
-  // 4. DB 단가로 금액 재계산 — 실패하면 거부
+  // 4. DB 단가로 금액 재계산 — 실패하면 거부.
+  // calculate()에는 금액칸이 있는 항목만 넘긴다(priced:false 항목을 넣으면 "단가 없음"으로
+  // 통째로 거부된다) — 하지만 계약서 항목(아래 5)에는 원본 선택(input.selection)을 그대로
+  // 쓴다. 필터는 여기 계산 한 곳에서만 걸어야 국가·사이즈 같은 무료 선택이 계약서에서
+  // 사라지지 않는다
   const book = await loadPriceBook(def.no, currency)
-  const quote = calculate(def.model, book, input.selection)
+  const form = formFor(def.no)
+  const pricedSelection = filterPricedSelection(def.model, form, input.selection)
+  const quote = calculate(def.model, book, pricedSelection)
   if (!quote.ok) return { ok: false, reason: 'pricing_failed', detail: quote.errors }
 
   // 계약일은 Asia/Seoul 기준. 결제 확정 시점에 갱신하는 자리는 남겨 두고 지금은 주문
@@ -104,14 +149,20 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
   // 구멍 뚫린 계약서에 서명하게 두느니 결제를 막는 게 낫다
   if (!template) return { ok: false, reason: 'no_contract' }
 
+  // 계약서 항목은 원본 선택(input.selection) 전체에서 뽑는다 — quote.lines는 금액칸이
+  // 있는 항목만 담고 값도 금액이라(위 4 참고) 계약서 "무엇을 샀는지" 줄에 쓸 수 없다.
+  // 돈은 {{amount}}(총 계약금액/계약금액) 줄에만 나온다
+  const contractItems = buildContractItems(def, book, input.selection, input.locale)
+
   const { text: contractText, missing } = fillContract(template.body, {
     amount: quote.total,
     currency,
     contractDate,
     buyerName: input.orderer.name,
     signature: input.signature,
-    items: quote.lines.map((line) => ({ label: line.label, value: line.amount.toLocaleString('en-US') })),
+    items: contractItems,
     ...buyerContractFields(input.orderer),
+    ...companyContractFields(input.locale),
   })
   if (missing.length > 0) return { ok: false, reason: 'contract_incomplete', detail: missing }
 
@@ -134,6 +185,10 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
       locale: input.locale,
       category: def.no,
       items: quote.lines.map((line) => ({ code: line.key, label: line.label, unitAmount: line.amount, quantity: 1 })),
+      // 가격 없는 선택(국가, 사이즈, 채널 등)도 관리자가 주문 상세에서 볼 수 있어야 한다 —
+      // 그렇지 않으면 CS 문의가 왔을 때 관리자가 계약서 전문을 처음부터 다시 읽어야 한다
+      contractItems,
+      idempotencyKey: input.idempotencyKey || undefined,
       customer: customerId ?? undefined,
       orderer: {
         name: input.orderer.name,
@@ -150,5 +205,12 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
     },
   })
 
-  return { ok: true, orderId: order.id as number, orderNumber, amount: quote.total, currency }
+  return {
+    ok: true,
+    orderId: order.id as number,
+    orderNumber,
+    amount: quote.total,
+    currency,
+    orderer: { email: input.orderer.email, phone: input.orderer.phone },
+  }
 }
