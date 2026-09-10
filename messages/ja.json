@@ -57,5 +57,29 @@
   },
   "inquiry": {
     "notice": "お問い合わせは1:1お問い合わせをご利用ください"
+  },
+  "checkout": {
+    "title": "注文者情報および契約同意",
+    "summaryTitle": "注文内容",
+    "totalLabel": "お支払い金額",
+    "ordererTitle": "注文者情報",
+    "name": "お名前",
+    "phone": "連絡先",
+    "email": "メールアドレス",
+    "postalCode": "郵便番号",
+    "address1": "住所",
+    "address2": "詳細住所（任意）",
+    "businessNo": "事業者登録番号（任意）",
+    "representative": "代表者（任意）",
+    "contractTitle": "契約書",
+    "viewContract": "契約書全文を見る",
+    "signatureLabel": "電子署名",
+    "signatureNote": "同意にチェックすると名前が署名として自動入力されます",
+    "payButton": "お支払いへ進む",
+    "submitting": "処理中...",
+    "errorGeneric": "注文を作成できませんでした。しばらくしてから再度お試しください。",
+    "noContractTitle": "現在オンライン決済に対応していません",
+    "noContractBody": "このカテゴリーは契約書準備中のため、オンライン決済をご利用いただけません。お問い合わせをご案内します。",
+    "inquiryLink": "お問い合わせ"
   }
 }
