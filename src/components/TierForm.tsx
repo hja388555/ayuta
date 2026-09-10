@@ -29,11 +29,20 @@ export function previewTotal(
  * 결제 화면으로 넘길 쿼리스트링을 만든다.
  * 금액은 절대 포함하지 않는다 — 서버가 DB 단가로 다시 계산한 값만 청구한다.
  * 선택한 등급과 플랫폼만 repeated param으로 담는다.
+ * country·purpose는 표지에서 이미 고른 값을 그대로 실어 보낸다 — 이 화면에서 다시
+ * 고르게 하지 않는다(카테고리 화면은 표지 다음 단계일 뿐이다).
  */
-export function buildPaymentQuery(tiers: readonly string[], platforms: readonly string[]): string {
+export function buildPaymentQuery(
+  tiers: readonly string[],
+  platforms: readonly string[],
+  country: readonly string[] = [],
+  purpose?: string,
+): string {
   const qs = new URLSearchParams()
   for (const t of tiers) qs.append('tier', t)
   for (const p of platforms) qs.append('platform', p)
+  for (const c of country) qs.append('country', c)
+  if (purpose) qs.set('purpose', purpose)
   return qs.toString()
 }
 
@@ -50,6 +59,9 @@ type Props = {
   model: PricingModel
   locale: string
   categorySlug: string
+  // 표지에서 이미 고른 나라·목적. 여기서는 그대로 들고만 간다
+  country: readonly string[]
+  purpose?: string
   labels: {
     sectionTitle: string
     platformHint: string
@@ -58,7 +70,7 @@ type Props = {
   }
 }
 
-export function TierForm({ book, model, locale, categorySlug, labels }: Props) {
+export function TierForm({ book, model, locale, categorySlug, country, purpose, labels }: Props) {
   const router = useRouter()
   const [tiers, setTiers] = useState<string[]>([])
   const [platforms, setPlatforms] = useState<string[]>([])
@@ -72,8 +84,8 @@ export function TierForm({ book, model, locale, categorySlug, labels }: Props) {
 
   function goToPayment() {
     if (!canPay) return
-    const query = buildPaymentQuery(tiers, platforms)
-    router.push(`/${locale}/order/${categorySlug}/payment?${query}`)
+    const query = buildPaymentQuery(tiers, platforms, country, purpose)
+    router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
   return (

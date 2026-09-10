@@ -51,12 +51,17 @@ export function buildGroupQuery(
   period: string | undefined,
   size: string | undefined,
   sizeMaxLength: number,
+  country: readonly string[] = [],
+  purpose?: string,
 ): string {
   const qs = new URLSearchParams()
   for (const k of allSelectedKeys) qs.append('item', k)
   if (period) qs.set('period', period)
   const trimmed = size?.trim()
   if (trimmed) qs.set('size', trimmed.slice(0, sizeMaxLength))
+  // 표지에서 고른 나라·목적을 그대로 실어 보낸다 — 이 화면에서 다시 고르게 하지 않는다
+  for (const c of country) qs.append('country', c)
+  if (purpose) qs.set('purpose', purpose)
   return qs.toString()
 }
 
@@ -92,10 +97,13 @@ type Props = {
   book: PriceBook
   locale: string
   categorySlug: string
+  // 표지에서 이미 고른 나라·목적. 여기서는 그대로 들고만 간다
+  country: readonly string[]
+  purpose?: string
   labels: Labels
 }
 
-export function GroupForm({ form, model, book, locale, categorySlug, labels }: Props) {
+export function GroupForm({ form, model, book, locale, categorySlug, country, purpose, labels }: Props) {
   const router = useRouter()
   const [selections, setSelections] = useState<Record<string, string[]>>({})
   const [period, setPeriod] = useState<string | undefined>(undefined)
@@ -123,8 +131,8 @@ export function GroupForm({ form, model, book, locale, categorySlug, labels }: P
 
   function goToPayment() {
     if (!canPay) return
-    const query = buildGroupQuery(allSelected, period, size, form.freeText?.[0]?.maxLength ?? 0)
-    router.push(`/${locale}/order/${categorySlug}/payment?${query}`)
+    const query = buildGroupQuery(allSelected, period, size, form.freeText?.[0]?.maxLength ?? 0, country, purpose)
+    router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
   return (

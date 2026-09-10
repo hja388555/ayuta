@@ -4,8 +4,22 @@
     "title": "広告見積もりをすぐに受け取る",
     "subtitle": "国と目的を選び、希望の広告サービスを選ぶとすぐにフォームへ移動します",
     "stepCountry": "広告する国を選択してください",
+    "stepCountryHint": "重複選択可能",
     "stepPurpose": "広告の目的を選択してください",
-    "stepService": "広告サービスを選択してください"
+    "stepService": "広告サービスを選択してください",
+    "countryRequired": "先に国を選択してください",
+    "countries": {
+      "jp": "日本",
+      "kr": "韓国"
+    },
+    "purposes": {
+      "brand": "会社ブランド",
+      "product": "製品・商品",
+      "store": "店舗・飲食店",
+      "medical": "病院・医療",
+      "event": "イベント",
+      "etc": "その他"
+    }
   },
   "categories": {
     "digital-sns": "デジタル / SNS 広告",
@@ -57,5 +71,41 @@
   },
   "inquiry": {
     "notice": "お問い合わせは1:1お問い合わせをご利用ください"
+  },
+  "checkout": {
+    "title": "注文者情報および契約同意",
+    "summaryTitle": "注文内容",
+    "totalLabel": "お支払い金額",
+    "ordererTitle": "注文者情報",
+    "name": "お名前",
+    "phone": "連絡先",
+    "email": "メールアドレス",
+    "postalCode": "郵便番号",
+    "address1": "住所",
+    "address2": "詳細住所（任意）",
+    "businessNo": "事業者登録番号（任意）",
+    "representative": "代表者（任意）",
+    "contractTitle": "契約書",
+    "viewContract": "契約書全文を見る",
+    "signatureLabel": "電子署名",
+    "signatureNote": "同意にチェックすると名前が署名として自動入力されます",
+    "payButton": "お支払いへ進む",
+    "submitting": "処理中...",
+    "errorGeneric": "注文を作成できませんでした。しばらくしてから再度お試しください。",
+    "noContractTitle": "現在オンライン決済に対応していません",
+    "noContractBody": "このカテゴリーは契約書準備中のため、オンライン決済をご利用いただけません。お問い合わせをご案内します。",
+    "inquiryLink": "お問い合わせ"
+  },
+  "orderComplete": {
+    "title": "ご注文を受け付けました",
+    "orderNumberLabel": "注文番号",
+    "copyButton": "コピー",
+    "copied": "コピーしました",
+    "guestNotice": "会員登録なしのご注文は、この番号でのみ照会できます。必ず保管してください。",
+    "viewContract": "契約書を再度見る",
+    "notFoundTitle": "注文が見つかりません",
+    "notFoundBody": "注文番号が正しいか、会員登録なしの場合は注文時に入力したメールアドレス・電話番号が正しいかご確認ください。",
+    "pendingNotice": "まだ決済が完了していません。決済が完了して初めて契約が締結されます。",
+    "contractPendingLabel": "決済待ち — まだ締結されていない契約書の草案です。"
   }
 }

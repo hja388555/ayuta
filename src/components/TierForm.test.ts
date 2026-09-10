@@ -54,9 +54,13 @@ describe('결제 쿼리 빌드', () => {
     expect(params.getAll('platform')).toEqual(['instagram', 'youtube'])
   })
 
-  it('금액 관련 키가 없다 — total, amount, price, sum 금지', () => {
-    const qs = buildPaymentQuery(['basic'], ['youtube'])
-    expect(qs).not.toMatch(/\b(total|amount|price|sum)\b/)
+  it('허락된 선택 키만 담는다 — tier, platform, country, purpose만 들어간다', () => {
+    const qs = buildPaymentQuery(['basic', 'standard'], ['instagram', 'youtube'], ['kr', 'jp'], 'brand')
+    const params = new URLSearchParams(qs)
+    const allKeys = new Set(params.keys())
+    // 허락된 키는 정확히 이것들만이다
+    const permittedKeys = new Set(['tier', 'platform', 'country', 'purpose'])
+    expect(allKeys).toEqual(permittedKeys)
   })
 
   it('아무것도 선택하지 않으면 빈 문자열을 반환한다', () => {
@@ -76,5 +80,17 @@ describe('결제 쿼리 빌드', () => {
     const params = new URLSearchParams(qs)
     expect(params.getAll('tier')).toEqual([])
     expect(params.getAll('platform')).toEqual(['instagram'])
+  })
+
+  it('표지에서 고른 나라·목적을 그대로 실어 보낸다', () => {
+    const qs = buildPaymentQuery(['basic'], [], ['jp', 'kr'], 'brand')
+    const params = new URLSearchParams(qs)
+    expect(params.getAll('country')).toEqual(['jp', 'kr'])
+    expect(params.get('purpose')).toBe('brand')
+  })
+
+  it('목적을 안 골랐으면 purpose param이 없다', () => {
+    const qs = buildPaymentQuery(['basic'], [], ['jp'], undefined)
+    expect(new URLSearchParams(qs).has('purpose')).toBe(false)
   })
 })

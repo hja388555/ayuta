@@ -72,6 +72,7 @@ export interface Config {
     'price-entries': PriceEntry;
     orders: Order;
     'order-transitions': OrderTransition;
+    'contract-templates': ContractTemplate;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     'price-entries': PriceEntriesSelect<false> | PriceEntriesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-transitions': OrderTransitionsSelect<false> | OrderTransitionsSelect<true>;
+    'contract-templates': ContractTemplatesSelect<false> | ContractTemplatesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -195,10 +197,12 @@ export interface Order {
   id: number;
   orderNumber: string;
   paymentId: string;
+  idempotencyKey?: string | null;
   status: 'pending' | 'paid' | 'in_progress' | 'done' | 'failed' | 'cancelled' | 'fraud_suspected';
   currency: 'KRW' | 'JPY';
   amount: number;
   locale: 'ko' | 'ja';
+  category: number;
   items: {
     code: string;
     label: string;
@@ -206,15 +210,26 @@ export interface Order {
     quantity: number;
     id?: string | null;
   }[];
+  contractItems: {
+    label: string;
+    value: string;
+    id?: string | null;
+  }[];
+  country?: ('kr' | 'jp')[] | null;
+  purpose?: ('brand' | 'product' | 'store' | 'medical' | 'event' | 'etc') | null;
   customer?: (number | null) | User;
-  guest?: {
-    name?: string | null;
-    phone?: string | null;
-    email?: string | null;
-    postcode?: string | null;
-    address1?: string | null;
+  orderer: {
+    name: string;
+    phone: string;
+    email: string;
+    postcode: string;
+    address1: string;
     address2?: string | null;
+    businessNo?: string | null;
+    representative?: string | null;
   };
+  signature: string;
+  contractText: string;
   paidAt?: string | null;
   failReason?: string | null;
   updatedAt: string;
@@ -232,6 +247,26 @@ export interface OrderTransition {
   actor?: (number | null) | User;
   reason?: string | null;
   at: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contract-templates".
+ */
+export interface ContractTemplate {
+  id: number;
+  category: number;
+  locale: 'ko' | 'ja';
+  title: string;
+  body: string;
+  consents: {
+    key: string;
+    label: string;
+    required: boolean;
+    id?: string | null;
+  }[];
+  active: boolean;
   updatedAt: string;
   createdAt: string;
 }
@@ -278,6 +313,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'order-transitions';
         value: number | OrderTransition;
+      } | null)
+    | ({
+        relationTo: 'contract-templates';
+        value: number | ContractTemplate;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -387,10 +426,12 @@ export interface PriceEntriesSelect<T extends boolean = true> {
 export interface OrdersSelect<T extends boolean = true> {
   orderNumber?: T;
   paymentId?: T;
+  idempotencyKey?: T;
   status?: T;
   currency?: T;
   amount?: T;
   locale?: T;
+  category?: T;
   items?:
     | T
     | {
@@ -400,8 +441,17 @@ export interface OrdersSelect<T extends boolean = true> {
         quantity?: T;
         id?: T;
       };
+  contractItems?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        id?: T;
+      };
+  country?: T;
+  purpose?: T;
   customer?: T;
-  guest?:
+  orderer?:
     | T
     | {
         name?: T;
@@ -410,7 +460,11 @@ export interface OrdersSelect<T extends boolean = true> {
         postcode?: T;
         address1?: T;
         address2?: T;
+        businessNo?: T;
+        representative?: T;
       };
+  signature?: T;
+  contractText?: T;
   paidAt?: T;
   failReason?: T;
   updatedAt?: T;
@@ -427,6 +481,27 @@ export interface OrderTransitionsSelect<T extends boolean = true> {
   actor?: T;
   reason?: T;
   at?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "contract-templates_select".
+ */
+export interface ContractTemplatesSelect<T extends boolean = true> {
+  category?: T;
+  locale?: T;
+  title?: T;
+  body?: T;
+  consents?:
+    | T
+    | {
+        key?: T;
+        label?: T;
+        required?: T;
+        id?: T;
+      };
+  active?: T;
   updatedAt?: T;
   createdAt?: T;
 }

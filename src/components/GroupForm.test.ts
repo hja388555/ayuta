@@ -108,9 +108,13 @@ describe('결제 쿼리', () => {
     expect(params.get('period')).toBe('1w')
   })
 
-  it('금액 키(total·amount·price·sum)가 절대 들어가지 않는다', () => {
-    const qs = buildGroupQuery(['national-kr-hankyung'], undefined, undefined, 10)
-    expect(qs).not.toMatch(/\b(total|amount|price|sum)\b/)
+  it('허락된 선택 키만 담는다 — item, period, size, country, purpose만 들어간다', () => {
+    const qs = buildGroupQuery(['subway-city-seoul'], '1w', '10cm', 10, ['kr', 'jp'], 'store')
+    const params = new URLSearchParams(qs)
+    const allKeys = new Set(params.keys())
+    // 허락된 키는 정확히 이것들만이다
+    const permittedKeys = new Set(['item', 'period', 'size', 'country', 'purpose'])
+    expect(allKeys).toEqual(permittedKeys)
   })
 
   it('자유 입력(사이즈)은 길이 상한을 넘기면 잘린다', () => {
@@ -126,5 +130,12 @@ describe('결제 쿼리', () => {
   it('빈 문자열/공백만 있는 사이즈는 쿼리에 담지 않는다', () => {
     const qs = buildGroupQuery([], undefined, '   ', 10)
     expect(qs).toBe('')
+  })
+
+  it('표지에서 고른 나라·목적을 그대로 실어 보낸다', () => {
+    const qs = buildGroupQuery(['subway-city-seoul'], '1w', undefined, 10, ['jp', 'kr'], 'store')
+    const params = new URLSearchParams(qs)
+    expect(params.getAll('country')).toEqual(['jp', 'kr'])
+    expect(params.get('purpose')).toBe('store')
   })
 })

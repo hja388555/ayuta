@@ -1,7 +1,8 @@
-import Link from 'next/link'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Shell } from '@/components/Shell'
+import { CoverSteps } from '@/components/CoverSteps'
 import { CATEGORIES } from '@/lib/categories'
+import { COUNTRY_CODES, PURPOSE_CODES } from '@/lib/cover-selection'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -25,33 +26,23 @@ export default async function CoverPage({ params }: Props) {
 
       <Shell as="section">
         <div style={{ padding: '48px 0' }}>
-          <h2 style={{ fontSize: 'var(--fs-h2)' }}>{t('stepService')}</h2>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-              gap: 16,
+          <CoverSteps
+            locale={locale}
+            categories={CATEGORIES}
+            labels={{
+              stepCountry: t('stepCountry'),
+              stepCountryHint: t('stepCountryHint'),
+              stepPurpose: t('stepPurpose'),
+              stepService: t('stepService'),
+              countryRequired: t('countryRequired'),
+              countries: Object.fromEntries(COUNTRY_CODES.map((c) => [c, t(`countries.${c}`)])) as Record<
+                (typeof COUNTRY_CODES)[number],
+                string
+              >,
+              purposes: Object.fromEntries(PURPOSE_CODES.map((p) => [p, t(`purposes.${p}`)])),
+              categories: Object.fromEntries(CATEGORIES.map((c) => [c.slug, tCat(c.slug)])),
             }}
-          >
-            {CATEGORIES.map((c) => (
-              // 클릭이 곧 이동이다. 확인 단계·[다음] 버튼을 만들지 않는다 (G1, G2-7)
-              <Link
-                key={c.slug}
-                href={`/${locale}/order/${c.slug}`}
-                style={{
-                  display: 'block',
-                  padding: '24px 20px',
-                  border: '1px solid var(--line-strong)',
-                  borderRadius: 8,
-                  textDecoration: 'none',
-                  color: 'var(--ink-900)',
-                }}
-              >
-                {tCat(c.slug)}
-              </Link>
-            ))}
-          </div>
+          />
         </div>
       </Shell>
 
