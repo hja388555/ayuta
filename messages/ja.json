@@ -196,7 +196,8 @@
       "unauthenticated": "ログインが解除されました。再度ログインしてください。",
       "generic": "処理できませんでした。しばらくしてから再度お試しください。",
       "network": "サーバーに接続できませんでした。ネットワークをご確認ください。"
-    }
+    },
+    "contractsLink": "契約書保管庫"
   },
   "quote": {
     "title": "お見積書",
@@ -257,6 +258,23 @@
     "contractPeriodLabel": "契約期間",
     "adStartLabel": "広告開始日",
     "schedulePending": "協議中",
-    "contractPendingLabel": "決済待ち — まだ締結されていない契約書の草案です。"
+    "contractPendingLabel": "決済待ち — まだ締結されていない契約書の草案です。",
+    "close": "閉じる"
+  },
+  "contracts": {
+    "title": "契約書保管庫",
+    "empty": "お支払い済みの契約書はまだありません。",
+    "orderNumber": "注文番号",
+    "service": "広告サービス",
+    "contractDate": "契約日",
+    "contractPeriod": "契約期間",
+    "adStartDate": "広告開始日",
+    "status": "状態",
+    "view": "契約書を見る",
+    "close": "閉じる",
+    "modalTitle": "契約書",
+    "schedulePending": "協議中",
+    "cancelledNotice": "キャンセルされた注文の契約書です。お支払い時に締結された原文をそのまま保管しています。",
+    "footnote": "契約書はお支払い時点の原文のまま保管されます。契約期間・広告開始日は担当者との協議後に決まり次第表示されます。"
   }
 }

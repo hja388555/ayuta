@@ -2,6 +2,7 @@ import { cookies } from 'next/headers'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Shell } from '@/components/Shell'
 import { CopyOrderNumber } from '@/components/CopyOrderNumber'
+import { ContractModal } from '@/components/ContractModal'
 import { findOwnedOrder, formatOrderSchedule } from '@/lib/order-lookup'
 import { GUEST_PROOF_COOKIE_NAME, readGuestProof } from '@/lib/checkout/guest-proof'
 import { getSessionUser } from '@/lib/dal'
@@ -87,13 +88,20 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
             </p>
           )}
 
-          <details style={{ marginTop: 32 }}>
-            <summary>{t('viewContract')}</summary>
-            {order.status !== 'paid' && (
-              <p style={{ marginTop: 12, color: 'var(--ink-500)', fontWeight: 600 }}>{t('contractPendingLabel')}</p>
-            )}
-            <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', marginTop: 12 }}>{order.contractText}</pre>
-          </details>
+          {/* 계약서 보관함과 같은 팝업(Q21-B). 비회원은 주문 조회 인증 후 이 화면에서 본다 */}
+          <div style={{ marginTop: 32 }}>
+            <ContractModal
+              buttonLabel={t('viewContract')}
+              closeLabel={t('close')}
+              title={`${t('viewContract')} · ${order.orderNumber}`}
+              facts={[
+                { label: t('contractPeriodLabel'), value: schedule.contractPeriod },
+                { label: t('adStartLabel'), value: schedule.adStartDate },
+              ]}
+              notice={order.status !== 'paid' ? t('contractPendingLabel') : undefined}
+              contractText={order.contractText}
+            />
+          </div>
         </div>
       </Shell>
     </main>
