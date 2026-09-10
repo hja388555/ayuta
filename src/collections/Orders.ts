@@ -72,6 +72,15 @@ export const Orders: CollectionConfig = {
         { name: 'value', type: 'text', required: true },
       ],
     },
+    // 표지(cover)에서 고른 나라·목적. 가격에 관여하지 않지만 "무엇을 파는지"를 설명하는
+    // 값이라 카테고리와 무관하게 저장한다 — 계약서 문구에 실리는지는 카테고리별 소스
+    // 문서가 있는지에 달렸다(createOrder/contract-items.ts 참고).
+    { name: 'country', type: 'select', hasMany: true, options: ['kr', 'jp'] },
+    {
+      name: 'purpose',
+      type: 'select',
+      options: ['brand', 'product', 'store', 'medical', 'event', 'etc'],
+    },
     { name: 'customer', type: 'relationship', relationTo: 'users', hasMany: false },
     {
       // 서명한 사람의 정보. 회원이어도 세션을 신뢰하지 않고 이 값을 다시 검증해 저장한다 —

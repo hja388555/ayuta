@@ -4,8 +4,22 @@
     "title": "広告見積もりをすぐに受け取る",
     "subtitle": "国と目的を選び、希望の広告サービスを選ぶとすぐにフォームへ移動します",
     "stepCountry": "広告する国を選択してください",
+    "stepCountryHint": "重複選択可能",
     "stepPurpose": "広告の目的を選択してください",
-    "stepService": "広告サービスを選択してください"
+    "stepService": "広告サービスを選択してください",
+    "countryRequired": "先に国を選択してください",
+    "countries": {
+      "jp": "日本",
+      "kr": "韓国"
+    },
+    "purposes": {
+      "brand": "会社ブランド",
+      "product": "製品・商品",
+      "store": "店舗・飲食店",
+      "medical": "病院・医療",
+      "event": "イベント",
+      "etc": "その他"
+    }
   },
   "categories": {
     "digital-sns": "デジタル / SNS 広告",

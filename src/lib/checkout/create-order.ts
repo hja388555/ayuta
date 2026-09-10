@@ -13,8 +13,9 @@ import { nextOrderNumber } from '../order-counter'
 import { companyContractFields } from '../company'
 import { OrdererSchema, buyerContractFields } from './orderer'
 import { allRequiredChecked, type ConsentDef } from './consents'
-import { buildContractItems } from './contract-items'
+import { buildContractItems, countryFactValue } from './contract-items'
 import { filterPricedSelection } from './selection-from-query'
+import { sanitizeCountries, sanitizePurpose } from '../cover-selection'
 
 // 1. 입력 모양 검증. 금액 필드는 여기 아예 없다 — 클라이언트가 뭘 보내든 서버가 쓸 값은
 // selection(선택 항목 키)뿐이고, 금액은 서버가 스스로 재계산한다
@@ -42,6 +43,20 @@ const CreateOrderInputSchema = z.object({
 // Postgres 23505를 이미 ValidationError로 감싸 올려보낸다 — 그 errors[].path에 위반된
 // 필드명이 담긴다. 다른 필드(orderNumber·paymentId 등) 유니크 위반까지 재시도 경로로
 // 삼키면 안 되므로 path가 idempotencyKey일 때만 본다.
+// input.selection은 모양이 카테고리마다 다른 z.unknown()이다 — country·purpose만
+// 안전하게 뽑아내는 작은 헬퍼. selection-from-query.ts가 이미 두 키를 항상 실어 보내지만,
+// API를 직접 호출하는 경로(클라이언트 조작)까지 방어한다.
+function selectionField(selection: unknown, key: string): unknown {
+  if (typeof selection !== 'object' || selection === null) return undefined
+  return (selection as Record<string, unknown>)[key]
+}
+function asStringArray(v: unknown): string[] {
+  return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []
+}
+function asOptionalString(v: unknown): string | undefined {
+  return typeof v === 'string' && v.length > 0 ? v : undefined
+}
+
 function isIdempotencyKeyViolation(err: unknown): boolean {
   if (!(err instanceof ValidationError)) return false
   const errors = (err.data as { errors?: { path?: unknown }[] } | null)?.errors
@@ -172,6 +187,10 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
   // 갑측 항목에 쓰는 것과 같은 관례(buyerContractFields)대로 명시적 대시로 채운다
   const productName = contractItems.find((item) => item.label === '등급')?.value ?? '-'
   const channels = contractItems.find((item) => item.label === '플랫폼')?.value ?? '-'
+  // 표지에서 고른 나라 — 1번 계약서 제1조 "광고 국가" 줄({{country}})을 채운다.
+  // 다른 카테고리 템플릿에는 {{country}} 자리가 없으므로 값을 넘겨도 조용히 무시된다
+  // (fillContract는 템플릿에 없는 키를 치환하지 않는다).
+  const country = countryFactValue(input.selection, input.locale)
 
   const { text: contractText, missing } = fillContract(template.body, {
     amount: quote.total,
@@ -182,6 +201,7 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
     items: contractItems,
     productName,
     channels,
+    country,
     ...buyerContractFields(input.orderer),
     ...companyContractFields(input.locale),
   })
@@ -211,6 +231,11 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
         // 가격 없는 선택(국가, 사이즈, 채널 등)도 관리자가 주문 상세에서 볼 수 있어야 한다 —
         // 그렇지 않으면 CS 문의가 왔을 때 관리자가 계약서 전문을 처음부터 다시 읽어야 한다
         contractItems,
+        // 표지의 나라·목적은 가격에 관여하지 않지만 "무엇을 파는지"를 설명하는 값이라
+        // 카테고리와 무관하게 모든 주문에 저장한다(계약서 문구에 실릴지는 카테고리별
+        // 소스 문서가 있는지에 달렸다 — contract-items.ts countryFactValue/buildContractItems 참고).
+        country: sanitizeCountries(asStringArray(selectionField(input.selection, 'country'))),
+        purpose: sanitizePurpose(asOptionalString(selectionField(input.selection, 'purpose'))),
         idempotencyKey: input.idempotencyKey || undefined,
         customer: customerId ?? undefined,
         orderer: {

@@ -77,4 +77,16 @@ describe('결제 쿼리 빌드', () => {
     expect(params.getAll('tier')).toEqual([])
     expect(params.getAll('platform')).toEqual(['instagram'])
   })
+
+  it('표지에서 고른 나라·목적을 그대로 실어 보낸다', () => {
+    const qs = buildPaymentQuery(['basic'], [], ['jp', 'kr'], 'brand')
+    const params = new URLSearchParams(qs)
+    expect(params.getAll('country')).toEqual(['jp', 'kr'])
+    expect(params.get('purpose')).toBe('brand')
+  })
+
+  it('목적을 안 골랐으면 purpose param이 없다', () => {
+    const qs = buildPaymentQuery(['basic'], [], ['jp'], undefined)
+    expect(new URLSearchParams(qs).has('purpose')).toBe(false)
+  })
 })

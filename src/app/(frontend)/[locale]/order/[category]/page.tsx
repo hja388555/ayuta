@@ -11,11 +11,19 @@ import { currencyForLocale } from '@/lib/payments/channel'
 
 export const dynamic = 'force-dynamic'
 
-type Props = { params: Promise<{ locale: string; category: string }> }
+type Props = {
+  params: Promise<{ locale: string; category: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
+}
 
-export default async function OrderPage({ params }: Props) {
+export default async function OrderPage({ params, searchParams }: Props) {
   const { locale, category } = await params
+  const sp = await searchParams
   setRequestLocale(locale)
+
+  // 표지에서 넘어온 나라·목적. 여기서는 다시 고르게 하지 않고 결제 화면까지 그대로 들고 간다
+  const country = Array.isArray(sp.country) ? sp.country : sp.country ? [sp.country] : []
+  const purpose = typeof sp.purpose === 'string' ? sp.purpose : undefined
 
   const def = categoryBySlug(category)
   // 없는 슬러그는 404. 500 이 나면 어떤 슬러그가 존재하는지 알려주는 신호가 된다
@@ -45,6 +53,8 @@ export default async function OrderPage({ params }: Props) {
               model={def.model}
               locale={locale}
               categorySlug={def.slug}
+              country={country}
+              purpose={purpose}
               labels={{
                 sectionTitle: t('sectionTitle'),
                 platformHint: t('platformHint'),
@@ -59,6 +69,8 @@ export default async function OrderPage({ params }: Props) {
               book={book}
               locale={locale}
               categorySlug={def.slug}
+              country={country}
+              purpose={purpose}
               labels={{
                 groupTitles: tGroup.raw('groupTitles'),
                 itemLabels: tGroup.raw('itemLabels'),

@@ -215,6 +215,8 @@ export interface Order {
     value: string;
     id?: string | null;
   }[];
+  country?: ('kr' | 'jp')[] | null;
+  purpose?: ('brand' | 'product' | 'store' | 'medical' | 'event' | 'etc') | null;
   customer?: (number | null) | User;
   orderer: {
     name: string;
@@ -446,6 +448,8 @@ export interface OrdersSelect<T extends boolean = true> {
         value?: T;
         id?: T;
       };
+  country?: T;
+  purpose?: T;
   customer?: T;
   orderer?:
     | T

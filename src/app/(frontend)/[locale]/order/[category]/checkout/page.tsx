@@ -10,7 +10,7 @@ import { formFor } from '@/lib/category-groups'
 import { loadPriceBook } from '@/lib/price-book'
 import { currencyForLocale } from '@/lib/payments/channel'
 import { selectionFromQuery, filterPricedSelection } from '@/lib/checkout/selection-from-query'
-import { buildContractItems } from '@/lib/checkout/contract-items'
+import { buildContractItems, countryFactValue } from '@/lib/checkout/contract-items'
 import { companyContractFields } from '@/lib/company'
 import { getSessionUser } from '@/lib/dal'
 
@@ -96,6 +96,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
     buyerName: '',
     signature: '',
     items: buildContractItems(def, book, rawSelection, contractLocale),
+    country: countryFactValue(rawSelection, contractLocale),
     ...companyContractFields(contractLocale),
   })
 

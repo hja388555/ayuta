@@ -3,8 +3,22 @@
     "title": "광고 견적을 빠르게 받아보세요",
     "subtitle": "나라와 목적을 고르고, 원하는 광고 서비스를 선택하면 바로 폼으로 이동합니다",
     "stepCountry": "광고하실 나라를 선택해주세요",
+    "stepCountryHint": "중복 선택 가능",
     "stepPurpose": "광고 목적을 선택해주세요",
-    "stepService": "광고 서비스를 선택해주세요"
+    "stepService": "광고 서비스를 선택해주세요",
+    "countryRequired": "나라를 먼저 선택해주세요",
+    "countries": {
+      "jp": "일본",
+      "kr": "한국"
+    },
+    "purposes": {
+      "brand": "회사 브랜드",
+      "product": "제품 · 상품",
+      "store": "매장 · 음식점",
+      "medical": "병원 · 의료",
+      "event": "행사 · 이벤트",
+      "etc": "기타"
+    }
   },
   "categories": {
     "digital-sns": "디지털 / SNS 광고",

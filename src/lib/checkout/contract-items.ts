@@ -1,6 +1,7 @@
 import type { PriceBook } from '@ayuta/pricing'
 import type { CategoryDef } from '../categories'
 import { formFor } from '../category-groups'
+import { formatCountries } from '../cover-selection'
 import koMessages from '../../../messages/ko.json'
 import jaMessages from '../../../messages/ja.json'
 
@@ -16,6 +17,11 @@ const PLATFORM_LABELS: Record<string, { ko: string; ja: string }> = {
   tiktok: { ko: '틱톡', ja: 'TikTok' },
   line: { ko: 'LINE', ja: 'LINE' },
 }
+
+// 4번(지하철·버스·블로그) 계약서 자동 채움 목록에 "광고 국가"가 명시돼 있다
+// (docs/법무문서-확정본.md G절). 1번은 별도 자리({{country}})로 채우므로 여기 섞지 않고,
+// 2번은 "촬영 국가"라는 다른 필드라 이 라벨을 쓰지 않는다(카테고리별 소스가 다르다).
+const COUNTRY_ITEM_LABEL: { ko: string; ja: string } = { ko: '광고 국가', ja: '広告国' }
 
 type Messages = typeof koMessages
 
@@ -74,5 +80,25 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
   const size = typeof sel.size === 'string' ? sel.size.trim() : ''
   if (size) items.push({ label: messages.groupForm.sizeLabel, value: size })
 
+  // 4번만 — G절 자동 채움 목록에 "광고 국가"가 있는 카테고리는 4번뿐이다(2번은 "촬영
+  // 국가"라는 별개 필드, 3번은 계약서 원문이 아직 없다). 표지에서 고른 나라를 그대로 싣는다.
+  if (def.no === 4) {
+    const country = 'country' in (rawSelection as Record<string, unknown>) ? asStringArray((rawSelection as { country?: unknown }).country) : []
+    if (country.length > 0) items.push({ label: COUNTRY_ITEM_LABEL[locale], value: formatCountries(country, locale) })
+  }
+
   return items
+}
+
+/**
+ * 1번 계약서 제1조 "광고 국가" 줄({{country}})에 채울 값. 표지에서 고른 나라를
+ * 원본 표기 순서(한국, 일본)로 렌더링한다. 나라를 하나도 못 고른 채 여기까지 온다면
+ * (정상 흐름에서는 표지 가드가 막지만) 방어적으로 명시적 대시를 채운다 — undefined로
+ * 두면 missing 판정으로 주문 전체가 막힌다.
+ */
+export function countryFactValue(rawSelection: unknown, locale: 'ko' | 'ja'): string {
+  const sel = typeof rawSelection === 'object' && rawSelection !== null ? (rawSelection as { country?: unknown }) : {}
+  const countries = asStringArray(sel.country)
+  const formatted = formatCountries(countries, locale)
+  return formatted || '-'
 }

@@ -127,4 +127,11 @@ describe('결제 쿼리', () => {
     const qs = buildGroupQuery([], undefined, '   ', 10)
     expect(qs).toBe('')
   })
+
+  it('표지에서 고른 나라·목적을 그대로 실어 보낸다', () => {
+    const qs = buildGroupQuery(['subway-city-seoul'], '1w', undefined, 10, ['jp', 'kr'], 'store')
+    const params = new URLSearchParams(qs)
+    expect(params.getAll('country')).toEqual(['jp', 'kr'])
+    expect(params.get('purpose')).toBe('store')
+  })
 })

@@ -15,15 +15,21 @@ export function selectionFromQuery(model: PricingModel, sp: SearchParams): unkno
   // 계약서 항목(국가/사이즈 등)에는 들어가야 한다 — calculate()로 가는 selection과 계약서
   // 사실(facts)로 가는 selection이 같은 값이어야 나중에 둘이 따로 놀지 않는다.
   const size = typeof sp.size === 'string' ? sp.size : undefined
+  // 표지(cover)에서 넘어온 나라·목적. 가격에 관여하지 않지만 "뭘 파는지"를 설명하는
+  // 값이라 카테고리와 무관하게 항상 selection에 실어 둔다 — calculate() 호출 직전에서만
+  // (filterPricedSelection이 아니라 registry.calculate 자체가 쓰지 않는 키를 무시한다)
+  // 걸러지고, 계약서·주문 저장에는 그대로 남는다.
+  const country = asArray(sp.country)
+  const purpose = typeof sp.purpose === 'string' ? sp.purpose : undefined
   switch (model.kind) {
     case 'tier':
-      return { tiers: asArray(sp.tier), platforms: asArray(sp.platform) }
+      return { tiers: asArray(sp.tier), platforms: asArray(sp.platform), country, purpose }
     case 'sum':
-      return { items: asArray(sp.item), size }
+      return { items: asArray(sp.item), size, country, purpose }
     case 'sumMultiplier':
-      return { items: asArray(sp.item), period: typeof sp.period === 'string' ? sp.period : '', size }
+      return { items: asArray(sp.item), period: typeof sp.period === 'string' ? sp.period : '', size, country, purpose }
     case 'inquiry':
-      return {}
+      return { country, purpose }
   }
 }
 

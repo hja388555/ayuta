@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { PricingModel } from '@ayuta/pricing'
+import { calculate, minor, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import { selectionFromQuery, filterPricedSelection } from './selection-from-query'
 import { formFor } from '../category-groups'
 
@@ -27,6 +27,32 @@ describe('selectionFromQuery', () => {
     }
     expect(sel.size).toBe('1200x800')
     expect(sel.period).toBe('1w')
+  })
+})
+
+describe('selectionFromQuery — 표지 나라·목적은 카테고리와 무관하게 실린다', () => {
+  it('tier 모델(1번)도 country·purpose를 담는다', () => {
+    const model: PricingModel = { kind: 'tier', category: 1, tiers: [], platforms: [] }
+    const sel = selectionFromQuery(model, { tier: ['standard'], country: ['jp', 'kr'], purpose: 'brand' }) as {
+      country: string[]
+      purpose?: string
+    }
+    expect(sel.country).toEqual(['jp', 'kr'])
+    expect(sel.purpose).toBe('brand')
+  })
+
+  it('목적을 아예 안 골랐으면 undefined다 — 목적은 선택이다', () => {
+    const model: PricingModel = { kind: 'tier', category: 1, tiers: [], platforms: [] }
+    const sel = selectionFromQuery(model, { tier: ['standard'], country: ['jp'] }) as { purpose?: string }
+    expect(sel.purpose).toBeUndefined()
+  })
+
+  it('country·purpose가 섞여 들어가도 calculate()는 깨지지 않는다 — 필요한 키만 본다', () => {
+    const model: PricingModel = { kind: 'tier', category: 1, tiers: [], platforms: [] }
+    const sel = selectionFromQuery(model, { tier: ['standard'], country: ['jp'], purpose: 'brand' })
+    const book: PriceBook = { currency: 'KRW', entries: { standard: { key: 'standard', label: '스탠다드', amount: minor(500000) } } }
+    const r = calculate(model, book, sel)
+    expect(r.ok).toBe(true)
   })
 })
 
