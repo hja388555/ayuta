@@ -11,7 +11,7 @@ import { formFor } from '../category-groups'
 import { loadPriceBook } from '../price-book'
 import { loadCategoryModel } from '../pricing-model'
 import { nextOrderNumber } from '../order-counter'
-import { companyContractFields } from '../company'
+import { loadCompanyContractFields } from '../company-settings'
 import { OrdererSchema, buyerContractFields } from './orderer'
 import { allRequiredChecked, type ConsentDef } from './consents'
 import { buildContractItems, countryFactValue } from './contract-items'
@@ -214,7 +214,8 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
     channels,
     country,
     ...buyerContractFields(input.orderer),
-    ...companyContractFields(input.locale),
+    // 을 정보는 관리자 설정(company-settings)에서 읽는다 — 이 시점 값이 스냅샷에 고정된다
+    ...(await loadCompanyContractFields(input.locale)),
   })
   if (missing.length > 0) return { ok: false, reason: 'contract_incomplete', detail: missing }
 

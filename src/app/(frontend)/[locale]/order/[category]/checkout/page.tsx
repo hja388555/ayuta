@@ -12,7 +12,7 @@ import { loadCategoryModel } from '@/lib/pricing-model'
 import { currencyForLocale } from '@/lib/payments/channel'
 import { selectionFromQuery, filterPricedSelection } from '@/lib/checkout/selection-from-query'
 import { buildContractItems, countryFactValue } from '@/lib/checkout/contract-items'
-import { companyContractFields } from '@/lib/company'
+import { loadCompanyContractFields } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
 
 export const dynamic = 'force-dynamic'
@@ -67,7 +67,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
             <h1 style={{ fontSize: 'var(--fs-h1)' }}>{t('noContractTitle')}</h1>
             <p style={{ marginTop: 12, color: 'var(--ink-500)' }}>{t('noContractBody')}</p>
             {/* 1:1 문의 화면은 이 계획 밖이다(Q14) — 지금은 안내 문구만 노출하고 결제로 보내지 않는다 */}
-            <a href="mailto:gggwon@gmail.com" style={{ display: 'inline-block', marginTop: 24 }}>
+            <a href={`/${locale}/order/other?type=${def.slug}`} style={{ display: 'inline-block', marginTop: 24 }}>
               {t('inquiryLink')}
             </a>
           </div>
@@ -100,7 +100,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
     signature: '',
     items: buildContractItems(def, book, rawSelection, contractLocale),
     country: countryFactValue(rawSelection, contractLocale),
-    ...companyContractFields(contractLocale),
+    ...(await loadCompanyContractFields(contractLocale)),
   })
 
   return (
