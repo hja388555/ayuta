@@ -20,6 +20,17 @@ export type OrderStatus = (typeof ORDER_STATUSES)[number]
 // 걸리지 않는다 — 막히는 건 admin UI와 REST/GraphQL 의 update 뿐이다.
 const IMMUTABLE = { update: () => false } as const
 
+// 같은 모양이지만 뜻이 다른 잠금. IMMUTABLE 은 "영원히 안 바뀐다"이고, 이쪽은
+// "바뀌긴 하는데 전용 경로(원자적 UPDATE + append-only 이력)로만 바뀐다"이다.
+// 둘을 한 상수로 합치면 나중에 IMMUTABLE 을 푸는 순간 이력이 필요한 필드까지 같이
+// 열린다 — 이름으로 구분해 둔다.
+const MANAGED_ELSEWHERE = { update: () => false } as const
+
+const SCHEDULE_ADMIN = {
+  readOnly: true,
+  description: '주문 상세의 계약기간 저장 경로로만 변경됩니다. 변경 이력이 남습니다.',
+} as const
+
 export const Orders: CollectionConfig = {
   slug: 'orders',
   admin: {
@@ -131,13 +142,15 @@ export const Orders: CollectionConfig = {
     // 그 안에 끼워 넣으면 "서명한 문서"가 아니게 된다. 고객 화면은 스냅샷과 이 컬럼을
     // 따로 읽어 합성해 보여준다(src/lib/order-lookup.ts).
     //
-    // 이 세 필드는 관리자가 admin 화면에서 직접 확정해야 하므로 잠그지 않는다.
-    // ⚠ 대신 admin UI 의 일반 저장은 order-schedule-changes 이력을 남기지 않는다 —
-    // 누가 언제 바꿨는지 기록이 필요하면 setOrderSchedule()(src/lib/orders/schedule.ts)
-    // 경로로 저장해야 한다.
-    { name: 'contractStart', type: 'date' },
-    { name: 'contractEnd', type: 'date' },
-    { name: 'adStartDate', type: 'date' },
+    // 이 세 필드는 setOrderSchedule()(src/lib/orders/schedule.ts) 로만 바뀐다. admin UI 의
+    // 일반 저장은 order-schedule-changes 이력을 남기지 않고 역순 기간 검증도 거치지
+    // 않으므로, 그 경로가 열려 있으면 이력이 감사 근거가 되지 못한다 — 그래서
+    // 읽기전용 + update 거부로 잠그고 POST /api/admin/orders/schedule 하나만 남긴다.
+    // setOrderSchedule() 은 payload.db.pool 에서 뽑은 client 로 raw SQL 을 실행하므로
+    // 필드 레벨 access 를 아예 통과하지 않는다 — 이 잠금에 걸리지 않는다.
+    { name: 'contractStart', type: 'date', access: MANAGED_ELSEWHERE, admin: SCHEDULE_ADMIN },
+    { name: 'contractEnd', type: 'date', access: MANAGED_ELSEWHERE, admin: SCHEDULE_ADMIN },
+    { name: 'adStartDate', type: 'date', access: MANAGED_ELSEWHERE, admin: SCHEDULE_ADMIN },
     { name: 'paidAt', type: 'date' },
     { name: 'failReason', type: 'text' },
   ],

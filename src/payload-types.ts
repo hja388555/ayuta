@@ -237,8 +237,17 @@ export interface Order {
   };
   signature: string;
   contractText: string;
+  /**
+   * 주문 상세의 계약기간 저장 경로로만 변경됩니다. 변경 이력이 남습니다.
+   */
   contractStart?: string | null;
+  /**
+   * 주문 상세의 계약기간 저장 경로로만 변경됩니다. 변경 이력이 남습니다.
+   */
   contractEnd?: string | null;
+  /**
+   * 주문 상세의 계약기간 저장 경로로만 변경됩니다. 변경 이력이 남습니다.
+   */
   adStartDate?: string | null;
   paidAt?: string | null;
   failReason?: string | null;
