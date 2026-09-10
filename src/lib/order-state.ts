@@ -4,23 +4,12 @@
 import 'server-only'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { ORDER_STATUSES, type OrderStatus } from '../collections/Orders'
+import { type OrderStatus } from '../collections/Orders'
+// 전이표는 화면(어떤 버튼을 보여줄지)과 공유해야 해서 순수 모듈로 뺐다.
+// 여기서 사본을 들고 있으면 화면과 서버가 서로 다른 규칙을 갖게 된다.
+import { canTransition } from './orders/transitions'
 
-const ALLOWED: Record<OrderStatus, readonly OrderStatus[]> = {
-  pending: ['paid', 'failed', 'cancelled', 'fraud_suspected'],
-  paid: ['in_progress', 'cancelled', 'fraud_suspected'],
-  in_progress: ['done', 'cancelled'],
-  done: [],
-  failed: [],
-  cancelled: [],
-  fraud_suspected: [],
-}
-
-export function canTransition(from: OrderStatus, to: OrderStatus): boolean {
-  const allowed = ALLOWED[from]
-  if (!allowed) return false
-  return allowed.includes(to)
-}
+export { canTransition }
 
 /**
  * 상태를 바꾸고 기록을 남긴다.

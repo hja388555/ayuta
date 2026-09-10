@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { guestOwnershipMatches } from './order-lookup'
+import { formatOrderSchedule, guestOwnershipMatches } from './order-lookup'
 
 // 실제 DB 조회(findOwnedOrder)는 tests/order-lookup.integration.test.ts가 다룬다.
 // 여기는 소유권 판정 로직만 DB 없이 떼어내 본다 — 특히 orderer가 없는 방어적 분기(Minor)는
@@ -40,5 +40,30 @@ describe('guestOwnershipMatches', () => {
     const brokenOrder = { customer: null, orderer: null } as unknown as typeof order
     expect(() => guestOwnershipMatches(brokenOrder, { email: 'hong@example.com', phone: '010-1234-5678' })).not.toThrow()
     expect(guestOwnershipMatches(brokenOrder, { email: 'hong@example.com', phone: '010-1234-5678' })).toBe(false)
+  })
+})
+
+describe('formatOrderSchedule', () => {
+  it('아직 안 정해졌으면 협의 중으로 표시한다', () => {
+    const view = formatOrderSchedule({}, '협의 중')
+    expect(view.contractPeriod).toBe('협의 중')
+    expect(view.adStartDate).toBe('협의 중')
+  })
+
+  it('정해진 계약기간은 YYYY-MM-DD ~ YYYY-MM-DD 로 표시한다', () => {
+    const view = formatOrderSchedule(
+      { contractStart: '2026-09-10T00:00:00+09:00', contractEnd: '2027-09-09T00:00:00+09:00' },
+      '협의 중',
+    )
+    expect(view.contractPeriod).toBe('2026-09-10 ~ 2027-09-09')
+  })
+
+  it('한쪽만 정해졌으면 정해진 쪽은 그대로 보여준다', () => {
+    const view = formatOrderSchedule({ contractStart: '2026-09-10T00:00:00+09:00' }, '협의 중')
+    expect(view.contractPeriod).toBe('2026-09-10 ~ 협의 중')
+  })
+
+  it('로케일 문구는 호출자가 넘긴 것을 그대로 쓴다 (ja)', () => {
+    expect(formatOrderSchedule({}, '協議中').adStartDate).toBe('協議中')
   })
 })

@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { isAdminRole, isSuperRole, type Role } from './roles'
 import { verifyOtp } from './admin-otp'
+import { hasFreshAdminOtp } from './admin-access'
 
 /** 코드 하나당 허용하는 오답 횟수. 넘으면 정답이어도 더 이상 통과시키지 않는다(fail closed) */
 const MAX_OTP_ATTEMPTS = 5
@@ -74,26 +75,16 @@ export async function requireSuper(): Promise<SessionUser> {
 export async function requireAdminVerified(): Promise<SessionUser> {
   const user = await requireAdmin()
   const payload = await getPayload({ config })
-  const { docs } = await payload.find({
-    collection: 'admin-otps',
-    where: {
-      and: [
-        { user: { equals: user.id } },
-        { consumedAt: { exists: true } },
-        // [알려진 한계] 검증 상태가 "세션"이 아니라 "코드를 소비한 시각"에 묶여 있다.
-        // 창은 12시간인데 tokenExpiration은 2시간이다. 따라서 12시간 안에 로그아웃
-        // 후 다시 로그인하면 2단계 인증 없이 /manage에 들어온다 — 2단계 인증이
-        // 실제로 요구되는 것은 대략 여섯 세션 중 한 번뿐이다. 이건 계획대로의 동작이므로
-        // 지금 바꾸지 않는다. 올바른 해법은 소비 기록에 세션 id를 같이 저장하고
-        // 여기서 현재 세션 id와 일치하는 행만 인정하는 것이며, /manage/verify 화면을
-        // 만드는 시점(발급·메일 발송이 붙는 태스크)에 함께 처리한다.
-        { consumedAt: { greater_than: new Date(Date.now() - 12 * 60 * 60 * 1000).toISOString() } },
-      ],
-    },
-    limit: 1,
-    overrideAccess: true,
-  })
-  if (docs.length === 0) throw new OtpRequiredError()
+  // 판정 자체는 컬렉션 access(isVerifiedAdmin)와 공유한다 — src/lib/admin-access.ts
+  //
+  // [알려진 한계] 검증 상태가 "세션"이 아니라 "코드를 소비한 시각"에 묶여 있다.
+  // 창은 12시간인데 tokenExpiration은 2시간이다. 따라서 12시간 안에 로그아웃
+  // 후 다시 로그인하면 2단계 인증 없이 /manage에 들어온다 — 2단계 인증이
+  // 실제로 요구되는 것은 대략 여섯 세션 중 한 번뿐이다. 이건 계획대로의 동작이므로
+  // 지금 바꾸지 않는다. 올바른 해법은 소비 기록에 세션 id를 같이 저장하고
+  // 여기서 현재 세션 id와 일치하는 행만 인정하는 것이며, /manage/verify 화면을
+  // 만드는 시점(발급·메일 발송이 붙는 태스크)에 함께 처리한다.
+  if (!(await hasFreshAdminOtp(payload, user.id))) throw new OtpRequiredError()
   return user
 }
 

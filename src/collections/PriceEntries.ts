@@ -1,8 +1,25 @@
 import type { CollectionConfig } from 'payload'
 import { isAdminRole, isSuperRole } from '../lib/roles'
 
+// 금액은 정수 최소단위다. src/lib/price-book.ts 의 minor() 가 소수·음수를 런타임에 던지는데,
+// 그 시점은 이미 고객이 견적을 요청한 뒤라 화면이 통째로 500 이 된다. 입력에서 막는다.
+const validateMinorAmount = (value: number | null | undefined) => {
+  if (value === null || value === undefined) return true
+  if (!Number.isInteger(value)) return '금액은 소수점 없는 정수여야 합니다.'
+  if (value < 0) return '금액은 0 이상이어야 합니다.'
+  return true
+}
+
 export const PriceEntries: CollectionConfig = {
   slug: 'price-entries',
+  admin: {
+    useAsTitle: 'labelKo',
+    // 카테고리 컬럼을 목록 필터로 쓰면 별도 탭 UI 없이 카테고리별 단가 관리가 된다.
+    defaultColumns: ['category', 'key', 'labelKo', 'priceKrw', 'priceJpy', 'active'],
+    listSearchableFields: ['key', 'labelKo', 'labelJa'],
+    // 전 카테고리 단가가 100건대라 한 페이지에 다 보이게 한다 (페이지 넘기며 비교할 일이 없다).
+    pagination: { defaultLimit: 200 },
+  },
   access: {
     // 단가는 견적 화면에 그대로 나가므로 읽기는 공개
     read: () => true,
@@ -20,6 +37,16 @@ export const PriceEntries: CollectionConfig = {
       required: true,
       unique: true,
       index: true,
+      // 키는 만들 때만 정하고 그 뒤로는 못 바꾼다. 계산기(packages/pricing)는
+      // category-groups.ts 의 항목 key 로 PriceBook 을 조회하고, scripts/seed-prices.ts 도
+      // key 로 기존 행을 찾는다 — 관리자가 key 를 한 글자만 고쳐도 에러 없이 "단가 없음"이
+      // 되어 견적이 통째로 거부되거나 시드가 중복 행을 새로 만든다. 조용한 실패라 더 위험하다.
+      // admin.readOnly 는 생성 화면까지 잠그므로 필드 access.update 로 수정만 막는다.
+      // (scripts/seed-prices.ts 는 overrideAccess: true 로 돌기 때문에 이 제한에 걸리지 않는다.)
+      access: { update: () => false },
+      admin: {
+        description: '생성 후에는 변경할 수 없습니다. 계산기·시드 스크립트가 이 키로 단가를 찾습니다.',
+      },
       // 카테고리 2 계산기는 axes.join('__')로 조회 키를 만든다. 축 값 안에 __가
       // 들어 있으면 ['a__b']와 ['a','b']가 같은 키로 충돌한다 — 키가 만들어지는
       // 여기서 막아야 계산기 쪽에서 조용히 잘못된 단가를 집는 일이 없다.
@@ -37,8 +64,8 @@ export const PriceEntries: CollectionConfig = {
     { name: 'labelJa', type: 'text', required: true },
     { name: 'category', type: 'number', required: true, index: true, min: 1, max: 5 },
     // 정수 최소단위. 환율 자동 변환은 하지 않는다 (대표님이 각각 입력)
-    { name: 'priceKrw', type: 'number', required: true, min: 0 },
-    { name: 'priceJpy', type: 'number', required: true, min: 0 },
+    { name: 'priceKrw', type: 'number', required: true, min: 0, validate: validateMinorAmount },
+    { name: 'priceJpy', type: 'number', required: true, min: 0, validate: validateMinorAmount },
     { name: 'active', type: 'checkbox', required: true, defaultValue: true },
   ],
 }
