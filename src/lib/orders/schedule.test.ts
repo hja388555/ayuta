@@ -99,13 +99,26 @@ describe('mergeScheduleDays', () => {
 
 describe('order-schedule-changes 접근 권한', () => {
   const access = OrderScheduleChanges.access!
-  const req = (role: string | null) => ({ req: { user: role ? { role } : null } }) as never
+  // otp: 소비된 2단계 인증 코드가 창 안에 있는지. admin-otps 조회를 흉내 낸다
+  const req = (role: string | null, otp = true) =>
+    ({
+      req: {
+        user: role ? { id: 1, role } : null,
+        context: {},
+        payload: { find: async () => ({ docs: otp ? [{ id: 1 }] : [] }) },
+      },
+    }) as never
 
-  it('관리자만 읽고 만든다', () => {
-    expect(access.read!(req('manager'))).toBe(true)
-    expect(access.create!(req('manager'))).toBe(true)
-    expect(access.read!(req('customer'))).toBe(false)
-    expect(access.create!(req(null))).toBe(false)
+  it('2단계 인증을 끝낸 관리자만 읽고 만든다', async () => {
+    expect(await access.read!(req('manager'))).toBe(true)
+    expect(await access.create!(req('manager'))).toBe(true)
+    expect(await access.read!(req('customer'))).toBe(false)
+    expect(await access.create!(req(null))).toBe(false)
+  })
+
+  it('2단계 인증을 안 끝낸 관리자는 읽지도 만들지도 못한다', async () => {
+    expect(await access.read!(req('manager', false))).toBe(false)
+    expect(await access.create!(req('super', false))).toBe(false)
   })
 
   it('수정·삭제·잠금해제는 super 에게도 닫혀 있다 (append-only)', () => {

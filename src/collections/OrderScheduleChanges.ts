@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
 import { isAdminRole } from '../lib/roles'
+import { isVerifiedAdmin } from '../lib/admin-access'
 
 /**
  * 계약기간·광고시작일이 언제 누구에 의해 어떻게 바뀌었는지의 기록.
@@ -16,8 +17,9 @@ export const OrderScheduleChanges: CollectionConfig = {
     defaultColumns: ['order', 'field', 'fromValue', 'toValue', 'actor', 'at'],
   },
   access: {
-    read: ({ req: { user } }) => isAdminRole(user?.role),
-    create: ({ req: { user } }) => isAdminRole(user?.role),
+    // 2단계 인증까지 확인한다 — role 만 보면 REST·GraphQL 이 /manage 게이트의 우회로가 된다
+    read: ({ req }) => isVerifiedAdmin(req),
+    create: ({ req }) => isVerifiedAdmin(req),
     update: () => false, // 감사 기록 — 사후 수정 금지
     delete: () => false, // 감사 기록 — 사후 삭제 금지
     unlock: () => false,

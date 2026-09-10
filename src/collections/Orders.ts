@@ -1,5 +1,6 @@
 import type { CollectionConfig } from 'payload'
-import { isAdminRole, isSuperRole } from '../lib/roles'
+import { isAdminRole } from '../lib/roles'
+import { isVerifiedAdmin, isVerifiedSuper } from '../lib/admin-access'
 
 // 결제 계획의 다섯 상태에
 // in_progress · done 두 상태를 더한다 — 견적/주문 스파인 계획이 요구하는 전체 상태다.
@@ -39,11 +40,13 @@ export const Orders: CollectionConfig = {
     listSearchableFields: ['orderNumber', 'paymentId'],
   },
   access: {
-    // 주문 조회는 전부 서버 코드(DAL)를 거친다. REST 로는 아무도 못 읽는다
-    read: ({ req: { user } }) => isAdminRole(user?.role),
+    // 고객 개인정보·계약서 전문이 담긴다. REST·GraphQL·/admin 모두 이 access 를 쓰므로
+    // role 만 보면 2단계 인증을 거치지 않은 관리자 세션이 /manage 게이트를 옆으로 돌아간다.
+    // 고객 본인 조회(order-lookup)는 서버 코드가 overrideAccess 로 따로 한다.
+    read: ({ req }) => isVerifiedAdmin(req),
     create: () => false, // Server Action 의 payload.create 만 쓴다 (overrideAccess)
-    update: ({ req: { user } }) => isAdminRole(user?.role),
-    delete: ({ req: { user } }) => isSuperRole(user?.role), // 전자상거래법 제6조: 실제로는 지우지 않는다
+    update: ({ req }) => isVerifiedAdmin(req),
+    delete: ({ req }) => isVerifiedSuper(req), // 전자상거래법 제6조: 실제로는 지우지 않는다
     unlock: () => false,
     admin: ({ req: { user } }) => isAdminRole(user?.role),
   },

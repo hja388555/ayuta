@@ -11,6 +11,7 @@ let managerId: number
 let customerId: number
 let otherAdminId: number
 let orderId: number
+let otpId: number
 const noteIds: number[] = []
 
 beforeAll(async () => {
@@ -28,6 +29,21 @@ beforeAll(async () => {
   managerId = await mkUser('manager', 'notemgr')
   otherAdminId = await mkUser('manager', 'noteother')
   customerId = await mkUser('customer', 'notecust')
+  // 컬렉션 access 가 2단계 인증까지 본다 — manager 에게 "이미 소비된 OTP" 행을 심는다.
+  // otherAdminId 에는 심지 않는다(위조 대상일 뿐 요청 주체가 아니다)
+  const otp = await payload.create({
+    collection: 'admin-otps',
+    data: {
+      user: managerId,
+      hash: 'x'.repeat(64),
+      salt: 'y'.repeat(32),
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+      consumedAt: new Date().toISOString(),
+      attempts: 1,
+    },
+    overrideAccess: true,
+  })
+  otpId = otp.id as number
 
   const order = await payload.create({
     collection: 'orders',
@@ -59,7 +75,7 @@ beforeAll(async () => {
 afterAll(async () => {
   const payload = await localPayload()
   const errors: string[] = []
-  const drop = async (collection: 'order-notes' | 'orders' | 'users', id: number) => {
+  const drop = async (collection: 'order-notes' | 'orders' | 'admin-otps' | 'users', id: number) => {
     try {
       await payload.delete({ collection, id, overrideAccess: true })
     } catch (err) {
@@ -68,6 +84,7 @@ afterAll(async () => {
   }
   for (const id of noteIds) await drop('order-notes', id)
   await drop('orders', orderId)
+  if (otpId) await drop('admin-otps', otpId)
   for (const id of [managerId, otherAdminId, customerId]) await drop('users', id)
   // 정리 실패를 삼키면 재실행 가능성이 조용히 깨진다
   if (errors.length > 0) throw new Error(`테스트 데이터 정리 실패:\n${errors.join('\n')}`)
