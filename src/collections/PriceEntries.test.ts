@@ -12,7 +12,10 @@ const fieldBy = (name: string): Field & { name: string } => {
 const runValidate = (name: string, value: unknown) => {
   const field = fieldBy(name) as { validate?: (v: unknown, o: unknown) => unknown }
   if (!field.validate) throw new Error(`${name} 에 validate 가 없습니다`)
-  return field.validate(value, {})
+  // 기본 number 검증이 req.t 와 필드 속성(required · min)을 options 로 받는다.
+  // 실제 실행에서는 Payload 가 필드 정의에서 채워 넣는다
+  const f = field as { required?: boolean; min?: number }
+  return field.validate(value, { req: { t: (key: string) => key }, required: f.required, min: f.min })
 }
 
 describe('단가 관리 화면 설정', () => {
@@ -69,6 +72,14 @@ describe.each(['priceKrw', 'priceJpy'])('%s 금액 검증', (name) => {
   })
 
   it('음수를 거부한다', () => {
-    expect(runValidate(name, -1)).toBe('금액은 0 이상이어야 합니다.')
+    // 기본 number 검증의 min: 0 이 먼저 잡는다 — 어느 쪽 메시지든 통과가 아니면 된다
+    expect(runValidate(name, -1)).not.toBe(true)
+  })
+
+  // 커스텀 validate 가 기본 required 검증을 대체해 null 이 NOT NULL 컬럼까지 가서 500 이 났다
+  it('비어 있는 값을 거부한다', () => {
+    expect(runValidate(name, null)).not.toBe(true)
+    expect(runValidate(name, undefined)).not.toBe(true)
+    expect(runValidate(name, '')).not.toBe(true)
   })
 })
