@@ -1,10 +1,17 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, NumberFieldSingleValidation } from 'payload'
+import { number } from 'payload/shared'
 import { isAdminRole, isSuperRole } from '../lib/roles'
 
 // 금액은 정수 최소단위다. src/lib/price-book.ts 의 minor() 가 소수·음수를 런타임에 던지는데,
 // 그 시점은 이미 고객이 견적을 요청한 뒤라 화면이 통째로 500 이 된다. 입력에서 막는다.
-const validateMinorAmount = (value: number | null | undefined) => {
-  if (value === null || value === undefined) return true
+//
+// 커스텀 validate 를 달면 Payload 의 기본 number 검증(required · min)이 통째로 빠진다.
+// 그래서 REST 로 빈 문자열("")을 보내면 null 이 이 검증을 통과해 NOT NULL 컬럼에서
+// 500 이 났다. 기본 검증을 먼저 돌리고 그 위에 정수 조건만 얹는다.
+const validateMinorAmount: NumberFieldSingleValidation = (value, options) => {
+  const base = number(value, options)
+  if (base !== true) return base
+  if (value === null || value === undefined) return true // required 가 아닌 경우만 여기 온다
   if (!Number.isInteger(value)) return '금액은 소수점 없는 정수여야 합니다.'
   if (value < 0) return '금액은 0 이상이어야 합니다.'
   return true
