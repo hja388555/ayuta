@@ -1,6 +1,8 @@
 import { NextIntlClientProvider } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteHeader } from '@/components/SiteHeader'
+import { SiteFooter } from '@/components/SiteFooter'
+import { loadFooterInfo } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
 import { isAdminRole } from '@/lib/roles'
 import { hasLocale } from 'next-intl'
@@ -33,6 +35,7 @@ export default async function LocaleLayout({
   // 헤더의 로그인 상태·[관리자] 버튼(요구사항 1-16). 버튼 노출은 편의일 뿐 권한 판정이 아니다
   const user = await getSessionUser()
   const t = await getTranslations('header')
+  const tFooter = await getTranslations('footer')
 
   return (
     <NextIntlClientProvider>
@@ -43,6 +46,10 @@ export default async function LocaleLayout({
         labels={{ home: t('home'), inquiry: t('inquiry'), login: t('login'), signup: t('signup'), mypage: t('mypage'), logout: t('logout'), admin: t('admin') }}
       />
       {children}
+      <SiteFooter
+        info={await loadFooterInfo(locale === 'ja' ? 'ja' : 'ko')}
+        labels={{ businessNo: tFooter('businessNo'), phone: tFooter('phone'), ceo: tFooter('ceo'), contact: tFooter('contact'), mailOrder: tFooter('mailOrder') }}
+      />
     </NextIntlClientProvider>
   )
 }

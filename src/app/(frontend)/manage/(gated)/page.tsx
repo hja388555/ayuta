@@ -28,6 +28,14 @@ export default async function ManagePage() {
         <li>
           <Link href="/manage/prices">단가 관리</Link>
         </li>
+        <li>
+          <Link href="/manage/settings">설정 (회사 정보 · 서명)</Link>
+        </li>
+        {user.role === 'super' ? (
+          <li>
+            <Link href="/manage/accounts">관리자 계정</Link>
+          </li>
+        ) : null}
       </ul>
     </main>
   )

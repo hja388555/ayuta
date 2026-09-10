@@ -4,7 +4,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { Shell } from '@/components/Shell'
-import { companyFor } from '@/lib/company'
+import { loadCompany } from '@/lib/company-settings'
 import { hashQuoteToken, isQuoteTokenShape } from '@/lib/quotes/token'
 
 /**
@@ -25,7 +25,7 @@ export default async function QuotePage({ params }: Props) {
   const { locale, token } = await params
   setRequestLocale(locale)
   const t = await getTranslations('quote')
-  const company = companyFor(locale === 'ja' ? 'ja' : 'ko')
+  const company = await loadCompany(locale === 'ja' ? 'ja' : 'ko')
 
   let quote = null
   if (isQuoteTokenShape(token)) {

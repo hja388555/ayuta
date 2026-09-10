@@ -78,6 +78,7 @@ export interface Config {
     'inquiry-files': InquiryFile;
     quotes: Quote;
     'admin-login-logs': AdminLoginLog;
+    'brand-assets': BrandAsset;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -96,6 +97,7 @@ export interface Config {
     'inquiry-files': InquiryFilesSelect<false> | InquiryFilesSelect<true>;
     quotes: QuotesSelect<false> | QuotesSelect<true>;
     'admin-login-logs': AdminLoginLogsSelect<false> | AdminLoginLogsSelect<true>;
+    'brand-assets': BrandAssetsSelect<false> | BrandAssetsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -107,9 +109,11 @@ export interface Config {
   fallbackLocale: null;
   globals: {
     'pricing-settings': PricingSetting;
+    'company-settings': CompanySetting;
   };
   globalsSelect: {
     'pricing-settings': PricingSettingsSelect<false> | PricingSettingsSelect<true>;
+    'company-settings': CompanySettingsSelect<false> | CompanySettingsSelect<true>;
   };
   locale: null;
   widgets: {
@@ -392,6 +396,25 @@ export interface AdminLoginLog {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brand-assets".
+ */
+export interface BrandAsset {
+  id: number;
+  kind: 'seal';
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -457,6 +480,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'admin-login-logs';
         value: number | AdminLoginLog;
+      } | null)
+    | ({
+        relationTo: 'brand-assets';
+        value: number | BrandAsset;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -738,6 +765,24 @@ export interface AdminLoginLogsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brand-assets_select".
+ */
+export interface BrandAssetsSelect<T extends boolean = true> {
+  kind?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv_select".
  */
 export interface PayloadKvSelect<T extends boolean = true> {
@@ -793,6 +838,26 @@ export interface PricingSetting {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "company-settings".
+ */
+export interface CompanySetting {
+  id: number;
+  nameKo: string;
+  nameJa: string;
+  ceo: string;
+  businessNo: string;
+  addressKo: string;
+  addressJa: string;
+  phone: string;
+  email: string;
+  contactPhone?: string | null;
+  mailOrderNo?: string | null;
+  sealImage?: (number | null) | BrandAsset;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "pricing-settings_select".
  */
 export interface PricingSettingsSelect<T extends boolean = true> {
@@ -804,6 +869,26 @@ export interface PricingSettingsSelect<T extends boolean = true> {
         '1m'?: T;
         '3m'?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "company-settings_select".
+ */
+export interface CompanySettingsSelect<T extends boolean = true> {
+  nameKo?: T;
+  nameJa?: T;
+  ceo?: T;
+  businessNo?: T;
+  addressKo?: T;
+  addressJa?: T;
+  phone?: T;
+  email?: T;
+  contactPhone?: T;
+  mailOrderNo?: T;
+  sealImage?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

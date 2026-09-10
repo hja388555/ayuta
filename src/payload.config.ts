@@ -16,6 +16,8 @@ import { Inquiries } from './collections/Inquiries'
 import { InquiryFiles } from './collections/InquiryFiles'
 import { Quotes } from './collections/Quotes'
 import { AdminLoginLogs } from './collections/AdminLoginLogs'
+import { BrandAssets } from './collections/BrandAssets'
+import { CompanySettings } from './globals/CompanySettings'
 import { PricingSettings } from './globals/PricingSettings'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -37,8 +39,9 @@ export default buildConfig({
     InquiryFiles,
     Quotes,
     AdminLoginLogs,
+    BrandAssets,
   ],
-  globals: [PricingSettings],
+  globals: [PricingSettings, CompanySettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
