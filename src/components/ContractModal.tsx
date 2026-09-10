@@ -1,0 +1,59 @@
+'use client'
+
+import { useRef } from 'react'
+
+type Props = {
+  buttonLabel: string
+  closeLabel: string
+  title: string
+  /** 스냅샷 위에 따로 붙이는 줄(계약기간·광고시작일 등). 스냅샷을 고치지 않고 합성해 보여준다 */
+  facts?: Array<{ label: string; value: string }>
+  notice?: string
+  contractText: string
+}
+
+/**
+ * 계약서 전문 팝업(요구사항 계약서 보관함 — "13-B 팝업과 같은 모달로 스냅샷 전문을 띄운다").
+ * 내용은 결제 시점에 저장한 스냅샷 그대로다. <dialog> 를 써서 포커스 가두기·ESC 닫기를
+ * 브라우저에 맡긴다. 본문은 서버가 그린 HTML 에 들어 있고 열 때 보이기만 한다.
+ */
+export function ContractModal({ buttonLabel, closeLabel, title, facts = [], notice, contractText }: Props) {
+  const ref = useRef<HTMLDialogElement>(null)
+  return (
+    <>
+      <button type="button" onClick={() => ref.current?.showModal()}>
+        {buttonLabel}
+      </button>
+      <dialog
+        ref={ref}
+        aria-label={title}
+        style={{ width: 'min(720px, 92vw)', maxHeight: '85vh', padding: 0, border: 'none', borderRadius: 12 }}
+        onClick={(e) => {
+          // 바깥(backdrop)을 누르면 닫는다
+          if (e.target === ref.current) ref.current?.close()
+        }}
+      >
+        <div style={{ padding: '20px 24px', overflowY: 'auto', maxHeight: '85vh' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16 }}>
+            <h2 style={{ margin: 0, fontSize: 'var(--fs-h3, 18px)' }}>{title}</h2>
+            <button type="button" onClick={() => ref.current?.close()}>
+              {closeLabel}
+            </button>
+          </div>
+          {facts.length > 0 ? (
+            <dl style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '6px 16px', margin: '16px 0' }}>
+              {facts.map((f) => (
+                <div key={f.label} style={{ display: 'contents' }}>
+                  <dt style={{ color: 'var(--ink-500)' }}>{f.label}</dt>
+                  <dd style={{ margin: 0 }}>{f.value}</dd>
+                </div>
+              ))}
+            </dl>
+          ) : null}
+          {notice ? <p style={{ fontWeight: 600, color: 'var(--ink-500)' }}>{notice}</p> : null}
+          <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0 }}>{contractText}</pre>
+        </div>
+      </dialog>
+    </>
+  )
+}

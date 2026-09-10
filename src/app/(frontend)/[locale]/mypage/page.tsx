@@ -55,6 +55,9 @@ export default async function MyPage({ params }: Props) {
           <p style={{ color: 'var(--ink-500)' }}>
             {me.name as string} · {me.email as string}
           </p>
+          <nav style={{ display: 'flex', gap: 16, marginTop: 8 }}>
+            <Link href={`/${locale}/mypage/contracts`}>{t('contractsLink')}</Link>
+          </nav>
 
           <section style={section}>
             <h2 style={{ fontSize: 'var(--fs-h3, 18px)' }}>{t('ordersTitle')}</h2>
