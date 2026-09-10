@@ -2,7 +2,7 @@
 // Next.js 가 지정자를 자체 해석해 클라이언트 번들 유입을 막는다.
 // vitest.config.ts 의 alias 가 테스트에서 이 import 를 빈 스텁으로 돌린다.
 import 'server-only'
-import { getPayload } from 'payload'
+import { getPayload, ValidationError } from 'payload'
 import config from '@payload-config'
 import { z } from 'zod'
 import { calculate, fillContract, type Currency } from '@ayuta/pricing'
@@ -37,6 +37,16 @@ const CreateOrderInputSchema = z.object({
   // IP 기준 요청 제한은 여기서 다루지 않는다 — 보안 강화 큐(Q30)로 미룬다.
   idempotencyKey: z.string().trim().min(1).max(100).optional(),
 })
+
+// idempotencyKey 유니크 인덱스 위반인지 본다. db-postgres 어댑터(handleUpsertError)가
+// Postgres 23505를 이미 ValidationError로 감싸 올려보낸다 — 그 errors[].path에 위반된
+// 필드명이 담긴다. 다른 필드(orderNumber·paymentId 등) 유니크 위반까지 재시도 경로로
+// 삼키면 안 되므로 path가 idempotencyKey일 때만 본다.
+function isIdempotencyKeyViolation(err: unknown): boolean {
+  if (!(err instanceof ValidationError)) return false
+  const errors = (err.data as { errors?: { path?: unknown }[] } | null)?.errors
+  return Array.isArray(errors) && errors.some((e) => e.path === 'idempotencyKey')
+}
 
 export type CreateOrderInput = z.input<typeof CreateOrderInputSchema>
 
@@ -154,6 +164,15 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
   // 돈은 {{amount}}(총 계약금액/계약금액) 줄에만 나온다
   const contractItems = buildContractItems(def, book, input.selection, input.locale)
 
+  // 1번 계약서 제1조의 "선택 상품 / 선택 채널"은 {{items}}가 아니라 각자의 자리(productName/
+  // channels)로 채운다 — 원문(§B)이 광고 국가·계약기간과 함께 줄마다 따로 라벨을 붙여 두기
+  // 때문이다. contractItems는 tier 모델에서 "등급"/"플랫폼" 라벨로 쌓이므로(contract-items.ts)
+  // 그 값을 그대로 꺼낸다. 플랫폼은 필수 선택이 아니라서(TierForm) 비어 있을 수 있는데,
+  // 그 경우 undefined로 두면 missing 판정으로 카테고리 1 주문이 전부 막힌다 — 값을 모르는
+  // 갑측 항목에 쓰는 것과 같은 관례(buyerContractFields)대로 명시적 대시로 채운다
+  const productName = contractItems.find((item) => item.label === '등급')?.value ?? '-'
+  const channels = contractItems.find((item) => item.label === '플랫폼')?.value ?? '-'
+
   const { text: contractText, missing } = fillContract(template.body, {
     amount: quote.total,
     currency,
@@ -161,6 +180,8 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
     buyerName: input.orderer.name,
     signature: input.signature,
     items: contractItems,
+    productName,
+    channels,
     ...buyerContractFields(input.orderer),
     ...companyContractFields(input.locale),
   })
@@ -171,39 +192,69 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
 
   // 7. 주문 생성 — 금액·항목·계약서 전문을 값으로 저장한다. 참조만 남기면 나중에 단가나
   // 템플릿이 바뀔 때 이미 체결된 주문까지 함께 바뀐다
-  const order = await payload.create({
-    collection: 'orders',
-    overrideAccess: true,
-    data: {
-      orderNumber,
-      // 실제 결제 연동(PortOne)은 이 계획 밖이다(Q17 나머지). 결제창을 아직 부르지 않았으므로
-      // paymentId 는 임시로 주문번호 기반 자리표시자를 쓰고, 결제 단계가 실제 식별자로 덮어쓴다
-      paymentId: `pending-${orderNumber}`,
-      status: 'pending',
-      currency,
-      amount: quote.total,
-      locale: input.locale,
-      category: def.no,
-      items: quote.lines.map((line) => ({ code: line.key, label: line.label, unitAmount: line.amount, quantity: 1 })),
-      // 가격 없는 선택(국가, 사이즈, 채널 등)도 관리자가 주문 상세에서 볼 수 있어야 한다 —
-      // 그렇지 않으면 CS 문의가 왔을 때 관리자가 계약서 전문을 처음부터 다시 읽어야 한다
-      contractItems,
-      idempotencyKey: input.idempotencyKey || undefined,
-      customer: customerId ?? undefined,
-      orderer: {
-        name: input.orderer.name,
-        phone: input.orderer.phone,
-        email: input.orderer.email,
-        postcode: input.orderer.postalCode,
-        address1: input.orderer.address1,
-        address2: input.orderer.address2,
-        businessNo: input.orderer.businessNo,
-        representative: input.orderer.representative,
+  let order
+  try {
+    order = await payload.create({
+      collection: 'orders',
+      overrideAccess: true,
+      data: {
+        orderNumber,
+        // 실제 결제 연동(PortOne)은 이 계획 밖이다(Q17 나머지). 결제창을 아직 부르지 않았으므로
+        // paymentId 는 임시로 주문번호 기반 자리표시자를 쓰고, 결제 단계가 실제 식별자로 덮어쓴다
+        paymentId: `pending-${orderNumber}`,
+        status: 'pending',
+        currency,
+        amount: quote.total,
+        locale: input.locale,
+        category: def.no,
+        items: quote.lines.map((line) => ({ code: line.key, label: line.label, unitAmount: line.amount, quantity: 1 })),
+        // 가격 없는 선택(국가, 사이즈, 채널 등)도 관리자가 주문 상세에서 볼 수 있어야 한다 —
+        // 그렇지 않으면 CS 문의가 왔을 때 관리자가 계약서 전문을 처음부터 다시 읽어야 한다
+        contractItems,
+        idempotencyKey: input.idempotencyKey || undefined,
+        customer: customerId ?? undefined,
+        orderer: {
+          name: input.orderer.name,
+          phone: input.orderer.phone,
+          email: input.orderer.email,
+          postcode: input.orderer.postalCode,
+          address1: input.orderer.address1,
+          address2: input.orderer.address2,
+          businessNo: input.orderer.businessNo,
+          representative: input.orderer.representative,
+        },
+        signature: input.signature,
+        contractText,
       },
-      signature: input.signature,
-      contractText,
-    },
-  })
+    })
+  } catch (err) {
+    // 동시에 같은 멱등키로 두 요청이 들어오면 둘 다 위 0번 조회를 통과한 뒤(아직 아무도
+    // 만들지 않아서) 하나만 idempotencyKey 유니크 인덱스를 통과해 행을 만들고, 나머지는
+    // 여기서 유니크 위반으로 막힌다 — 순차 재시도(0번)로는 못 잡는 경합이다. 멱등키를 둔
+    // 목적이 "두 번 보내도 주문·주문번호 하나"이므로, 방금 다른 요청이 만든 그 주문을
+    // 다시 읽어 성공으로 돌려준다. 같은 실패를 그대로 고객에게 500으로 보여주면 멱등키가
+    // 없느니만 못하다
+    if (input.idempotencyKey && isIdempotencyKeyViolation(err)) {
+      const { docs: winner } = await payload.find({
+        collection: 'orders',
+        where: { idempotencyKey: { equals: input.idempotencyKey } },
+        limit: 1,
+        overrideAccess: true,
+      })
+      const dup = winner[0]
+      if (dup) {
+        return {
+          ok: true,
+          orderId: dup.id as number,
+          orderNumber: dup.orderNumber as string,
+          amount: dup.amount as number,
+          currency: dup.currency as Currency,
+          orderer: { email: (dup.orderer as { email: string }).email, phone: (dup.orderer as { phone: string }).phone },
+        }
+      }
+    }
+    throw err
+  }
 
   return {
     ok: true,

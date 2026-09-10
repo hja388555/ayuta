@@ -186,6 +186,36 @@ describe('createOrder', () => {
     expect(r2.orderNumber).toBe(r1.orderNumber)
   })
 
+  it('같은 멱등키로 동시에 두 번 보내도 주문이 하나만 만들어진다 (동시 경합)', async () => {
+    // 순차 재시도(위 테스트)는 두 번째 호출 시점에 이미 0번 조회가 첫 번째 주문을 찾아내
+    // 통과한다. 여기서는 둘 다 조회를 통과한 "뒤"에 생성이 겹치는 진짜 경합을 재현한다 —
+    // Promise.all로 같은 멱등키를 쓰는 두 createOrder를 동시에 쏘면 하나는 유니크
+    // 인덱스에서 막혀야 하고, 그 경로가 크래시 없이 승자의 주문을 그대로 돌려줘야 한다
+    const key = `idem-race-${RUN}-${Math.random().toString(36).slice(2, 8)}`
+    const [r1, r2] = await Promise.all([
+      createOrder({ ...baseInput(), idempotencyKey: key }),
+      createOrder({ ...baseInput(), idempotencyKey: key }),
+    ])
+
+    expect(r1.ok).toBe(true)
+    expect(r2.ok).toBe(true)
+    if (!r1.ok || !r2.ok) return
+    createdOrderIds.push(r1.orderId)
+    if (r2.orderId !== r1.orderId) createdOrderIds.push(r2.orderId)
+
+    expect(r2.orderId).toBe(r1.orderId)
+    expect(r2.orderNumber).toBe(r1.orderNumber)
+
+    const payload = await localPayload()
+    const { docs } = await payload.find({
+      collection: 'orders',
+      where: { idempotencyKey: { equals: key } },
+      limit: 10,
+      overrideAccess: true,
+    })
+    expect(docs).toHaveLength(1)
+  })
+
   it('템플릿이 있어도 채우지 못한 빈칸이 있으면 주문을 만들지 않는다 (I4)', async () => {
     const payload = await localPayload()
     const { docs } = await payload.find({
