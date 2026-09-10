@@ -9,10 +9,15 @@
  * - 없고 개발 환경이면 서버 로그에 코드를 직접 남긴다(개발자가 로그에서 확인)
  * - 없고 운영 환경이면 발급 자체를 거부한다 — 읽을 수 없는 코드를 계속 만들면 발급 상한만
  *   소진되고, 운영 로그에 코드를 남기면 로그 열람 권한자가 2단계 인증을 대신 통과한다
+ *
+ * allowServerLog(환경변수 ALLOW_OTP_IN_SERVER_LOG=1)는 운영 모드로 띄운 테스트 서버(CI 의
+ * next start)에서만 켠다. 실제 배포 환경(Vercel)에는 절대 넣지 않는다 — 넣는 순간 위의
+ * "운영 로그에 코드를 남기지 않는다"가 무너진다.
  */
 export type OtpDelivery = 'email' | 'log' | 'refuse'
 
-export function otpDelivery(mailConfigured: boolean, nodeEnv: string | undefined): OtpDelivery {
+export function otpDelivery(mailConfigured: boolean, nodeEnv: string | undefined, allowServerLog = false): OtpDelivery {
   if (mailConfigured) return 'email'
-  return nodeEnv === 'production' ? 'refuse' : 'log'
+  if (nodeEnv !== 'production') return 'log'
+  return allowServerLog ? 'log' : 'refuse'
 }

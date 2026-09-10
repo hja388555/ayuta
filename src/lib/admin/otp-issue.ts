@@ -31,7 +31,12 @@ export async function issueAdminOtp(user: SessionUser): Promise<IssueResult> {
   const payload = await getPayload({ config })
 
   // 메일이 없는 운영 환경이면 행을 만들기 전에 멈춘다 — 읽을 수 없는 코드로 발급 상한을 소진하지 않는다
-  const delivery = otpDelivery(Boolean(payload.config.email), process.env.NODE_ENV)
+  const delivery = otpDelivery(
+    Boolean(payload.config.email),
+    process.env.NODE_ENV,
+    // CI 의 운영 모드 테스트 서버 전용. 실제 배포에는 넣지 않는다(otp-delivery.ts)
+    process.env.ALLOW_OTP_IN_SERVER_LOG === '1',
+  )
   if (delivery === 'refuse') return { ok: false, reason: 'mail_not_configured' }
 
   const since =new Date(Date.now() - OTP_ISSUE_WINDOW_MS).toISOString()
