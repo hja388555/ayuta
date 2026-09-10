@@ -1,0 +1,137 @@
+name: test
+on: [push, pull_request]
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      # version을 지정하면 package.json의 packageManager와 충돌해
+      # ERR_PNPM_BAD_PM_VERSION으로 죽는다. packageManager 하나만 진실로 둔다
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+
+      # 타입 검증: TypeScript 컴파일 오류 감지
+      - run: pnpm typecheck
+
+      # 단위 테스트: 권한 판정(roles), OTP 암호화(admin-otp) 로직이 깨지지 않았는지 검증
+      - run: pnpm vitest run src
+
+      # 프로덕션 빌드 검증: next build가 성공하는지 확인
+      - run: pnpm build
+        env:
+          # DATABASE_URI: 설정해야 Payload CMS 스키마 검증이 실행되지만, 이 job에는
+          # 데이터베이스가 없다. 값은 이 job에서 연결되지 않으므로 dummy로 충분하다
+          DATABASE_URI: test://test
+          PAYLOAD_SECRET: ci-only-secret-not-for-production
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # PostgreSQL 서비스 컨테이너. 권한 경계 검증용 실제 DB가 필요하다
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ayuta
+          POSTGRES_PASSWORD: ayuta
+          POSTGRES_DB: ayuta
+        # 헬스 체크: 서비스 시작 전에 postgres가 수락 가능한 상태인지 확인
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+      # version을 지정하면 package.json의 packageManager와 충돌해
+      # ERR_PNPM_BAD_PM_VERSION으로 죽는다. packageManager 하나만 진실로 둔다
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+
+      # 1. 스키마 초기화 + 관리자 계정 시딩
+      #    pnpm seed:super는 payload run으로 TypeScript를 컴파일하고,
+      #    Payload Local API로 DB에 접근해 admin 계정을 생성하며,
+      #    그 과정에서 drizzle auto-push가 발동되어 스키마가 초기화된다.
+      #    timeout으로 30초 제한 — 정상이면 2-3초 내 완료, 끝없는 대기 방지
+      - run: timeout 30s pnpm seed:super || exit 1
+        env:
+          # 이 job은 runs-on: ubuntu-latest이고 container:가 없다 — 즉 러너 호스트에서
+          # 직접 돈다. 서비스 컨테이너의 `postgres` 호스트명은 job 자체가 컨테이너 안에서
+          # 돌 때만 해석된다. 호스트에서는 위의 ports: 5432:5432 매핑을 통해
+          # 127.0.0.1:5432로 접근해야 한다.
+          DATABASE_URI: postgres://ayuta:ayuta@127.0.0.1:5432/ayuta
+          PAYLOAD_SECRET: ci-only-secret-not-for-production
+          # 테스트용 더미 자격증명. 실제 운영 암호가 절대 아님
+          SEED_SUPER_EMAIL: ci-super+${{ github.run_id }}@ayuta.test
+          SEED_SUPER_PASSWORD: CiTest!2026Ayuta
+          SEED_MANAGER_EMAIL: ci-manager+${{ github.run_id }}@ayuta.test
+          SEED_MANAGER_PASSWORD: CiTest!2026Ayuta
+
+      # 2. 프로덕션 빌드. next start를 위해 .next 디렉토리 생성
+      - run: pnpm build
+        env:
+          DATABASE_URI: postgres://ayuta:ayuta@127.0.0.1:5432/ayuta
+          PAYLOAD_SECRET: ci-only-secret-not-for-production
+
+      # 3. 프로덕션 서버 시작 (백그라운드). next start는 스키마를 다시 푸시하지 않으므로
+      #    위에서 준비한 스키마를 그대로 쓴다. PORT를 명시해서 readiness poll과 테스트 포트가 일치하도록.
+      #    timeout은 startup에만 적용하는 게 아니라 server lifetime을 제한할 수 있으므로 제거.
+      #    readiness poll이 startup을 제한하고, job의 timeout-minutes가 전체 백스톱이다
+      #    Actions의 run: 스텝에는 node_modules/.bin이 PATH에 없다. 맨몸 `next`는
+      #    exit 127로 죽는다(로컬 셸은 .bin이 PATH에 있어 이 차이가 가려진다).
+      #    다른 스텝들과 똑같이 pnpm exec로 실행한다.
+      - run: |
+          pnpm exec next start > /tmp/server.log 2>&1 &
+          echo $! > /tmp/server.pid
+        env:
+          PORT: 3210
+          DATABASE_URI: postgres://ayuta:ayuta@127.0.0.1:5432/ayuta
+          PAYLOAD_SECRET: ci-only-secret-not-for-production
+          NODE_ENV: production
+
+      # 4. 서버 준비 대기. curl을 폴링해서 서버가 HTTP 요청에 응답하는지 확인한다.
+      #    최대 30초 대기, 1초 간격. 서버 프로세스가 죽었다면 로그를 보여주고 실패
+      - run: |
+          set +e
+          for i in {1..30}; do
+            if curl -sf http://localhost:3210 > /dev/null 2>&1; then
+              echo "Server ready after $i seconds"
+              exit 0
+            fi
+            # 프로세스 존재 여부 체크. 시작 전에 죽었으면 로그와 함께 실패
+            if ! kill -0 $(cat /tmp/server.pid) 2>/dev/null; then
+              echo "Server process died. Log:"
+              cat /tmp/server.log || echo "(no log)"
+              exit 1
+            fi
+            sleep 1
+          done
+          echo "Server did not respond within 30 seconds. Log:"
+          cat /tmp/server.log || echo "(no log)"
+          exit 1
+
+      # 5. order_counters 부트스트랩. Payload 컬렉션이 아니라서 위의 seed:super가
+      #    발동시키는 auto-push로는 생기지 않는다 — 여기서 저장소에 체크인된 DDL로 만든다.
+      - run: pnpm db:bootstrap
+        env:
+          DATABASE_URI: postgres://ayuta:ayuta@127.0.0.1:5432/ayuta
+          PAYLOAD_SECRET: ci-only-secret-not-for-production
+
+      # 6. 통합 테스트 실행. 서버가 준비된 상태에서 권한 경계를 검증한다.
+      #    이 테스트가 실패하면 role-forcing 훅이 제거되었거나, /manage 게이트가
+      #    약해졌거나, OTP 시도 제한이 무너졌을 가능성이 높다
+      - run: pnpm test:int
+        env:
+          DATABASE_URI: postgres://ayuta:ayuta@127.0.0.1:5432/ayuta
+          PAYLOAD_SECRET: ci-only-secret-not-for-production
+          TEST_BASE_URL: http://localhost:3210

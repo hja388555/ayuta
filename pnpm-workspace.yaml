@@ -1,0 +1,13 @@
+packages:
+  - 'packages/*'
+
+# pnpm 11 은 빌드 승인을 여기서 읽는다. package.json 의 onlyBuiltDependencies 는 무시된다.
+# 승인하지 않은 빌드 스크립트가 있으면 설치가 ERR_PNPM_IGNORED_BUILDS 로 실패한다.
+#
+# @swc/core · @parcel/watcher 는 next-intl 이 끌고 온다(swc 플러그인 추출기, 파일 감시).
+# 둘 다 네이티브 바이너리를 붙이는 postinstall 이 필요하다.
+allowBuilds:
+  sharp: true
+  esbuild: true
+  '@swc/core': true
+  '@parcel/watcher': true

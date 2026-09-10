@@ -1,0 +1,91 @@
+import type { CollectionConfig } from 'payload'
+import { canManageRoles, isAdminRole, isSuperRole, ROLES } from '../lib/roles'
+
+export const Users: CollectionConfig = {
+  slug: 'users',
+  auth: {
+    // Payload 내장 시도 제한. 직접 만들지 않는다
+    maxLoginAttempts: 5,
+    lockTime: 10 * 60 * 1000, // 10분
+    tokenExpiration: 2 * 60 * 60, // 2시간(초)
+    useSessions: true,
+  },
+  admin: { useAsTitle: 'email' },
+  access: {
+    // 가입은 누구나. role은 훅에서 강제로 customer가 된다
+    create: () => true,
+    // 본인 문서 또는 관리자만
+    read: ({ req: { user } }) => {
+      if (!user) return false
+      if (isAdminRole(user.role)) return true
+      return { id: { equals: user.id } }
+    },
+    update: ({ req: { user } }) => {
+      if (!user) return false
+      if (isSuperRole(user.role)) return true
+      return { id: { equals: user.id } }
+    },
+    // 삭제는 아무도 못 한다. 탈퇴는 deletedAt 소프트 삭제로 처리한다
+    // (deletedAt 자체는 Server Action이 overrideAccess로 쓴다. 이유는 필드 access 주석 참고)
+    delete: () => false,
+    // Payload는 access에 명시하지 않은 키를 defaultAccess(= 로그인한 사용자면 누구나)로
+    // 채운다(collections/config/defaults.js). unlock을 비워두면 /api/users/unlock이
+    // 아무 고객 계정으로나 열려서, 5회 실패로 잠긴 관리자 계정을 무한히 풀 수 있다 —
+    // maxLoginAttempts가 장식이 된다. PBKDF2 25,000라운드라는 약한 해싱을 보정하는
+    // 두 축(시도 제한 + 관리자 2단계 인증) 중 하나가 통째로 사라지므로 super로 좁힌다.
+    unlock: ({ req: { user } }) => isSuperRole(user?.role),
+    // admin은 defaultAccess가 주입되지 않는 대신, 미지정이면 canAccessAdmin이
+    // "config.admin.user 컬렉션이면 통과"로 판정한다. 이 프로젝트는 users가 곧
+    // admin.user이므로 미지정 상태에서 Payload 관리자 UI를 마운트하는 순간
+    // 모든 고객이 들어간다. 지금은 /admin 라우트를 만들지 않았지만, 나중에
+    // 마운트하는 사람이 이 사실을 모를 것이므로 미리 관리자 role로 좁혀 둔다.
+    admin: ({ req }) => isAdminRole(req.user?.role),
+  },
+  hooks: {
+    beforeValidate: [
+      ({ data, operation, req }) => {
+        if (!data) return data
+        // req.context는 Local API 호출 코드(예: 시딩 스크립트)만 채울 수 있고
+        // HTTP 요청 바디로는 절대 설정할 수 없다. 그래서 이 탈출구를 훅에 둬도
+        // 클라이언트가 role을 스스로 올리는 경로는 생기지 않는다.
+        if (req.context?.allowRoleAssignment) return data
+        if (operation === 'create') {
+          // 클라이언트가 role을 보내와도 무시한다
+          return { ...data, role: 'customer' }
+        }
+        if (operation === 'update' && 'role' in data && !canManageRoles(req.user?.role)) {
+          const { role: _ignored, ...rest } = data
+          return rest
+        }
+        return data
+      },
+    ],
+  },
+  fields: [
+    {
+      name: 'role',
+      type: 'select',
+      required: true,
+      defaultValue: 'customer',
+      options: ROLES.map((r) => ({ label: r, value: r })),
+      access: {
+        // 응답에는 나가지만 클라이언트가 쓰지는 못한다
+        create: () => false,
+        update: ({ req: { user } }) => canManageRoles(user?.role),
+      },
+    },
+    { name: 'name', type: 'text', required: true },
+    { name: 'phone', type: 'text', required: true },
+    { name: 'postalCode', type: 'text', required: true },
+    { name: 'address1', type: 'text', required: true },
+    { name: 'address2', type: 'text' },
+    { name: 'businessNo', type: 'text' },
+    {
+      name: 'deletedAt',
+      type: 'date',
+      // 고객이 직접 쓰게 하면 임의의 시각을 넣을 수 있다. 탈퇴는 회원이 요청하되
+      // overrideAccess를 쓰는 Server Action이 서버에서 현재 시각으로 채운다
+      access: { create: () => false, update: ({ req: { user } }) => isSuperRole(user?.role) },
+    },
+  ],
+}

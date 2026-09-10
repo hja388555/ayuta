@@ -1,0 +1,57 @@
+:root {
+  /* 레이아웃 — 여백 하나로 헤더·본문·푸터를 같은 축에 정렬한다. 1440까지는 콘텐츠가 화면을 채운다 */
+  --content-max: 1440px;
+  --side: max(16px, (100vw - var(--content-max)) / 2);
+
+  /* 색 */
+  --brand-900: #002e80;
+  --brand-700: #0046c4;
+  --brand-600: #005afa;
+  --brand-100: #d6e4ff;
+  --brand-50: #eff5ff;
+  --ink-900: #0b0b0c;
+  --ink-700: #3d4046;
+  --ink-500: #767b85;
+  --ink-400: #a3a8b0;
+  --line: #eceef1;
+  --line-strong: #d6d9de;
+  --surface: #f7f8fa;
+  --surface-brand: #eff5ff;
+
+  /* 타입 — 단계로 튀지 않게 화면 폭에 따라 흐른다 */
+  --fs-hero: clamp(32px, 3.2vw, 52px);
+  --fs-h1: clamp(24px, 2.2vw, 30px);
+  --fs-h2: clamp(20px, 1.7vw, 26px);
+  --fs-h3: clamp(17px, 1.3vw, 20px);
+  --fs-body: clamp(15px, 1.1vw, 17px);
+  --fs-sm: clamp(13px, 0.95vw, 15px);
+  --fs-caption: clamp(12px, 0.85vw, 13px);
+}
+
+@media (min-width: 768px) {
+  :root { --side: max(32px, (100vw - var(--content-max)) / 2); }
+}
+@media (min-width: 1024px) {
+  :root { --side: max(48px, (100vw - var(--content-max)) / 2); }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif;
+  font-size: var(--fs-body);
+  color: var(--ink-900);
+  background: #fff;
+  /* 일본어는 줄바꿈 규칙이 다르다. 한국어에만 keep-all 을 준다 */
+  word-break: normal;
+}
+:lang(ko) { word-break: keep-all; }
+
+/* 표는 좁은 화면에서 셀을 줄이지 않고 가로로 스크롤한다 */
+.table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* 폼 상단 이미지 띠. 넓은 화면에서는 더 납작하게 */
+.image-band { aspect-ratio: 6 / 1; }
+@media (min-width: 1024px) {
+  .image-band { aspect-ratio: 12 / 1; }
+}

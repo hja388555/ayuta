@@ -1,0 +1,48 @@
+{
+  "name": "ayuta",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^22.0.0"
+  },
+  "packageManager": "pnpm@11.13.0",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run src",
+    "test:watch": "vitest",
+    "test:int": "vitest run tests",
+    "generate:types": "payload generate:types",
+    "migrate:create": "payload migrate:create",
+    "migrate": "payload migrate",
+    "seed:super": "payload run scripts/seed-admins.ts",
+    "seed:prices": "payload run scripts/seed-prices.ts",
+    "db:bootstrap": "payload run scripts/ensure-order-counters.ts",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down"
+  },
+  "dependencies": {
+    "@ayuta/pricing": "workspace:*",
+    "@payloadcms/db-postgres": "3.88.0",
+    "@payloadcms/next": "3.88.0",
+    "@payloadcms/richtext-lexical": "3.88.0",
+    "drizzle-orm": "0.45.2",
+    "next": "16.3.4",
+    "next-intl": "4.14.2",
+    "payload": "3.88.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "sharp": "0.34.2",
+    "zod": "3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "22.10.5",
+    "@types/react": "19.2.0",
+    "@types/react-dom": "19.2.0",
+    "typescript": "5.7.3",
+    "vitest": "2.1.8"
+  }
+}

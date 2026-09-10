@@ -1,0 +1,60 @@
+{
+  "cover": {
+    "title": "광고 견적을 빠르게 받아보세요",
+    "subtitle": "나라와 목적을 고르고, 원하는 광고 서비스를 선택하면 바로 폼으로 이동합니다",
+    "stepCountry": "광고하실 나라를 선택해주세요",
+    "stepPurpose": "광고 목적을 선택해주세요",
+    "stepService": "광고 서비스를 선택해주세요"
+  },
+  "categories": {
+    "digital-sns": "디지털 / SNS 광고",
+    "local-video": "현지 전문 영상 촬영",
+    "press-blog": "블로그",
+    "transit": "지하철 · 버스 광고",
+    "other": "기타"
+  },
+  "tierForm": {
+    "sectionTitle": "등급을 선택해주세요 (중복 선택 가능)",
+    "platformHint": "플랫폼 선택은 금액에 영향을 주지 않습니다",
+    "totalLabel": "총 금액",
+    "payButton": "결제하러 가기"
+  },
+  "groupForm": {
+    "groupTitles": {
+      "country": "촬영 국가 (중복 선택 가능)",
+      "videoType": "영상 종류",
+      "videoLength": "완성 영상 길이",
+      "national": "전국지",
+      "local": "지역신문",
+      "community": "지역 커뮤니티",
+      "blog": "블로그",
+      "subwayCity": "지하철 광고 — 도시",
+      "subwaySpot": "지하철 광고 위치",
+      "posterBillboard": "포스터 · 전광판 제작",
+      "busCity": "버스 광고 — 도시",
+      "busSpot": "버스 광고 위치",
+      "period": "광고 기간"
+    },
+    "itemLabels": {
+      "country-kr": "한국 현지 촬영",
+      "country-jp": "일본 현지 촬영",
+      "poster-make-inquiry": "역내 포스터 제작 함",
+      "poster-skip": "역내 포스터 제작 안함"
+    },
+    "periods": {
+      "1w": "1주",
+      "2w": "2주",
+      "1m": "1개월",
+      "3m": "3개월"
+    },
+    "sizeLabel": "사이즈",
+    "sizePlaceholder": "원하시는 사이즈를 자유롭게 입력해주세요",
+    "totalLabel": "총 금액",
+    "payButton": "결제하러 가기",
+    "inquiryBadge": "별도 문의",
+    "basicIncludedNote": "영상 기획 구성 · 현지 전문 촬영 · 영상 편집 · 자막 테스트 · 배경 음악 · 색보정 · 오프닝/엔딩 · 완성 영상 제공은 모든 상품에 기본 포함되며 별도로 선택하지 않습니다"
+  },
+  "inquiry": {
+    "notice": "문의사항이 있으시면 1:1 문의를 이용해주세요"
+  }
+}

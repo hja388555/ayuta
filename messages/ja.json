@@ -1,0 +1,61 @@
+{
+  "_note": "일본어는 초벌 번역이며 대표님 검수 전입니다. 검수 후 이 노트를 지워주세요.",
+  "cover": {
+    "title": "広告見積もりをすぐに受け取る",
+    "subtitle": "国と目的を選び、希望の広告サービスを選ぶとすぐにフォームへ移動します",
+    "stepCountry": "広告する国を選択してください",
+    "stepPurpose": "広告の目的を選択してください",
+    "stepService": "広告サービスを選択してください"
+  },
+  "categories": {
+    "digital-sns": "デジタル / SNS 広告",
+    "local-video": "現地専門映像撮影",
+    "press-blog": "ブログ",
+    "transit": "地下鉄・バス広告",
+    "other": "その他"
+  },
+  "tierForm": {
+    "sectionTitle": "グレードを選択してください（重複選択可能）",
+    "platformHint": "プラットフォームの選択は金額に影響しません",
+    "totalLabel": "合計金額",
+    "payButton": "お支払いへ進む"
+  },
+  "groupForm": {
+    "groupTitles": {
+      "country": "撮影国（重複選択可能）",
+      "videoType": "映像の種類",
+      "videoLength": "完成映像の長さ",
+      "national": "全国紙",
+      "local": "地方紙",
+      "community": "地域コミュニティ",
+      "blog": "ブログ",
+      "subwayCity": "地下鉄広告 — 都市",
+      "subwaySpot": "地下鉄広告位置",
+      "posterBillboard": "ポスター・電光掲示板制作",
+      "busCity": "バス広告 — 都市",
+      "busSpot": "バス広告位置",
+      "period": "広告期間"
+    },
+    "itemLabels": {
+      "country-kr": "韓国現地撮影",
+      "country-jp": "日本現地撮影",
+      "poster-make-inquiry": "駅構内ポスター制作 する",
+      "poster-skip": "駅構内ポスター制作 しない"
+    },
+    "periods": {
+      "1w": "1週間",
+      "2w": "2週間",
+      "1m": "1ヶ月",
+      "3m": "3ヶ月"
+    },
+    "sizeLabel": "サイズ",
+    "sizePlaceholder": "ご希望のサイズを自由にご記入ください",
+    "totalLabel": "合計金額",
+    "payButton": "お支払いへ進む",
+    "inquiryBadge": "別途お問い合わせ",
+    "basicIncludedNote": "映像企画構成・現地専門撮影・映像編集・字幕テスト・BGM・カラー補正・オープニング/エンディング・完成映像の提供はすべての商品に標準で含まれており、別途選択の必要はありません"
+  },
+  "inquiry": {
+    "notice": "お問い合わせは1:1お問い合わせをご利用ください"
+  }
+}

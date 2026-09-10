@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: ayuta-pg
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ayuta
+      POSTGRES_PASSWORD: ayuta
+      POSTGRES_DB: ayuta
+    ports:
+      - '55432:5432'
+    volumes:
+      - ayuta-pgdata:/var/lib/postgresql/data
+
+volumes:
+  ayuta-pgdata:
