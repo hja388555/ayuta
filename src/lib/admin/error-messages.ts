@@ -20,6 +20,9 @@ const MESSAGES: Record<string, string> = {
   invalid_multiplier: '기간 배수는 0보다 크고 100 이하인 숫자, 소수 둘째 자리까지 입력해 주세요.',
   settings_failed: '기간 배수를 저장하지 못했습니다. 잠시 후 다시 시도해 주세요.',
   network: '서버에 연결하지 못했습니다. 네트워크를 확인해 주세요.',
+  login_failed: '이메일 또는 비밀번호가 맞지 않거나, 관리자 계정이 아닙니다. 5회 틀리면 10분간 잠깁니다.',
+  invalid_code: '코드가 맞지 않거나 만료됐습니다. 코드를 다시 받아 입력해 주세요.',
+  otp_rate_limited: '코드 발급 횟수를 넘었습니다. 1시간 뒤에 다시 시도해 주세요.',
 }
 
 export const GENERIC_ERROR = '처리하지 못했습니다. 잠시 후 다시 시도해 주세요.'
