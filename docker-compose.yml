@@ -1,6 +1,7 @@
 services:
   db:
-    image: postgres:16-alpine
+    # 운영(Supabase)이 Postgres 17 이다. 메이저 버전을 맞춰 로컬에서만 통과하는 SQL 을 막는다
+    image: postgres:17-alpine
     container_name: ayuta-pg
     restart: unless-stopped
     environment:
