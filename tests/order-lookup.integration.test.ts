@@ -29,7 +29,7 @@ describe('findOwnedOrder', () => {
     const result = await createOrder({
       categorySlug: 'digital-sns',
       locale: 'ko',
-      selection: { tiers: ['standard'], platforms: [] },
+      selection: { tiers: ['standard'], platforms: [], country: ['kr'] },
       consents: { agree: true },
       orderer: { ...validOrderer },
       signature: validOrderer.name,

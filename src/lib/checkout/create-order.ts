@@ -73,6 +73,7 @@ export type CreateOrderRejectionReason =
   | 'invalid_input'
   | 'signature_mismatch'
   | 'unknown_category'
+  | 'country_required'
   | 'consent_required'
   | 'pricing_failed'
   | 'no_contract'
@@ -101,6 +102,12 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
   // 2. 카테고리 확인 — 없는 슬러그면 거부
   const def = categoryBySlug(input.categorySlug)
   if (!def) return { ok: false, reason: 'unknown_category' }
+
+  // 표지에서 나라를 선택해야 카테고리 화면으로 넘어갈 수 있다 — 규칙을 서버에서도 검증한다.
+  // URL 주소창 타이핑 등으로 표지를 우회한 경우도 거부하려면 모든 카테고리에서 국가 확인이 필요하다
+  const rawCountries = asStringArray(selectionField(input.selection, 'country'))
+  const sanitized = sanitizeCountries(rawCountries)
+  if (sanitized.length === 0) return { ok: false, reason: 'country_required' }
 
   const payload = await getPayload({ config })
   const currency: Currency = input.locale === 'ja' ? 'JPY' : 'KRW'

@@ -19,7 +19,7 @@ const validOrderer = {
 const baseInput = () => ({
   categorySlug: 'digital-sns',
   locale: 'ko' as const,
-  selection: { tiers: ['standard'], platforms: [] },
+  selection: { tiers: ['standard'], platforms: [], country: ['kr'] },
   consents: { agree: true },
   orderer: { ...validOrderer },
   signature: validOrderer.name,
@@ -74,7 +74,7 @@ describe('createOrder', () => {
     const result = await createOrder({
       categorySlug: 'press-blog',
       locale: 'ko' as const,
-      selection: { items: ['blog-note'] },
+      selection: { items: ['blog-note'], country: ['kr'] },
       consents: {},
       orderer: { ...validOrderer },
       signature: validOrderer.name,
@@ -289,7 +289,7 @@ describe('createOrder', () => {
   })
 
   it('계약서 항목이 국가·채널 등 가격 없는 선택까지 사람이 읽을 이름으로 담긴다 (C1)', async () => {
-    const result = await createOrder({ ...baseInput(), selection: { tiers: ['standard'], platforms: ['instagram', 'youtube'] } })
+    const result = await createOrder({ ...baseInput(), selection: { tiers: ['standard'], platforms: ['instagram', 'youtube'], country: ['kr'] } })
     expect(result.ok).toBe(true)
     if (!result.ok) return
     createdOrderIds.push(result.orderId)
@@ -306,5 +306,34 @@ describe('createOrder', () => {
         expect.objectContaining({ label: '플랫폼', value: expect.stringContaining('인스타그램') }),
       ]),
     )
+  })
+
+  it('나라를 고르지 않으면 주문이 만들어지지 않는다', async () => {
+    const result = await createOrder({ ...baseInput(), selection: { tiers: ['standard'], platforms: [] } })
+    expect(result).toEqual({ ok: false, reason: 'country_required' })
+  })
+
+  it('나라를 하나 고르면 주문이 만들어진다', async () => {
+    const result = await createOrder({ ...baseInput(), selection: { tiers: ['standard'], platforms: [], country: ['kr'] } })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    createdOrderIds.push(result.orderId)
+
+    const payload = await localPayload()
+    const order = await payload.findByID({ collection: 'orders', id: result.orderId, overrideAccess: true })
+    expect(order.country).toEqual(['kr'])
+    expect(order.contractText as string).toContain('한국')
+  })
+
+  it('나라를 둘 다 고르면 계약서에 "한국, 일본"이 찍힌다', async () => {
+    const result = await createOrder({ ...baseInput(), selection: { tiers: ['standard'], platforms: [], country: ['kr', 'jp'] } })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    createdOrderIds.push(result.orderId)
+
+    const payload = await localPayload()
+    const order = await payload.findByID({ collection: 'orders', id: result.orderId, overrideAccess: true })
+    expect(order.country).toEqual(['kr', 'jp'])
+    expect(order.contractText as string).toContain('광고 국가: 한국, 일본')
   })
 })

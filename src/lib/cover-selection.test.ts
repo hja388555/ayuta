@@ -24,9 +24,13 @@ describe('sanitizeCountries', () => {
 })
 
 describe('buildCoverQuery', () => {
-  it('금액이 될 수 있는 키를 담지 않는다', () => {
+  it('허락된 선택 키만 담는다 — country, purpose만 들어간다', () => {
     const qs = buildCoverQuery(['jp', 'kr'], 'brand')
-    expect(qs).not.toMatch(/amount|total|price|sum/i)
+    const params = new URLSearchParams(qs)
+    const allKeys = new Set(params.keys())
+    // 허락된 키는 정확히 이것들만이다
+    const permittedKeys = new Set(['country', 'purpose'])
+    expect(allKeys).toEqual(permittedKeys)
   })
 
   it('나라를 repeated param으로, 목적을 단일 값으로 담는다', () => {
