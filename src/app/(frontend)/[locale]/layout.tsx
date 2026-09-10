@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteHeader } from '@/components/SiteHeader'
@@ -12,6 +13,18 @@ import { routing } from '@/i18n/routing'
 // 헤더가 요청마다 로그인 상태·[관리자] 버튼을 판단해야 한다(요구사항 1-16). 정적으로 한 번
 // 렌더링해 두면 모든 사람에게 같은 헤더(비로그인 상태)가 나간다
 export const dynamic = 'force-dynamic'
+
+// 로케일별 제목·설명(큐 Q27). 페이지가 따로 정하지 않으면 이 값이 쓰인다.
+// canonical·hreflang 은 페이지마다 경로가 달라 각 페이지의 generateMetadata 가 정한다
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params
+  const t = await getTranslations({ locale, namespace: 'seo' })
+  return {
+    title: { default: t('title'), template: `%s | ${t('siteName')}` },
+    description: t('description'),
+    openGraph: { siteName: t('siteName'), locale: locale === 'ja' ? 'ja_JP' : 'ko_KR', type: 'website' },
+  }
+}
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }))

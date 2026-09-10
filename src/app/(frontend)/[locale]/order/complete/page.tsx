@@ -1,4 +1,6 @@
+import type { Metadata } from 'next'
 import { cookies } from 'next/headers'
+import { NO_INDEX } from '@/lib/seo'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Shell } from '@/components/Shell'
 import { CopyOrderNumber } from '@/components/CopyOrderNumber'
@@ -8,6 +10,8 @@ import { GUEST_PROOF_COOKIE_NAME, readGuestProof } from '@/lib/checkout/guest-pr
 import { getSessionUser } from '@/lib/dal'
 
 export const dynamic = 'force-dynamic'
+// 주문번호가 URL 에 실리는 개인 화면 — 검색에 올리지 않는다
+export const metadata: Metadata = { robots: NO_INDEX }
 
 type Props = {
   params: Promise<{ locale: string }>

@@ -1,10 +1,18 @@
+import type { Metadata } from 'next'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { localeAlternates } from '@/lib/seo'
 import { Shell } from '@/components/Shell'
 import { CoverSteps } from '@/components/CoverSteps'
 import { CATEGORIES } from '@/lib/categories'
 import { COUNTRY_CODES, PURPOSE_CODES } from '@/lib/cover-selection'
 
 type Props = { params: Promise<{ locale: string }> }
+
+// canonical 자기참조 + ko/ja hreflang 상호참조(큐 Q27)
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params
+  return { alternates: localeAlternates(locale, '') }
+}
 
 // 표지는 상태가 없는 서버 컴포넌트다.
 export default async function CoverPage({ params }: Props) {
