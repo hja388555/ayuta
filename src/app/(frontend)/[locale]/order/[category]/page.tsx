@@ -1,10 +1,15 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
+import { getPayload } from 'payload'
+import config from '@payload-config'
+import { InquiryForm } from '@/components/InquiryForm'
+import { getSessionUser } from '@/lib/dal'
 import { Shell } from '@/components/Shell'
 import { ImageBand } from '@/components/ImageBand'
 import { TierForm } from '@/components/TierForm'
 import { GroupForm } from '@/components/GroupForm'
-import { categoryBySlug } from '@/lib/categories'
+import { CATEGORIES, categoryBySlug } from '@/lib/categories'
 import { formFor } from '@/lib/category-groups'
 import { loadPriceBook } from '@/lib/price-book'
 import { loadCategoryModel } from '@/lib/pricing-model'
@@ -34,6 +39,22 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const tGroup = await getTranslations('groupForm')
   const tCat = await getTranslations('categories')
   const tInquiry = await getTranslations('inquiry')
+  const tForm = await getTranslations('inquiryForm')
+
+  // 5번 문의 폼: ?type= 은 URL 에서 온 값이라 카테고리 표와 대조한다. 없는 값이면 미선택(1-18).
+  // 받은 문자열을 화면에 그대로 그리지 않는다 — 대조를 통과한 슬러그만 넘긴다
+  const rawType = typeof sp.type === 'string' ? sp.type : ''
+  const initialType = def.no === 5 && rawType ? (categoryBySlug(rawType)?.slug ?? null) : null
+  // 로그인 상태면 연락처 자동 채움(checkout 과 같은 방식). 고객이 고칠 수 있다
+  let initialContact: { name?: string; phone?: string; email?: string } | undefined
+  if (def.no === 5) {
+    const sessionUser = await getSessionUser()
+    if (sessionUser) {
+      const payload = await getPayload({ config })
+      const u = await payload.findByID({ collection: 'users', id: sessionUser.id, overrideAccess: true, depth: 0 })
+      initialContact = { name: u.name as string, phone: u.phone as string, email: u.email as string }
+    }
+  }
 
   const currency = currencyForLocale(locale)
   const book = await loadPriceBook(def.no, currency)
@@ -89,9 +110,44 @@ export default async function OrderPage({ params, searchParams }: Props) {
               }}
             />
           ) : (
-            // 5번은 이번 범위 밖이다 (Q14). 가짜 폼을 만들지 않는다
-            <p style={{ color: 'var(--ink-500)' }}>준비 중입니다.</p>
+            // 5번 — 금액이 없다. 문의를 받아 관리자가 견적을 발행한다(Q14 · Q14-B)
+            <>
+              <p style={{ color: 'var(--ink-500)' }}>{tForm('intro')}</p>
+              <InquiryForm
+                locale={locale}
+                types={CATEGORIES.map((c) => ({ slug: c.slug, label: tCat(c.slug) }))}
+                initialType={initialType}
+                initialContact={initialContact}
+                labels={{
+                  typeLabel: tForm('typeLabel'),
+                  typeNone: tForm('typeNone'),
+                  bodyLabel: tForm('bodyLabel'),
+                  bodyPlaceholder: tForm('bodyPlaceholder'),
+                  regionLabel: tForm('regionLabel'),
+                  filesLabel: tForm('filesLabel'),
+                  filesHint: tForm('filesHint'),
+                  contactTitle: tForm('contactTitle'),
+                  name: tForm('name'),
+                  phone: tForm('phone'),
+                  email: tForm('email'),
+                  submit: tForm('submit'),
+                  submitting: tForm('submitting'),
+                  done: tForm('done'),
+                  errors: tForm.raw('errors'),
+                }}
+              />
+            </>
           )}
+
+          {def.no !== 5 ? (
+            // 요구사항 1-18 — 상담신청 버튼이 놓인 자리가 곧 문의 유형이다
+            <section style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid var(--ink-100, #ECEEF1)' }}>
+              <p style={{ margin: 0 }}>{tForm('consultTitle')}</p>
+              <Link href={`/${locale}/order/other?type=${def.slug}`} style={{ display: 'inline-block', marginTop: 8 }}>
+                {tForm('consultCta')}
+              </Link>
+            </section>
+          ) : null}
 
           <p style={{ marginTop: 48, color: 'var(--ink-500)', fontSize: 'var(--fs-sm)' }}>
             {tInquiry('notice')}

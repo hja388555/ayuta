@@ -13,6 +13,8 @@ import { OrderTransitions } from './collections/OrderTransitions'
 import { OrderNotes } from './collections/OrderNotes'
 import { OrderScheduleChanges } from './collections/OrderScheduleChanges'
 import { ContractTemplates } from './collections/ContractTemplates'
+import { Inquiries } from './collections/Inquiries'
+import { InquiryFiles } from './collections/InquiryFiles'
 import { PricingSettings } from './globals/PricingSettings'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
@@ -22,7 +24,18 @@ export default buildConfig({
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
   },
-  collections: [Users, AdminOtps, PriceEntries, Orders, OrderTransitions, OrderNotes, OrderScheduleChanges, ContractTemplates],
+  collections: [
+    Users,
+    AdminOtps,
+    PriceEntries,
+    Orders,
+    OrderTransitions,
+    OrderNotes,
+    OrderScheduleChanges,
+    ContractTemplates,
+    Inquiries,
+    InquiryFiles,
+  ],
   globals: [PricingSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

@@ -75,6 +75,8 @@ export interface Config {
     'order-notes': OrderNote;
     'order-schedule-changes': OrderScheduleChange;
     'contract-templates': ContractTemplate;
+    inquiries: Inquiry;
+    'inquiry-files': InquiryFile;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -90,6 +92,8 @@ export interface Config {
     'order-notes': OrderNotesSelect<false> | OrderNotesSelect<true>;
     'order-schedule-changes': OrderScheduleChangesSelect<false> | OrderScheduleChangesSelect<true>;
     'contract-templates': ContractTemplatesSelect<false> | ContractTemplatesSelect<true>;
+    inquiries: InquiriesSelect<false> | InquiriesSelect<true>;
+    'inquiry-files': InquiryFilesSelect<false> | InquiryFilesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -322,6 +326,44 @@ export interface ContractTemplate {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries".
+ */
+export interface Inquiry {
+  id: number;
+  type?: string | null;
+  body: string;
+  region?: string | null;
+  name: string;
+  phone: string;
+  email: string;
+  locale: 'ko' | 'ja';
+  customer?: (number | null) | User;
+  files?: (number | InquiryFile)[] | null;
+  status: 'new' | 'quoted' | 'closed';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiry-files".
+ */
+export interface InquiryFile {
+  id: number;
+  originalName?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -375,6 +417,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'contract-templates';
         value: number | ContractTemplate;
+      } | null)
+    | ({
+        relationTo: 'inquiries';
+        value: number | Inquiry;
+      } | null)
+    | ({
+        relationTo: 'inquiry-files';
+        value: number | InquiryFile;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -590,6 +640,42 @@ export interface ContractTemplatesSelect<T extends boolean = true> {
   active?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiries_select".
+ */
+export interface InquiriesSelect<T extends boolean = true> {
+  type?: T;
+  body?: T;
+  region?: T;
+  name?: T;
+  phone?: T;
+  email?: T;
+  locale?: T;
+  customer?: T;
+  files?: T;
+  status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "inquiry-files_select".
+ */
+export interface InquiryFilesSelect<T extends boolean = true> {
+  originalName?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
