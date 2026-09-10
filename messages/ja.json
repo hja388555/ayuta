@@ -81,5 +81,15 @@
     "noContractTitle": "現在オンライン決済に対応していません",
     "noContractBody": "このカテゴリーは契約書準備中のため、オンライン決済をご利用いただけません。お問い合わせをご案内します。",
     "inquiryLink": "お問い合わせ"
+  },
+  "orderComplete": {
+    "title": "ご注文を受け付けました",
+    "orderNumberLabel": "注文番号",
+    "copyButton": "コピー",
+    "copied": "コピーしました",
+    "guestNotice": "会員登録なしのご注文は、この番号でのみ照会できます。必ず保管してください。",
+    "viewContract": "契約書を再度見る",
+    "notFoundTitle": "注文が見つかりません",
+    "notFoundBody": "注文番号が正しいか、会員登録なしの場合は注文時に入力したメールアドレス・電話番号が正しいかご確認ください。"
   }
 }
