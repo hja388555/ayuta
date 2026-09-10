@@ -2,6 +2,7 @@ import 'server-only'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import type { Order } from '../payload-types'
+import { toSeoulDay } from './orders/schedule'
 
 export type OrderOwnershipCheck =
   | { kind: 'member'; customerId: number }
@@ -57,4 +58,37 @@ export async function findOwnedOrder(orderNumber: string, check: OrderOwnershipC
   }
 
   return guestOwnershipMatches(order, check) ? order : null
+}
+
+/**
+ * 고객 화면에 쓸 계약기간·광고시작일 표기.
+ *
+ * 계약서 스냅샷(contractText)에는 이 값이 들어 있지 않다(결제 시점엔 아직 협의 전이다).
+ * 스냅샷을 사후에 고치지 않는 대신 여기서 별도 컬럼을 읽어 합성한다 — 화면에 보이는
+ * 계약기간과 서명된 문서가 따로 놀지 않게 하려면 합성 지점이 한 곳이어야 한다.
+ *
+ * 아직 정해지지 않은 값은 `pending`("협의 중" / "協議中")으로 표시한다. 문구 자체는
+ * messages/{ko,ja}.json 이 갖고 있고(next-intl), 이 함수는 번역된 문자열을 받기만 한다 —
+ * 서버 유틸이 로케일 분기를 들고 있으면 문구가 두 곳으로 갈라진다.
+ * 날짜는 로케일과 무관한 YYYY-MM-DD 로 낸다(Asia/Seoul 기준 그날).
+ */
+type ScheduleRow = {
+  contractStart?: string | null
+  contractEnd?: string | null
+  adStartDate?: string | null
+}
+
+export function formatOrderSchedule(
+  order: ScheduleRow,
+  pending: string,
+): { contractPeriod: string; adStartDate: string } {
+  const day = (value: string | null | undefined) => toSeoulDay(value ?? null) ?? null
+  const start = day(order.contractStart)
+  const end = day(order.contractEnd)
+
+  return {
+    // 한쪽만 정해진 상태도 그대로 보여준다 — 정해진 절반을 숨기면 고객이 확인할 수 없다
+    contractPeriod: start || end ? `${start ?? pending} ~ ${end ?? pending}` : pending,
+    adStartDate: day(order.adStartDate) ?? pending,
+  }
 }

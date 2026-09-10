@@ -106,6 +106,9 @@
     "notFoundTitle": "注文が見つかりません",
     "notFoundBody": "注文番号が正しいか、会員登録なしの場合は注文時に入力したメールアドレス・電話番号が正しいかご確認ください。",
     "pendingNotice": "まだ決済が完了していません。決済が完了して初めて契約が締結されます。",
+    "contractPeriodLabel": "契約期間",
+    "adStartLabel": "広告開始日",
+    "schedulePending": "協議中",
     "contractPendingLabel": "決済待ち — まだ締結されていない契約書の草案です。"
   }
 }

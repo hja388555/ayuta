@@ -73,6 +73,7 @@ export interface Config {
     orders: Order;
     'order-transitions': OrderTransition;
     'order-notes': OrderNote;
+    'order-schedule-changes': OrderScheduleChange;
     'contract-templates': ContractTemplate;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -87,6 +88,7 @@ export interface Config {
     orders: OrdersSelect<false> | OrdersSelect<true>;
     'order-transitions': OrderTransitionsSelect<false> | OrderTransitionsSelect<true>;
     'order-notes': OrderNotesSelect<false> | OrderNotesSelect<true>;
+    'order-schedule-changes': OrderScheduleChangesSelect<false> | OrderScheduleChangesSelect<true>;
     'contract-templates': ContractTemplatesSelect<false> | ContractTemplatesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -235,6 +237,9 @@ export interface Order {
   };
   signature: string;
   contractText: string;
+  contractStart?: string | null;
+  contractEnd?: string | null;
+  adStartDate?: string | null;
   paidAt?: string | null;
   failReason?: string | null;
   updatedAt: string;
@@ -264,6 +269,21 @@ export interface OrderNote {
   order: number | Order;
   body: string;
   author?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-schedule-changes".
+ */
+export interface OrderScheduleChange {
+  id: number;
+  order: number | Order;
+  field: 'contractStart' | 'contractEnd' | 'adStartDate';
+  fromValue?: string | null;
+  toValue?: string | null;
+  actor?: (number | null) | User;
+  at: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -334,6 +354,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'order-notes';
         value: number | OrderNote;
+      } | null)
+    | ({
+        relationTo: 'order-schedule-changes';
+        value: number | OrderScheduleChange;
       } | null)
     | ({
         relationTo: 'contract-templates';
@@ -486,6 +510,9 @@ export interface OrdersSelect<T extends boolean = true> {
       };
   signature?: T;
   contractText?: T;
+  contractStart?: T;
+  contractEnd?: T;
+  adStartDate?: T;
   paidAt?: T;
   failReason?: T;
   updatedAt?: T;
@@ -513,6 +540,20 @@ export interface OrderNotesSelect<T extends boolean = true> {
   order?: T;
   body?: T;
   author?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-schedule-changes_select".
+ */
+export interface OrderScheduleChangesSelect<T extends boolean = true> {
+  order?: T;
+  field?: T;
+  fromValue?: T;
+  toValue?: T;
+  actor?: T;
+  at?: T;
   updatedAt?: T;
   createdAt?: T;
 }

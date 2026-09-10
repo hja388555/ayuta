@@ -2,7 +2,7 @@ import { cookies } from 'next/headers'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Shell } from '@/components/Shell'
 import { CopyOrderNumber } from '@/components/CopyOrderNumber'
-import { findOwnedOrder } from '@/lib/order-lookup'
+import { findOwnedOrder, formatOrderSchedule } from '@/lib/order-lookup'
 import { GUEST_PROOF_COOKIE_NAME, readGuestProof } from '@/lib/checkout/guest-proof'
 import { getSessionUser } from '@/lib/dal'
 
@@ -48,6 +48,8 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
     )
   }
 
+  const schedule = formatOrderSchedule(order, t('schedulePending'))
+
   return (
     <main>
       <Shell as="section">
@@ -61,6 +63,15 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
               <CopyOrderNumber orderNumber={order.orderNumber} copyLabel={t('copyButton')} copiedLabel={t('copied')} />
             </div>
           </div>
+
+          {/* 계약기간·광고시작일은 계약서 스냅샷에 없다(결제 시점엔 미정) — 별도 컬럼을
+              읽어 여기서 합성해 보여준다. 아직 안 정해졌으면 "협의 중" */}
+          <dl style={{ marginTop: 24, display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '8px 16px' }}>
+            <dt style={{ color: 'var(--ink-500)' }}>{t('contractPeriodLabel')}</dt>
+            <dd style={{ margin: 0 }}>{schedule.contractPeriod}</dd>
+            <dt style={{ color: 'var(--ink-500)' }}>{t('adStartLabel')}</dt>
+            <dd style={{ margin: 0 }}>{schedule.adStartDate}</dd>
+          </dl>
 
           {!order.customer && (
             <p style={{ marginTop: 16, color: 'var(--ink-500)' }}>{t('guestNotice')}</p>

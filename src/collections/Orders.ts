@@ -126,6 +126,18 @@ export const Orders: CollectionConfig = {
     // 결제 시점 계약서 전문. 값으로 복사한다 — 나중에 템플릿을 고쳐도 이미 체결된 주문은
     // 그 순간 고객이 읽고 서명한 문서 그대로 남아야 한다
     { name: 'contractText', type: 'textarea', required: true, access: IMMUTABLE },
+    // 계약기간·광고시작일 (Q22-B). 계약서 스냅샷(contractText)에 써넣지 않고 별도 컬럼에
+    // 담는다 — 스냅샷은 고객이 읽고 서명한 문서 그대로여야 하므로 확정된 날짜를 나중에
+    // 그 안에 끼워 넣으면 "서명한 문서"가 아니게 된다. 고객 화면은 스냅샷과 이 컬럼을
+    // 따로 읽어 합성해 보여준다(src/lib/order-lookup.ts).
+    //
+    // 이 세 필드는 관리자가 admin 화면에서 직접 확정해야 하므로 잠그지 않는다.
+    // ⚠ 대신 admin UI 의 일반 저장은 order-schedule-changes 이력을 남기지 않는다 —
+    // 누가 언제 바꿨는지 기록이 필요하면 setOrderSchedule()(src/lib/orders/schedule.ts)
+    // 경로로 저장해야 한다.
+    { name: 'contractStart', type: 'date' },
+    { name: 'contractEnd', type: 'date' },
+    { name: 'adStartDate', type: 'date' },
     { name: 'paidAt', type: 'date' },
     { name: 'failReason', type: 'text' },
   ],
