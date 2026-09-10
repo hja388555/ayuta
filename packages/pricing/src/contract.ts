@@ -13,6 +13,16 @@ export type ContractFacts = {
   // 4번: 노선·위치·사이즈·기간). 고정 키로 두면 새 계약서가 올 때마다 이 타입을 또 깨야 한다.
   // 그래서 카테고리별 항목은 라벨·값 쌍의 목록으로 받아 {{items}} 자리에 한 번에 펼친다.
   items: { label: string; value: string }[]
+  // 갑(고객)측 부가 정보. 주문자 정보(Orderer)에서 채워지며, 값을 아예 모르는 항목(예:
+  // 대표자 성명 — 주문자 스키마가 받지 않는다)은 호출자가 "-" 같은 명시적 대시를 채워
+  // 넣는다. undefined 로 두면 채우지 못한 빈칸으로 missing 에 보고된다 — 조용히 구멍을
+  // 남기지 않는다는 성질은 여기서도 유지한다.
+  buyerRepresentative?: string
+  buyerBusinessNo?: string
+  buyerPhone?: string
+  buyerContactPhone?: string
+  buyerAddress?: string
+  buyerEmail?: string
 }
 
 const SIGN: Record<ContractFacts['currency'], string> = { KRW: '₩', JPY: '¥' }
@@ -38,6 +48,12 @@ export function fillContract(template: string, facts: ContractFacts): { text: st
     // 정규식이 다시 훑지 않으므로(String.replace 는 원본 문자열만 한 번 스캔한다)
     // 항목 값 안에 {{amount}} 같은 치환 문법이 있어도 재귀 치환되지 않는다.
     items: facts.items.map((item) => `${item.label}: ${item.value}`).join('\n'),
+    buyerRepresentative: facts.buyerRepresentative,
+    buyerBusinessNo: facts.buyerBusinessNo,
+    buyerPhone: facts.buyerPhone,
+    buyerContactPhone: facts.buyerContactPhone,
+    buyerAddress: facts.buyerAddress,
+    buyerEmail: facts.buyerEmail,
   }
 
   const missing: string[] = []

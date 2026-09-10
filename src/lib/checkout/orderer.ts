@@ -31,3 +31,35 @@ export const OrdererSchema = z.object({
 })
 
 export type Orderer = z.infer<typeof OrdererSchema>
+
+const NOT_APPLICABLE = '-'
+
+/**
+ * 계약서 갑(고객)측 부가 정보를 주문자 정보에서 채운다.
+ *
+ * "대표자 성명"은 Orderer 스키마가 아예 받지 않는 항목이다 — 개인 고객에게는 원래
+ * 해당이 없고, 법인 고객이라도 지금 화면은 회사명(=name)만 받고 대표자 이름을 따로
+ * 받지 않는다. 이런 "선택이고 값이 없는" 항목은 빈칸으로 남기지 않고 명시적으로
+ * "해당 없음"을 찍는다 — 인쇄된 계약서의 빈 줄은 나중에 누군가 손으로 채워 넣으라는
+ * 초대장이 된다.
+ */
+export function buyerContractFields(orderer: Orderer): {
+  buyerRepresentative: string
+  buyerBusinessNo: string
+  buyerPhone: string
+  buyerContactPhone: string
+  buyerAddress: string
+  buyerEmail: string
+} {
+  return {
+    // 화면이 대표자 성명을 따로 받지 않으므로 항상 해당 없음
+    buyerRepresentative: NOT_APPLICABLE,
+    buyerBusinessNo: orderer.businessNo || NOT_APPLICABLE,
+    buyerPhone: orderer.phone,
+    // 담당자 연락처를 따로 받지 않으므로 전화번호와 동일하게 처리한다
+    // (docs/법무문서-확정본.md C절 — "미입력 시 전화번호와 동일 처리")
+    buyerContactPhone: orderer.phone,
+    buyerAddress: [orderer.postalCode, orderer.address1, orderer.address2].filter(Boolean).join(' '),
+    buyerEmail: orderer.email,
+  }
+}

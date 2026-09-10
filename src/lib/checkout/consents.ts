@@ -8,11 +8,12 @@ const CONSENTS: Record<number, ConsentDef[]> = {
   // 1·2번은 계약 동의 한 줄
   1: [{ key: 'agree', label: '위 계약 내용을 모두 확인하였으며 이에 동의합니다.', required: true }],
   2: [{ key: 'agree', label: '위 계약 내용을 모두 확인하였으며 이에 동의합니다.', required: true }],
-  // 4번은 이용약관 / 개인정보 수집·이용 / 계약내용 세 줄
+  // 4번은 이용약관 / 개인정보 수집·이용 / 계약내용 세 줄 (docs/법무문서-확정본.md G절
+  // "동의 3종" 원문 그대로)
   4: [
-    { key: 'terms', label: '이용약관에 동의합니다.', required: true },
+    { key: 'terms', label: '서비스 이용약관을 확인하고 동의합니다.', required: true },
     { key: 'privacy', label: '개인정보 수집·이용에 동의합니다.', required: true },
-    { key: 'contract', label: '위 계약 내용을 모두 확인하였으며 이에 동의합니다.', required: true },
+    { key: 'contract', label: '본 계약내용과 취소·환불 조건을 확인하고 동의합니다.', required: true },
   ],
 }
 

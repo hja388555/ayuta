@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { OrdererSchema } from './orderer'
+import { buyerContractFields, OrdererSchema } from './orderer'
 
 const valid = {
   name: '홍길동',
@@ -44,5 +44,34 @@ describe('주문자 정보', () => {
     expect(OrdererSchema.safeParse({ ...valid, businessNo: '259-23-02007' }).success).toBe(true)
     expect(OrdererSchema.safeParse({ ...valid, businessNo: '2592302007' }).success).toBe(false)
     expect(OrdererSchema.safeParse({ ...valid, businessNo: '아무값' }).success).toBe(false)
+  })
+})
+
+describe('계약서 갑측 부가 정보', () => {
+  it('사업자등록번호가 없으면 빈 줄이 아니라 해당 없음으로 표시한다', () => {
+    const fields = buyerContractFields(valid)
+    expect(fields.buyerBusinessNo).toBe('-')
+    // 화면이 대표자 성명을 받지 않으므로 항상 해당 없음이다
+    expect(fields.buyerRepresentative).toBe('-')
+  })
+
+  it('사업자등록번호가 있으면 그대로 쓴다', () => {
+    const fields = buyerContractFields({ ...valid, businessNo: '259-23-02007' })
+    expect(fields.buyerBusinessNo).toBe('259-23-02007')
+  })
+
+  it('담당자 연락처는 따로 받지 않으므로 전화번호와 같다', () => {
+    const fields = buyerContractFields(valid)
+    expect(fields.buyerContactPhone).toBe(valid.phone)
+  })
+
+  it('주소는 우편번호·기본주소·상세주소를 이어 붙인다', () => {
+    const fields = buyerContractFields({ ...valid, address2: '5층' })
+    expect(fields.buyerAddress).toBe(`${valid.postalCode} ${valid.address1} 5층`)
+  })
+
+  it('상세주소가 없으면 우편번호·기본주소만 이어 붙인다', () => {
+    const fields = buyerContractFields(valid)
+    expect(fields.buyerAddress).toBe(`${valid.postalCode} ${valid.address1}`)
   })
 })
