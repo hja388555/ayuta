@@ -1,7 +1,9 @@
 export type ContractFacts = {
-  productName: string
-  country: string
-  channels: string
+  // 1번 계약서만 쓰는 고정 필드다. 2·4번은 이 값들 없이 items 만으로 채운다 — 그래서
+  // 선택으로 둔다. 값이 없으면 (템플릿이 그 키를 쓸 경우) missing 으로 보고된다.
+  productName?: string
+  country?: string
+  channels?: string
   amount: number
   currency: 'KRW' | 'JPY'
   contractDate: string
@@ -24,7 +26,7 @@ const SIGN: Record<ContractFacts['currency'], string> = { KRW: '₩', JPY: '¥' 
  * 빈 문자열로 지우면 구멍이 뚫린 계약서에 고객이 서명한다.
  */
 export function fillContract(template: string, facts: ContractFacts): { text: string; missing: string[] } {
-  const values: Record<string, string> = {
+  const values: Record<string, string | undefined> = {
     productName: facts.productName,
     country: facts.country,
     channels: facts.channels,
