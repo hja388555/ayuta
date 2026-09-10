@@ -13,6 +13,7 @@ import { OrderTransitions } from './collections/OrderTransitions'
 import { OrderNotes } from './collections/OrderNotes'
 import { OrderScheduleChanges } from './collections/OrderScheduleChanges'
 import { ContractTemplates } from './collections/ContractTemplates'
+import { PricingSettings } from './globals/PricingSettings'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -22,6 +23,7 @@ export default buildConfig({
     importMap: { baseDir: path.resolve(dirname) },
   },
   collections: [Users, AdminOtps, PriceEntries, Orders, OrderTransitions, OrderNotes, OrderScheduleChanges, ContractTemplates],
+  globals: [PricingSettings],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },

@@ -9,12 +9,16 @@ import { localPayload } from './helpers/localApi.js'
 
 const RUN = Date.now()
 const SUPER = { email: `price-super+${RUN}@ayuta.test`, password: 'Ayuta!Test-2026' }
+// 2단계 인증을 끝내지 않은 super. 단가 변경은 OTP 까지 확인한다(PriceEntries access)
+const UNVERIFIED_SUPER = { email: `price-super-unverified+${RUN}@ayuta.test`, password: 'Ayuta!Test-2026' }
 const base = { name: '홍길동', phone: '010-0000-0000', postalCode: '00000', address1: '서울시' }
 const ORIGINAL = 1000
 
-let userId: number
+const userIds: number[] = []
+let otpId: number
 let entryId: number
 let token: string | undefined
+let unverifiedToken: string | undefined
 
 const patch = (body: unknown) =>
   api(`/api/price-entries/${entryId}`, {
@@ -36,13 +40,29 @@ const reset = async () => {
 
 beforeAll(async () => {
   const payload = await localPayload()
-  const user = await payload.create({
-    collection: 'users',
-    data: { ...SUPER, ...base, role: 'super' },
+  for (const creds of [SUPER, UNVERIFIED_SUPER]) {
+    const user = await payload.create({
+      collection: 'users',
+      data: { ...creds, ...base, role: 'super' },
+      overrideAccess: true,
+      context: { allowRoleAssignment: true },
+    })
+    userIds.push(user.id as number)
+  }
+  // SUPER 에만 "이미 소비된 OTP" 행을 심는다
+  const otp = await payload.create({
+    collection: 'admin-otps',
+    data: {
+      user: userIds[0]!,
+      hash: 'x'.repeat(64),
+      salt: 'y'.repeat(32),
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000).toISOString(),
+      consumedAt: new Date().toISOString(),
+      attempts: 1,
+    },
     overrideAccess: true,
-    context: { allowRoleAssignment: true },
   })
-  userId = user.id as number
+  otpId = otp.id as number
   const entry = await payload.create({
     collection: 'price-entries',
     overrideAccess: true,
@@ -51,7 +71,8 @@ beforeAll(async () => {
   })
   entryId = entry.id as number
   token = (await login(SUPER.email, SUPER.password)).token
-  expect(token).toBeTruthy()
+  unverifiedToken = (await login(UNVERIFIED_SUPER.email, UNVERIFIED_SUPER.password)).token
+  expect(token && unverifiedToken).toBeTruthy()
 })
 
 afterAll(async () => {
@@ -59,7 +80,8 @@ afterAll(async () => {
   const errors: string[] = []
   for (const [collection, id] of [
     ['price-entries', entryId],
-    ['users', userId],
+    ['admin-otps', otpId],
+    ...userIds.map((id) => ['users', id] as const),
   ] as const) {
     try {
       await payload.delete({ collection, id, overrideAccess: true })
@@ -68,6 +90,18 @@ afterAll(async () => {
     }
   }
   if (errors.length > 0) throw new Error(`테스트 데이터 정리 실패:\n${errors.join('\n')}`)
+})
+
+describe('PATCH /api/price-entries/:id — 2단계 인증 게이트', () => {
+  it('2단계 인증을 안 끝낸 super 는 403 이고 금액이 바뀌지 않는다', async () => {
+    const res = await api(`/api/price-entries/${entryId}`, {
+      method: 'PATCH',
+      headers: { Authorization: `JWT ${unverifiedToken}` },
+      body: JSON.stringify({ priceKrw: 999_999 }),
+    })
+    expect(res.status).toBe(403)
+    expect(await storedKrw()).toBe(ORIGINAL)
+  })
 })
 
 describe('PATCH /api/price-entries/:id — 소수·음수·숫자 아닌 값은 저장되지 않는다', () => {

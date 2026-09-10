@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import { AuthError, OtpRequiredError, requireAdminVerified } from '@/lib/dal'
 
@@ -18,6 +19,14 @@ export default async function ManagePage() {
       <p>
         {user.email} · {user.role}
       </p>
+      <ul style={{ lineHeight: 2 }}>
+        <li>
+          <Link href="/manage/orders">주문 관리</Link>
+        </li>
+        <li>
+          <Link href="/manage/prices">단가 관리</Link>
+        </li>
+      </ul>
     </main>
   )
 }

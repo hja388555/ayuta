@@ -8,6 +8,7 @@ import { loadPriceBook } from '../src/lib/price-book'
 import { previewTotal } from '../src/components/TierForm'
 import { previewGroupTotal } from '../src/components/GroupForm'
 import { CATEGORIES } from '../src/lib/categories'
+import { loadCategoryModel } from '../src/lib/pricing-model'
 
 const RUN = Date.now()
 const k = (name: string) => `parity-${RUN}-${name}`
@@ -88,18 +89,38 @@ describe('견적 정합성 — 미리보기와 서버가 카테고리 1~4에서 
   })
 
   it('4번(sumMultiplier): 항목 두 개 + 기간을 고르면 미리보기와 서버가 같다', async () => {
+    // 기간 배수는 DB(pricing-settings)에 있고 관리자가 바꾼다. 테스트가 기본값에 기대지 않도록
+    // 이 테스트 동안만 값을 정해 두고 원래대로 돌린다
+    const payload = await localPayload()
+    const before = await payload.findGlobal({ slug: 'pricing-settings', overrideAccess: true })
+    try {
+      await payload.updateGlobal({
+        slug: 'pricing-settings',
+        overrideAccess: true,
+        data: { periodMultipliers: { ...before.periodMultipliers, '2w': 1.8 } },
+      })
+      const model = await loadCategoryModel(CATEGORIES.find((c) => c.no === 4)!)
+      const book = await loadPriceBook(4, 'KRW')
+      const items = [k('transit-a'), k('transit-b')]
+      const period = '2w'
+
+      const preview = previewGroupTotal(book, model, items, period)
+      const server = calculate(model, book, { items, period })
+
+      expect(server.ok).toBe(true)
+      expect(server.ok && server.total).toBe(preview)
+      // 250,000 × 1.8 = 450,000
+      expect(preview).toBe(450_000)
+    } finally {
+      await payload.updateGlobal({ slug: 'pricing-settings', overrideAccess: true, data: { periodMultipliers: before.periodMultipliers } })
+    }
+  })
+
+  it('4번: 로더를 거치지 않은 정의 모델은 계산이 막힌다 — 옛 임시값으로 조용히 청구하지 않는다', async () => {
     const def = CATEGORIES.find((c) => c.no === 4)!
     const book = await loadPriceBook(4, 'KRW')
-    const items = [k('transit-a'), k('transit-b')]
-    const period = '2w'
-
-    const preview = previewGroupTotal(book, def.model, items, period)
-    const server = calculate(def.model, book, { items, period })
-
-    expect(server.ok).toBe(true)
-    expect(server.ok && server.total).toBe(preview)
-    // multipliers['2w'] = 1.8 (src/lib/categories.ts) — 250,000 * 1.8 = 450,000
-    expect(preview).toBe(450_000)
+    const server = calculate(def.model, book, { items: [k('transit-a')], period: '2w' })
+    expect(server.ok).toBe(false)
   })
 
   it('단가에 없는 키가 섞이면 미리보기·서버 양쪽 모두 실패한다 — 한쪽만 실패하면 화면과 청구가 갈라진다', async () => {

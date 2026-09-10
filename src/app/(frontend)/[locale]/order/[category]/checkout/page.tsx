@@ -8,6 +8,7 @@ import { CheckoutForm } from '@/components/CheckoutForm'
 import { categoryBySlug } from '@/lib/categories'
 import { formFor } from '@/lib/category-groups'
 import { loadPriceBook } from '@/lib/price-book'
+import { loadCategoryModel } from '@/lib/pricing-model'
 import { currencyForLocale } from '@/lib/payments/channel'
 import { selectionFromQuery, filterPricedSelection } from '@/lib/checkout/selection-from-query'
 import { buildContractItems, countryFactValue } from '@/lib/checkout/contract-items'
@@ -35,12 +36,14 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   const book = await loadPriceBook(def.no, currency)
 
   const form = formFor(def.no)
-  const rawSelection = selectionFromQuery(def.model, sp)
+  // 4번 기간 배수 등 관리자가 DB 에서 고치는 값을 채운 모델 — 견적 화면·주문 생성과 같은 로더
+  const model = await loadCategoryModel(def)
+  const rawSelection = selectionFromQuery(model, sp)
   // calculate()에는 금액칸이 있는 선택만 넘긴다. 계약서·화면에는 원본 선택(rawSelection)을
   // 그대로 쓴다 — priced 필터는 계산 한 곳에서만 걸어야 국가·사이즈 같은 무료 선택이
   // 계약서에서 사라지지 않는다(C1)
-  const pricedSelection = filterPricedSelection(def.model, form, rawSelection)
-  const quote = calculate(def.model, book, pricedSelection)
+  const pricedSelection = filterPricedSelection(model, form, rawSelection)
+  const quote = calculate(model, book, pricedSelection)
   // 이전 화면에서 넘어온 선택이 이제 와서 유효하지 않다(단가 없음, 등급 미선택 등) —
   // 견적 화면으로 되돌아가는 게 맞지만, 지금은 500 대신 404 로 막는다(등록 안 된 슬러그와
   // 같은 이유: 어느 지점에서 실패했는지 이상의 정보를 공격자에게 주지 않는다)
@@ -55,7 +58,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   })
   const template = templates[0]
 
-  // 계약서가 없는 카테고리(3·5번)는 결제로 진행하지 못한다 — 근거 문서 없는 계약을 만들지 않는다
+  // 계약서 템플릿이 없거나 내려 둔(active:false) 카테고리는 결제로 진행하지 못한다 — 근거 문서 없는 계약을 만들지 않는다
   if (!template) {
     return (
       <main>

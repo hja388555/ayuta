@@ -9,6 +9,7 @@ import { calculate, fillContract, type Currency } from '@ayuta/pricing'
 import { categoryBySlug } from '../categories'
 import { formFor } from '../category-groups'
 import { loadPriceBook } from '../price-book'
+import { loadCategoryModel } from '../pricing-model'
 import { nextOrderNumber } from '../order-counter'
 import { companyContractFields } from '../company'
 import { OrdererSchema, buyerContractFields } from './orderer'
@@ -163,8 +164,10 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
   // 사라지지 않는다
   const book = await loadPriceBook(def.no, currency)
   const form = formFor(def.no)
-  const pricedSelection = filterPricedSelection(def.model, form, input.selection)
-  const quote = calculate(def.model, book, pricedSelection)
+  // 4번 기간 배수 등 관리자가 DB 에서 고치는 값을 채운 모델 — 견적 화면과 같은 로더를 쓴다
+  const model = await loadCategoryModel(def)
+  const pricedSelection = filterPricedSelection(model, form, input.selection)
+  const quote = calculate(model, book, pricedSelection)
   if (!quote.ok) return { ok: false, reason: 'pricing_failed', detail: quote.errors }
 
   // 계약일은 Asia/Seoul 기준. 결제 확정 시점에 갱신하는 자리는 남겨 두고 지금은 주문

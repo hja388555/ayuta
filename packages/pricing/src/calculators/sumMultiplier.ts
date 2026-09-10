@@ -20,8 +20,16 @@ export function calculateSumMultiplier(
     return { ok: false, errors: [{ field: 'period', message: '기간을 선택해 주세요.' }] }
   }
 
-  // 소수가 나오면 내림한다. 올림하면 고객이 안 고른 1원을 낸다
-  const total = minor(Math.floor(base.total * factor))
+  // 배수는 관리자가 입력하는 값이라 소수 둘째 자리까지만 받는다(pricing-settings 검증).
+  // 여기서도 한 번 더 막는다 — 셋째 자리 이하가 섞이면 아래 정수 변환이 값을 조용히 바꾼다
+  const hundredths = Math.round(factor * 100)
+  if (Math.abs(factor * 100 - hundredths) > 1e-6) {
+    return { ok: false, errors: [{ field: 'period', message: '기간 배수는 소수 둘째 자리까지만 쓸 수 있습니다.' }] }
+  }
+
+  // 정수끼리 곱한 뒤 나눈다. base * 1.15 처럼 부동소수를 곱하면 100 * 1.15 = 114.999… 가 되어
+  // 내림에서 1원이 사라진다. 소수가 나오면 내림한다 — 올림하면 고객이 안 고른 1원을 낸다
+  const total = minor(Math.floor((base.total * hundredths) / 100))
   const lines = [...base.lines, { key: `period:${sel.period}`, label: `기간 ${sel.period}`, amount: minor(0) }]
   return { ok: true, lines, total, currency: book.currency }
 }
