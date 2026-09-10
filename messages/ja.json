@@ -72,6 +72,34 @@
   "inquiry": {
     "notice": "お問い合わせは1:1お問い合わせをご利用ください"
   },
+  "inquiryForm": {
+    "intro": "その他の広告は、お問い合わせ内容を確認した担当者がお見積もりをお送りします。お見積もりをご確認のうえお支払いください。",
+    "typeLabel": "お問い合わせの種類",
+    "typeNone": "選択しない",
+    "bodyLabel": "お問い合わせ内容",
+    "bodyPlaceholder": "広告したい内容・期間・ご予算などを自由にご記入ください",
+    "regionLabel": "希望地域（任意）",
+    "filesLabel": "添付ファイル（任意）",
+    "filesHint": "画像（JPG・PNG・WEBP）・PDF、最大5件・合計4MB",
+    "contactTitle": "ご連絡先",
+    "name": "お名前",
+    "phone": "連絡先",
+    "email": "メールアドレス",
+    "submit": "お問い合わせを送信",
+    "submitting": "送信中...",
+    "done": "お問い合わせを受け付けました。担当者が確認のうえご連絡いたします。",
+    "consultTitle": "ご希望の商品がない、またはご相談が必要ですか？",
+    "consultCta": "相談を申し込む",
+    "errors": {
+      "required": "お問い合わせ内容とご連絡先（お名前・連絡先・メールアドレス）をすべてご入力ください。",
+      "invalid_input": "入力内容をご確認ください。",
+      "invalid_file": "画像（JPG・PNG・WEBP）またはPDFファイルのみアップロードできます。",
+      "too_large": "添付ファイルは合計4MBまでです。",
+      "too_many_files": "添付ファイルは5件までです。",
+      "generic": "送信できませんでした。しばらくしてから再度お試しください。",
+      "network": "サーバーに接続できませんでした。ネットワークをご確認ください。"
+    }
+  },
   "checkout": {
     "title": "注文者情報および契約同意",
     "summaryTitle": "注文内容",

@@ -24,6 +24,9 @@ export default async function ManagePage() {
           <Link href="/manage/orders">주문 관리</Link>
         </li>
         <li>
+          <Link href="/manage/inquiries">문의 관리 (5번 기타)</Link>
+        </li>
+        <li>
           <Link href="/manage/prices">단가 관리</Link>
         </li>
       </ul>

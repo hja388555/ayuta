@@ -16,3 +16,6 @@ docs/
 
 # Supabase CLI 링크 정보 (project ref · pooler 주소)
 supabase/.temp
+
+# 고객이 올린 첨부(개인정보). 저장소 어댑터로 옮기기 전까지 로컬 디스크에 쌓인다
+uploads/
