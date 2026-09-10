@@ -73,7 +73,7 @@ export function TierForm({ book, model, locale, categorySlug, labels }: Props) {
   function goToPayment() {
     if (!canPay) return
     const query = buildPaymentQuery(tiers, platforms)
-    router.push(`/${locale}/order/${categorySlug}/payment?${query}`)
+    router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
   return (

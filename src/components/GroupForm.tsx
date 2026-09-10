@@ -124,7 +124,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, labels }: P
   function goToPayment() {
     if (!canPay) return
     const query = buildGroupQuery(allSelected, period, size, form.freeText?.[0]?.maxLength ?? 0)
-    router.push(`/${locale}/order/${categorySlug}/payment?${query}`)
+    router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
   return (

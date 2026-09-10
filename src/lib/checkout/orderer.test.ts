@@ -51,8 +51,13 @@ describe('계약서 갑측 부가 정보', () => {
   it('사업자등록번호가 없으면 빈 줄이 아니라 해당 없음으로 표시한다', () => {
     const fields = buyerContractFields(valid)
     expect(fields.buyerBusinessNo).toBe('-')
-    // 화면이 대표자 성명을 받지 않으므로 항상 해당 없음이다
+    // 대표자를 안 보내면(개인 고객) 해당 없음이다
     expect(fields.buyerRepresentative).toBe('-')
+  })
+
+  it('대표자를 보내면 그대로 쓴다', () => {
+    const fields = buyerContractFields({ ...valid, representative: '김대표' })
+    expect(fields.buyerRepresentative).toBe('김대표')
   })
 
   it('사업자등록번호가 있으면 그대로 쓴다', () => {

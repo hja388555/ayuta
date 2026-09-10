@@ -41,6 +41,8 @@ export const Orders: CollectionConfig = {
     // 정수 최소단위. 원 = 1, 엔 = 1
     { name: 'amount', type: 'number', required: true },
     { name: 'locale', type: 'select', required: true, options: ['ko', 'ja'] },
+    // 계약서 템플릿을 고른 카테고리 번호. 계약서·동의 항목을 나중에 다시 찾을 때 쓴다
+    { name: 'category', type: 'number', required: true, min: 1, max: 5 },
     {
       // 금액과 항목명을 값으로 복사해 둔다.
       // 단가 ID만 참조하면 관리자가 단가를 고치는 순간 과거 주문 금액이 전부 바뀐다
@@ -56,18 +58,29 @@ export const Orders: CollectionConfig = {
     },
     { name: 'customer', type: 'relationship', relationTo: 'users', hasMany: false },
     {
-      // 비회원 주문. customer 가 없을 때 이 값들로 본인 확인을 한다
-      name: 'guest',
+      // 서명한 사람의 정보. 회원이어도 세션을 신뢰하지 않고 이 값을 다시 검증해 저장한다 —
+      // customer 관계는 "누구 계정으로 결제했는지"이고, 이 값은 "계약서에 누가 서명했는지"다.
+      // 비회원은 customer 가 비므로 이 값이 본인 확인의 유일한 근거가 된다
+      name: 'orderer',
       type: 'group',
+      required: true,
       fields: [
-        { name: 'name', type: 'text' },
-        { name: 'phone', type: 'text' },
-        { name: 'email', type: 'email' },
-        { name: 'postcode', type: 'text' },
-        { name: 'address1', type: 'text' },
+        { name: 'name', type: 'text', required: true },
+        { name: 'phone', type: 'text', required: true },
+        { name: 'email', type: 'email', required: true },
+        { name: 'postcode', type: 'text', required: true },
+        { name: 'address1', type: 'text', required: true },
         { name: 'address2', type: 'text' },
+        { name: 'businessNo', type: 'text' },
+        { name: 'representative', type: 'text' },
       ],
     },
+    // 전자서명 이름. 동의 체크 시 주문자 이름이 그대로 들어간다(손으로 그리는 서명이 아니다) —
+    // createOrder 가 orderer.name 과 다르면 거부하므로 여기 저장된 값은 항상 orderer.name 과 같다
+    { name: 'signature', type: 'text', required: true },
+    // 결제 시점 계약서 전문. 값으로 복사한다 — 나중에 템플릿을 고쳐도 이미 체결된 주문은
+    // 그 순간 고객이 읽고 서명한 문서 그대로 남아야 한다
+    { name: 'contractText', type: 'textarea', required: true },
     { name: 'paidAt', type: 'date' },
     { name: 'failReason', type: 'text' },
   ],

@@ -201,6 +201,7 @@ export interface Order {
   currency: 'KRW' | 'JPY';
   amount: number;
   locale: 'ko' | 'ja';
+  category: number;
   items: {
     code: string;
     label: string;
@@ -209,14 +210,18 @@ export interface Order {
     id?: string | null;
   }[];
   customer?: (number | null) | User;
-  guest?: {
-    name?: string | null;
-    phone?: string | null;
-    email?: string | null;
-    postcode?: string | null;
-    address1?: string | null;
+  orderer: {
+    name: string;
+    phone: string;
+    email: string;
+    postcode: string;
+    address1: string;
     address2?: string | null;
+    businessNo?: string | null;
+    representative?: string | null;
   };
+  signature: string;
+  contractText: string;
   paidAt?: string | null;
   failReason?: string | null;
   updatedAt: string;
@@ -417,6 +422,7 @@ export interface OrdersSelect<T extends boolean = true> {
   currency?: T;
   amount?: T;
   locale?: T;
+  category?: T;
   items?:
     | T
     | {
@@ -427,7 +433,7 @@ export interface OrdersSelect<T extends boolean = true> {
         id?: T;
       };
   customer?: T;
-  guest?:
+  orderer?:
     | T
     | {
         name?: T;
@@ -436,7 +442,11 @@ export interface OrdersSelect<T extends boolean = true> {
         postcode?: T;
         address1?: T;
         address2?: T;
+        businessNo?: T;
+        representative?: T;
       };
+  signature?: T;
+  contractText?: T;
   paidAt?: T;
   failReason?: T;
   updatedAt?: T;

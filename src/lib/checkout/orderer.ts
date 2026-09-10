@@ -20,6 +20,9 @@ export const OrdererSchema = z.object({
   address1: trimmedRequired(200),
   // 상세주소는 없어도 된다. 다만 보냈다면 길이 상한은 지킨다
   address2: z.string().trim().max(200).optional(),
+  // 대표자(법인 고객의 대표자 성명). 개인 고객은 해당이 없으므로 선택이다 — 값이 없으면
+  // 계약서에는 "-"를 찍는다. 4번 계약서는 대표자를 자동 채움 항목으로 명시한다
+  representative: z.string().trim().max(100).optional(),
   businessNo: z
     .string()
     .trim()
@@ -37,11 +40,10 @@ const NOT_APPLICABLE = '-'
 /**
  * 계약서 갑(고객)측 부가 정보를 주문자 정보에서 채운다.
  *
- * "대표자 성명"은 Orderer 스키마가 아예 받지 않는 항목이다 — 개인 고객에게는 원래
- * 해당이 없고, 법인 고객이라도 지금 화면은 회사명(=name)만 받고 대표자 이름을 따로
- * 받지 않는다. 이런 "선택이고 값이 없는" 항목은 빈칸으로 남기지 않고 명시적으로
- * "해당 없음"을 찍는다 — 인쇄된 계약서의 빈 줄은 나중에 누군가 손으로 채워 넣으라는
- * 초대장이 된다.
+ * "대표자 성명"은 이제 Orderer 스키마가 선택으로 받는다 — 개인 고객은 원래 해당이
+ * 없어 비워 두면 되고, 법인 고객은 넣을 자리가 생겼다. 값이 없는 "선택이고 값이 없는"
+ * 항목은 빈칸으로 남기지 않고 명시적으로 "해당 없음"을 찍는다 — 인쇄된 계약서의 빈 줄은
+ * 나중에 누군가 손으로 채워 넣으라는 초대장이 된다.
  */
 export function buyerContractFields(orderer: Orderer): {
   buyerRepresentative: string
@@ -52,8 +54,7 @@ export function buyerContractFields(orderer: Orderer): {
   buyerEmail: string
 } {
   return {
-    // 화면이 대표자 성명을 따로 받지 않으므로 항상 해당 없음
-    buyerRepresentative: NOT_APPLICABLE,
+    buyerRepresentative: orderer.representative || NOT_APPLICABLE,
     buyerBusinessNo: orderer.businessNo || NOT_APPLICABLE,
     buyerPhone: orderer.phone,
     // 담당자 연락처를 따로 받지 않으므로 전화번호와 동일하게 처리한다

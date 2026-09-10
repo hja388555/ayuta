@@ -46,7 +46,17 @@ describe('상태 전이 (DB)', () => {
         currency: 'KRW',
         amount: 100_000,
         locale: 'ko',
+        category: 1,
         items: [{ code: 'standard', label: '스탠다드', unitAmount: 100_000, quantity: 1 }],
+        orderer: {
+          name: '홍길동',
+          phone: '010-1234-5678',
+          email: 'hong@example.com',
+          postcode: '12345',
+          address1: '서울특별시 동대문구 답십리동 323',
+        },
+        signature: '홍길동',
+        contractText: '테스트용 계약서 전문',
       },
     })
     return order.id as number
