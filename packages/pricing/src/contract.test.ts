@@ -10,6 +10,7 @@ const facts: ContractFacts = {
   contractDate: '2026년 9월 18일',
   buyerName: '홍길동',
   signature: '홍길동',
+  items: [],
 }
 
 describe('계약서 치환', () => {
@@ -51,5 +52,37 @@ describe('계약서 치환', () => {
     const { text, missing } = fillContract('빈칸 없음', facts)
     expect(text).toBe('빈칸 없음')
     expect(missing).toEqual([])
+  })
+})
+
+describe('카테고리별 항목', () => {
+  const base = { amount: 1_000_000, currency: 'KRW' as const, contractDate: '2026년 9월 18일', buyerName: '홍길동', signature: '홍길동' }
+
+  it('항목이 없으면 {{items}} 자리가 비워진다', () => {
+    const { text, missing } = fillContract('항목:{{items}}', { ...base, items: [] })
+    expect(text).toBe('항목:')
+    expect(missing).toEqual([])
+  })
+
+  it('항목을 순서대로 펼친다', () => {
+    const { text } = fillContract('{{items}}', {
+      ...base,
+      items: [{ label: '촬영 국가', value: '일본' }, { label: '영상 길이', value: '30분' }],
+    })
+    expect(text).toContain('촬영 국가')
+    expect(text).toContain('일본')
+    expect(text.indexOf('촬영 국가')).toBeLessThan(text.indexOf('영상 길이'))
+  })
+
+  it('항목 값에 치환 문법이 들어 있어도 다시 치환하지 않는다', () => {
+    const { text } = fillContract('{{items}}', { ...base, items: [{ label: 'x', value: '{{amount}}' }] })
+    expect(text).toContain('{{amount}}')
+    expect(text).not.toContain('₩1,000,000')
+  })
+
+  it('여전히 못 채운 빈칸은 지우지 않고 보고한다', () => {
+    const { text, missing } = fillContract('{{items}} {{unknown}}', { ...base, items: [] })
+    expect(missing).toEqual(['unknown'])
+    expect(text).toContain('{{unknown}}')
   })
 })

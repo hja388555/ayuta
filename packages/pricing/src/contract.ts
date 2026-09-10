@@ -7,6 +7,10 @@ export type ContractFacts = {
   contractDate: string
   buyerName: string
   signature: string
+  // 계약서마다 빈칸 구성이 다르다(1번: 상품·국가·채널 / 2번: 촬영국가·영상종류·영상길이·옵션 /
+  // 4번: 노선·위치·사이즈·기간). 고정 키로 두면 새 계약서가 올 때마다 이 타입을 또 깨야 한다.
+  // 그래서 카테고리별 항목은 라벨·값 쌍의 목록으로 받아 {{items}} 자리에 한 번에 펼친다.
+  items: { label: string; value: string }[]
 }
 
 const SIGN: Record<ContractFacts['currency'], string> = { KRW: '₩', JPY: '¥' }
@@ -28,6 +32,10 @@ export function fillContract(template: string, facts: ContractFacts): { text: st
     contractDate: facts.contractDate,
     buyerName: facts.buyerName,
     signature: facts.signature,
+    // 항목을 먼저 한 번에 텍스트로 펼쳐 values 에 넣는다. replace 콜백의 반환값은
+    // 정규식이 다시 훑지 않으므로(String.replace 는 원본 문자열만 한 번 스캔한다)
+    // 항목 값 안에 {{amount}} 같은 치환 문법이 있어도 재귀 치환되지 않는다.
+    items: facts.items.map((item) => `${item.label}: ${item.value}`).join('\n'),
   }
 
   const missing: string[] = []
