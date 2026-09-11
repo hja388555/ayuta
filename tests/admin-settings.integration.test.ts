@@ -147,8 +147,12 @@ describe('관리자 계정', () => {
     expect((await login(body.email, body.password)).token).toBeTruthy()
   })
 
-  it('비밀번호 10자 미만은 거부한다', async () => {
-    expect((await post('/api/admin/accounts', { email: `set-short+${RUN}@ayuta.test`, name: 'x', password: 'short', role: 'manager' }, 'super')).status).toBe(400)
+  it('비밀번호 규칙(영문·숫자·기호 10자 이상)에 안 맞으면 400 weak_password 다', async () => {
+    for (const password of ['short', 'LongPassword2026']) {
+      const res = await post('/api/admin/accounts', { email: `set-weak+${RUN}-${password.length}@ayuta.test`, name: 'x', password, role: 'manager' }, 'super')
+      expect(res.status).toBe(400)
+      expect(await res.json()).toEqual({ error: 'weak_password' })
+    }
   })
 
   it('권한 변경: 자기 자신은 못 바꾸고, 다른 계정은 바꾼다', async () => {

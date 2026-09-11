@@ -15,6 +15,7 @@ const signupBody = (email: string, over: Record<string, unknown> = {}) => ({
   phone: '010-7777-0000',
   postalCode: '12345',
   address1: '서울시 동대문구',
+  agreeAge: true,
   agreeTerms: true,
   agreePrivacy: true,
   ...over,
@@ -80,10 +81,35 @@ describe('POST /api/signup', () => {
     expect(u!.role).toBe('customer')
     expect(u!.termsAgreedAt).toBeTruthy()
     expect(u!.privacyAgreedAt).toBeTruthy()
+    expect(u!.marketingAgreedAt).toBeFalsy()
   })
 
-  it('짧은 비밀번호는 400 이다', async () => {
-    expect((await post('/api/signup', signupBody(`mp-short+${RUN}@ayuta.test`, { password: 'short' }))).status).toBe(400)
+  it('만 14세 확인이 빠지면 400 consent_required 이다', async () => {
+    const email = `mp-noage+${RUN}@ayuta.test`
+    const res = await post('/api/signup', signupBody(email, { agreeAge: false }))
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: 'consent_required' })
+    expect(await userByEmail(email)).toBeUndefined()
+  })
+
+  it('비밀번호 규칙(영문·숫자·기호 10자 이상)에 안 맞으면 400 weak_password 이다', async () => {
+    for (const password of ['short', 'abcdefghij1', 'abcdefghij!', '1234567890!']) {
+      const email = `mp-weak+${RUN}-${password.length}${password[0]}@ayuta.test`
+      const res = await post('/api/signup', signupBody(email, { password }))
+      expect(res.status).toBe(400)
+      expect(await res.json()).toEqual({ error: 'weak_password' })
+      expect(await userByEmail(email)).toBeUndefined()
+    }
+  })
+
+  it('동의 시각을 서버가 남기고, 광고 수신은 동의했을 때만 남는다', async () => {
+    const email = `mp-marketing+${RUN}@ayuta.test`
+    expect((await post('/api/signup', signupBody(email, { agreeMarketing: true, ageConfirmedAt: '2000-01-01' }))).status).toBe(200)
+    const u = await userByEmail(email)
+    userIds.push(u!.id as number)
+    expect(u!.ageConfirmedAt).toBeTruthy()
+    expect(String(u!.ageConfirmedAt)).not.toContain('2000')
+    expect(u!.marketingAgreedAt).toBeTruthy()
   })
 })
 
@@ -136,6 +162,7 @@ describe('마이페이지', () => {
   let token: string | undefined
   let memberId: number
   let otherOrderNumber: string
+  let myOrderNumber: string
 
   beforeAll(async () => {
     await post('/api/signup', signupBody(email))
@@ -143,7 +170,7 @@ describe('마이페이지', () => {
     memberId = u!.id as number
     userIds.push(memberId)
     token = (await login(email, PW)).token
-    await makeOrder('done', memberId, { email, phone: '010-7777-0000' })
+    myOrderNumber = (await makeOrder('done', memberId, { email, phone: '010-7777-0000' })).orderNumber as string
     const other = await makeOrder('done', null, { email: 'someone@example.com', phone: '010-1111-2222' })
     otherOrderNumber = other.orderNumber as string
   })
@@ -158,6 +185,34 @@ describe('마이페이지', () => {
     const html = await (await api('/ko/mypage', { headers: auth(token) })).text()
     expect(html).toContain('주문 내역')
     expect(html).not.toContain(otherOrderNumber)
+    // 주문 상세는 마이페이지 안의 새 화면으로 간다(09-B) — 예전 /order/complete 링크가 아니다
+    expect(html).toContain(`/ko/mypage/orders/${encodeURIComponent(myOrderNumber)}`)
+    expect(html).not.toContain('/ko/order/complete?order=')
+    // 메뉴(09 사이드바)
+    for (const href of ['/ko/mypage/contracts', '/ko/mypage/profile', '/ko/mypage/password', '/ko/mypage/withdraw']) expect(html).toContain(href)
+  })
+
+  it('주문 상세: 내 주문은 200 이고 진행 상태·계약서가 보인다', async () => {
+    const res = await api(`/ko/mypage/orders/${encodeURIComponent(myOrderNumber)}`, { headers: auth(token) })
+    expect(res.status).toBe(200)
+    const html = await res.text()
+    expect(html).toContain(myOrderNumber)
+    expect(html).toContain('진행 상태')
+    expect(html).toContain('테스트용 계약서 전문')
+  })
+
+  it('주문 상세: 남의 주문·없는 주문은 404 이고 내용이 새지 않는다', async () => {
+    for (const no of [otherOrderNumber, 'AY-NOPE-0000']) {
+      const res = await api(`/ko/mypage/orders/${encodeURIComponent(no)}`, { headers: auth(token) })
+      expect(res.status).toBe(404)
+      expect(await res.text()).not.toContain('테스트용 계약서 전문')
+    }
+  })
+
+  it('주문 상세: 비로그인은 로그인 화면으로 보낸다', async () => {
+    const res = await api(`/ko/mypage/orders/${encodeURIComponent(myOrderNumber)}`, { redirect: 'manual' })
+    expect([303, 307, 308]).toContain(res.status)
+    expect(res.headers.get('location')).toContain('/ko/login')
   })
 
   it('정보 수정: 모르는 필드(role)가 섞이면 통째로 거부하고, 정상 수정은 반영된다', async () => {

@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { z } from 'zod'
 import { AuthError, requireUser } from '@/lib/dal'
+import { PASSWORD_MAX, passwordIssue } from '@/lib/password-policy'
 
 /**
  * 비밀번호 변경. 현재 비밀번호를 먼저 확인한다 — 잠깐 비워 둔 로그인 화면을 누가 쓰더라도
@@ -11,7 +12,7 @@ import { AuthError, requireUser } from '@/lib/dal'
  */
 const BodySchema = z.object({
   currentPassword: z.string().min(1).max(128),
-  newPassword: z.string().min(8).max(128),
+  newPassword: z.string().min(1).max(PASSWORD_MAX),
 })
 
 export async function POST(req: Request): Promise<Response> {
@@ -30,6 +31,8 @@ export async function POST(req: Request): Promise<Response> {
   }
   const parsed = BodySchema.safeParse(raw)
   if (!parsed.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
+  // 새 비밀번호 규칙(Q34)을 현재 비밀번호 확인보다 먼저 본다 — 규칙 위반으로 로그인 실패 횟수를 쓰지 않게
+  if (passwordIssue(parsed.data.newPassword)) return NextResponse.json({ error: 'weak_password' }, { status: 400 })
 
   const payload = await getPayload({ config })
   try {

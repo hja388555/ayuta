@@ -1,0 +1,60 @@
+/* [v2] 08 로그인 214:2(PC) / 214:66(Mobile) · 08b 회원가입 214:147 / 214:242 · A0 통합 로그인 244:2 */
+.page { display: flex; flex-direction: column; gap: 20px; width: 100%; max-width: 480px; margin: 0 auto; padding: 64px 0; }
+.wide { max-width: 560px; }
+.h1 { margin: 0; font-size: 38px; line-height: 1.25; letter-spacing: -0.02em; }
+.sub { margin: 0; font-size: 17px; line-height: 1.5; color: var(--ink-500); }
+.info { margin: 0; padding: 14px 16px; border-radius: var(--radius-md); background: var(--brand-50); color: var(--brand-800, #002e80); font-size: 15px; line-height: 1.5; }
+
+.card { display: flex; flex-direction: column; gap: 18px; padding: 32px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; }
+.cardTitle { margin: 0; font-size: 20px; line-height: 1.5; color: var(--ink-900); }
+.guestTitle { margin: 0; font-size: 22px; line-height: 1.5; color: var(--ink-900); }
+.cardHint { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-500); }
+
+/* 입력 — Checkout.module.css 와 같은 치수 */
+.row { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.label { font-size: 15px; line-height: 1.5; color: var(--ink-700); }
+.inline { display: flex; gap: 8px; }
+/* 가로 줄(우편번호 + 주소 검색)에서만 늘린다 — 세로 .field 안에서 flex:1 이면 높이가 0 부터 줄어 입력칸이 납작해진다 */
+.inline .input { flex: 1; }
+.input { min-width: 0; width: 100%; height: 54px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: #fff; font: inherit; font-size: 17px; color: var(--ink-900); }
+.input::placeholder { color: var(--ink-400); }
+.input:focus { outline: none; border-color: var(--brand-600); }
+.invalid .input { border: 1.6px solid var(--danger-600); }
+.help { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink-500); }
+.fieldError { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; line-height: 1.6; color: var(--danger-600); }
+.fieldError img { flex: none; width: 14px; height: 14px; }
+.searchBtn { height: 54px; border-radius: var(--radius-md); }
+.searchBtn img { width: 18px; height: 18px; }
+.banner { display: flex; align-items: center; gap: 12px; margin: 0; padding: 14px 16px; border-radius: var(--radius-md); background: var(--danger-50); color: var(--danger-600); font-size: 15px; font-weight: 700; line-height: 1.6; }
+.banner img { flex: none; width: 18px; height: 18px; }
+
+/* 로그인 */
+.keepRow { display: flex; align-items: center; gap: 10px; font-size: 15px; line-height: 1.5; color: var(--ink-700); }
+.keep { flex: 1; min-width: 0; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.keep input { position: absolute; opacity: 0; pointer-events: none; }
+.box { flex: none; width: 20px; height: 20px; border: 1.6px solid var(--line-strong); border-radius: 6px; background: #fff; }
+.keep:has(input:checked) .box { border-color: var(--brand-600); background: var(--brand-600) url('/ui/check.svg') center / 13px 13px no-repeat; }
+.keep:has(input:focus-visible) .box { outline: 2px solid var(--brand-600); outline-offset: 2px; }
+.findPw { flex: none; padding: 0; border: 0; background: none; font: inherit; font-weight: 700; color: var(--brand-600); cursor: not-allowed; opacity: 0.6; }
+.primary { height: 58px; border-radius: var(--radius-md); font-size: 17px; }
+.outline { height: 58px; border-color: var(--line-strong); border-radius: var(--radius-md); font-size: 17px; }
+.divider { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.5; color: var(--ink-400); }
+.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.lookupBtn { height: 58px; gap: 9px; border-radius: var(--radius-md); color: var(--ink-900); font-size: 17px; }
+.lookupBtn img { width: 20px; height: 20px; }
+
+/* 약관 동의 — .choice 모양 + 오른쪽 보기 링크 */
+.consent { gap: 12px; min-height: 58px; padding: 0 18px; font-size: 16px; }
+.consentAll { font-weight: 700; color: var(--ink-900); }
+.consentText { flex: 1; min-width: 0; }
+.view { flex: none; font-size: 14px; font-weight: 700; color: var(--ink-500); text-decoration: none; }
+
+@media (max-width: 767px) {
+  .page { gap: 16px; padding: 32px 0 40px; }
+  .h1 { font-size: 30px; }
+  .sub { font-size: 16px; }
+  .card { gap: 16px; padding: 20px; }
+  .row { grid-template-columns: minmax(0, 1fr); }
+  .consent { padding: 0 14px; font-size: 15px; }
+}

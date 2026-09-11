@@ -111,6 +111,9 @@ export const Users: CollectionConfig = {
     // 클라이언트가 보낸 시각을 받으면 동의 기록이 근거가 못 된다
     { name: 'termsAgreedAt', type: 'date', access: { create: () => false, update: () => false } },
     { name: 'privacyAgreedAt', type: 'date', access: { create: () => false, update: () => false } },
+    // 만 14세 이상 확인(필수)·광고성 정보 수신 동의(선택, 동의했을 때만 시각) — 위와 같이 가입 경로가 서버 시계로만 쓴다
+    { name: 'ageConfirmedAt', type: 'date', access: { create: () => false, update: () => false } },
+    { name: 'marketingAgreedAt', type: 'date', access: { create: () => false, update: () => false } },
     {
       name: 'deletedAt',
       type: 'date',

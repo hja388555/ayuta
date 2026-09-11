@@ -15,6 +15,8 @@ const BodySchema = z
     postalCode: z.string().trim().min(1).max(20),
     address1: z.string().trim().min(1).max(200),
     address2: z.string().trim().max(200).optional().default(''),
+    // 사업자등록번호(선택, 09-D). 비우면 지운다
+    businessNo: z.string().trim().max(20).optional().default(''),
   })
   .strict()
 
@@ -41,7 +43,7 @@ export async function POST(req: Request): Promise<Response> {
   await payload.update({
     collection: 'users',
     id: user.id,
-    data: { name: d.name, phone: d.phone, postalCode: d.postalCode, address1: d.address1, address2: d.address2 || null },
+    data: { name: d.name, phone: d.phone, postalCode: d.postalCode, address1: d.address1, address2: d.address2 || null, businessNo: d.businessNo || null },
     overrideAccess: true,
   })
   return NextResponse.json({ ok: true })

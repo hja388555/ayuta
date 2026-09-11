@@ -162,6 +162,8 @@ export interface User {
   businessNo?: string | null;
   termsAgreedAt?: string | null;
   privacyAgreedAt?: string | null;
+  ageConfirmedAt?: string | null;
+  marketingAgreedAt?: string | null;
   deletedAt?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -596,6 +598,8 @@ export interface UsersSelect<T extends boolean = true> {
   businessNo?: T;
   termsAgreedAt?: T;
   privacyAgreedAt?: T;
+  ageConfirmedAt?: T;
+  marketingAgreedAt?: T;
   deletedAt?: T;
   updatedAt?: T;
   createdAt?: T;
