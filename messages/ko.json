@@ -25,37 +25,102 @@
   "categories": {
     "digital-sns": "디지털 / SNS 광고",
     "local-video": "현지 전문 영상 촬영",
-    "press-blog": "블로그",
-    "transit": "지하철 · 버스 광고",
+    "press-blog": "대표신문 / 지역신문 / 블로그",
+    "transit": "지하철 · 버스광고",
     "other": "기타"
   },
   "tierForm": {
-    "sectionTitle": "등급을 선택해주세요 (중복 선택 가능)",
-    "platformHint": "플랫폼 선택은 금액에 영향을 주지 않습니다",
+    "platformHint": "중복 선택하실 수 있습니다. 금액에는 영향이 없습니다",
     "totalLabel": "총 금액",
-    "payButton": "결제하러 가기"
+    "payButton": "결제하러 가기",
+    "platformTitle": "플랫폼",
+    "tierTitle": "등급 선택",
+    "tierHint": "여러 개를 고르시면 금액이 합산됩니다",
+    "contentHead": "제공 콘텐츠",
+    "priceRow": "금액",
+    "selected": "{names} 선택",
+    "platforms": {
+      "instagram": "인스타그램 (피드, 캐러셀, 릴스)",
+      "youtube": "유튜브, 쇼츠",
+      "tiktok": "틱톡 (숏폼영상)",
+      "line": "라인 (이미지, 메시지 콘텐츠)"
+    },
+    "rows": [
+      {
+        "label": "총 콘텐츠 갯수",
+        "basic": "10개",
+        "standard": "20개",
+        "premium": "30개"
+      },
+      {
+        "label": "릴스 · 숏폼영상",
+        "basic": "2개",
+        "standard": "4개",
+        "premium": "6개"
+      },
+      {
+        "label": "사진 · 이미지 · 피드",
+        "basic": "5개",
+        "standard": "10개",
+        "premium": "15개"
+      },
+      {
+        "label": "여러장 이미지 (캐러셀)",
+        "basic": "3개",
+        "standard": "6개",
+        "premium": "9개"
+      },
+      {
+        "label": "SNS 게시물, 홍보 글 작성",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "기본자막 테스트",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "SNS 채널 맞춤제작",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "SNS 업로드",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      }
+    ]
   },
   "groupForm": {
     "groupTitles": {
-      "country": "촬영 국가 (중복 선택 가능)",
+      "country": "촬영 국가",
       "videoType": "영상 종류",
       "videoLength": "완성 영상 길이",
       "national": "전국지",
       "local": "지역신문",
       "community": "지역 커뮤니티",
       "blog": "블로그",
-      "subwayCity": "지하철 광고 — 도시",
+      "subwayCity": "지하철 — 도시",
       "subwaySpot": "지하철 광고 위치",
       "posterBillboard": "포스터 · 전광판 제작",
       "busCity": "버스 광고 — 도시",
       "busSpot": "버스 광고 위치",
-      "period": "광고 기간"
+      "period": "광고 기간",
+      "sizePeriod": "사이즈 · 광고 기간",
+      "basicIncluded": "기본 포함"
     },
     "itemLabels": {
       "country-kr": "한국 현지 촬영",
       "country-jp": "일본 현지 촬영",
       "poster-make-inquiry": "역내 포스터 제작 함",
-      "poster-skip": "역내 포스터 제작 안함"
+      "poster-skip": "역내 포스터 제작 안함",
+      "poster-video-image": "영상 이미지 광고",
+      "poster-digital": "역내 디지털 광고"
     },
     "periods": {
       "1w": "1주",
@@ -64,42 +129,73 @@
       "3m": "3개월"
     },
     "sizeLabel": "사이즈",
-    "sizePlaceholder": "원하시는 사이즈를 자유롭게 입력해주세요",
+    "sizePlaceholder": "예) 가로 1200 × 세로 800",
     "totalLabel": "총 금액",
     "payButton": "결제하러 가기",
-    "inquiryBadge": "별도 문의",
-    "basicIncludedNote": "영상 기획 구성 · 현지 전문 촬영 · 영상 편집 · 자막 테스트 · 배경 음악 · 색보정 · 오프닝/엔딩 · 완성 영상 제공은 모든 상품에 기본 포함되며 별도로 선택하지 않습니다"
+    "groupHints": {
+      "country": "중복 선택하실 수 있습니다",
+      "posterBillboard": "사이즈에 따라 금액이 달라질 수 있습니다",
+      "basicIncluded": "아래 항목은 모든 상품에 포함됩니다"
+    },
+    "countryTabs": {
+      "kr": "한국",
+      "jp": "일본"
+    },
+    "basicIncludedItems": [
+      "영상 기획 구성",
+      "현지 전문 촬영",
+      "영상 편집",
+      "자막 테스트",
+      "배경 음악",
+      "색보정",
+      "오프닝 · 엔딩",
+      "완성 영상 제공"
+    ],
+    "shortVideoNote": "10분 미만의 릴스, 틱톡, 유튜브 쇼츠 등 SNS 영상은 1번 디지털 / SNS커뮤니티를 이용해주시면 감사하겠습니다."
   },
   "inquiry": {
     "notice": "문의사항이 있으시면 1:1 문의를 이용해주세요"
   },
   "inquiryForm": {
     "intro": "기타 광고는 문의를 받은 뒤 담당자가 견적을 보내드립니다. 견적을 확인하고 결제하시면 됩니다.",
-    "typeLabel": "문의 유형",
-    "typeNone": "선택 안 함",
-    "bodyLabel": "문의 내용",
-    "bodyPlaceholder": "광고하고 싶은 내용, 기간, 예산 등을 자유롭게 적어주세요",
-    "regionLabel": "희망 지역 (선택)",
-    "filesLabel": "첨부 파일 (선택)",
+    "bodyLabel": "원하시는 광고",
+    "bodyPlaceholder": "자유롭게 작성해 주세요",
+    "regionLabel": "희망 지역",
     "filesHint": "이미지(JPG·PNG·WEBP)·PDF, 최대 5개 · 합계 4MB",
-    "contactTitle": "연락처",
-    "name": "이름",
+    "contactTitle": "연락받으실 정보",
+    "name": "담당자명",
     "phone": "연락처",
     "email": "이메일",
-    "submit": "문의 보내기",
+    "submit": "문의하기",
     "submitting": "보내는 중...",
     "done": "문의가 접수되었습니다. 담당자가 확인 후 연락드리겠습니다.",
-    "consultTitle": "원하는 상품이 없거나 상담이 필요하신가요?",
-    "consultCta": "상담 신청하기",
     "errors": {
-      "required": "문의 내용과 연락처(이름·연락처·이메일)를 모두 입력해 주세요.",
+      "required": "원하시는 광고와 연락받으실 정보(담당자명·연락처·이메일)를 모두 입력해 주세요.",
       "invalid_input": "입력값을 다시 확인해 주세요.",
       "invalid_file": "이미지(JPG·PNG·WEBP)나 PDF 파일만 올릴 수 있습니다.",
       "too_large": "첨부 파일은 합계 4MB까지 올릴 수 있습니다.",
       "too_many_files": "첨부 파일은 5개까지 올릴 수 있습니다.",
       "generic": "문의를 보내지 못했습니다. 잠시 후 다시 시도해 주세요.",
-      "network": "서버에 연결하지 못했습니다. 네트워크를 확인해 주세요."
-    }
+      "network": "서버에 연결하지 못했습니다. 네트워크를 확인해 주세요.",
+      "country_required": "국가를 하나 이상 선택해 주세요.",
+      "consent_required": "개인정보 수집 이용에 동의해 주세요."
+    },
+    "countryTitle": "국가",
+    "countries": {
+      "kr": "한국",
+      "jp": "일본"
+    },
+    "bodyTitle": "문의 내용",
+    "regionPlaceholder": "예) 서울 강남구 / 도쿄 시부야",
+    "filesDrop": "참고자료를 끌어다 놓거나 클릭해서 첨부하세요",
+    "filesButton": "파일 첨부",
+    "contactHint": "로그인하신 경우 회원 정보에서 자동으로 입력됩니다",
+    "namePlaceholder": "홍길동",
+    "phonePlaceholder": "010-0000-0000",
+    "emailPlaceholder": "name@email.com",
+    "consent": "개인정보 수집 이용에 동의합니다",
+    "consentView": "내용보기",
+    "notice": "기타 광고는 결제 없이 문의만 접수됩니다. 담당자가 확인 후 견적을 발행해 결제 링크를 보내드립니다."
   },
   "header": {
     "home": "홈",
@@ -202,18 +298,17 @@
     "contractsLink": "계약서 보관함"
   },
   "quote": {
-    "title": "견적서",
+    "title": "견적서 확인 및 결제",
     "number": "견적번호",
     "issuedAt": "발행일",
     "validUntil": "유효기간",
-    "issuer": "발행처",
+    "issuer": "담당자",
     "item": "항목",
     "quantity": "수량",
-    "unitPrice": "단가",
     "amount": "금액",
     "total": "총 금액",
-    "payButton": "결제 준비 중입니다",
-    "payNotice": "온라인 결제는 곧 열립니다. 결제를 원하시면 아래 번호로 연락해 주세요.",
+    "payButton": "{amount} 결제하기",
+    "payNotice": "결제 준비 중입니다. 온라인 결제는 곧 열립니다. 결제를 원하시면 아래 번호로 연락해 주세요.",
     "invalidTitle": "유효하지 않은 견적 링크입니다",
     "invalidBody": "링크가 정확한지 확인해 주세요. 계속 열리지 않으면 견적을 다시 요청해 주세요.",
     "expiredTitle": "견적 유효기간이 지났습니다",
@@ -221,31 +316,92 @@
     "revokedTitle": "회수된 견적입니다",
     "revokedBody": "이 견적은 더 이상 유효하지 않습니다. 새 견적을 받으셨다면 새 링크를 이용해 주세요.",
     "requestAgain": "견적 다시 요청하기",
-    "phoneLabel": "전화 상담"
+    "phoneLabel": "전화 상담",
+    "chip": "5. 기타 광고 · 견적서",
+    "subtitle": "요청하신 기타 광고 건의 견적을 발행해 드렸습니다. 내용을 확인하신 뒤 결제해 주세요.",
+    "infoTitle": "견적 정보",
+    "validUntilValue": "{date}까지 ({days}일 남음)",
+    "linesTitle": "견적 내역",
+    "ordererTitle": "주문자 정보",
+    "ordererChip": "문의 시 입력값",
+    "ordererDesc": "문의하실 때 입력하신 정보입니다. 수정이 필요하시면 아래에서 고쳐 주세요.",
+    "ordererName": "주문자명",
+    "ordererPhone": "연락처",
+    "ordererEmail": "이메일",
+    "postalCode": "우편번호",
+    "address1": "기본 주소",
+    "address2": "상세 주소",
+    "address2Placeholder": "동 · 호수 등",
+    "agreeTitle": "계약서 동의",
+    "agreeTerms": "서비스 이용 약관에 동의 합니다.",
+    "agreePrivacy": "개인정보 수집 이용에 동의합니다.",
+    "agreeContract": "계약 내용을 확인하고 동의합니다.",
+    "view": "내용보기",
+    "viewContract": "계약서보기",
+    "signText": "위 계약 내용에 동의하며 아래 이름으로 전자서명합니다.",
+    "payTitle": "결제",
+    "payCard": "신용카드 / 체크카드",
+    "noteValid": "이 견적서는 {date}까지 유효하며, 기간이 지나면 결제하실 수 없습니다.",
+    "noteUsed": "결제가 완료되면 이 링크는 더 이상 사용되지 않습니다.",
+    "noteContact": "문의 : {phone}",
+    "blockedTitle": "견적서를 열 수 없습니다",
+    "status": "상태",
+    "statusExpired": "유효기간 만료 ({date})",
+    "statusRevoked": "회수됨",
+    "blockedFoot": "결제가 이미 완료된 건이라면 마이페이지 또는 비회원 주문 조회에서 확인하실 수 있습니다."
   },
   "checkout": {
-    "title": "주문자 정보 및 계약 동의",
-    "summaryTitle": "주문 내역",
-    "totalLabel": "결제 금액",
+    "title": "결제하기",
+    "totalLabel": "총 금액",
     "ordererTitle": "주문자 정보",
-    "name": "이름",
+    "name": "주문자명",
     "phone": "연락처",
     "email": "이메일",
     "postalCode": "우편번호",
-    "address1": "주소",
-    "address2": "상세주소(선택)",
-    "businessNo": "사업자등록번호(선택)",
-    "representative": "대표자(선택)",
-    "contractTitle": "계약서",
-    "viewContract": "계약서 전문 보기",
-    "signatureLabel": "전자서명",
-    "signatureNote": "동의 체크 시 이름이 서명으로 자동 기입됩니다",
-    "payButton": "결제하러 가기",
+    "address1": "기본 주소",
+    "address2": "상세 주소",
+    "businessNo": "사업자등록번호",
+    "representative": "대표자 성명",
+    "contractTitle": "계약서 동의",
+    "viewContract": "계약서보기",
+    "signatureLabel": "위 계약 내용에 동의하며 아래 이름으로 전자서명합니다.",
+    "signatureNote": "· 필수 항목에 모두 동의하시면 주문자명이 계약서 전자서명란에 자동으로 기입됩니다. 계약일은 결제하시는 날짜로 기록됩니다.",
+    "payButton": "{amount} 결제하기",
     "submitting": "처리 중...",
     "errorGeneric": "주문을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.",
     "noContractTitle": "아직 온라인 결제를 지원하지 않습니다",
     "noContractBody": "이 카테고리는 계약서 준비 중이라 온라인 결제를 진행할 수 없습니다. 1:1 문의로 안내해 드립니다.",
-    "inquiryLink": "1:1 문의하기"
+    "inquiryLink": "1:1 문의하기",
+    "stepOrderer": "주문자 정보",
+    "stepReview": "주문 내역 확인",
+    "stepContract": "계약서 동의",
+    "stepPay": "결제",
+    "ordererHint": "회원으로 로그인하시면 자동으로 입력됩니다. 비회원도 결제하실 수 있습니다",
+    "namePh": "홍길동",
+    "phonePh": "010-0000-0000",
+    "emailPh": "name@email.com",
+    "postalCodePh": "00000",
+    "addressSearch": "주소 검색",
+    "addressSearchSoon": "주소 검색은 준비 중입니다. 직접 입력해 주세요",
+    "address1Ph": "서울특별시 동대문구 …",
+    "address2Ph": "동 · 호수 등",
+    "representativePh": "홍길동",
+    "businessNoPh": "000-00-00000 (개인은 비워두세요)",
+    "ordererNote": "· 위 정보는 계약서의 갑(고객) 항목에 그대로 기록됩니다.",
+    "reviewTitle": "주문 내역 확인",
+    "reviewHint": "수정이 필요하시면 이전 화면으로 돌아가 주세요",
+    "serviceLabel": "광고 서비스",
+    "editSelection": "선택 내용 수정하기",
+    "contractHint": "내용을 확인하신 뒤 동의해 주세요",
+    "viewContent": "내용보기",
+    "payTitle": "결제",
+    "payCard": "신용카드 / 체크카드",
+    "close": "닫기",
+    "errRequired": "필수 항목입니다",
+    "errEmail": "올바른 이메일 주소를 입력해 주세요",
+    "errPhone": "숫자만 입력해 주세요 (예: 01012345678)",
+    "errSummary": "필수 항목 {count}개를 확인하셔야 결제하실 수 있습니다.",
+    "errConsents": "필수 동의 항목에 모두 동의하셔야 결제하실 수 있습니다."
   },
   "orderComplete": {
     "title": "주문이 접수되었습니다",
@@ -253,7 +409,7 @@
     "copyButton": "복사",
     "copied": "복사되었습니다",
     "guestNotice": "비회원 주문은 이 번호로만 조회할 수 있습니다. 꼭 보관해 주세요.",
-    "viewContract": "계약서 다시 보기",
+    "viewContract": "계약서 보기",
     "notFoundTitle": "주문을 찾을 수 없습니다",
     "notFoundBody": "주문번호가 올바른지, 비회원이라면 주문 시 입력한 이메일·연락처가 맞는지 확인해 주세요.",
     "pendingNotice": "아직 결제가 완료되지 않았습니다. 결제가 완료되어야 계약이 체결됩니다.",
@@ -262,7 +418,25 @@
     "schedulePending": "협의 중",
     "contractPendingLabel": "결제 대기중 — 아직 체결되지 않은 계약서 초안입니다.",
     "close": "닫기",
-    "sealAlt": "대표자 서명·날인"
+    "sealAlt": "대표자 서명·날인",
+    "paidTitle": "결제가 완료되었습니다",
+    "heroBody": "주문 내역과 계약서는 마이페이지에서 확인하실 수 있습니다.",
+    "heroBodyGuest": "주문번호로 주문 내역과 계약서를 조회하실 수 있습니다.",
+    "infoTitle": "주문 정보",
+    "orderedAtLabel": "주문일시",
+    "serviceLabel": "광고 서비스",
+    "payMethodLabel": "결제 수단",
+    "payMethodCard": "신용카드 / 체크카드",
+    "payMethodPending": "결제 대기",
+    "amountLabel": "결제 금액",
+    "nextTitle": "앞으로 진행되는 순서",
+    "next1Title": "담당자가 주문 내용을 확인합니다",
+    "next1Body": "영업일 기준 1~2일",
+    "next2Title": "계약기간과 광고 진행일을 협의해 확정합니다",
+    "next2Body": "확정되면 계약서에 반영됩니다",
+    "next3Title": "광고 제작과 집행이 시작됩니다",
+    "next3Body": "진행 상황은 마이페이지에서 확인",
+    "goMypage": "마이페이지에서 주문 확인"
   },
   "contracts": {
     "title": "계약서 보관함",
@@ -316,5 +490,23 @@
     "call": "상담전화",
     "chat": "1:1 채팅",
     "mypage": "마이페이지"
+  },
+  "orderPage": {
+    "badge": "광고 서비스 {n}",
+    "notice": "다음 화면에서 주문자 정보와 주문 내역을 확인하시고 계약서에 동의하신 뒤 결제하시게 됩니다.",
+    "titles": {
+      "digital-sns": "디지털광고 / SNS커뮤니티",
+      "local-video": "현지 전문 영상 촬영",
+      "press-blog": "대표신문 / 지역신문 / 블로그",
+      "transit": "지하철 · 버스 · 옥외광고",
+      "other": "기타 광고 문의"
+    },
+    "descriptions": {
+      "digital-sns": "플랫폼을 고르고 등급을 선택하시면 금액이 바로 계산됩니다.",
+      "local-video": "촬영 국가와 영상 종류, 길이를 고르시면 금액이 계산됩니다.",
+      "press-blog": "국가별 매체를 고르시면 금액이 계산됩니다.",
+      "transit": "도시와 광고 위치, 기간을 고르시면 금액이 계산됩니다.",
+      "other": "원하시는 내용을 남겨주시면 담당자가 견적을 발행해 드립니다."
+    }
   }
 }

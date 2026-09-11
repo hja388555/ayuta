@@ -4,7 +4,6 @@ import { AuthError, requireAdmin } from '@/lib/dal'
 import { authedPayload } from '@/lib/admin/orders-data'
 import { formatDateTime } from '@/lib/admin/format'
 import { card, td, th } from '@/components/admin/styles'
-import koMessages from '../../../../../../messages/ko.json'
 
 /** 5번 문의 목록. 최신순. 견적 발행(Q14-B)은 상세 화면에서 이어진다 */
 export const INQUIRY_STATUS_LABELS: Record<string, string> = { new: '새 문의', quoted: '견적 발행', closed: '종료' }
@@ -26,7 +25,7 @@ export default async function InquiriesPage() {
     user,
     overrideAccess: false,
   })
-  const typeLabels = koMessages.categories as Record<string, string>
+  const countryText = (c: unknown) => (Array.isArray(c) && c.length ? c.map((v) => (v === 'jp' ? '일본' : '한국')).join(' · ') : '-')
 
   return (
     <main style={{ padding: 40, fontFamily: 'sans-serif', color: '#3D4046' }}>
@@ -39,7 +38,7 @@ export default async function InquiriesPage() {
           <thead>
             <tr>
               <th style={th}>접수</th>
-              <th style={th}>유형</th>
+              <th style={th}>국가</th>
               <th style={th}>이름</th>
               <th style={th}>연락처</th>
               <th style={th}>첨부</th>
@@ -52,7 +51,7 @@ export default async function InquiriesPage() {
                 <td style={td}>
                   <Link href={`/manage/inquiries/${d.id}`}>{formatDateTime(d.createdAt as string)}</Link>
                 </td>
-                <td style={td}>{d.type ? (typeLabels[d.type as string] ?? '-') : '-'}</td>
+                <td style={td}>{countryText(d.country)}</td>
                 <td style={td}>{d.name as string}</td>
                 <td style={td}>
                   {d.phone as string}

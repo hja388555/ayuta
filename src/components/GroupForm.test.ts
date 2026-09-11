@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { buildGroupQuery, pricedKeys, previewGroupTotal } from './GroupForm'
+import { buildGroupQuery, pricedKeys, previewGroupTotal, visibleItems } from './GroupForm'
 import type { CategoryForm } from '@/lib/category-groups'
 
 // 3번 모양(합산, 기간 없음)
@@ -25,7 +25,7 @@ const sumForm: CategoryForm = {
   ],
 }
 
-// 4번 모양(합산 + 기간 배수, 별도문의 그룹)
+// 4번 모양(합산 + 기간 배수). 금액 없는 그룹은 가상의 픽스처 — priced:false 거르기 검증용
 const multBook: PriceBook = {
   currency: 'KRW',
   entries: {
@@ -65,7 +65,7 @@ const multForm: CategoryForm = {
 }
 
 describe('priced 항목 추출', () => {
-  it('priced:false 항목(국가, 별도문의)은 걸러낸다', () => {
+  it('priced:false 항목(국가 등)은 걸러낸다', () => {
     const selections = { subwayCity: ['subway-city-seoul'], posterBillboard: ['poster-make-inquiry'] }
     expect(pricedKeys(multForm, selections)).toEqual(['subway-city-seoul'])
   })
@@ -137,5 +137,26 @@ describe('결제 쿼리', () => {
     const params = new URLSearchParams(qs)
     expect(params.getAll('country')).toEqual(['jp', 'kr'])
     expect(params.get('purpose')).toBe('store')
+  })
+})
+
+describe('한국/일본 탭', () => {
+  const group = {
+    key: 'subwayCity',
+    multi: false,
+    items: [
+      { key: 'subway-city-seoul', priced: true, country: 'kr' as const },
+      { key: 'subway-city-tokyo', priced: true, country: 'jp' as const },
+      { key: 'shared', priced: true },
+    ],
+  }
+
+  it('선택한 나라의 항목과 나라 구분 없는 항목만 보인다', () => {
+    expect(visibleItems(group, 'kr').map((i) => i.key)).toEqual(['subway-city-seoul', 'shared'])
+    expect(visibleItems(group, 'jp').map((i) => i.key)).toEqual(['subway-city-tokyo', 'shared'])
+  })
+
+  it('탭이 없는 폼이면 전부 보인다', () => {
+    expect(visibleItems(group, null)).toHaveLength(3)
   })
 })

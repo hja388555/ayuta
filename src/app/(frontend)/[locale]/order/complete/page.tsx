@@ -9,6 +9,8 @@ import { findOwnedOrder, formatOrderSchedule } from '@/lib/order-lookup'
 import { GUEST_PROOF_COOKIE_NAME, readGuestProof } from '@/lib/checkout/guest-proof'
 import { getSessionUser } from '@/lib/dal'
 import { sealDataUri } from '@/lib/seal'
+import { categoryByNo } from '@/lib/categories'
+import s from '@/components/OrderComplete.module.css'
 
 export const dynamic = 'force-dynamic'
 // 주문번호가 URL 에 실리는 개인 화면 — 검색에 올리지 않는다
@@ -32,6 +34,7 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
   setRequestLocale(locale)
 
   const t = await getTranslations('orderComplete')
+  const tCat = await getTranslations('categories')
 
   const sessionUser = await getSessionUser()
   const guestProof = !sessionUser && orderNumber ? readGuestProof((await cookies()).get(GUEST_PROOF_COOKIE_NAME)?.value, orderNumber) : null
@@ -57,46 +60,127 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
   const schedule = formatOrderSchedule(order, t('schedulePending'))
   const sealSrc = await sealDataUri(order.sealAsset as number | null | undefined)
 
+  const paid = order.status === 'paid'
+  const isMember = Boolean(order.customer)
+  const category = categoryByNo(order.category)
+  const orderedAt = new Intl.DateTimeFormat('sv-SE', {
+    timeZone: 'Asia/Seoul',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(order.createdAt))
+  const amount = new Intl.NumberFormat(order.currency === 'KRW' ? 'ko-KR' : 'ja-JP', {
+    style: 'currency',
+    currency: order.currency,
+    maximumFractionDigits: 0,
+  }).format(order.amount)
+  const nextSteps = [
+    [t('next1Title'), t('next1Body')],
+    [t('next2Title'), t('next2Body')],
+    [t('next3Title'), t('next3Body')],
+  ]
+
   return (
     <main>
       <Shell as="section">
-        <div style={{ padding: '32px 0 64px' }}>
-          <h1 style={{ fontSize: 'var(--fs-h1)' }}>{t('title')}</h1>
-
-          <div style={{ marginTop: 24 }}>
-            <span style={{ color: 'var(--ink-500)' }}>{t('orderNumberLabel')}</span>
-            <div style={{ display: 'flex', alignItems: 'center', marginTop: 4 }}>
-              <strong style={{ fontSize: 'var(--fs-h1)' }}>{order.orderNumber}</strong>
-              <CopyOrderNumber orderNumber={order.orderNumber} copyLabel={t('copyButton')} copiedLabel={t('copied')} />
-            </div>
-          </div>
-
-          {/* 계약기간·광고시작일은 계약서 스냅샷에 없다(결제 시점엔 미정) — 별도 컬럼을
-              읽어 여기서 합성해 보여준다. 아직 안 정해졌으면 "협의 중" */}
-          <dl style={{ marginTop: 24, display: 'grid', gridTemplateColumns: 'auto 1fr', gap: '8px 16px' }}>
-            <dt style={{ color: 'var(--ink-500)' }}>{t('contractPeriodLabel')}</dt>
-            <dd style={{ margin: 0 }}>{schedule.contractPeriod}</dd>
-            <dt style={{ color: 'var(--ink-500)' }}>{t('adStartLabel')}</dt>
-            <dd style={{ margin: 0 }}>{schedule.adStartDate}</dd>
-          </dl>
-
-          {!order.customer && (
-            <p style={{ marginTop: 16, color: 'var(--ink-500)' }}>{t('guestNotice')}</p>
-          )}
-
+        <div className={s.page}>
           {/* 결제는 제5조가 정한 계약 체결 요건이다("결제가 완료되면 계약이 체결된 것으로
               본다") — status가 paid가 되기 전까지는 아직 결제가 안 된 것이고, 이 화면과
-              계약서 스냅샷 모두 "체결 완료"로 읽히면 안 된다(I7). admin 쪽은 이미
-              status/paidAt을 그대로 보여줘서 맞다 — 여기 고객 화면 문구만 고친다 */}
-          {order.status !== 'paid' && (
-            <p style={{ marginTop: 16, padding: '12px 16px', border: '1px solid var(--line-strong)', borderRadius: 8, fontWeight: 600 }}>
-              {t('pendingNotice')}
-            </p>
-          )}
+              계약서 스냅샷 모두 "체결 완료"로 읽히면 안 된다(I7). 그래서 "결제 완료" 제목은
+              paid 일 때만 쓰고, 그 전에는 "접수" 제목과 결제 대기 안내를 함께 보여준다 */}
+          <div className={s.hero}>
+            <div className={s.heroIcon}>
+              <img src="/ui/check-lg.svg" alt="" width={36} height={36} />
+            </div>
+            <h1 className={s.heroTitle}>{paid ? t('paidTitle') : t('title')}</h1>
+            <p className={s.heroText}>{isMember ? t('heroBody') : t('heroBodyGuest')}</p>
+          </div>
 
-          {/* 계약서 보관함과 같은 팝업(Q21-B). 비회원은 주문 조회 인증 후 이 화면에서 본다 */}
-          <div style={{ marginTop: 32 }}>
+          {!paid && <p className={s.pending}>{t('pendingNotice')}</p>}
+
+          <section className={s.card} aria-labelledby="oc-info">
+            <h2 id="oc-info" className={s.cardTitle}>
+              {t('infoTitle')}
+            </h2>
+            {/* 계약기간·광고시작일은 계약서 스냅샷에 없다(결제 시점엔 미정) — 별도 컬럼을
+                읽어 여기서 합성해 보여준다. 아직 안 정해졌으면 "협의 중" */}
+            <dl className={s.table}>
+              <div className={s.tableRow}>
+                <dt>{t('orderNumberLabel')}</dt>
+                <dd>
+                  {order.orderNumber}
+                  <CopyOrderNumber
+                    orderNumber={order.orderNumber}
+                    copyLabel={t('copyButton')}
+                    copiedLabel={t('copied')}
+                    className={`btn btn-secondary ${s.copyBtn}`}
+                  />
+                </dd>
+              </div>
+              <div className={s.tableRow}>
+                <dt>{t('orderedAtLabel')}</dt>
+                <dd>{orderedAt}</dd>
+              </div>
+              {category ? (
+                <div className={s.tableRow}>
+                  <dt>{t('serviceLabel')}</dt>
+                  <dd>{`${category.no}. ${tCat(category.slug)}`}</dd>
+                </div>
+              ) : null}
+              <div className={s.tableRow}>
+                <dt>{t('payMethodLabel')}</dt>
+                {/* 결제 수단은 PortOne 연동 후 실제 값으로 바뀐다. 지금은 카드 한 가지뿐이다 */}
+                <dd>{paid ? t('payMethodCard') : t('payMethodPending')}</dd>
+              </div>
+              <div className={s.tableRow}>
+                <dt>{t('amountLabel')}</dt>
+                <dd>{amount}</dd>
+              </div>
+              <div className={s.tableRow}>
+                <dt>{t('contractPeriodLabel')}</dt>
+                <dd>{schedule.contractPeriod}</dd>
+              </div>
+              <div className={s.tableRow}>
+                <dt>{t('adStartLabel')}</dt>
+                <dd>{schedule.adStartDate}</dd>
+              </div>
+            </dl>
+            {!isMember && <p className={s.guest}>{t('guestNotice')}</p>}
+          </section>
+
+          <section className={s.card} aria-labelledby="oc-next">
+            <h2 id="oc-next" className={s.cardTitle}>
+              {t('nextTitle')}
+            </h2>
+            <ol className={s.steps}>
+              {nextSteps.map(([title, body], i) => (
+                <li key={title}>
+                  <span className={s.stepNum}>{i + 1}</span>
+                  <div>
+                    <strong>{title}</strong>
+                    <span>{body}</span>
+                  </div>
+                </li>
+              ))}
+            </ol>
+          </section>
+
+          <div className={s.actions}>
+            {/* 비회원은 마이페이지가 없다 — 주문번호 보관 안내(guestNotice)만 두고 버튼은 숨긴다 */}
+            {isMember && (
+              <a href={`/${locale}/mypage`} className={`btn btn-primary btn-lg ${s.primary}`}>
+                <img src="/ui/chevron-right-white.svg" alt="" width={20} height={20} className="btn-icon" />
+                {t('goMypage')}
+              </a>
+            )}
+            {/* 계약서 보관함과 같은 팝업(Q21-B). 비회원은 주문 조회 인증 후 이 화면에서 본다 */}
+            <div className={s.secondary}>
             <ContractModal
+              buttonClassName="btn btn-outline btn-lg"
+              buttonIcon="/ui/doc-20.svg"
               buttonLabel={t('viewContract')}
               closeLabel={t('close')}
               title={`${t('viewContract')} · ${order.orderNumber}`}
@@ -108,6 +192,7 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
               contractText={order.contractText}
               seal={sealSrc ? { src: sealSrc, alt: t('sealAlt') } : undefined}
             />
+            </div>
           </div>
         </div>
       </Shell>

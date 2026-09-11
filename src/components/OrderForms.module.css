@@ -1,0 +1,88 @@
+/* 주문 폼 01~04 (Figma v2 208:2 · 218:2 · 218:367 · 219:2, 모바일 208:196 · 218:178 · 218:536 · 219:212) */
+
+.band { padding: 44px var(--side); background: var(--brand-50); }
+.bandBadge { display: inline-flex; padding: 6px 12px; border-radius: 999px; background: var(--brand-100); color: var(--brand-900); font-size: 13px; font-weight: 700; line-height: 1.5; }
+.bandTitle { margin: 8px 0 0; font-size: 38px; font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; color: var(--ink-900); }
+.bandDesc { margin: 8px 0 0; font-size: 17px; line-height: 1.5; color: var(--ink-700); }
+
+.body { display: flex; flex-direction: column; gap: 56px; padding: 56px var(--side); }
+.step > :global(.step-title) { margin-bottom: 20px; }
+
+/* 한국/일본 탭 */
+.tabs { display: flex; gap: 8px; }
+.tab { flex: 1; padding: 16px 0; border: 0; border-radius: var(--radius-md); background: var(--surface); color: var(--ink-500); font: inherit; font-size: 17px; font-weight: 700; line-height: 1.5; cursor: pointer; }
+.tab[aria-selected='true'] { background: var(--brand-600); color: #fff; }
+
+/* 금액이 붙는 행 — 오른쪽 끝에 금액 */
+.rows { display: flex; flex-direction: column; gap: 12px; }
+.rows :global(.choice) { min-height: 62px; padding: 0 18px; font-size: 16px; }
+.rows :global(.choice) > span:last-child { flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 12px; min-width: 0; }
+.price { flex: none; color: var(--ink-500); font-weight: 700; white-space: nowrap; }
+.rows :global(.choice):has(input:checked) .price { color: var(--brand-600); }
+
+.grid :global(.choice) { min-height: 60px; padding: 0 18px; font-size: 16px; }
+.platforms :global(.choice) { min-height: 64px; }
+
+/* 기본 포함 칩 (02) */
+.chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; padding: 10px 14px; border-radius: 999px; background: var(--surface); color: var(--ink-700); font-size: 15px; line-height: 1.5; }
+.chip img { display: block; width: 16px; height: 16px; flex: none; }
+.note { margin: 0; padding: 14px 16px; border-radius: var(--radius-md); background: var(--brand-50); color: var(--brand-900); font-size: 15px; line-height: 1.5; }
+
+/* 사이즈 입력 (04) */
+.field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.field label { font-size: 15px; color: var(--ink-700); }
+.field input { height: 54px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); font: inherit; font-size: 17px; color: var(--ink-900); background: #fff; }
+.field input::placeholder { color: var(--ink-400); }
+
+/* 등급 비교표 (01) */
+.tableWrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 16px; }
+.table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 15px; line-height: 1.5; color: var(--ink-700); }
+.table col:first-child { width: 40%; }
+.table th, .table td { padding: 16px; text-align: center; border-top: 1px solid var(--line); }
+.table thead th { padding: 18px 16px; border-top: 0; background: var(--surface); color: var(--ink-900); font-size: 16px; }
+.table th:first-child, .table td:first-child { padding-left: 20px; text-align: left; }
+.table thead th:first-child { color: var(--ink-700); font-size: 15px; }
+.table .on { background: var(--brand-50); color: var(--brand-900); font-weight: 700; }
+.table thead th.on { background: var(--brand-600); color: #fff; }
+.priceRow td { padding-block: 20px; color: var(--ink-900); font-size: 17px; font-weight: 700; }
+.priceRow td:first-child { font-size: 16px; }
+.priceRow td.on { color: var(--brand-600); }
+.tierPick { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.tierPick input { position: absolute; opacity: 0; pointer-events: none; }
+.tierBox { flex: none; width: 18px; height: 18px; border: 1.6px solid var(--line-strong); border-radius: 6px; background: #fff; }
+.tierPick input:checked + .tierBox { border-color: #fff; background: #fff url('/ui/check-sm.svg') center / 12px 12px no-repeat; }
+.tierPick:has(input:focus-visible) { outline: 2px solid currentColor; outline-offset: 2px; }
+
+/* 총액 · 결제 */
+.total :global(.total-bar) { padding: 28px 32px; border-radius: 16px; }
+.total :global(.total-bar-label) { font-size: 17px; color: #a9b0bc; }
+.total :global(.total-bar) > div:first-child > div:last-child { font-size: 15px !important; color: #8b93a1; }
+.total :global(.total-bar-amount) { font-size: 38px; }
+.pay { display: flex; flex-direction: column; gap: 10px; }
+.payBtn { height: 72px; border-radius: 14px; font-size: 20px; gap: 10px; }
+.payBtn img { display: block; width: 22px; height: 22px; flex: none; }
+.notice { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-500); }
+
+@media (max-width: 767px) {
+  .band { padding-block: 28px; }
+  .bandTitle { font-size: 26px; }
+  .bandDesc { font-size: 15px; }
+  .body { gap: 40px; padding-block: 32px; }
+  .rows { gap: 10px; }
+  .rows :global(.choice), .grid :global(.choice) { min-height: 56px; padding: 0 16px; font-size: 15px; }
+  .tab { padding: 12px 0; font-size: 15px; }
+  .chip { font-size: 13px; padding: 8px 12px; }
+  .note { font-size: 13px; }
+  .table { font-size: 12px; }
+  .table col:first-child { width: 31%; }
+  .table th, .table td { padding: 12px 4px; }
+  .table thead th { padding: 12px 4px; font-size: 12px; }
+  .table th:first-child, .table td:first-child { padding-left: 10px; }
+  .priceRow td { font-size: 12px; }
+  .tierPick { gap: 4px; }
+  .total :global(.total-bar) { padding: 22px 20px; }
+  .total :global(.total-bar-amount) { font-size: 26px; }
+  .payBtn { height: 60px; font-size: 17px; }
+  .notice { font-size: 13px; }
+}

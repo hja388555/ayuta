@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { localeAlternates } from '@/lib/seo'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
@@ -7,11 +6,12 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { InquiryForm } from '@/components/InquiryForm'
 import { getSessionUser } from '@/lib/dal'
-import { Shell } from '@/components/Shell'
 import { ImageBand } from '@/components/ImageBand'
 import { TierForm } from '@/components/TierForm'
 import { GroupForm } from '@/components/GroupForm'
-import { CATEGORIES, categoryBySlug } from '@/lib/categories'
+import type { TierRow } from '@/components/TierForm'
+import styles from '@/components/OrderForms.module.css'
+import { categoryBySlug } from '@/lib/categories'
 import { formFor } from '@/lib/category-groups'
 import { loadPriceBook } from '@/lib/price-book'
 import { loadCategoryModel } from '@/lib/pricing-model'
@@ -50,6 +50,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const tGroup = await getTranslations('groupForm')
   const tCat = await getTranslations('categories')
   const tForm = await getTranslations('inquiryForm')
+  const tPage = await getTranslations('orderPage')
 
   // 5번 문의 폼: ?type= 은 URL 에서 온 값이라 카테고리 표와 대조한다. 없는 값이면 미선택(1-18).
   // 받은 문자열을 화면에 그대로 그리지 않는다 — 대조를 통과한 슬러그만 넘긴다
@@ -78,89 +79,111 @@ export default async function OrderPage({ params, searchParams }: Props) {
     <main>
       <ImageBand slot={`category-${def.no}`} />
 
-      <Shell as="section">
-        <div style={{ padding: '32px 0 64px' }}>
-          <h1 style={{ fontSize: 'var(--fs-h1)' }}>{tCat(def.slug)}</h1>
-
-          {def.model.kind === 'tier' ? (
-            <TierForm
-              book={book}
-              model={model}
-              locale={locale}
-              categorySlug={def.slug}
-              country={country}
-              purpose={purpose}
-              labels={{
-                sectionTitle: t('sectionTitle'),
-                platformHint: t('platformHint'),
-                totalLabel: t('totalLabel'),
-                payButton: t('payButton'),
-              }}
-            />
-          ) : groupFormDef ? (
-            <GroupForm
-              form={groupFormDef}
-              model={model}
-              book={book}
-              locale={locale}
-              categorySlug={def.slug}
-              country={country}
-              purpose={purpose}
-              labels={{
-                groupTitles: tGroup.raw('groupTitles'),
-                itemLabels: tGroup.raw('itemLabels'),
-                periods: tGroup.raw('periods'),
-                sizeLabel: tGroup('sizeLabel'),
-                sizePlaceholder: tGroup('sizePlaceholder'),
-                totalLabel: tGroup('totalLabel'),
-                payButton: tGroup('payButton'),
-                inquiryBadge: tGroup('inquiryBadge'),
-                // 기본 포함 안내는 2번(현지 영상 제작)에만 있다 — 선택지가 아니라 안내문이다
-                basicIncludedNote: def.no === 2 ? tGroup('basicIncludedNote') : undefined,
-              }}
-            />
-          ) : (
-            // 5번 — 금액이 없다. 문의를 받아 관리자가 견적을 발행한다(Q14 · Q14-B)
-            <>
-              <p style={{ color: 'var(--ink-500)' }}>{tForm('intro')}</p>
-              <InquiryForm
+      {def.no !== 5 ? (
+        <>
+          {/* 머리 띠 — Figma v2: 광고 서비스 N 배지 · 제목 · 설명 */}
+          <section className={styles.band}>
+            <span className={styles.bandBadge}>{tPage('badge', { n: def.no })}</span>
+            <h1 className={styles.bandTitle}>{tPage(`titles.${def.slug}`)}</h1>
+            <p className={styles.bandDesc}>{tPage(`descriptions.${def.slug}`)}</p>
+          </section>
+          <div className={styles.body}>
+            {def.model.kind === 'tier' ? (
+              <TierForm
+                book={book}
+                model={model}
                 locale={locale}
-                types={CATEGORIES.map((c) => ({ slug: c.slug, label: tCat(c.slug) }))}
-                initialType={initialType}
-                initialContact={initialContact}
+                categorySlug={def.slug}
+                country={country}
+                purpose={purpose}
                 labels={{
-                  typeLabel: tForm('typeLabel'),
-                  typeNone: tForm('typeNone'),
-                  bodyLabel: tForm('bodyLabel'),
-                  bodyPlaceholder: tForm('bodyPlaceholder'),
-                  regionLabel: tForm('regionLabel'),
-                  filesLabel: tForm('filesLabel'),
-                  filesHint: tForm('filesHint'),
-                  contactTitle: tForm('contactTitle'),
-                  name: tForm('name'),
-                  phone: tForm('phone'),
-                  email: tForm('email'),
-                  submit: tForm('submit'),
-                  submitting: tForm('submitting'),
-                  done: tForm('done'),
-                  errors: tForm.raw('errors'),
+                  platformTitle: t('platformTitle'),
+                  platformHint: t('platformHint'),
+                  platforms: t.raw('platforms'),
+                  tierTitle: t('tierTitle'),
+                  tierHint: t('tierHint'),
+                  contentHead: t('contentHead'),
+                  rows: t.raw('rows') as TierRow[],
+                  priceRow: t('priceRow'),
+                  selected: t.raw('selected') as string,
+                  totalLabel: t('totalLabel'),
+                  payButton: t('payButton'),
+                  notice: tPage('notice'),
                 }}
               />
-            </>
-          )}
-
-          {def.no !== 5 ? (
-            // 요구사항 1-18 — 상담신청 버튼이 놓인 자리가 곧 문의 유형이다
-            <section style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid var(--ink-100, #ECEEF1)' }}>
-              <p style={{ margin: 0 }}>{tForm('consultTitle')}</p>
-              <Link href={`/${locale}/order/other?type=${def.slug}`} style={{ display: 'inline-block', marginTop: 8 }}>
-                {tForm('consultCta')}
-              </Link>
-            </section>
-          ) : null}
-
-        </div>
-      </Shell>
+            ) : groupFormDef ? (
+              <GroupForm
+                form={groupFormDef}
+                model={model}
+                book={book}
+                locale={locale}
+                categorySlug={def.slug}
+                country={country}
+                purpose={purpose}
+                labels={{
+                  groupTitles: tGroup.raw('groupTitles'),
+                  groupHints: tGroup.raw('groupHints'),
+                  itemLabels: tGroup.raw('itemLabels'),
+                  periods: tGroup.raw('periods'),
+                  countryTabs: tGroup.raw('countryTabs'),
+                  sizeLabel: tGroup('sizeLabel'),
+                  sizePlaceholder: tGroup('sizePlaceholder'),
+                  totalLabel: tGroup('totalLabel'),
+                  payButton: tGroup('payButton'),
+                  notice: tPage('notice'),
+                  // 기본 포함 칩 · SNS 영상 안내는 2번(현지 영상 제작)에만 있다 — 선택지가 아니라 안내다
+                  basicIncludedItems: def.no === 2 ? (tGroup.raw('basicIncludedItems') as string[]) : undefined,
+                  shortVideoNote: def.no === 2 ? tGroup('shortVideoNote') : undefined,
+                }}
+              />
+            ) : null}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* 머리 띠 — 1~4번과 같은 v2 띠(광고 서비스 5 배지 · 제목 · 설명). 5번은 금액 없이 문의를 받아
+              관리자가 견적을 발행한다(Q14 · Q14-B) */}
+          <section className={styles.band}>
+            <span className={styles.bandBadge}>{tPage('badge', { n: def.no })}</span>
+            <h1 className={styles.bandTitle}>{tPage(`titles.${def.slug}`)}</h1>
+            <p className={styles.bandDesc}>{tPage(`descriptions.${def.slug}`)}</p>
+          </section>
+          <div className={styles.body}>
+            <InquiryForm
+              locale={locale}
+              initialType={initialType}
+              initialContact={initialContact}
+              labels={{
+                countryTitle: tForm('countryTitle'),
+                countries: tForm.raw('countries'),
+                bodyTitle: tForm('bodyTitle'),
+                bodyLabel: tForm('bodyLabel'),
+                bodyPlaceholder: tForm('bodyPlaceholder'),
+                regionLabel: tForm('regionLabel'),
+                regionPlaceholder: tForm('regionPlaceholder'),
+                filesDrop: tForm('filesDrop'),
+                filesButton: tForm('filesButton'),
+                filesHint: tForm('filesHint'),
+                contactTitle: tForm('contactTitle'),
+                contactHint: tForm('contactHint'),
+                name: tForm('name'),
+                namePlaceholder: tForm('namePlaceholder'),
+                phone: tForm('phone'),
+                phonePlaceholder: tForm('phonePlaceholder'),
+                email: tForm('email'),
+                emailPlaceholder: tForm('emailPlaceholder'),
+                consent: tForm('consent'),
+                consentView: tForm('consentView'),
+                notice: tForm('notice'),
+                submit: tForm('submit'),
+                submitting: tForm('submitting'),
+                done: tForm('done'),
+                errors: tForm.raw('errors'),
+              }}
+            />
+          </div>
+        </>
+      )}
     </main>
   )
 }

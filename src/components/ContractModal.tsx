@@ -12,6 +12,9 @@ type Props = {
   contractText: string
   /** 결제 시점 대표자 서명·날인. 서버가 권한 확인 후 data URI 로 넘긴다(src/lib/seal.ts) */
   seal?: { src: string; alt: string }
+  /** 여는 버튼 모양(.btn 계열 클래스)과 앞 아이콘. 없으면 기존처럼 기본 버튼 */
+  buttonClassName?: string
+  buttonIcon?: string
 }
 
 /**
@@ -19,11 +22,12 @@ type Props = {
  * 내용은 결제 시점에 저장한 스냅샷 그대로다. <dialog> 를 써서 포커스 가두기·ESC 닫기를
  * 브라우저에 맡긴다. 본문은 서버가 그린 HTML 에 들어 있고 열 때 보이기만 한다.
  */
-export function ContractModal({ buttonLabel, closeLabel, title, facts = [], notice, contractText, seal }: Props) {
+export function ContractModal({ buttonLabel, closeLabel, title, facts = [], notice, contractText, seal, buttonClassName, buttonIcon }: Props) {
   const ref = useRef<HTMLDialogElement>(null)
   return (
     <>
-      <button type="button" onClick={() => ref.current?.showModal()}>
+      <button type="button" className={buttonClassName} onClick={() => ref.current?.showModal()}>
+        {buttonIcon ? <img src={buttonIcon} alt="" width={20} height={20} className="btn-icon" /> : null}
         {buttonLabel}
       </button>
       <dialog

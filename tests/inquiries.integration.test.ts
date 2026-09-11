@@ -25,8 +25,9 @@ const SVG = new TextEncoder().encode('<svg xmlns="http://www.w3.org/2000/svg"><s
 
 const form = (over: Record<string, string> = {}, files: Array<{ bytes: Uint8Array; name: string; type: string }> = []) => {
   const fd = new FormData()
-  const fields = { type: '', body: marker, region: '서울', name: '문의자', phone: '010-9999-0000', email: `inq+${RUN}@example.com`, locale: 'ko', ...over }
-  for (const [k, v] of Object.entries(fields)) fd.set(k, v)
+  const fields = { type: '', body: marker, region: '서울', name: '문의자', phone: '010-9999-0000', email: `inq+${RUN}@example.com`, locale: 'ko', consent: 'on', ...over }
+  for (const [k, v] of Object.entries(fields)) if (v !== undefined) fd.set(k, v)
+  if (!('country' in over)) fd.append('country', 'kr')
   for (const f of files) fd.append('files', new Blob([f.bytes], { type: f.type }), f.name)
   return fd
 }
@@ -89,6 +90,26 @@ describe('POST /api/inquiry — 접수', () => {
       expect(res.status).toBe(400)
     }
     expect(await markerCount()).toBe(before)
+  })
+
+  it('개인정보 동의가 없으면 400 consent_required 이고 저장되지 않는다', async () => {
+    const before = await markerCount()
+    for (const consent of ['', 'off']) {
+      const res = await submit(form({ consent }))
+      expect(res.status).toBe(400)
+      expect((await res.json()).error).toBe('consent_required')
+    }
+    expect(await markerCount()).toBe(before)
+  })
+
+  it('국가는 kr·jp 만 여러 개 저장되고, 표에 없는 값·중복은 버린다', async () => {
+    const fd = form({ country: '' })
+    fd.delete('country')
+    for (const c of ['kr', 'jp', 'jp', 'us']) fd.append('country', c)
+    const res = await submit(fd)
+    expect(res.status).toBe(200)
+    const doc = await findInquiry((await res.json()).inquiryId)
+    expect([...(doc.country ?? [])].sort()).toEqual(['jp', 'kr'])
   })
 
   it('비회원도 접수되고, 카테고리 표에 있는 유형은 그대로 저장된다', async () => {
@@ -207,14 +228,18 @@ describe('관리자 문의 화면 · 첨부 다운로드', () => {
   })
 })
 
-describe('상담신청 → 문의 유형 자동 선택 (1-18)', () => {
-  it('?type= 이 카테고리 표에 있으면 미리 선택된다', async () => {
+describe('상담신청 → 5번 문의 폼 (1-18, v2)', () => {
+  it('문의 유형 선택 없이 국가·동의 항목이 있는 v2 폼이 열린다', async () => {
     const html = await (await api('/ko/order/other?type=transit')).text()
-    expect(html).toMatch(/<option[^>]*value="transit"[^>]*selected|value="transit"/)
+    expect(html).not.toContain('<select')
+    expect(html).toContain('개인정보 수집 이용에 동의합니다')
+    expect(html).toContain('/ko/privacy')
   })
 
-  it('1~4번 폼 하단에 그 카테고리로 가는 상담신청 링크가 있다', async () => {
+  // 2026-09-11 사용자 결정 "시안대로" — v2 시안에는 폼 하단 상담신청 링크가 없다. 공통 문의 박스가 대신한다
+  it('1~4번 폼 하단 상담신청 링크는 없고 공통 문의 박스가 있다', async () => {
     const html = await (await api('/ko/order/press-blog')).text()
-    expect(html).toContain('/ko/order/other?type=press-blog')
+    expect(html).not.toContain('/ko/order/other?type=press-blog')
+    expect(html).toContain('궁금한 점이 있으신가요?')
   })
 })

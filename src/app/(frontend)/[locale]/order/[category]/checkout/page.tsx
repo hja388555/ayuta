@@ -16,6 +16,8 @@ import { selectionFromQuery, filterPricedSelection } from '@/lib/checkout/select
 import { buildContractItems, countryFactValue } from '@/lib/checkout/contract-items'
 import { loadCompanyContractFields } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
+import { CHECKOUT_LABEL_KEYS, type CheckoutLabels } from '@/lib/checkout/labels'
+import s from '@/components/Checkout.module.css'
 
 export const dynamic = 'force-dynamic'
 // 결제 화면은 선택값이 쿼리에 실린 개인 화면이다 — 검색에 올리지 않는다(robots.ts 와 두 겹)
@@ -107,18 +109,35 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
     ...(await loadCompanyContractFields(contractLocale)),
   })
 
+  const tCat = await getTranslations('categories')
+  const money = new Intl.NumberFormat(currency === 'KRW' ? 'ko-KR' : 'ja-JP', { style: 'currency', currency, maximumFractionDigits: 0 })
+  const reviewRows = [
+    { label: t('serviceLabel'), value: `${def.no}. ${tCat(def.slug)}` },
+    ...quote.lines.map((l) => ({ label: l.label, value: money.format(l.amount) })),
+  ]
+  // 선택 내용 수정하기 — 같은 쿼리를 그대로 실어 폼으로 돌려보낸다
+  const editQuery = new URLSearchParams()
+  for (const [k, v] of Object.entries(sp)) {
+    for (const one of Array.isArray(v) ? v : v === undefined ? [] : [v]) editQuery.append(k, one)
+  }
+  const qs = editQuery.toString()
+  const editHref = `/${locale}/order/${def.slug}${qs ? `?${qs}` : ''}`
+  // {amount}·{count} 자리는 클라이언트가 채우므로 서식 처리 없이 원문을 넘긴다
+  const labels = Object.fromEntries(CHECKOUT_LABEL_KEYS.map((k) => [k, t.raw(k) as string])) as CheckoutLabels
+
   return (
     <main>
       <Shell as="section">
-        <div style={{ padding: '32px 0 64px' }}>
-          <h1 style={{ fontSize: 'var(--fs-h1)' }}>{t('title')}</h1>
+        <div className={s.page}>
+          <h1 className={s.h1}>{t('title')}</h1>
           <CheckoutForm
             locale={locale}
             categorySlug={def.slug}
             selection={rawSelection}
             amount={quote.total}
             currency={currency}
-            lines={quote.lines.map((l) => ({ label: l.label, amount: l.amount }))}
+            reviewRows={reviewRows}
+            editHref={editHref}
             template={{
               title: template.title as string,
               body: preview.text,
@@ -137,27 +156,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
                   }
                 : undefined
             }
-            labels={{
-              title: t('title'),
-              summaryTitle: t('summaryTitle'),
-              totalLabel: t('totalLabel'),
-              ordererTitle: t('ordererTitle'),
-              name: t('name'),
-              phone: t('phone'),
-              email: t('email'),
-              postalCode: t('postalCode'),
-              address1: t('address1'),
-              address2: t('address2'),
-              businessNo: t('businessNo'),
-              representative: t('representative'),
-              contractTitle: t('contractTitle'),
-              viewContract: t('viewContract'),
-              signatureLabel: t('signatureLabel'),
-              signatureNote: t('signatureNote'),
-              payButton: t('payButton'),
-              submitting: t('submitting'),
-              errorGeneric: t('errorGeneric'),
-            }}
+            labels={labels}
           />
         </div>
       </Shell>

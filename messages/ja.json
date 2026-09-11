@@ -26,37 +26,102 @@
   "categories": {
     "digital-sns": "デジタル / SNS 広告",
     "local-video": "現地専門映像撮影",
-    "press-blog": "ブログ",
-    "transit": "地下鉄・バス広告",
+    "press-blog": "全国紙 / 地域紙 / ブログ",
+    "transit": "地下鉄 · バス広告",
     "other": "その他"
   },
   "tierForm": {
-    "sectionTitle": "グレードを選択してください（重複選択可能）",
-    "platformHint": "プラットフォームの選択は金額に影響しません",
+    "platformHint": "複数選択できます。金額には影響しません",
     "totalLabel": "合計金額",
-    "payButton": "お支払いへ進む"
+    "payButton": "お支払いへ進む",
+    "platformTitle": "プラットフォーム",
+    "tierTitle": "グレード選択",
+    "tierHint": "複数選ぶと金額が合算されます",
+    "contentHead": "提供コンテンツ",
+    "priceRow": "金額",
+    "selected": "{names} を選択",
+    "platforms": {
+      "instagram": "Instagram（フィード、カルーセル、リール）",
+      "youtube": "YouTube、ショート",
+      "tiktok": "TikTok（ショート動画）",
+      "line": "LINE（画像、メッセージコンテンツ）"
+    },
+    "rows": [
+      {
+        "label": "総コンテンツ数",
+        "basic": "10件",
+        "standard": "20件",
+        "premium": "30件"
+      },
+      {
+        "label": "リール · ショート動画",
+        "basic": "2件",
+        "standard": "4件",
+        "premium": "6件"
+      },
+      {
+        "label": "写真 · 画像 · フィード",
+        "basic": "5件",
+        "standard": "10件",
+        "premium": "15件"
+      },
+      {
+        "label": "複数枚画像（カルーセル）",
+        "basic": "3件",
+        "standard": "6件",
+        "premium": "9件"
+      },
+      {
+        "label": "SNS投稿・PR文作成",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "基本字幕テスト",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "SNSチャンネル別制作",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "SNSアップロード",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      }
+    ]
   },
   "groupForm": {
     "groupTitles": {
-      "country": "撮影国（重複選択可能）",
+      "country": "撮影国",
       "videoType": "映像の種類",
       "videoLength": "完成映像の長さ",
       "national": "全国紙",
       "local": "地方紙",
       "community": "地域コミュニティ",
       "blog": "ブログ",
-      "subwayCity": "地下鉄広告 — 都市",
+      "subwayCity": "地下鉄 — 都市",
       "subwaySpot": "地下鉄広告位置",
       "posterBillboard": "ポスター・電光掲示板制作",
       "busCity": "バス広告 — 都市",
       "busSpot": "バス広告位置",
-      "period": "広告期間"
+      "period": "広告期間",
+      "sizePeriod": "サイズ · 広告期間",
+      "basicIncluded": "標準で含まれるもの"
     },
     "itemLabels": {
       "country-kr": "韓国現地撮影",
       "country-jp": "日本現地撮影",
       "poster-make-inquiry": "駅構内ポスター制作 する",
-      "poster-skip": "駅構内ポスター制作 しない"
+      "poster-skip": "駅構内ポスター制作 しない",
+      "poster-video-image": "映像・画像広告",
+      "poster-digital": "駅構内デジタル広告"
     },
     "periods": {
       "1w": "1週間",
@@ -65,42 +130,73 @@
       "3m": "3ヶ月"
     },
     "sizeLabel": "サイズ",
-    "sizePlaceholder": "ご希望のサイズを自由にご記入ください",
+    "sizePlaceholder": "例）横 1200 × 縦 800",
     "totalLabel": "合計金額",
     "payButton": "お支払いへ進む",
-    "inquiryBadge": "別途お問い合わせ",
-    "basicIncludedNote": "映像企画構成・現地専門撮影・映像編集・字幕テスト・BGM・カラー補正・オープニング/エンディング・完成映像の提供はすべての商品に標準で含まれており、別途選択の必要はありません"
+    "groupHints": {
+      "country": "複数選択できます",
+      "posterBillboard": "サイズによって金額が変わる場合があります",
+      "basicIncluded": "以下の項目はすべての商品に含まれます"
+    },
+    "countryTabs": {
+      "kr": "韓国",
+      "jp": "日本"
+    },
+    "basicIncludedItems": [
+      "映像企画構成",
+      "現地専門撮影",
+      "映像編集",
+      "字幕テスト",
+      "BGM",
+      "カラー補正",
+      "オープニング · エンディング",
+      "完成映像の提供"
+    ],
+    "shortVideoNote": "10分未満のリール、TikTok、YouTubeショートなどのSNS動画は、1番 デジタル / SNSコミュニティをご利用ください。"
   },
   "inquiry": {
     "notice": "お問い合わせは1:1お問い合わせをご利用ください"
   },
   "inquiryForm": {
     "intro": "その他の広告は、お問い合わせ内容を確認した担当者がお見積もりをお送りします。お見積もりをご確認のうえお支払いください。",
-    "typeLabel": "お問い合わせの種類",
-    "typeNone": "選択しない",
-    "bodyLabel": "お問い合わせ内容",
-    "bodyPlaceholder": "広告したい内容・期間・ご予算などを自由にご記入ください",
-    "regionLabel": "希望地域（任意）",
-    "filesLabel": "添付ファイル（任意）",
+    "bodyLabel": "ご希望の広告",
+    "bodyPlaceholder": "自由にご記入ください",
+    "regionLabel": "希望地域",
     "filesHint": "画像（JPG・PNG・WEBP）・PDF、最大5件・合計4MB",
     "contactTitle": "ご連絡先",
-    "name": "お名前",
+    "name": "ご担当者名",
     "phone": "連絡先",
     "email": "メールアドレス",
-    "submit": "お問い合わせを送信",
+    "submit": "お問い合わせ",
     "submitting": "送信中...",
     "done": "お問い合わせを受け付けました。担当者が確認のうえご連絡いたします。",
-    "consultTitle": "ご希望の商品がない、またはご相談が必要ですか？",
-    "consultCta": "相談を申し込む",
     "errors": {
-      "required": "お問い合わせ内容とご連絡先（お名前・連絡先・メールアドレス）をすべてご入力ください。",
+      "required": "ご希望の広告とご連絡先（ご担当者名・連絡先・メールアドレス）をすべてご入力ください。",
       "invalid_input": "入力内容をご確認ください。",
       "invalid_file": "画像（JPG・PNG・WEBP）またはPDFファイルのみアップロードできます。",
       "too_large": "添付ファイルは合計4MBまでです。",
       "too_many_files": "添付ファイルは5件までです。",
       "generic": "送信できませんでした。しばらくしてから再度お試しください。",
-      "network": "サーバーに接続できませんでした。ネットワークをご確認ください。"
-    }
+      "network": "サーバーに接続できませんでした。ネットワークをご確認ください。",
+      "country_required": "国を1つ以上お選びください。",
+      "consent_required": "個人情報の収集・利用に同意してください。"
+    },
+    "countryTitle": "国",
+    "countries": {
+      "kr": "韓国",
+      "jp": "日本"
+    },
+    "bodyTitle": "お問い合わせ内容",
+    "regionPlaceholder": "例）ソウル江南区 / 東京渋谷",
+    "filesDrop": "参考資料をドラッグ＆ドロップするか、クリックして添付してください",
+    "filesButton": "ファイルを添付",
+    "contactHint": "ログイン中の場合は会員情報から自動で入力されます",
+    "namePlaceholder": "山田太郎",
+    "phonePlaceholder": "090-0000-0000",
+    "emailPlaceholder": "name@email.com",
+    "consent": "個人情報の収集・利用に同意します",
+    "consentView": "内容を見る",
+    "notice": "その他の広告は決済なしでお問い合わせのみ受け付けます。担当者が確認後、お見積もりを発行し決済リンクをお送りします。"
   },
   "header": {
     "home": "ホーム",
@@ -203,18 +299,17 @@
     "contractsLink": "契約書保管庫"
   },
   "quote": {
-    "title": "お見積書",
+    "title": "お見積書の確認とお支払い",
     "number": "見積番号",
     "issuedAt": "発行日",
     "validUntil": "有効期限",
-    "issuer": "発行元",
+    "issuer": "担当",
     "item": "項目",
     "quantity": "数量",
-    "unitPrice": "単価",
     "amount": "金額",
     "total": "合計金額",
-    "payButton": "お支払い準備中です",
-    "payNotice": "オンライン決済はまもなく開始します。お支払いをご希望の場合は下記の番号までご連絡ください。",
+    "payButton": "{amount} を支払う",
+    "payNotice": "お支払い準備中です。オンライン決済はまもなく開始します。ご希望の場合は下記の番号までご連絡ください。",
     "invalidTitle": "無効な見積リンクです",
     "invalidBody": "リンクが正しいかご確認ください。開けない場合はお見積もりを再度ご依頼ください。",
     "expiredTitle": "お見積もりの有効期限が過ぎています",
@@ -222,31 +317,92 @@
     "revokedTitle": "取り消されたお見積もりです",
     "revokedBody": "このお見積もりは無効です。新しいお見積もりを受け取った場合は新しいリンクをご利用ください。",
     "requestAgain": "お見積もりを再依頼する",
-    "phoneLabel": "お電話でのご相談"
+    "phoneLabel": "お電話でのご相談",
+    "chip": "5. その他の広告 · お見積書",
+    "subtitle": "ご依頼いただいたその他の広告のお見積もりを発行しました。内容をご確認のうえお支払いください。",
+    "infoTitle": "見積情報",
+    "validUntilValue": "{date}まで（残り{days}日）",
+    "linesTitle": "見積明細",
+    "ordererTitle": "ご注文者情報",
+    "ordererChip": "お問い合わせ時の入力内容",
+    "ordererDesc": "お問い合わせ時にご入力いただいた情報です。修正が必要な場合は下記で変更してください。",
+    "ordererName": "ご注文者名",
+    "ordererPhone": "連絡先",
+    "ordererEmail": "メールアドレス",
+    "postalCode": "郵便番号",
+    "address1": "住所",
+    "address2": "建物名・部屋番号",
+    "address2Placeholder": "建物名・部屋番号など",
+    "agreeTitle": "契約への同意",
+    "agreeTerms": "サービス利用規約に同意します。",
+    "agreePrivacy": "個人情報の収集・利用に同意します。",
+    "agreeContract": "契約内容を確認し同意します。",
+    "view": "内容を見る",
+    "viewContract": "契約書を見る",
+    "signText": "上記の契約内容に同意し、下記の名前で電子署名します。",
+    "payTitle": "お支払い",
+    "payCard": "クレジットカード / デビットカード",
+    "noteValid": "このお見積書は{date}まで有効です。期限を過ぎるとお支払いいただけません。",
+    "noteUsed": "お支払いが完了すると、このリンクは使用できなくなります。",
+    "noteContact": "お問い合わせ：{phone}",
+    "blockedTitle": "お見積書を開けません",
+    "status": "状態",
+    "statusExpired": "有効期限切れ（{date}）",
+    "statusRevoked": "取り消し済み",
+    "blockedFoot": "お支払い済みの場合は、マイページまたは非会員注文照会でご確認いただけます。"
   },
   "checkout": {
-    "title": "注文者情報および契約同意",
-    "summaryTitle": "注文内容",
-    "totalLabel": "お支払い金額",
+    "title": "お支払い",
+    "totalLabel": "合計金額",
     "ordererTitle": "注文者情報",
-    "name": "お名前",
+    "name": "注文者名",
     "phone": "連絡先",
     "email": "メールアドレス",
     "postalCode": "郵便番号",
     "address1": "住所",
-    "address2": "詳細住所（任意）",
-    "businessNo": "事業者登録番号（任意）",
-    "representative": "代表者（任意）",
-    "contractTitle": "契約書",
-    "viewContract": "契約書全文を見る",
-    "signatureLabel": "電子署名",
-    "signatureNote": "同意にチェックすると名前が署名として自動入力されます",
-    "payButton": "お支払いへ進む",
+    "address2": "建物名・部屋番号",
+    "businessNo": "事業者登録番号",
+    "representative": "代表者名",
+    "contractTitle": "契約書への同意",
+    "viewContract": "契約書を見る",
+    "signatureLabel": "上記の契約内容に同意し、以下の名前で電子署名します。",
+    "signatureNote": "· 必須項目にすべて同意すると、注文者名が契約書の電子署名欄に自動入力されます。契約日はお支払い日として記録されます。",
+    "payButton": "{amount} 支払う",
     "submitting": "処理中...",
     "errorGeneric": "注文を作成できませんでした。しばらくしてから再度お試しください。",
     "noContractTitle": "現在オンライン決済に対応していません",
     "noContractBody": "このカテゴリーは契約書準備中のため、オンライン決済をご利用いただけません。お問い合わせをご案内します。",
-    "inquiryLink": "お問い合わせ"
+    "inquiryLink": "お問い合わせ",
+    "stepOrderer": "注文者情報",
+    "stepReview": "注文内容の確認",
+    "stepContract": "契約書への同意",
+    "stepPay": "お支払い",
+    "ordererHint": "会員ログインすると自動入力されます。会員登録なしでもお支払いいただけます",
+    "namePh": "山田太郎",
+    "phonePh": "090-0000-0000",
+    "emailPh": "name@email.com",
+    "postalCodePh": "000-0000",
+    "addressSearch": "住所検索",
+    "addressSearchSoon": "住所検索は準備中です。直接ご入力ください",
+    "address1Ph": "東京都…",
+    "address2Ph": "建物名・部屋番号など",
+    "representativePh": "山田太郎",
+    "businessNoPh": "個人の方は空欄のままで結構です",
+    "ordererNote": "· 上記の情報は契約書の甲（お客様）欄にそのまま記載されます。",
+    "reviewTitle": "注文内容の確認",
+    "reviewHint": "修正が必要な場合は前の画面にお戻りください",
+    "serviceLabel": "広告サービス",
+    "editSelection": "選択内容を修正する",
+    "contractHint": "内容をご確認のうえ同意してください",
+    "viewContent": "内容を見る",
+    "payTitle": "お支払い",
+    "payCard": "クレジットカード / デビットカード",
+    "close": "閉じる",
+    "errRequired": "必須項目です",
+    "errEmail": "正しいメールアドレスを入力してください",
+    "errPhone": "数字のみ入力してください（例: 09012345678）",
+    "errSummary": "必須項目{count}件をご確認いただくとお支払いいただけます。",
+    "errConsents": "必須の同意項目にすべて同意するとお支払いいただけます。"
   },
   "orderComplete": {
     "title": "ご注文を受け付けました",
@@ -254,7 +410,7 @@
     "copyButton": "コピー",
     "copied": "コピーしました",
     "guestNotice": "会員登録なしのご注文は、この番号でのみ照会できます。必ず保管してください。",
-    "viewContract": "契約書を再度見る",
+    "viewContract": "契約書を見る",
     "notFoundTitle": "注文が見つかりません",
     "notFoundBody": "注文番号が正しいか、会員登録なしの場合は注文時に入力したメールアドレス・電話番号が正しいかご確認ください。",
     "pendingNotice": "まだ決済が完了していません。決済が完了して初めて契約が締結されます。",
@@ -263,7 +419,25 @@
     "schedulePending": "協議中",
     "contractPendingLabel": "決済待ち — まだ締結されていない契約書の草案です。",
     "close": "閉じる",
-    "sealAlt": "代表者署名・印"
+    "sealAlt": "代表者署名・印",
+    "paidTitle": "お支払いが完了しました",
+    "heroBody": "注文内容と契約書はマイページでご確認いただけます。",
+    "heroBodyGuest": "注文番号で注文内容と契約書を照会できます。",
+    "infoTitle": "注文情報",
+    "orderedAtLabel": "注文日時",
+    "serviceLabel": "広告サービス",
+    "payMethodLabel": "お支払い方法",
+    "payMethodCard": "クレジットカード / デビットカード",
+    "payMethodPending": "お支払い待ち",
+    "amountLabel": "お支払い金額",
+    "nextTitle": "今後の流れ",
+    "next1Title": "担当者が注文内容を確認します",
+    "next1Body": "営業日基準で1〜2日",
+    "next2Title": "契約期間と広告実施日を協議して確定します",
+    "next2Body": "確定後、契約書に反映されます",
+    "next3Title": "広告の制作と配信が始まります",
+    "next3Body": "進捗はマイページで確認",
+    "goMypage": "マイページで注文を確認"
   },
   "contracts": {
     "title": "契約書保管庫",
@@ -317,5 +491,23 @@
     "call": "電話相談",
     "chat": "1:1チャット",
     "mypage": "マイページ"
+  },
+  "orderPage": {
+    "badge": "広告サービス {n}",
+    "notice": "次の画面でご注文者情報とご注文内容をご確認のうえ、契約書に同意してお支払いいただきます。",
+    "titles": {
+      "digital-sns": "デジタル広告 / SNSコミュニティ",
+      "local-video": "現地専門映像撮影",
+      "press-blog": "全国紙 / 地域紙 / ブログ",
+      "transit": "地下鉄 · バス · 屋外広告",
+      "other": "その他の広告のお問い合わせ"
+    },
+    "descriptions": {
+      "digital-sns": "プラットフォームとグレードを選ぶと、金額がすぐに計算されます。",
+      "local-video": "撮影国と映像の種類・長さを選ぶと、金額が計算されます。",
+      "press-blog": "国別の媒体を選ぶと、金額が計算されます。",
+      "transit": "都市と広告位置・期間を選ぶと、金額が計算されます。",
+      "other": "ご希望の内容をお送りいただければ、担当者がお見積もりを発行いたします。"
+    }
   }
 }
