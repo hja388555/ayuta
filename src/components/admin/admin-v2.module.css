@@ -85,6 +85,22 @@
 .radio { flex: 1; display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 10px; font-size: 14px; cursor: pointer; }
 .radioOn { border-color: var(--brand-600); background: var(--brand-50); color: var(--brand-600); font-weight: 700; }
 
+/* A6 이미지 관리 — Figma [v2] 229:650 PC / 229:798 Mobile */
+.info { margin: 0; padding: 14px 16px; border-radius: 12px; background: var(--brand-50); color: #002e80; font-size: 15px; line-height: 1.5; }
+.bandGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 560px)); gap: 16px; }
+.bandCard { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
+.bandTitle { flex: 1; min-width: 0; margin: 0; font-size: 17px; line-height: 1.5; color: var(--ink-900); }
+.bandPreview { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; width: 100%; height: 110px; padding: 0; overflow: hidden; border: 1px solid transparent; border-radius: 12px; background: var(--surface); font: inherit; cursor: pointer; }
+.bandEmpty { border: 1px dashed var(--line-strong); background: #fff; }
+.bandPreview.dropOver { border: 1px dashed var(--brand-600); background: var(--brand-50); }
+.bandThumb { display: block; width: 100%; height: 100%; object-fit: cover; }
+.bandIcon { display: block; width: 26px; height: 26px; }
+.bandHint { font-size: 14px; line-height: 1.5; color: var(--ink-500); }
+.bandBtns { display: flex; gap: 8px; }
+.bandMain { flex: 2; min-width: 0; color: var(--ink-900); }
+.bandDelete { flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-color: var(--line-strong); color: #d92d20; font-size: 15px; }
+.bandDelete img { display: block; width: 18px; height: 18px; }
+
 @media (max-width: 767px) {
   .page { gap: 18px; }
   .title { font-size: 24px; }
@@ -97,4 +113,13 @@
   .priceRow { flex-wrap: wrap; gap: 8px; }
   .priceInput { width: 100%; }
   .actions { flex-direction: column; }
+  .info { font-size: 13px; }
+  .bandGrid { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .bandCard { gap: 10px; padding: 14px; }
+  .bandTitle { font-size: 14px; }
+  .bandPreview { height: 92px; }
+  .bandIcon { width: 22px; height: 22px; }
+  .bandHint { font-size: 12px; }
+  .bandBtns .bigBtn { height: 46px; font-size: 14px; }
+  .bandBtns .bandDelete { font-size: 13px; }
 }

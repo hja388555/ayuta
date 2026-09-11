@@ -56,6 +56,7 @@ export default async function LocaleLayout({
   const tInstall = await getTranslations('install')
   const tContact = await getTranslations('contact')
   const tTabs = await getTranslations('tabs')
+  const tChat = await getTranslations('chat')
   // 대표번호는 헤더·문의 박스·탭바·푸터가 같은 값을 쓴다 — 관리자 설정(company-settings) 하나가 출처
   const footerInfo = await loadFooterInfo(locale === 'ja' ? 'ja' : 'ko')
 
@@ -72,7 +73,12 @@ export default async function LocaleLayout({
       {/* 본문 하단 문의 박스 — 모든 고객 화면 공통(큐 Q32, Figma [v2] 205:102) */}
       <Shell as="section">
         <div style={{ padding: '0 0 64px' }}>
-          <ContactBox phone={footerInfo.phone} chatHref={`/${locale}/order/other`} labels={{ title: tContact('title'), hours: tContact('hours'), chat: tContact('chat') }} />
+          <ContactBox
+            phone={footerInfo.phone}
+            locale={locale}
+            loggedIn={Boolean(user)}
+            labels={{ title: tContact('title'), hours: tContact('hours'), chat: tContact('chat'), loginBody1: tChat('loginBody1'), loginBody2: tChat('loginBody2') }}
+          />
         </div>
       </Shell>
       <InstallBanner labels={{ title: tInstall('title'), install: tInstall('install'), close: tInstall('close'), iosHint: tInstall('iosHint') }} />
@@ -81,7 +87,7 @@ export default async function LocaleLayout({
         labels={{ businessNo: tFooter('businessNo'), phone: tFooter('phone'), ceo: tFooter('ceo'), contact: tFooter('contact'), mailOrder: tFooter('mailOrder') }}
         legal={{ terms: { href: `/${locale}/terms`, label: tFooter('terms') }, privacy: { href: `/${locale}/privacy`, label: tFooter('privacy') }, refund: { href: `/${locale}/refund`, label: tFooter('refund') } }}
       />
-      <MobileTabBar locale={locale} phone={footerInfo.phone} loggedIn={Boolean(user)} labels={{ home: tTabs('home'), call: tTabs('call'), chat: tTabs('chat'), mypage: tTabs('mypage') }} />
+      <MobileTabBar locale={locale} phone={footerInfo.phone} loggedIn={Boolean(user)} labels={{ home: tTabs('home'), call: tTabs('call'), chat: tTabs('chat'), mypage: tTabs('mypage'), chatLoginBody1: tChat('loginBody1'), chatLoginBody2: tChat('loginBody2') }} />
     </NextIntlClientProvider>
   )
 }
