@@ -14,6 +14,7 @@ type Labels = Record<
   | 'address2'
   | 'agreeTerms'
   | 'agreePrivacy'
+  | 'view'
   | 'submit'
   | 'submitting',
   string
@@ -96,9 +97,16 @@ export function SignupForm({ locale, labels }: { locale: string; labels: Labels 
       </label>
       <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} disabled={busy} /> {labels.agreeTerms}
+        {/* 동의 전에 원문을 볼 수 있어야 한다. 새 탭 — 입력 중인 가입 양식이 날아가지 않게 */}
+        <a href={`/${locale}/terms`} target="_blank" rel="noopener" style={{ marginLeft: 'auto', fontSize: 13 }}>
+          {labels.view}
+        </a>
       </label>
       <label style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <input type="checkbox" checked={agreePrivacy} onChange={(e) => setAgreePrivacy(e.target.checked)} disabled={busy} /> {labels.agreePrivacy}
+        <a href={`/${locale}/privacy`} target="_blank" rel="noopener" style={{ marginLeft: 'auto', fontSize: 13 }}>
+          {labels.view}
+        </a>
       </label>
       {error ? (
         <p role="alert" style={{ margin: 0, color: '#C62828' }}>

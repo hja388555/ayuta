@@ -21,6 +21,7 @@
     "seed:super": "payload run scripts/seed-admins.ts",
     "seed:prices": "payload run scripts/seed-prices.ts",
     "seed:contracts": "payload run scripts/seed-contracts.ts",
+    "seed:legal": "payload run scripts/seed-legal.ts",
     "db:bootstrap": "payload run scripts/ensure-order-counters.ts",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down"
