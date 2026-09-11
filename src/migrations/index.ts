@@ -1,6 +1,7 @@
 import * as migration_20260911_042835_baseline from './20260911_042835_baseline';
 import * as migration_20260911_052437_storage_prefix from './20260911_052437_storage_prefix';
 import * as migration_20260911_081755_inquiry_country from './20260911_081755_inquiry_country';
+import * as migration_20260911_090442_users_consents from './20260911_090442_users_consents';
 
 export const migrations = [
   {
@@ -16,6 +17,11 @@ export const migrations = [
   {
     up: migration_20260911_081755_inquiry_country.up,
     down: migration_20260911_081755_inquiry_country.down,
-    name: '20260911_081755_inquiry_country'
+    name: '20260911_081755_inquiry_country',
+  },
+  {
+    up: migration_20260911_090442_users_consents.up,
+    down: migration_20260911_090442_users_consents.down,
+    name: '20260911_090442_users_consents'
   },
 ];

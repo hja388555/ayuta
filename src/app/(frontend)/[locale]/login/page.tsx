@@ -7,9 +7,10 @@ import { LoginForm } from '@/components/LoginForm'
 import { GuestLookupForm } from '@/components/GuestLookupForm'
 import { getSessionUser } from '@/lib/dal'
 import { isAdminRole } from '@/lib/roles'
+import s from '@/components/Auth.module.css'
 
 /**
- * 통합 로그인 화면(요구사항 1-16) + 하단 비회원 주문 조회(126행).
+ * 통합 로그인 화면(요구사항 1-16, Figma [v2] 08 · A0 관리자 진입) + 하단 비회원 주문 조회(126행).
  * 이미 로그인했으면 관리자는 관리자 홈, 고객은 마이페이지로 보낸다.
  */
 export const dynamic = 'force-dynamic'
@@ -29,30 +30,46 @@ export default async function LoginPage({ params, searchParams }: Props) {
   const next = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : undefined
 
   const t = await getTranslations('auth')
-  const common = { email: t('email'), network: t('network') }
+  const common = { email: t('email'), emailPh: t('emailPh'), network: t('network') }
 
   return (
     <main>
       <Shell as="section">
-        <div style={{ padding: '32px 0 64px', maxWidth: 420, margin: '0 auto' }}>
-          <h1 style={{ fontSize: 'var(--fs-h1)' }}>{t('loginTitle')}</h1>
+        <div className={s.page}>
+          <h1 className={s.h1}>{t('loginTitle')}</h1>
+          <p className={s.sub}>{t('loginSub')}</p>
           <LoginForm
             locale={locale}
             next={next}
-            labels={{ ...common, password: t('password'), loginButton: t('loginButton'), loggingIn: t('loggingIn'), loginFailed: t('loginFailed') }}
+            labels={{
+              ...common,
+              password: t('password'),
+              loginButton: t('loginButton'),
+              loggingIn: t('loggingIn'),
+              loginFailed: t('loginFailed'),
+              keepLogin: t('keepLogin'),
+              findPassword: t('findPassword'),
+              findPasswordSoon: t('findPasswordSoon'),
+            }}
           />
-          <p style={{ marginTop: 16 }}>
-            {t('noAccount')} <Link href={`/${locale}/signup`}>{t('signupLink')}</Link>
-          </p>
-
-          <section style={{ marginTop: 48, paddingTop: 24, borderTop: '1px solid var(--ink-100, #ECEEF1)' }}>
-            <h2 style={{ fontSize: 'var(--fs-h3, 18px)' }}>{t('guestTitle')}</h2>
-            <p style={{ color: 'var(--ink-500)' }}>{t('guestHint')}</p>
-            <GuestLookupForm
-              locale={locale}
-              labels={{ ...common, orderNumber: t('orderNumber'), phone: t('phone'), lookupButton: t('lookupButton'), lookupFailed: t('lookupFailed') }}
-            />
-          </section>
+          <div className={s.divider}>{t('or')}</div>
+          <Link href={`/${locale}/signup`} className={`btn btn-outline btn-block ${s.outline}`}>
+            {t('signupLink')}
+          </Link>
+          <GuestLookupForm
+            locale={locale}
+            labels={{
+              ...common,
+              title: t('guestTitle'),
+              hint: t('guestHint'),
+              orderNumber: t('orderNumber'),
+              orderNumberPh: t('orderNumberPh'),
+              phone: t('phone'),
+              phonePh: t('phonePh'),
+              lookupButton: t('lookupButton'),
+              lookupFailed: t('lookupFailed'),
+            }}
+          />
         </div>
       </Shell>
     </main>

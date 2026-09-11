@@ -15,6 +15,7 @@ const signupBody = (email: string, over: Record<string, unknown> = {}) => ({
   phone: '010-7777-0000',
   postalCode: '12345',
   address1: '서울시 동대문구',
+  agreeAge: true,
   agreeTerms: true,
   agreePrivacy: true,
   ...over,
@@ -80,10 +81,35 @@ describe('POST /api/signup', () => {
     expect(u!.role).toBe('customer')
     expect(u!.termsAgreedAt).toBeTruthy()
     expect(u!.privacyAgreedAt).toBeTruthy()
+    expect(u!.marketingAgreedAt).toBeFalsy()
   })
 
-  it('짧은 비밀번호는 400 이다', async () => {
-    expect((await post('/api/signup', signupBody(`mp-short+${RUN}@ayuta.test`, { password: 'short' }))).status).toBe(400)
+  it('만 14세 확인이 빠지면 400 consent_required 이다', async () => {
+    const email = `mp-noage+${RUN}@ayuta.test`
+    const res = await post('/api/signup', signupBody(email, { agreeAge: false }))
+    expect(res.status).toBe(400)
+    expect(await res.json()).toEqual({ error: 'consent_required' })
+    expect(await userByEmail(email)).toBeUndefined()
+  })
+
+  it('비밀번호 규칙(영문·숫자·기호 10자 이상)에 안 맞으면 400 weak_password 이다', async () => {
+    for (const password of ['short', 'abcdefghij1', 'abcdefghij!', '1234567890!']) {
+      const email = `mp-weak+${RUN}-${password.length}${password[0]}@ayuta.test`
+      const res = await post('/api/signup', signupBody(email, { password }))
+      expect(res.status).toBe(400)
+      expect(await res.json()).toEqual({ error: 'weak_password' })
+      expect(await userByEmail(email)).toBeUndefined()
+    }
+  })
+
+  it('동의 시각을 서버가 남기고, 광고 수신은 동의했을 때만 남는다', async () => {
+    const email = `mp-marketing+${RUN}@ayuta.test`
+    expect((await post('/api/signup', signupBody(email, { agreeMarketing: true, ageConfirmedAt: '2000-01-01' }))).status).toBe(200)
+    const u = await userByEmail(email)
+    userIds.push(u!.id as number)
+    expect(u!.ageConfirmedAt).toBeTruthy()
+    expect(String(u!.ageConfirmedAt)).not.toContain('2000')
+    expect(u!.marketingAgreedAt).toBeTruthy()
   })
 })
 
