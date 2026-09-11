@@ -17,7 +17,8 @@ export type LegalBlock =
   | { type: 'paragraph'; text: string; raw: string }
   | { type: 'blank'; raw: string }
 
-const HEADING = /^\s*(?:제\s*(\d+)\s*조|(\d+)\.)\s*(.*)$/
+// 일본어판 약관은 "第N条"(ja-drafts.ts) — 한국어 "제N조"와 같은 번호 제목으로 본다
+const HEADING = /^\s*(?:제\s*(\d+)\s*조|第\s*(\d+)\s*条|(\d+)\.)\s*(.*)$/
 const CALLOUT = /^\s*\[([^\]]+)\]\s*$/
 const TABLE = /^\s*\|/
 const SEPARATOR = /^\s*\|?\s*:?-{2,}:?\s*(\|\s*:?-{2,}:?\s*)*\|?\s*$/
@@ -39,7 +40,7 @@ export function parseLegal(body: string): LegalBlock[] {
     }
     const h = HEADING.exec(line)
     if (h) {
-      const num = h[1] ?? h[2]!
+      const num = h[1] ?? h[2] ?? h[3]!
       blocks.push({ type: 'heading', num, text: line.trim(), id: `sec-${num}`, raw: line })
       i++
       continue
