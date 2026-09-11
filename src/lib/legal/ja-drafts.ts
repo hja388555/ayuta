@@ -2,7 +2,7 @@
 // 원문: 이용약관 = scripts/seed-legal.ts TERMS_KO_BODY(확정본 A절), 환불 정책 = refund-policy.ts(확정본 E절).
 // 뜻·조항 구성·줄 구분·기호(•, ※)를 원문과 똑같이 맞췄다. 대표님(일본어 검수) 확인 전 초벌이다 —
 // 검수 후 문구는 관리자 약관 화면(/manage/legal)에서 고친다. 시드는 행이 없을 때만 넣는다.
-// 개인정보처리방침은 한국어 원문도 아직 없어 번역하지 않는다.
+// 개인정보처리방침 일본어판은 privacy-draft.ts 의 PRIVACY_JA_BODY(한국어 초안의 초벌 번역)다.
 
 export const TERMS_JA_TITLE = '利用規約'
 
