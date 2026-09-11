@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
+import { ChoiceCard, ChoiceGrid, StepTitle, TotalBar } from './ui'
+import s from './OrderForms.module.css'
 
 const PLATFORMS = ['instagram', 'youtube', 'tiktok', 'line'] as const
 
@@ -46,13 +48,16 @@ export function buildPaymentQuery(
   return qs.toString()
 }
 
-function formatAmount(amount: number, currency: PriceBook['currency']): string {
+export function formatAmount(amount: number, currency: PriceBook['currency']): string {
   return new Intl.NumberFormat(currency === 'KRW' ? 'ko-KR' : 'ja-JP', {
     style: 'currency',
     currency,
     maximumFractionDigits: 0,
   }).format(amount)
 }
+
+/** 비교표의 한 행. 등급 키(basic/standard/premium) → 칸 문구 */
+export type TierRow = { label: string } & Record<string, string>
 
 type Props = {
   book: PriceBook
@@ -63,10 +68,19 @@ type Props = {
   country: readonly string[]
   purpose?: string
   labels: {
-    sectionTitle: string
+    platformTitle: string
     platformHint: string
+    platforms: Record<string, string>
+    tierTitle: string
+    tierHint: string
+    contentHead: string
+    rows: TierRow[]
+    priceRow: string
+    /** "{names} 선택" — names 자리에 고른 등급 이름이 들어간다 */
+    selected: string
     totalLabel: string
     payButton: string
+    notice: string
   }
 }
 
@@ -81,6 +95,7 @@ export function TierForm({ book, model, locale, categorySlug, country, purpose, 
   const total = useMemo(() => previewTotal(book, model, tiers, platforms), [book, model, tiers, platforms])
 
   const canPay = tiers.length > 0
+  const selectedNames = tierOptions.filter((e) => tiers.includes(e.key)).map((e) => e.label)
 
   function goToPayment() {
     if (!canPay) return
@@ -88,78 +103,127 @@ export function TierForm({ book, model, locale, categorySlug, country, purpose, 
     router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
-  return (
-    <div>
-      <section>
-        <h2 style={{ fontSize: 'var(--fs-h2)' }}>{labels.sectionTitle}</h2>
+  const on = (key: string) => (tiers.includes(key) ? s.on : undefined)
 
-        <div className="table-scroll">
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+  return (
+    <>
+      <section className={`${s.step} ${s.grid} ${s.platforms}`}>
+        <StepTitle n={1} id="tier-platform" title={labels.platformTitle} hint={labels.platformHint} />
+        {/* 플랫폼 선택은 금액에 영향이 없다 — 제목 아래에 그대로 안내한다 (G3) */}
+        <ChoiceGrid cols={2} labelledBy="tier-platform">
+          {PLATFORMS.map((p) => (
+            <ChoiceCard
+              key={p}
+              type="checkbox"
+              checked={platforms.includes(p)}
+              onChange={() => setPlatforms((prev) => toggleValue(prev, p))}
+            >
+              {labels.platforms[p] ?? p}
+            </ChoiceCard>
+          ))}
+        </ChoiceGrid>
+      </section>
+
+      <section className={s.step}>
+        <StepTitle n={2} id="tier-grade" title={labels.tierTitle} hint={labels.tierHint} />
+        <div className={s.tableWrap}>
+          <table className={s.table} aria-labelledby="tier-grade">
+            <colgroup>
+              <col />
+              {tierOptions.map((e) => (
+                <col key={e.key} />
+              ))}
+            </colgroup>
             <thead>
               <tr>
-                <th style={{ textAlign: 'left', padding: '8px 12px', borderBottom: '1px solid var(--line-strong)' }} />
-                <th style={{ textAlign: 'left', padding: '8px 12px', borderBottom: '1px solid var(--line-strong)' }}>
-                  등급
-                </th>
-                <th style={{ textAlign: 'right', padding: '8px 12px', borderBottom: '1px solid var(--line-strong)' }}>
-                  단가
-                </th>
+                <th scope="col">{labels.contentHead}</th>
+                {tierOptions.map((e) => (
+                  <th key={e.key} scope="col" className={on(e.key)}>
+                    <label className={s.tierPick}>
+                      <input
+                        type="checkbox"
+                        checked={tiers.includes(e.key)}
+                        onChange={() => setTiers((prev) => toggleValue(prev, e.key))}
+                      />
+                      <span className={s.tierBox} aria-hidden />
+                      {e.label}
+                    </label>
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {tierOptions.map((entry) => (
-                <tr key={entry.key} style={{ borderBottom: '1px solid var(--line)' }}>
-                  <td style={{ padding: '8px 12px' }}>
-                    <input
-                      type="checkbox"
-                      checked={tiers.includes(entry.key)}
-                      onChange={() => setTiers((prev) => toggleValue(prev, entry.key))}
-                      aria-label={entry.label}
-                    />
-                  </td>
-                  <td style={{ padding: '8px 12px' }}>{entry.label}</td>
-                  <td style={{ padding: '8px 12px', textAlign: 'right' }}>
-                    {formatAmount(entry.amount, book.currency)}
-                  </td>
+              {labels.rows.map((row) => (
+                <tr key={row.label}>
+                  <td>{row.label}</td>
+                  {tierOptions.map((e) => (
+                    <td key={e.key} className={on(e.key)}>
+                      {row[e.key] ?? ''}
+                    </td>
+                  ))}
                 </tr>
               ))}
+              <tr className={s.priceRow}>
+                <td>{labels.priceRow}</td>
+                {tierOptions.map((e) => (
+                  <td key={e.key} className={on(e.key)}>
+                    {formatAmount(e.amount, book.currency)}
+                  </td>
+                ))}
+              </tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <section style={{ marginTop: 32 }}>
-        <h3 style={{ fontSize: 'var(--fs-h3)' }}>플랫폼</h3>
-        {/* 플랫폼 선택은 금액에 영향이 없다 — 옆에 그대로 안내한다 (G3) */}
-        <p style={{ color: 'var(--ink-500)', fontSize: 'var(--fs-caption)' }}>{labels.platformHint}</p>
-        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          {PLATFORMS.map((p) => (
-            <label key={p} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <input
-                type="checkbox"
-                checked={platforms.includes(p)}
-                onChange={() => setPlatforms((prev) => toggleValue(prev, p))}
-              />
-              {p}
-            </label>
-          ))}
-        </div>
-      </section>
+      <PaySection
+        totalLabel={labels.totalLabel}
+        sub={selectedNames.length ? labels.selected.replace('{names}', selectedNames.join(' · ')) : undefined}
+        amount={formatAmount(total, book.currency)}
+        payButton={labels.payButton}
+        notice={labels.notice}
+        disabled={!canPay}
+        onPay={goToPayment}
+      />
+    </>
+  )
+}
 
-      <section style={{ marginTop: 32 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <span>{labels.totalLabel}</span>
-          <strong style={{ fontSize: 'var(--fs-h1)' }}>{formatAmount(total, book.currency)}</strong>
-        </div>
+/** 검정 총액 바 + 파란 결제 버튼 + 안내문. 01~04 가 같은 모양이다 */
+export function PaySection({
+  totalLabel,
+  sub,
+  amount,
+  payButton,
+  notice,
+  disabled,
+  onPay,
+}: {
+  totalLabel: string
+  sub?: string
+  amount: string
+  payButton: string
+  notice: string
+  disabled: boolean
+  onPay: () => void
+}) {
+  return (
+    <>
+      <div className={s.total} aria-live="polite">
+        <TotalBar label={totalLabel} sub={sub} amount={amount} />
+      </div>
+      <div className={s.pay}>
         <button
           type="button"
-          disabled={!canPay}
-          onClick={goToPayment}
-          style={{ marginTop: 16, width: '100%', padding: '14px 0' }}
+          className={`btn btn-primary btn-lg btn-block ${s.payBtn}`}
+          disabled={disabled}
+          onClick={onPay}
         >
-          {labels.payButton}
+          {payButton}
+          <img src="/ui/chevron-white.svg" alt="" width={22} height={22} />
         </button>
-      </section>
-    </div>
+        <p className={s.notice}>{notice}</p>
+      </div>
+    </>
   )
 }

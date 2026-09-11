@@ -9,6 +9,8 @@ export type ItemDef = {
   key: string
   /** 금액이 붙는 항목인지. false 면 선택은 하되 계산에 들어가지 않는다 (국가 선택, 별도문의 플래그 등) */
   priced: boolean
+  /** 한국/일본 탭(3·4번)에서 어느 탭에 속하는지. 없으면 두 탭 모두에 보인다 */
+  country?: 'kr' | 'jp'
 }
 
 export type GroupDef = {
@@ -24,10 +26,14 @@ export type CategoryForm = {
   periods?: string[]
   /** 금액이 붙지 않는 자유 입력. 관리자 확인용 메모로만 쓴다 */
   freeText?: { key: string; maxLength: number }[]
+  /** 한국/일본 탭으로 항목을 나눠 보여 주는지 (3·4번, Figma v2) */
+  countryTabs?: boolean
 }
 
 const priced = (key: string): ItemDef => ({ key, priced: true })
 const unpriced = (key: string): ItemDef => ({ key, priced: false })
+const kr = (key: string): ItemDef => ({ key, priced: true, country: 'kr' })
+const jp = (key: string): ItemDef => ({ key, priced: true, country: 'jp' })
 
 // 2. 현지 전문 영상 제작 및 촬영
 const category2: CategoryForm = {
@@ -64,50 +70,51 @@ const category2: CategoryForm = {
 
 // 3. 종이신문 / 전국신문 / 지역신문 / 블로그
 const category3: CategoryForm = {
+  countryTabs: true,
   groups: [
     {
       key: 'national',
       multi: true,
       items: [
-        priced('national-kr-hankyung'),
-        priced('national-kr-donga'),
-        priced('national-kr-kyunghyang'),
-        priced('national-jp-yomiuri'),
-        priced('national-jp-asahi'),
-        priced('national-jp-mainichi'),
+        kr('national-kr-hankyung'),
+        kr('national-kr-donga'),
+        kr('national-kr-kyunghyang'),
+        jp('national-jp-yomiuri'),
+        jp('national-jp-asahi'),
+        jp('national-jp-mainichi'),
       ],
     },
     {
       key: 'local',
       multi: true,
       items: [
-        priced('local-kr-busan'),
-        priced('local-kr-gangwon'),
-        priced('local-kr-jeonnam'),
-        priced('local-jp-hokkaido'),
-        priced('local-jp-aichi'),
-        priced('local-jp-fukuoka'),
+        kr('local-kr-busan'),
+        kr('local-kr-gangwon'),
+        kr('local-kr-jeonnam'),
+        jp('local-jp-hokkaido'),
+        jp('local-jp-aichi'),
+        jp('local-jp-fukuoka'),
       ],
     },
     {
       key: 'community',
       multi: true,
       items: [
-        priced('community-kr-danggeun'),
-        priced('community-kr-bulgnog'),
-        priced('community-jp-jimoty'),
-        priced('community-jp-mercari'),
+        kr('community-kr-danggeun'),
+        kr('community-kr-bulgnog'),
+        jp('community-jp-jimoty'),
+        jp('community-jp-mercari'),
       ],
     },
     {
       key: 'blog',
       multi: true,
       items: [
-        priced('blog-note'),
-        priced('blog-ameba'),
-        priced('blog-hatena'),
-        priced('blog-livedoor'),
-        priced('blog-fc2'),
+        jp('blog-note'),
+        jp('blog-ameba'),
+        jp('blog-hatena'),
+        jp('blog-livedoor'),
+        jp('blog-fc2'),
       ],
     },
   ],
@@ -120,16 +127,16 @@ const category4: CategoryForm = {
       key: 'subwayCity',
       multi: false,
       items: [
-        priced('subway-city-seoul'),
-        priced('subway-city-gyeonggi-incheon'),
-        priced('subway-city-busan'),
-        priced('subway-city-daegu'),
-        priced('subway-city-etc'),
-        priced('subway-city-tokyo'),
-        priced('subway-city-osaka'),
-        priced('subway-city-nagoya'),
-        priced('subway-city-fukuoka'),
-        priced('subway-city-jp-etc'),
+        kr('subway-city-seoul'),
+        kr('subway-city-gyeonggi-incheon'),
+        kr('subway-city-busan'),
+        kr('subway-city-daegu'),
+        kr('subway-city-etc'),
+        jp('subway-city-tokyo'),
+        jp('subway-city-osaka'),
+        jp('subway-city-nagoya'),
+        jp('subway-city-fukuoka'),
+        jp('subway-city-jp-etc'),
       ],
     },
     {
@@ -142,27 +149,32 @@ const category4: CategoryForm = {
         priced('subway-spot-ceiling'),
       ],
     },
-    // 포스터·전광판 제작은 금액이 없는 별도문의 플래그다. 계산에 넣지 않고
-    // 선택지로만 두어 주문 메모에 실린다 (별도문의 처리는 화면 쪽 책임)
+    // 포스터·전광판 제작 — Figma v2(2026-09-11 확정)에서 별도문의가 아니라 금액칸이 있는
+    // 일반 항목이 됐다. 사이즈에 따라 달라지는 금액은 관리자가 단가를 고쳐 반영한다
     {
       key: 'posterBillboard',
       multi: false,
-      items: [unpriced('poster-make-inquiry'), unpriced('poster-skip')],
+      items: [
+        priced('poster-make-inquiry'),
+        priced('poster-skip'),
+        priced('poster-video-image'),
+        priced('poster-digital'),
+      ],
     },
     {
       key: 'busCity',
       multi: false,
       items: [
-        priced('bus-city-seoul'),
-        priced('bus-city-gyeonggi-incheon'),
-        priced('bus-city-busan'),
-        priced('bus-city-daegu'),
-        priced('bus-city-etc'),
-        priced('bus-city-tokyo'),
-        priced('bus-city-osaka'),
-        priced('bus-city-nagoya'),
-        priced('bus-city-fukuoka'),
-        priced('bus-city-jp-etc'),
+        kr('bus-city-seoul'),
+        kr('bus-city-gyeonggi-incheon'),
+        kr('bus-city-busan'),
+        kr('bus-city-daegu'),
+        kr('bus-city-etc'),
+        jp('bus-city-tokyo'),
+        jp('bus-city-osaka'),
+        jp('bus-city-nagoya'),
+        jp('bus-city-fukuoka'),
+        jp('bus-city-jp-etc'),
       ],
     },
     {
@@ -180,6 +192,7 @@ const category4: CategoryForm = {
   // 사이즈는 자유 입력이고 금액에 영향을 주지 않는다. 원문 그대로 화면에 그리지 않도록
   // 상한을 둔다 — 서버에서도 이 길이로 자른다 (GroupForm/서버 액션 쪽 책임)
   freeText: [{ key: 'size', maxLength: 200 }],
+  countryTabs: true,
 }
 
 const FORMS: Record<number, CategoryForm> = { 2: category2, 3: category3, 4: category4 }

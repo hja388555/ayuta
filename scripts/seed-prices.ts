@@ -89,6 +89,11 @@ const LABELS_KO: Record<string, string> = {
   'bus-spot-outer-side': '버스 외부 측면 광고',
   'bus-spot-inner': '버스 내부 광고',
   'bus-spot-inner-monitor': '버스 내부 모니터 광고',
+
+  'poster-make-inquiry': '역내 포스터 제작 함',
+  'poster-skip': '역내 포스터 제작 안함',
+  'poster-video-image': '영상 이미지 광고',
+  'poster-digital': '역내 디지털 광고',
 }
 
 // 일본어 — national/local/community 의 일본 매체명, blog 5종(모두 일본 플랫폼)은
@@ -131,6 +136,8 @@ export const LABELS_JA_DRAFT = new Set<string>([
   'bus-spot-outer-side',
   'bus-spot-inner',
   'bus-spot-inner-monitor',
+  'poster-video-image',
+  'poster-digital',
 ])
 
 const LABELS_JA: Record<string, string> = {
@@ -201,6 +208,11 @@ const LABELS_JA: Record<string, string> = {
   'bus-spot-outer-side': 'バス外部側面広告',
   'bus-spot-inner': 'バス車内広告',
   'bus-spot-inner-monitor': 'バス車内モニター広告',
+
+  'poster-make-inquiry': '駅構内ポスター制作 する',
+  'poster-skip': '駅構内ポスター制作 しない',
+  'poster-video-image': '映像・画像広告',
+  'poster-digital': '駅構内デジタル広告',
 }
 
 const labelFor = (key: string): { labelKo: string; labelJa: string } => {

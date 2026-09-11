@@ -44,4 +44,31 @@ describe('카테고리 폼 정의', () => {
   it('자유 입력에는 길이 상한이 있다', () => {
     for (const t of formFor(4)!.freeText ?? []) expect(t.maxLength).toBeGreaterThan(0)
   })
+
+  it('4번 포스터·전광판 제작은 금액이 붙는 항목이다 (Figma v2 — 별도문의 폐지)', () => {
+    const poster = formFor(4)!.groups.find((g) => g.key === 'posterBillboard')!
+    expect(poster.items.map((i) => i.key)).toEqual([
+      'poster-make-inquiry',
+      'poster-skip',
+      'poster-video-image',
+      'poster-digital',
+    ])
+    expect(poster.items.every((i) => i.priced)).toBe(true)
+  })
+
+  it('3·4번은 한국/일본 탭을 쓰고, 도시·매체 항목은 한쪽 나라에만 속한다', () => {
+    for (const n of [3, 4]) expect(formFor(n)!.countryTabs).toBe(true)
+    expect(formFor(2)!.countryTabs).toBeUndefined()
+    const cities = formFor(4)!.groups.filter((g) => g.key.endsWith('City')).flatMap((g) => g.items)
+    expect(cities.every((i) => i.country === 'kr' || i.country === 'jp')).toBe(true)
+    for (const n of [3, 4]) {
+      for (const g of formFor(n)!.groups) {
+        const kr = g.items.filter((i) => i.country === 'kr').length
+        const jp = g.items.filter((i) => i.country === 'jp').length
+        // 나라별로 나뉜 그룹이면 탭마다 같은 수의 도시가 보인다(3열 카드 배치)
+        if (g.key.endsWith('City')) expect(kr).toBe(jp)
+      }
+    }
+    expect(formFor(3)!.groups.find((g) => g.key === 'blog')!.items.every((i) => i.country === 'jp')).toBe(true)
+  })
 })
