@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation'
 import type { PriceBook } from '@ayuta/pricing'
 import type { ConsentDef } from '@/lib/checkout/consents'
 import type { CheckoutLabels } from '@/lib/checkout/labels'
-import { ChoiceCard, Modal, StepTitle, TotalBar } from './ui'
+import { ContractDialog } from './ContractModal'
+import { ChoiceCard, StepTitle, TotalBar } from './ui'
 import s from './Checkout.module.css'
 
 export type OrdererFormState = {
@@ -114,7 +115,7 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
   const [checked, setChecked] = useState<Record<string, boolean>>({})
   const [touched, setTouched] = useState<Partial<Record<OrdererField, boolean>>>({})
   const [attempted, setAttempted] = useState(false)
-  const [showContract, setShowContract] = useState(false)
+  const [showContract, setShowContract] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // 결제 버튼 더블클릭·네트워크 재시도로 같은 주문이 두 번 만들어지지 않게, 폼이 마운트될
@@ -311,7 +312,7 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
                 {labels.viewContent}
               </a>
             ) : (
-              <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setShowContract(true)}>
+              <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setShowContract(c.key)}>
                 <img src="/ui/doc.svg" alt="" width={16} height={16} />
                 {labels.viewContract}
               </button>
@@ -329,9 +330,18 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
 
       {/* 빈칸이 채워진 상태를 그대로 보여준다 — createOrder가 실제로 저장할 것과 같은 텍스트를
           서버가 미리 렌더해 넘긴다(template.body는 이미 fillContract를 거친 미리보기다) */}
-      <Modal open={showContract} onClose={() => setShowContract(false)} title={template.title} closeLabel={labels.close}>
-        <pre className={s.contractText}>{template.body}</pre>
-      </Modal>
+      {/* 13-B 계약서 팝업 확인 모드 — [계약 확인 완료]를 누르면 연 줄의 동의가 체크된다 */}
+      <ContractDialog
+        open={showContract !== null}
+        onClose={() => setShowContract(null)}
+        onConfirm={() => {
+          if (showContract) setChecked((prev) => ({ ...prev, [showContract]: true }))
+          setShowContract(null)
+        }}
+        title={template.title}
+        closeLabel={labels.close}
+        contractText={template.body}
+      />
 
       <section className={s.card} aria-labelledby="co-pay">
         <StepTitle n={4} id="co-pay" title={labels.payTitle} />

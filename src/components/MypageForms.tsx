@@ -1,9 +1,11 @@
 'use client'
 
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { ChoiceCard, Modal, Toast } from '@/components/ui'
 import { passwordIssue } from '@/lib/password-policy'
+import { isProfileDirty } from '@/lib/mypage/profile-dirty'
 import s from './Account.module.css'
 
 /**
@@ -57,22 +59,63 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null)
   const missing = (k: keyof ProfileValues) => attempted && REQUIRED.includes(k) && !v[k].trim()
+  const tm = useTranslations('modal')
+  // 저장 확인 팝업(Figma [v2] 팝업 A ⑥ 227:168) — 고친 채로 다른 화면으로 가려 하면 붙잡는다
+  const [saved, setSaved] = useState(initial)
+  const dirty = isProfileDirty(saved, v)
+  const [leaveTo, setLeaveTo] = useState<string | null>(null)
 
-  async function save(e: React.FormEvent) {
-    e.preventDefault()
-    if (busy) return
+  useEffect(() => {
+    if (!dirty) return
+    const onClick = (e: MouseEvent) => {
+      if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return
+      const a = (e.target as Element | null)?.closest?.('a[href]') as HTMLAnchorElement | null
+      if (!a || a.target === '_blank' || a.hasAttribute('download')) return
+      const url = new URL(a.href, location.href)
+      if (url.origin !== location.origin || url.pathname === location.pathname) return
+      e.preventDefault()
+      e.stopPropagation()
+      setLeaveTo(url.pathname + url.search + url.hash)
+    }
+    const onUnload = (e: BeforeUnloadEvent) => e.preventDefault()
+    document.addEventListener('click', onClick, true)
+    window.addEventListener('beforeunload', onUnload)
+    return () => {
+      document.removeEventListener('click', onClick, true)
+      window.removeEventListener('beforeunload', onUnload)
+    }
+  }, [dirty])
+
+  async function persist(): Promise<boolean> {
+    if (busy) return false
     setAttempted(true)
-    if (REQUIRED.some((k) => !v[k].trim())) return
+    if (REQUIRED.some((k) => !v[k].trim())) return false
     setBusy(true)
     try {
       const r = await postJson('/api/me/profile', v)
       setToast(r.ok ? { ok: true, text: tx(labels, 'saved') } : { ok: false, text: errorText(errors, r.error) })
-      if (r.ok) router.refresh()
+      if (r.ok) {
+        setSaved(v)
+        router.refresh()
+      }
+      return r.ok
     } catch {
       setToast({ ok: false, text: errorText(errors, 'network') })
+      return false
     } finally {
       setBusy(false)
     }
+  }
+
+  async function save(e: React.FormEvent) {
+    e.preventDefault()
+    await persist()
+  }
+
+  async function saveAndLeave() {
+    const to = leaveTo
+    setLeaveTo(null)
+    if (to && (await persist())) router.push(to)
   }
 
   const input = (k: keyof ProfileValues, opts: { required?: boolean; autoComplete?: string; addon?: ReactNode; max?: number } = {}) => {
@@ -149,7 +192,7 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
           className={`btn btn-outline btn-lg ${s.grow1}`}
           disabled={busy}
           onClick={() => {
-            setV(initial)
+            setV(saved)
             setAttempted(false)
           }}
         >
@@ -157,6 +200,36 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
         </button>
       </div>
       {toast ? <Toast kind={toast.ok ? 'success' : 'error'} message={toast.text} closeLabel={tx(labels, 'close')} onClose={() => setToast(null)} /> : null}
+      <Modal
+        open={leaveTo !== null}
+        onClose={() => setLeaveTo(null)}
+        title={tm('saveTitle')}
+        closeLabel={tm('close')}
+        footer={
+          <div className={s.confirmFoot}>
+            <button
+              type="button"
+              className={`btn btn-outline btn-lg ${s.grow1}`}
+              onClick={() => {
+                const to = leaveTo
+                setLeaveTo(null)
+                setV(saved)
+                if (to) setTimeout(() => router.push(to), 0)
+              }}
+            >
+              {tm('saveDiscard')}
+            </button>
+            <button type="button" className={`btn btn-primary btn-lg ${s.grow1}`} onClick={saveAndLeave} disabled={busy}>
+              {tm('saveConfirm')}
+            </button>
+          </div>
+        }
+      >
+        <div className={s.saveAsk}>
+          <p className={s.saveAskTitle}>{tm('saveTitle')}</p>
+          <p className={s.confirmBody}>{tm('saveBody')}</p>
+        </div>
+      </Modal>
     </form>
   )
 }

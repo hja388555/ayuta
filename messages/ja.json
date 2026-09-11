@@ -696,5 +696,20 @@
       "network": "サーバーに接続できませんでした。ネットワークをご確認ください。",
       "weak_password": "新しいパスワードは英字・数字・記号をすべて含む10文字以上にしてください。"
     }
+  },
+  "modal": {
+    "close": "閉じる",
+    "contractScrollHint": "スクロールして全文をご確認いただけます",
+    "contractConfirmCheck": "上記の契約内容をすべて確認し、同意します。",
+    "contractConfirm": "契約内容の確認完了",
+    "loginTitle": "ログインが必要です",
+    "loginBody1": "注文履歴と契約書はログインしてご確認いただけます。",
+    "loginBody2": "非会員でお支払いの場合は注文照会をご利用ください。",
+    "loginGuest": "非会員注文照会",
+    "loginGo": "ログイン",
+    "saveTitle": "変更内容を保存しますか？",
+    "saveBody": "保存せずに移動すると、入力した内容が失われます。",
+    "saveDiscard": "保存しない",
+    "saveConfirm": "保存"
   }
 }
