@@ -28,7 +28,7 @@
 .hint { margin: 0; font-size: 14px; color: var(--ink-500); }
 
 /* 표 */
-.tableWrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+.tableWrap { position: relative; overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
 .table { width: 100%; min-width: 720px; border-collapse: collapse; font-size: 14px; }
 .table th { padding: 14px 18px; background: var(--surface); text-align: left; font-weight: 700; white-space: nowrap; }
 .table td { padding: 16px 18px; border-top: 1px solid var(--line); white-space: nowrap; }
@@ -83,6 +83,7 @@
 @media (max-width: 767px) {
   .title { font-size: 24px; }
   .filters { flex-direction: column; align-items: stretch; }
+  .search { flex: none; }
   .selects { display: grid; grid-template-columns: 1fr 1fr; }
   .selects .submit { grid-column: 1 / -1; }
   .card { padding: 20px 16px; }
