@@ -1,0 +1,88 @@
+/* [v2] A9 문의·채팅 / A9-B 견적 발행 */
+.page { display: flex; flex-direction: column; gap: 24px; color: #3d4046; min-width: 0; }
+.title { margin: 0; font-size: 32px; font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; color: #0b0b0c; }
+.titleRow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.titleRow .title { flex: 1; min-width: 0; }
+
+.tabs { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.tab { display: inline-flex; gap: 6px; align-items: center; padding: 12px 18px; border-radius: 999px; border: 1px solid #eceef1; background: #fff; font-size: 15px; font-weight: 700; color: #3d4046; }
+.tabActive { background: #005afa; border-color: #005afa; color: #fff; }
+.tabCount { font-weight: 400; }
+.tabDisabled { cursor: not-allowed; }
+.tabDisabled .tabCount { color: #a3a8b0; font-size: 13px; }
+
+.card { background: #fff; border: 1px solid #eceef1; border-radius: 16px; padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.cardTitle { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.5; color: #0b0b0c; }
+.muted { margin: 0; font-size: 14px; color: #767b85; }
+
+.item { border: 1px solid #eceef1; border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 10px; }
+.itemHead { display: flex; align-items: center; gap: 10px; }
+.itemNo { flex: 1; font-size: 14px; color: #767b85; }
+.itemWho { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.itemName { font-size: 17px; font-weight: 700; color: #0b0b0c; }
+.dot { font-size: 14px; color: #a3a8b0; }
+.itemCountry { font-size: 15px; color: #767b85; }
+.itemBody { margin: 0; font-size: 15px; overflow-wrap: anywhere; }
+.itemMeta { font-size: 13px; color: #a3a8b0; }
+.actions { display: flex; gap: 8px; }
+.actions > * { flex: 1; min-width: 0; height: 52px; border-radius: 12px; font-size: 16px; }
+
+.pager { display: flex; justify-content: center; gap: 8px; align-items: center; font-size: 14px; }
+
+/* A9-B */
+.grid { display: flex; gap: 24px; align-items: flex-start; }
+.colMain { flex: 2 1 0; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.colSide { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+
+.info { background: #f7f8fa; border-radius: 12px; padding: 4px 18px; }
+.infoRow { display: flex; gap: 16px; padding: 10px 0; border-bottom: 1px solid #eceef1; font-size: 15px; }
+.infoRow:last-child { border-bottom: 0; }
+.infoLabel { width: 100px; flex: none; font-size: 14px; color: #767b85; }
+.infoValue { flex: 1; min-width: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.fileList { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+
+.lineHead, .line { display: flex; gap: 8px; align-items: center; }
+.lineHead { font-size: 13px; font-weight: 700; color: #767b85; }
+.cLabel { flex: 4 1 0; min-width: 0; }
+.cQty, .cAmt { flex: 1 1 0; min-width: 0; }
+.cDel { flex: none; width: 60px; }
+.field { width: 100%; height: 42px; padding: 0 12px; border: 1px solid #d6d9de; border-radius: 10px; font: inherit; font-size: 15px; color: #3d4046; background: #fff; }
+.cQty .field, .cAmt .field { text-align: right; }
+.del { width: 60px; height: 42px; border: 1px solid #d6d9de; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.del img { width: 16px; height: 16px; display: block; }
+.add { width: 100%; height: 52px; border: 0; border-radius: 12px; background: #f7f8fa; font: inherit; font-size: 16px; font-weight: 700; color: #0b0b0c; cursor: pointer; }
+
+.fieldGroup { display: flex; flex-direction: column; gap: 8px; font-size: 15px; }
+.selectBox { position: relative; display: flex; align-items: center; gap: 10px; height: 50px; padding: 0 14px; border: 1px solid #d6d9de; border-radius: 12px; background: #fff; }
+.selectBox select { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+.selectBox select:disabled { cursor: not-allowed; }
+.selectText { flex: 1; min-width: 0; }
+.selectDisabled { background: #f7f8fa; color: #a3a8b0; }
+.icon18 { width: 18px; height: 18px; flex: none; display: block; }
+.icon16 { width: 16px; height: 16px; flex: none; display: block; }
+.note { background: #f7f8fa; border-radius: 12px; padding: 12px 14px; font-size: 13px; color: #767b85; display: flex; flex-direction: column; gap: 4px; }
+.note p { margin: 0; }
+.bigBtn { height: 52px; border-radius: 12px; font-size: 16px; }
+.row2 { display: flex; gap: 8px; }
+.row2 > * { flex: 1; min-width: 0; }
+
+.issued { background: #eff5ff; border-radius: 12px; padding: 12px 14px; font-size: 13px; display: flex; flex-direction: column; gap: 8px; }
+.issued p { margin: 0; }
+.error { margin: 0; font-size: 13px; color: #c62828; }
+
+.history { background: #f7f8fa; border-radius: 10px; padding: 10px 12px; font-size: 13px; display: flex; flex-direction: column; gap: 2px; }
+.historyAt { font-weight: 700; }
+.historyText { color: #767b85; overflow-wrap: anywhere; }
+
+@media (max-width: 1023px) {
+  .grid { flex-direction: column; }
+  .colMain, .colSide { flex: none; width: 100%; }
+}
+@media (max-width: 640px) {
+  .title { font-size: 24px; }
+  .card { padding: 18px 16px; }
+  .infoRow { flex-direction: column; gap: 2px; }
+  .infoLabel { width: auto; }
+  .cDel, .del { width: 42px; }
+  .field { padding: 0 8px; }
+}
