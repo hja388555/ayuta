@@ -6,6 +6,7 @@ import { formatAmount, formatDateTime, formatDay, toDateInputValue } from '@/lib
 import { adminStatusTone, categoryLabel } from '@/lib/admin/order-display'
 import { availableTransitions, statusLabel } from '@/lib/orders/transitions'
 import { AdminContractButton } from '@/components/admin/AdminContractButton'
+import { OpenChatButton } from '@/components/admin/OpenChatButton'
 import { OrderNoteForm } from '@/components/admin/OrderNoteForm'
 import { OrderScheduleForm } from '@/components/admin/OrderScheduleForm'
 import { OrderStatusForm } from '@/components/admin/OrderStatusForm'
@@ -171,13 +172,17 @@ export default async function OrderDetailPage({ params }: Props) {
 
           <section className={s.card}>
             <h2 className={s.cardTitle}>기타</h2>
-            <button type="button" className={`btn btn-outline btn-block ${s.bigBtn}`} disabled title="Q37 채팅 기능 연결 후 열립니다">
-              고객 1:1 채팅 열기
-            </button>
+            {order.customer != null ? (
+              <OpenChatButton target={{ orderId: order.id }} className={`btn btn-outline btn-block ${s.bigBtn}`} label="고객 1:1 채팅 열기" />
+            ) : (
+              <button type="button" className={`btn btn-outline btn-block ${s.bigBtn}`} disabled title="비회원 주문 — 연락처로 안내">
+                고객 1:1 채팅 열기
+              </button>
+            )}
             <button type="button" className={`btn btn-outline btn-block ${s.bigBtn}`} disabled title="결제 연동 후 열립니다">
               환불 처리로 이동
             </button>
-            <p className={s.hint}>1:1 채팅은 Q37, 환불 처리는 결제 연동 후 열립니다.</p>
+            <p className={s.hint}>{order.customer != null ? '환불 처리는 결제 연동 후 열립니다.' : '비회원 주문은 1:1 채팅 대신 연락처로 안내합니다. 환불 처리는 결제 연동 후 열립니다.'}</p>
           </section>
         </div>
       </div>

@@ -6,12 +6,13 @@ import { formatDateTime } from '@/lib/admin/format'
 import { countryText, firstLine, inquiryNumber, inquiryStatus } from '@/lib/admin/inquiry-display'
 import { Badge } from '@/components/ui'
 import { AdminChat } from '@/components/admin/AdminChat'
+import { OpenChatButton } from '@/components/admin/OpenChatButton'
 import { countUnreadThreads } from '@/lib/chat/service'
 import s from './inquiries.module.css'
 
-/** [v2] A9 문의·채팅. 기타 광고 문의 목록(최신순) · 1:1 채팅(?tab=chat, 큐 Q37) */
+/** [v2] A9 문의·채팅. 기타 광고 문의 목록(최신순) · 1:1 채팅(?tab=chat, 큐 Q37 · &thread=<id> 로 방을 골라 연다) */
 const PAGE_SIZE = 20
-type Props = { searchParams: Promise<{ page?: string; tab?: string }> }
+type Props = { searchParams: Promise<{ page?: string; tab?: string; thread?: string }> }
 
 export default async function InquiriesPage({ searchParams }: Props) {
   try {
@@ -24,6 +25,7 @@ export default async function InquiriesPage({ searchParams }: Props) {
   const sp = await searchParams
   const tab = sp.tab === 'chat' ? 'chat' : 'inquiries'
   const page = Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1)
+  const thread = /^\d{1,12}$/.test(sp.thread ?? '') ? Number(sp.thread) : null
   const { payload, user } = await authedPayload()
   const unreadChats = await countUnreadThreads(payload)
   const { docs, totalDocs, totalPages } = await payload.find({
@@ -48,7 +50,7 @@ export default async function InquiriesPage({ searchParams }: Props) {
         </Link>
       </nav>
 
-      {tab === 'chat' ? <AdminChat /> : null}
+      {tab === 'chat' ? <AdminChat key={thread ?? 'none'} initialThread={thread} /> : null}
       {tab === 'inquiries' ? (
       <>
       <section className={s.card}>
@@ -59,11 +61,16 @@ export default async function InquiriesPage({ searchParams }: Props) {
           return (
             <article key={d.id} className={s.item}>
               <div className={s.itemHead}>
-                <span className={s.itemNo}>{inquiryNumber(d.id as number, d.createdAt as string)}</span>
+                {/* 상세 버튼 자리를 "채팅 열기"가 가져가서, 번호·이름이 상세로 가는 길이다 */}
+                <Link href={href} className={s.itemNo}>
+                  {inquiryNumber(d.id as number, d.createdAt as string)}
+                </Link>
                 <Badge tone={st.tone}>{st.label}</Badge>
               </div>
               <div className={s.itemWho}>
-                <span className={s.itemName}>{d.name as string}</span>
+                <Link href={href} className={s.itemName}>
+                  {d.name as string}
+                </Link>
                 <span className={s.dot}>·</span>
                 <span className={s.itemCountry}>{countryText(d.country)}</span>
               </div>
@@ -73,9 +80,7 @@ export default async function InquiriesPage({ searchParams }: Props) {
                 <Link href={`${href}#quote`} className="btn btn-primary">
                   견적 발행
                 </Link>
-                <Link href={href} className="btn btn-outline">
-                  상세
-                </Link>
+                <OpenChatButton target={{ inquiryId: d.id as number }} className="btn btn-outline" />
               </div>
             </article>
           )

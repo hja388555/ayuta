@@ -513,7 +513,14 @@ export interface LegalRevision {
  */
 export interface ChatThread {
   id: number;
-  customer: number | User;
+  customer?: (number | null) | User;
+  guestName?: string | null;
+  guestEmail?: string | null;
+  guestPhone?: string | null;
+  guestTokenHash?: string | null;
+  guestIpHash?: string | null;
+  guestPrivacyConsentAt?: string | null;
+  inquiry?: (number | null) | Inquiry;
   locale: 'ko' | 'ja';
   status: 'open' | 'closed';
   lastMessageAt?: string | null;
@@ -1008,6 +1015,13 @@ export interface LegalRevisionsSelect<T extends boolean = true> {
  */
 export interface ChatThreadsSelect<T extends boolean = true> {
   customer?: T;
+  guestName?: T;
+  guestEmail?: T;
+  guestPhone?: T;
+  guestTokenHash?: T;
+  guestIpHash?: T;
+  guestPrivacyConsentAt?: T;
+  inquiry?: T;
   locale?: T;
   status?: T;
   lastMessageAt?: T;

@@ -1,9 +1,11 @@
 import 'server-only'
+import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 import { getPayload, type Payload } from 'payload'
 import config from '@payload-config'
-import { AuthError, requireAdmin, requireUser, type SessionUser } from '@/lib/dal'
+import { AuthError, getSessionUser, requireAdmin, requireUser, type SessionUser } from '@/lib/dal'
 import type { ChatMessage, ChatThread } from '@/payload-types'
+import { generateGuestToken, GUEST_COOKIE, hashGuestToken, isGuestTokenShape } from './guest'
 import { cleanBody, fallbackTarget, isRateLimited, rateWindowStart, targetLang, toChatLocale, type ChatLocale } from './rules'
 import { translate } from './translate'
 
@@ -13,6 +15,41 @@ import { translate } from './translate'
  */
 
 export const jsonError = (error: string, status: number) => NextResponse.json({ error }, { status })
+
+/** 비회원 토큰으로 방을 찾는다. 모양이 틀리거나 해시가 없으면 null(링크를 새로 발급하면 이전 토큰은 여기서 끊긴다) */
+export async function findGuestThreadByToken(payload: Payload, token: unknown): Promise<ChatThread | null> {
+  if (!isGuestTokenShape(token)) return null
+  const { docs } = await payload.find({ collection: 'chat-threads', where: { guestTokenHash: { equals: hashGuestToken(token) } }, limit: 1, depth: 0, overrideAccess: true })
+  return docs[0] ?? null
+}
+
+export async function guestThreadFromCookie(payload: Payload): Promise<ChatThread | null> {
+  return findGuestThreadByToken(payload, (await cookies()).get(GUEST_COOKIE)?.value)
+}
+
+/** 보낸 사람 기록. 회원·관리자는 계정, 비회원은 방의 이메일만 */
+export type Sender = { userId: number | null; email: string | null }
+
+export type CustomerGate =
+  | { payload: Payload; kind: 'member'; user: SessionUser; sender: Sender }
+  | { payload: Payload; kind: 'guest'; thread: ChatThread; sender: Sender }
+
+/**
+ * 고객 경로의 문지기. 로그인했으면 회원(비회원 쿠키가 같이 있어도 회원이 우선), 아니면 비회원 쿠키의 방.
+ * 둘 다 아니면 401. 어느 쪽도 방 id 를 받지 않는다 — 남의 방을 지목할 길이 없다.
+ */
+export async function customerGate(): Promise<CustomerGate | { response: Response }> {
+  const payload = await getPayload({ config })
+  const user = await getSessionUser()
+  if (user) return { payload, kind: 'member', user, sender: { userId: user.id, email: user.email } }
+  const thread = await guestThreadFromCookie(payload)
+  if (thread) return { payload, kind: 'guest', thread, sender: { userId: null, email: thread.guestEmail ?? null } }
+  return { response: jsonError('unauthenticated', 401) }
+}
+
+/** 고객 경로의 방: 회원은 내 방(없으면 null), 비회원은 쿠키의 방 */
+export const customerThread = (g: CustomerGate): Promise<ChatThread | null> =>
+  g.kind === 'guest' ? Promise.resolve(g.thread) : findOwnThread(g.payload, g.user.id)
 
 export async function chatGate(kind: 'user' | 'admin'): Promise<{ user: SessionUser; payload: Payload } | { response: Response }> {
   try {
@@ -116,13 +153,18 @@ export async function listMessages(payload: Payload, threadId: number, after?: n
 
 export type SendResult = { message: ChatMessage } | { error: string; status: number }
 
-export async function sendMessage(payload: Payload, thread: ChatThread, sender: 'customer' | 'admin', user: SessionUser, rawBody: string): Promise<SendResult> {
+export async function sendMessage(payload: Payload, thread: ChatThread, sender: 'customer' | 'admin', who: Sender, rawBody: string): Promise<SendResult> {
   const body = cleanBody(rawBody)
   if (!body) return { error: 'invalid_input', status: 400 }
 
+  // 회원·관리자는 계정 기준, 비회원은 방 기준(방 하나 = 비회원 한 명)으로 같은 한도를 건다
+  const since = { createdAt: { greater_than: rateWindowStart().toISOString() } }
   const recent = await payload.count({
     collection: 'chat-messages',
-    where: { and: [{ senderUser: { equals: user.id } }, { createdAt: { greater_than: rateWindowStart().toISOString() } }] },
+    where:
+      who.userId !== null
+        ? { and: [{ senderUser: { equals: who.userId } }, since] }
+        : { and: [{ thread: { equals: thread.id } }, { sender: { equals: sender } }, since] },
     overrideAccess: true,
   })
   if (isRateLimited(recent.totalDocs)) return { error: 'rate_limited', status: 429 }
@@ -138,8 +180,8 @@ export async function sendMessage(payload: Payload, thread: ChatThread, sender: 
     data: {
       thread: thread.id,
       sender,
-      senderUser: user.id,
-      senderEmail: user.email,
+      senderUser: who.userId,
+      senderEmail: who.email,
       body,
       sourceLang: tr?.sourceLang ?? (sender === 'admin' && locale === 'ko' ? 'KO' : null),
       translatedBody: tr?.status === 'ok' ? tr.text : null,
@@ -173,39 +215,108 @@ export async function markRead(payload: Payload, threadId: number, who: 'custome
 }
 
 export type ThreadListItem = ReturnType<typeof threadView> & {
+  guest: boolean
   customerName: string | null
   customerEmail: string | null
+  customerPhone: string | null
+  inquiryId: number | null
   preview: string | null
 }
 
-/** 관리자 목록: 최근 대화 순 100개, 고객 이름·이메일, 마지막 메시지 미리보기(한국어 우선) */
-export async function listThreadsForAdmin(payload: Payload): Promise<ThreadListItem[]> {
-  const { docs: threads } = await payload.find({ collection: 'chat-threads', sort: '-lastMessageAt', limit: 100, depth: 0, overrideAccess: true })
+const relId = (v: number | { id: number } | null | undefined): number | null => (v == null ? null : typeof v === 'object' ? v.id : v)
+
+/** 관리자 목록·방 머리글: 고객 이름·이메일(비회원은 방에 적힌 값), 마지막 메시지 미리보기(한국어 우선) */
+export async function adminThreadItems(payload: Payload, threads: ChatThread[]): Promise<ThreadListItem[]> {
   if (threads.length === 0) return []
-  const ids = threads.map((t) => (typeof t.customer === 'object' ? t.customer.id : t.customer))
-  const { docs: users } = await payload.find({
-    collection: 'users',
-    where: { id: { in: ids } },
-    limit: ids.length,
-    depth: 0,
-    select: { name: true, email: true },
-    overrideAccess: true,
-  })
+  const ids = [...new Set(threads.map((t) => relId(t.customer)).filter((id): id is number => id !== null))]
+  const users = ids.length
+    ? (await payload.find({ collection: 'users', where: { id: { in: ids } }, limit: ids.length, depth: 0, select: { name: true, email: true, phone: true }, overrideAccess: true })).docs
+    : []
   const byId = new Map(users.map((u) => [u.id, u]))
   const lasts = await Promise.all(
     threads.map((t) => payload.find({ collection: 'chat-messages', where: { thread: { equals: t.id } }, sort: '-id', limit: 1, depth: 0, overrideAccess: true })),
   )
   return threads.map((t, i) => {
-    const u = byId.get(ids[i] as number)
+    const customerId = relId(t.customer)
+    const u = customerId !== null ? byId.get(customerId) : undefined
     const last = lasts[i]?.docs[0]
     const text = last ? (last.translationStatus === 'ok' && last.translatedLang === 'KO' && last.translatedBody ? last.translatedBody : last.body) : null
+    const guest = customerId === null
     return {
       ...threadView(t),
-      customerName: (u?.name as string | undefined) ?? null,
-      customerEmail: (u?.email as string | undefined) ?? null,
+      guest,
+      customerName: guest ? (t.guestName ?? null) : ((u?.name as string | undefined) ?? null),
+      customerEmail: guest ? (t.guestEmail ?? null) : ((u?.email as string | undefined) ?? null),
+      customerPhone: guest ? (t.guestPhone ?? null) : ((u?.phone as string | undefined) ?? null),
+      inquiryId: relId(t.inquiry),
       preview: text ? text.slice(0, 80) : null,
     }
   })
+}
+
+/** 관리자 목록: 최근 대화 순 100개 */
+export async function listThreadsForAdmin(payload: Payload): Promise<ThreadListItem[]> {
+  const { docs: threads } = await payload.find({ collection: 'chat-threads', sort: '-lastMessageAt', limit: 100, depth: 0, overrideAccess: true })
+  return adminThreadItems(payload, threads)
+}
+
+/** 비회원 방을 만든다. 토큰이 없으면(관리자가 문의에서 연 방) 링크를 발급하기 전까지 고객은 들어올 수 없다 */
+export async function createGuestThread(
+  payload: Payload,
+  data: { name: string; email: string; phone: string; locale: ChatLocale; token?: string; ipHash?: string; consentAt?: string; inquiryId?: number },
+): Promise<ChatThread> {
+  return payload.create({
+    collection: 'chat-threads',
+    data: {
+      guestName: data.name,
+      guestEmail: data.email,
+      guestPhone: data.phone,
+      guestTokenHash: data.token ? hashGuestToken(data.token) : null,
+      guestIpHash: data.ipHash ?? null,
+      guestPrivacyConsentAt: data.consentAt ?? null,
+      inquiry: data.inquiryId ?? null,
+      locale: data.locale,
+      status: 'open',
+      unreadForAdmin: 0,
+      unreadForCustomer: 0,
+    },
+    overrideAccess: true,
+  })
+}
+
+/** 비회원 방의 토큰을 새로 만든다. 해시를 바꿔 끼우므로 이전 링크·이전 쿠키는 즉시 끊긴다. 원문은 호출자에게 한 번만 */
+export async function rotateGuestToken(payload: Payload, threadId: number): Promise<string> {
+  const token = generateGuestToken()
+  await payload.update({ collection: 'chat-threads', id: threadId, data: { guestTokenHash: hashGuestToken(token) }, overrideAccess: true })
+  return token
+}
+
+/**
+ * 관리자 "채팅 열기"(문의 카드). 회원 문의면 그 회원의 방(없으면 문의 언어로 만든다),
+ * 비회원 문의면 문의 하나당 비회원 방 하나(inquiry unique) — 이름·이메일·연락처는 문의에서 가져온다.
+ */
+export async function openThreadForInquiry(payload: Payload, inquiryId: number): Promise<ChatThread | null> {
+  let inquiry
+  try {
+    inquiry = await payload.findByID({ collection: 'inquiries', id: inquiryId, depth: 0, overrideAccess: true })
+  } catch {
+    return null
+  }
+  const locale = toChatLocale(inquiry.locale)
+  const customerId = relId(inquiry.customer as number | { id: number } | null | undefined)
+  if (customerId !== null) return getOrCreateOwnThread(payload, customerId, locale)
+  const find = async () =>
+    (await payload.find({ collection: 'chat-threads', where: { inquiry: { equals: inquiryId } }, limit: 1, depth: 0, overrideAccess: true })).docs[0] ?? null
+  const found = await find()
+  if (found) return found
+  try {
+    return await createGuestThread(payload, { name: inquiry.name, email: inquiry.email, phone: inquiry.phone, locale, inquiryId })
+  } catch (err) {
+    // 두 관리자가 동시에 누르면 inquiry unique 에 걸린다 — 먼저 만들어진 방을 쓴다
+    const again = await find()
+    if (again) return again
+    throw err
+  }
 }
 
 export async function countUnreadThreads(payload: Payload): Promise<number> {
