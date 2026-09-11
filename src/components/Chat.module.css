@@ -38,7 +38,7 @@
 .error { margin: 0; font-size: 14px; color: #c62828; }
 
 /* [v2] 12-B 비회원 시작 폼(285:2). 카드 가운데 최대 540px 폼. 입력·동의 칸 모양은 InquiryQuote.module.css 를 같이 쓴다 */
-.start { max-height: none; overflow: visible; align-items: center; padding: 40px 24px; }
+.card.start { max-height: none; overflow: visible; align-items: center; padding: 40px 24px; }
 .startForm { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 540px; }
 .startTitle { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.5; color: #0b0b0c; }
 .startDesc { margin: 0 0 4px; font-size: 14px; line-height: 1.6; color: #767b85; }
@@ -47,7 +47,7 @@
 .startHint a { color: #3d4046; text-decoration: none; font-weight: 700; }
 
 @media (max-width: 767px) {
-  .start { padding: 24px 16px; }
+  .card.start { max-height: none; padding: 24px 16px; }
   .startTitle { font-size: 18px; }
   .startDesc, .startHint { font-size: 13px; }
   .page { gap: 14px; padding-block: 20px; }
