@@ -5,11 +5,13 @@ import { authedPayload } from '@/lib/admin/orders-data'
 import { formatDateTime } from '@/lib/admin/format'
 import { countryText, firstLine, inquiryNumber, inquiryStatus } from '@/lib/admin/inquiry-display'
 import { Badge } from '@/components/ui'
+import { AdminChat } from '@/components/admin/AdminChat'
+import { countUnreadThreads } from '@/lib/chat/service'
 import s from './inquiries.module.css'
 
-/** [v2] A9 문의·채팅. 기타 광고 문의 목록(최신순). 1:1 채팅은 Q37 이후 */
+/** [v2] A9 문의·채팅. 기타 광고 문의 목록(최신순) · 1:1 채팅(?tab=chat, 큐 Q37) */
 const PAGE_SIZE = 20
-type Props = { searchParams: Promise<{ page?: string }> }
+type Props = { searchParams: Promise<{ page?: string; tab?: string }> }
 
 export default async function InquiriesPage({ searchParams }: Props) {
   try {
@@ -19,8 +21,11 @@ export default async function InquiriesPage({ searchParams }: Props) {
     throw err
   }
 
-  const page = Math.max(1, Number.parseInt((await searchParams).page ?? '1', 10) || 1)
+  const sp = await searchParams
+  const tab = sp.tab === 'chat' ? 'chat' : 'inquiries'
+  const page = Math.max(1, Number.parseInt(sp.page ?? '1', 10) || 1)
   const { payload, user } = await authedPayload()
+  const unreadChats = await countUnreadThreads(payload)
   const { docs, totalDocs, totalPages } = await payload.find({
     collection: 'inquiries',
     sort: '-createdAt',
@@ -34,15 +39,18 @@ export default async function InquiriesPage({ searchParams }: Props) {
   return (
     <div className={s.page}>
       <h1 className={s.title}>문의 · 채팅</h1>
-      <div className={s.tabs} role="tablist">
-        <span className={`${s.tab} ${s.tabActive}`} role="tab" aria-selected="true">
+      <nav className={s.tabs} aria-label="문의 종류">
+        <Link href="/manage/inquiries" className={tab === 'inquiries' ? `${s.tab} ${s.tabActive}` : s.tab} aria-current={tab === 'inquiries' ? 'page' : undefined}>
           기타 광고 문의 <span className={s.tabCount}>{totalDocs}</span>
-        </span>
-        <span className={`${s.tab} ${s.tabDisabled}`} role="tab" aria-selected="false" aria-disabled="true" title="준비 중 — Q37">
-          1:1 채팅 <span className={s.tabCount}>준비 중 — Q37</span>
-        </span>
-      </div>
+        </Link>
+        <Link href="/manage/inquiries?tab=chat" className={tab === 'chat' ? `${s.tab} ${s.tabActive}` : s.tab} aria-current={tab === 'chat' ? 'page' : undefined}>
+          1:1 채팅 <span className={s.tabCount}>{unreadChats}</span>
+        </Link>
+      </nav>
 
+      {tab === 'chat' ? <AdminChat /> : null}
+      {tab === 'inquiries' ? (
+      <>
       <section className={s.card}>
         {docs.length === 0 ? <p className={s.muted}>접수된 문의가 없습니다.</p> : null}
         {docs.map((d) => {
@@ -82,6 +90,8 @@ export default async function InquiriesPage({ searchParams }: Props) {
           </span>
           {page < totalPages ? <Link href={`?page=${page + 1}`} className="btn btn-outline">다음</Link> : null}
         </nav>
+      ) : null}
+      </>
       ) : null}
     </div>
   )

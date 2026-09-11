@@ -35,7 +35,7 @@ async function loadDashboard() {
   const opts = { user, overrideAccess: false } as const
   const { today, month } = seoulBoundaries()
 
-  const [todayOrders, awaiting, newInquiries, monthOrders, recent] = await Promise.all([
+  const [todayOrders, awaiting, newInquiries, monthOrders, recent, unreadChats] = await Promise.all([
     payload.count({ collection: 'orders', where: { createdAt: { greater_than_equal: today } }, ...opts }),
     payload.count({ collection: 'orders', where: { status: { equals: 'paid' } }, ...opts }),
     payload.count({ collection: 'inquiries', where: { status: { equals: 'new' } }, ...opts }),
@@ -48,6 +48,8 @@ async function loadDashboard() {
       ...opts,
     }),
     payload.find({ collection: 'orders', sort: '-createdAt', limit: 5, depth: 0, ...opts }),
+    // 채팅 컬렉션은 REST 가 전부 닫혀 있어 세션 권한으로는 못 읽는다 — 게이트는 layout 이 이미 했다
+    payload.count({ collection: 'chat-threads', where: { unreadForAdmin: { greater_than: 0 } }, overrideAccess: true }),
   ])
 
   let revenueKrw = 0
@@ -60,6 +62,7 @@ async function loadDashboard() {
     todayOrders: todayOrders.totalDocs,
     awaiting: awaiting.totalDocs,
     newInquiries: newInquiries.totalDocs,
+    unreadChats: unreadChats.totalDocs,
     revenueKrw,
     jpyCount,
     recent: recent.docs,
@@ -84,6 +87,7 @@ export default async function ManageDashboard() {
   const checks = [
     d.awaiting > 0 ? { href: '/manage/orders?status=paid', text: `접수 확인이 안 된 주문 ${d.awaiting}건이 있습니다` } : null,
     d.newInquiries > 0 ? { href: '/manage/inquiries', text: `답변을 기다리는 새 문의 ${d.newInquiries}건이 있습니다` } : null,
+    d.unreadChats > 0 ? { href: '/manage/inquiries?tab=chat', text: `읽지 않은 1:1 채팅 ${d.unreadChats}건이 있습니다` } : null,
   ].filter((c): c is { href: string; text: string } => c !== null)
 
   return (

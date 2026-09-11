@@ -1,0 +1,56 @@
+/* [v2] 12 1:1 채팅 — 232:418 PC / 232:489 Mobile. 관리자 채팅 화면도 말풍선·입력줄을 같이 쓴다 */
+.page { display: flex; flex-direction: column; gap: 20px; padding-block: 32px; }
+.head { display: flex; align-items: center; gap: 12px; }
+.title { flex: 1; min-width: 0; margin: 0; font-size: 32px; font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; color: #0b0b0c; }
+.badge { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 1px solid #eceef1; border-radius: 999px; background: #fff; font-size: 14px; font-weight: 700; line-height: 1.5; color: #005afa; white-space: nowrap; }
+.badge img { width: 16px; height: 16px; flex: none; display: block; }
+
+.card { display: flex; flex-direction: column; gap: 16px; padding: 24px; border: 1px solid #eceef1; border-radius: 16px; background: #fff; min-height: 240px; max-height: min(64vh, 720px); overflow-y: auto; }
+.empty { margin: auto 0; text-align: center; font-size: 14px; color: #767b85; }
+
+.dayRow { display: flex; justify-content: center; }
+.day { padding: 6px 12px; border-radius: 999px; background: #f7f8fa; font-size: 13px; line-height: 1.5; color: #767b85; }
+
+.row { display: flex; align-items: center; }
+.rowMine { justify-content: flex-end; }
+.bubble { display: flex; flex-direction: column; gap: 6px; width: 520px; max-width: 80%; padding: 14px 18px; border-radius: 16px; background: #f7f8fa; }
+.primary { margin: 0; font-size: 16px; line-height: 1.5; color: #0b0b0c; white-space: pre-wrap; overflow-wrap: anywhere; }
+.rule { display: block; height: 1px; background: #eceef1; }
+.secondary { margin: 0; font-size: 14px; line-height: 1.5; color: #767b85; white-space: pre-wrap; overflow-wrap: anywhere; }
+.bubbleMine { background: #005afa; }
+.bubbleMine .primary { color: #fff; }
+.bubbleMine .rule { background: #3d7bff; }
+.bubbleMine .secondary { color: #c7d8ff; }
+.time { font-size: 12px; line-height: 1.5; color: #a3a8b0; }
+/* 말풍선과 시각은 붙어 보여야 한다(시안은 말풍선·시각 사이 간격이 없다) */
+.row + .row { margin-top: -16px; }
+
+.composer { display: flex; align-items: center; gap: 10px; padding: 12px 18px; border: 1px solid #eceef1; border-radius: 16px; background: #fff; }
+.attach { display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; flex: none; border: 0; border-radius: 12px; background: #f7f8fa; cursor: not-allowed; }
+.attach img { width: 18px; height: 18px; display: block; }
+.input { flex: 1; min-width: 0; height: 44px; padding: 10px 16px; border: 0; border-radius: 12px; background: #f7f8fa; font: inherit; font-size: 16px; line-height: 1.5; color: #0b0b0c; resize: none; }
+.input::placeholder { color: #a3a8b0; }
+.send { height: 44px; padding: 0 18px; flex: none; border: 0; border-radius: 12px; background: #005afa; font: inherit; font-size: 15px; font-weight: 700; color: #fff; cursor: pointer; }
+.send:disabled { opacity: 0.45; cursor: not-allowed; }
+
+.notice { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 12px; background: #fff; font-size: 14px; line-height: 1.5; color: #767b85; }
+.notice p { margin: 0; }
+.error { margin: 0; font-size: 14px; color: #c62828; }
+
+@media (max-width: 767px) {
+  .page { gap: 14px; padding-block: 20px; }
+  .title { font-size: 22px; }
+  .badge { font-size: 11px; }
+  .card { gap: 12px; padding: 16px 14px; max-height: 60vh; }
+  .row + .row { margin-top: -12px; }
+  .bubble { width: 280px; padding: 12px 14px; }
+  .primary { font-size: 13px; }
+  .secondary { font-size: 12px; }
+  .day { font-size: 11px; }
+  .time { font-size: 10px; }
+  .composer { padding: 10px 12px; }
+  .attach { width: 38px; height: 38px; }
+  .input { height: 38px; padding: 8px 16px; font-size: 16px; }
+  .send { height: 38px; font-size: 13px; }
+  .notice { font-size: 12px; }
+}

@@ -23,6 +23,8 @@ import { AdminInvites } from './collections/AdminInvites'
 import { BrandAssets } from './collections/BrandAssets'
 import { LegalDocuments } from './collections/LegalDocuments'
 import { LegalRevisions } from './collections/LegalRevisions'
+import { ChatThreads } from './collections/ChatThreads'
+import { ChatMessages } from './collections/ChatMessages'
 import { CompanySettings } from './globals/CompanySettings'
 import { PricingSettings } from './globals/PricingSettings'
 
@@ -49,6 +51,8 @@ export default buildConfig({
     BrandAssets,
     LegalDocuments,
     LegalRevisions,
+    ChatThreads,
+    ChatMessages,
   ],
   globals: [PricingSettings, CompanySettings],
   editor: lexicalEditor(),
