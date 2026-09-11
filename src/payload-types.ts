@@ -80,6 +80,7 @@ export interface Config {
     'admin-login-logs': AdminLoginLog;
     'admin-invites': AdminInvite;
     'brand-assets': BrandAsset;
+    'band-images': BandImage;
     'legal-documents': LegalDocument;
     'legal-revisions': LegalRevision;
     'payload-kv': PayloadKv;
@@ -102,6 +103,7 @@ export interface Config {
     'admin-login-logs': AdminLoginLogsSelect<false> | AdminLoginLogsSelect<true>;
     'admin-invites': AdminInvitesSelect<false> | AdminInvitesSelect<true>;
     'brand-assets': BrandAssetsSelect<false> | BrandAssetsSelect<true>;
+    'band-images': BandImagesSelect<false> | BandImagesSelect<true>;
     'legal-documents': LegalDocumentsSelect<false> | LegalDocumentsSelect<true>;
     'legal-revisions': LegalRevisionsSelect<false> | LegalRevisionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
@@ -442,6 +444,28 @@ export interface AdminInvite {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "band-images".
+ */
+export interface BandImage {
+  id: number;
+  slot: 'category-1' | 'category-2' | 'category-3' | 'category-4' | 'category-5';
+  altKo?: string | null;
+  altJa?: string | null;
+  prefix?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "legal-documents".
  */
 export interface LegalDocument {
@@ -554,6 +578,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'brand-assets';
         value: number | BrandAsset;
+      } | null)
+    | ({
+        relationTo: 'band-images';
+        value: number | BandImage;
       } | null)
     | ({
         relationTo: 'legal-documents';
@@ -866,6 +894,27 @@ export interface AdminInvitesSelect<T extends boolean = true> {
  */
 export interface BrandAssetsSelect<T extends boolean = true> {
   kind?: T;
+  prefix?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "band-images_select".
+ */
+export interface BandImagesSelect<T extends boolean = true> {
+  slot?: T;
+  altKo?: T;
+  altJa?: T;
   prefix?: T;
   updatedAt?: T;
   createdAt?: T;

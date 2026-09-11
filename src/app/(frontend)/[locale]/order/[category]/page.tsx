@@ -77,7 +77,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
   return (
     <main>
-      <ImageBand slot={`category-${def.no}`} />
+      <ImageBand slot={`category-${def.no}`} locale={locale} />
 
       {def.no !== 5 ? (
         <>

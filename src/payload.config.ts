@@ -21,6 +21,7 @@ import { Quotes } from './collections/Quotes'
 import { AdminLoginLogs } from './collections/AdminLoginLogs'
 import { AdminInvites } from './collections/AdminInvites'
 import { BrandAssets } from './collections/BrandAssets'
+import { BandImages } from './collections/BandImages'
 import { LegalDocuments } from './collections/LegalDocuments'
 import { LegalRevisions } from './collections/LegalRevisions'
 import { CompanySettings } from './globals/CompanySettings'
@@ -47,6 +48,7 @@ export default buildConfig({
     AdminLoginLogs,
     AdminInvites,
     BrandAssets,
+    BandImages,
     LegalDocuments,
     LegalRevisions,
   ],
@@ -68,6 +70,7 @@ export default buildConfig({
       collections: {
         'inquiry-files': { prefix: S3_PREFIX['inquiry-files'] },
         'brand-assets': { prefix: S3_PREFIX['brand-assets'] },
+        'band-images': { prefix: S3_PREFIX['band-images'] },
       },
     }),
   ],
