@@ -68,7 +68,7 @@ export function InstallBanner({ labels }: { labels: Labels }) {
     <div
       role="region"
       aria-label={labels.title}
-      style={{ position: 'fixed', left: 12, right: 12, bottom: 12, zIndex: 50, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', fontSize: 14 }}
+      style={{ position: 'fixed', left: 12, right: 12, bottom: 'calc(var(--tabbar-offset, 0px) + 12px)', zIndex: 50, display: 'flex', alignItems: 'center', gap: 12, padding: '12px 14px', borderRadius: 12, background: '#FFFFFF', boxShadow: '0 4px 20px rgba(0,0,0,0.15)', fontSize: 14 }}
     >
       <img src="/icons/icon-192.png" alt="" width={36} height={36} style={{ borderRadius: 8 }} />
       <div style={{ flex: 1 }}>

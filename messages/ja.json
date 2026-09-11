@@ -1,12 +1,12 @@
 {
   "_note": "일본어는 초벌 번역이며 대표님 검수 전입니다. 검수 후 이 노트를 지워주세요.",
   "cover": {
-    "title": "広告見積もりをすぐに受け取る",
-    "subtitle": "国と目的を選び、希望の広告サービスを選ぶとすぐにフォームへ移動します",
-    "stepCountry": "広告する国を選択してください",
-    "stepCountryHint": "重複選択可能",
-    "stepPurpose": "広告の目的を選択してください",
-    "stepService": "広告サービスを選択してください",
+    "title": "日本進出をサポートします",
+    "subtitle": "ショートカットマーケティングサービス · ログインなしですぐに見積もりを確認し、お支払いいただけます。",
+    "stepCountry": "広告する国",
+    "stepCountryHint": "複数選択できます",
+    "stepPurpose": "広告の目的",
+    "stepService": "広告サービス",
     "countryRequired": "先に国を選択してください",
     "countries": {
       "jp": "日本",
@@ -19,7 +19,9 @@
       "medical": "病院・医療",
       "event": "イベント",
       "etc": "その他"
-    }
+    },
+    "badge": "KJ アユタ AYUTA",
+    "stepServiceHint": "1つだけ選択できます。選択するとすぐ次の画面へ移動します"
   },
   "categories": {
     "digital-sns": "デジタル / SNS 広告",
@@ -304,5 +306,16 @@
     "termsTitle": "利用規約",
     "privacyTitle": "個人情報処理方針",
     "notReady": "ただいま準備中です。ご不明な点はお問い合わせください。"
+  },
+  "contact": {
+    "title": "ご不明な点はございますか？",
+    "hours": "平日 09:00〜18:00 · 昼休み 12:00〜13:00 · 土日祝休み",
+    "chat": "1:1チャットで問い合わせ"
+  },
+  "tabs": {
+    "home": "ホーム",
+    "call": "電話相談",
+    "chat": "1:1チャット",
+    "mypage": "マイページ"
   }
 }
