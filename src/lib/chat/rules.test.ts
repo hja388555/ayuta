@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { bubbleText, cleanBody, isRateLimited, rateWindowStart, targetLang, toChatLocale } from './rules'
+import { bubbleText, cleanBody, fallbackTarget, isRateLimited, rateWindowStart, targetLang, toChatLocale } from './rules'
 
 describe('cleanBody', () => {
   it('제어 문자를 지우고 줄바꿈은 남긴다', () => {
@@ -45,5 +45,21 @@ describe('bubbleText', () => {
   it('번역이 없거나 실패면 원문만', () => {
     expect(bubbleText({ ...adminToJa, translationStatus: 'failed' }, 'ja')).toEqual({ primary: '안녕하세요', secondary: null })
     expect(bubbleText({ body: 'x', translationStatus: 'skipped' }, 'ko')).toEqual({ primary: 'x', secondary: null })
+  })
+})
+
+describe('fallbackTarget', () => {
+  it('일본어 방에서 관리자가 일본어로 쓰면(감지 JA = 목표 JA) 한국어로 번역한다', () => {
+    expect(fallbackTarget('ja', 'JA', 'JA')).toBe('KO')
+  })
+  it('일본어 방에서 고객이 한국어로 쓰면(감지 KO = 목표 KO) 일본어로 번역한다', () => {
+    expect(fallbackTarget('ja', 'KO', 'ko')).toBe('JA')
+  })
+  it('감지 언어가 목표와 다르거나 모르면 다시 번역하지 않는다', () => {
+    expect(fallbackTarget('ja', 'KO', 'JA')).toBeNull()
+    expect(fallbackTarget('ja', 'KO', null)).toBeNull()
+  })
+  it('한국어 방은 다시 번역하지 않는다', () => {
+    expect(fallbackTarget('ko', 'KO', 'KO')).toBeNull()
   })
 })

@@ -72,8 +72,8 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
           <div style={{ padding: '32px 0 64px' }}>
             <h1 style={{ fontSize: 'var(--fs-h1)' }}>{t('noContractTitle')}</h1>
             <p style={{ marginTop: 12, color: 'var(--ink-500)' }}>{t('noContractBody')}</p>
-            {/* 1:1 문의 화면은 이 계획 밖이다(Q14) — 지금은 안내 문구만 노출하고 결제로 보내지 않는다 */}
-            <a href={`/${locale}/order/other?type=${def.slug}`} style={{ display: 'inline-block', marginTop: 24 }}>
+            {/* "1:1 문의"는 기타 광고 문의 폼이 아니라 1:1 채팅으로 연다(Q40). 비로그인은 채팅 화면이 로그인으로 보낸다 */}
+            <a href={`/${locale}/chat`} style={{ display: 'inline-block', marginTop: 24 }}>
               {t('inquiryLink')}
             </a>
           </div>

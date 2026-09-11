@@ -4,7 +4,7 @@ import { getPayload, type Payload } from 'payload'
 import config from '@payload-config'
 import { AuthError, requireAdmin, requireUser, type SessionUser } from '@/lib/dal'
 import type { ChatMessage, ChatThread } from '@/payload-types'
-import { cleanBody, isRateLimited, rateWindowStart, targetLang, toChatLocale, type ChatLocale } from './rules'
+import { cleanBody, fallbackTarget, isRateLimited, rateWindowStart, targetLang, toChatLocale, type ChatLocale } from './rules'
 import { translate } from './translate'
 
 /**
@@ -129,7 +129,10 @@ export async function sendMessage(payload: Payload, thread: ChatThread, sender: 
 
   const locale = toChatLocale(thread.locale)
   const target = targetLang(sender, locale)
-  const tr = target ? await translate(body, target) : null
+  let tr = target ? await translate(body, target) : null
+  // 원문이 이미 목표 언어면(예: 일본어 방에서 관리자가 일본어로 씀) 반대 언어로 한 번 더 번역한다
+  const retry = target && tr?.status === 'skipped' ? fallbackTarget(locale, target, tr.sourceLang) : null
+  if (retry) tr = await translate(body, retry)
   const message = await payload.create({
     collection: 'chat-messages',
     data: {

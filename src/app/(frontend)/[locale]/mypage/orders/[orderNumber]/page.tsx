@@ -137,7 +137,7 @@ export default async function OrderDetailPage({ params }: Props) {
         </div>
         <p id="od-refund-soon" className={s.linkRow}>
           <span>{t('detail.refundSoon')}</span>
-          <Link href={`/${locale}/order/other`}>{t('detail.inquiry')}</Link>
+          <Link href={`/${locale}/chat`}>{t('detail.inquiry')}</Link>
         </p>
       </section>
     </>

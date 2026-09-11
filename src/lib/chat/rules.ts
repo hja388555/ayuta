@@ -33,6 +33,17 @@ export function targetLang(sender: 'customer' | 'admin', threadLocale: ChatLocal
   return threadLocale === 'ja' ? 'JA' : null
 }
 
+/**
+ * 원문이 이미 목표 언어였을 때(DeepL 감지 = 목표) 대신 번역할 언어. null 이면 번역하지 않는다.
+ * 일본어 방은 누가 어느 언어로 쓰든 반대 언어 번역이 함께 붙어야 한다(2026-09-12 사용자 요청) —
+ * 관리자가 일본어로 쓰면 한국어로, 고객이 한국어로 쓰면 일본어로. 한국어 방은 지금처럼 번역하지 않는다.
+ */
+export function fallbackTarget(threadLocale: ChatLocale, first: DeeplLang, detected: string | null): DeeplLang | null {
+  if (threadLocale !== 'ja') return null
+  if ((detected ?? '').toUpperCase() !== first) return null
+  return first === 'KO' ? 'JA' : 'KO'
+}
+
 /** 최근 1분 동안 보낸 수가 한도에 닿았는지 */
 export const isRateLimited = (recentCount: number, limit = RATE_LIMIT) => recentCount >= limit
 export const rateWindowStart = (now = new Date()) => new Date(now.getTime() - RATE_WINDOW_MS)

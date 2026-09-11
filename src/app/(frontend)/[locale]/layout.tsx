@@ -67,7 +67,7 @@ export default async function LocaleLayout({
         loggedIn={Boolean(user)}
         isAdmin={Boolean(user && isAdminRole(user.role))}
         phone={footerInfo.phone}
-        labels={{ home: t('home'), inquiry: t('inquiry'), login: t('login'), signup: t('signup'), mypage: t('mypage'), logout: t('logout'), admin: t('admin') }}
+        labels={{ home: t('home'), inquiry: t('inquiry'), login: t('login'), signup: t('signup'), mypage: t('mypage'), logout: t('logout'), admin: t('admin'), chatLoginBody1: tChat('loginBody1'), chatLoginBody2: tChat('loginBody2') }}
       />
       {children}
       {/* 본문 하단 문의 박스 — 모든 고객 화면 공통(큐 Q32, Figma [v2] 205:102) */}
