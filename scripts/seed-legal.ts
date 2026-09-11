@@ -2,10 +2,13 @@
 // 원문 출처: 로컬 docs/법무문서-확정본.md A절(대표님 확정본) — 문구를 고치지 않고 그대로 옮긴다.
 // 이미 행이 있으면 건너뛴다 — 관리자가 화면에서 고친 문구를 시드가 덮어쓰면 안 된다.
 //
+// 환불 및 취소 정책(ko)은 E절 원문(src/lib/legal/refund-policy.ts)을 넣는다. 일본어판은 아직 없다.
+//
 // 개인정보처리방침과 일본어 이용약관은 원문을 아직 받지 못했다. 시드하지 않는다 —
 // 공개 화면은 "준비 중"을 보이고, 받으면 관리자 화면(/manage/legal)에서 넣는다.
 import { getPayload } from 'payload'
 import config from '../src/payload.config.js'
+import { REFUND_KO_BODY, REFUND_KO_TITLE } from '../src/lib/legal/refund-policy.js'
 
 const TERMS_KO_BODY = `제1조 목적
 본 약관은 아유타가 운영하는 사이트 및 관련 서비스 이용에 필요한 기본사항을 정하는 것을 목적으로 합니다.
@@ -43,6 +46,18 @@ const main = async () => {
   } else {
     await payload.create({ collection: 'legal-documents', data: { kind: 'terms', locale: 'ko', title: '이용약관', body: TERMS_KO_BODY }, overrideAccess: true })
     console.log('이용약관(ko) 생성')
+  }
+  const refund = await payload.find({
+    collection: 'legal-documents',
+    where: { and: [{ kind: { equals: 'refund' } }, { locale: { equals: 'ko' } }] },
+    limit: 1,
+    overrideAccess: true,
+  })
+  if (refund.docs[0]) {
+    console.log('환불 및 취소 정책(ko) 이미 있음 — 건너뜀')
+  } else {
+    await payload.create({ collection: 'legal-documents', data: { kind: 'refund', locale: 'ko', title: REFUND_KO_TITLE, body: REFUND_KO_BODY }, overrideAccess: true })
+    console.log('환불 및 취소 정책(ko) 생성')
   }
   await payload.destroy()
 }

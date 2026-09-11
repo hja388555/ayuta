@@ -429,7 +429,7 @@ export interface AdminLoginLog {
  */
 export interface LegalDocument {
   id: number;
-  kind: 'terms' | 'privacy';
+  kind: 'terms' | 'privacy' | 'refund';
   locale: 'ko' | 'ja';
   title: string;
   body: string;

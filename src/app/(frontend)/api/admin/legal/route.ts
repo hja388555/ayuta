@@ -5,7 +5,7 @@ import { requireSuperForApi } from '@/lib/admin/require-super'
 import { unknownPlaceholders } from '@/lib/legal/placeholders'
 
 /**
- * 계약서·이용약관·개인정보처리방침 문구 저장. 최고관리자만(큐 Q25 2차).
+ * 계약서·이용약관·개인정보처리방침·환불 및 취소 정책 문구 저장. 최고관리자만(큐 Q25 2차).
  * 이미 체결된 계약서는 주문에 원문이 복사돼 있어(orders.contractText) 여기서 바꿔도 바뀌지 않는다.
  * 저장할 때마다 legal-revisions 에 이력이 남는다(컬렉션 훅).
  *
@@ -16,7 +16,7 @@ const Text = { title: z.string().trim().min(1).max(200), body: z.string().min(1)
 const ConsentLabel = z.object({ key: z.string().min(1).max(50), label: z.string().trim().min(1).max(300) }).strict()
 const BodySchema = z.discriminatedUnion('target', [
   z.object({ target: z.literal('contract'), id: z.number().int().positive(), ...Text, consents: z.array(ConsentLabel).max(20).optional() }).strict(),
-  z.object({ target: z.literal('document'), kind: z.enum(['terms', 'privacy']), locale: z.enum(['ko', 'ja']), ...Text }).strict(),
+  z.object({ target: z.literal('document'), kind: z.enum(['terms', 'privacy', 'refund']), locale: z.enum(['ko', 'ja']), ...Text }).strict(),
 ])
 
 type StoredConsent = { key: string; label: string; required: boolean }

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
 import { button, errorBox, input } from './styles'
 
-type Target = { target: 'contract'; id: number } | { target: 'document'; kind: 'terms' | 'privacy'; locale: 'ko' | 'ja' }
+type Target = { target: 'contract'; id: number } | { target: 'document'; kind: 'terms' | 'privacy' | 'refund'; locale: 'ko' | 'ja' }
 type Consent = { key: string; label: string; required: boolean }
 
 /**

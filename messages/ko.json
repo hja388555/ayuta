@@ -564,7 +564,8 @@
     "contact": "담당자",
     "mailOrder": "통신판매업신고",
     "terms": "이용약관",
-    "privacy": "개인정보처리방침"
+    "privacy": "개인정보처리방침",
+    "refund": "환불 및 취소 정책"
   },
   "seo": {
     "siteName": "AYUTA 아유타",
@@ -580,7 +581,18 @@
   "legal": {
     "termsTitle": "이용약관",
     "privacyTitle": "개인정보처리방침",
-    "notReady": "문서를 준비하고 있습니다. 궁금한 점은 고객센터로 문의해 주세요."
+    "notReady": "문서를 준비하고 있습니다. 궁금한 점은 고객센터로 문의해 주세요.",
+    "refundTitle": "환불 및 취소 정책",
+    "revised": "최종 개정 {date}",
+    "toc": "목차",
+    "modalHint": "스크롤하여 전문을 확인하실 수 있습니다",
+    "agreeAndClose": "동의하고 닫기",
+    "close": "닫기",
+    "loading": "문서를 불러오는 중입니다.",
+    "loadFailed": "문서를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "agreeTerms": "서비스 이용 약관에 동의 합니다.",
+    "agreePrivacy": "개인정보 수집·이용에 동의합니다.",
+    "agreeRefund": "취소·환불 조건을 확인하고 동의합니다."
   },
   "contact": {
     "title": "궁금한 점이 있으신가요?",

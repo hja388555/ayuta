@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { passwordIssue, PASSWORD_MAX, PASSWORD_MIN } from '@/lib/password-policy'
 import { AddressSearch } from './AddressSearch'
+import { LegalConsentModal, type LegalKind } from './LegalConsentModal'
 import s from './Auth.module.css'
 
 export type SignupLabels = Record<
@@ -39,6 +40,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
   const [c, setC] = useState<Consents>({ age: false, terms: false, privacy: false, marketing: false })
   const [fieldErr, setFieldErr] = useState<Partial<Record<keyof Form, string>>>({})
   const [busy, setBusy] = useState(false)
+  const [viewing, setViewing] = useState<LegalKind | null>(null)
   const [error, setError] = useState<string | null>(null)
   const msg = (code: string) => labels.errors[code] ?? labels.errors.generic ?? ''
   const allOn = c.age && c.terms && c.privacy && c.marketing
@@ -134,9 +136,19 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
         <span className="choice-box" aria-hidden />
         <span>{text}</span>
       </label>
-      {/* 동의 전에 원문을 볼 수 있어야 한다. 새 탭 — 입력 중인 가입 양식이 날아가지 않게 */}
+      {/* 동의 전에 원문을 볼 수 있어야 한다. 모달(v2 13-A) — 입력 중인 가입 양식이 날아가지 않게. 링크는 JS 없을 때의 대비 */}
       {href ? (
-        <a href={href} target="_blank" rel="noopener" className={s.view}>
+        <a
+          href={href}
+          target="_blank"
+          rel="noopener"
+          className={s.view}
+          onClick={(e) => {
+            if (key !== 'terms' && key !== 'privacy') return
+            e.preventDefault()
+            setViewing(key)
+          }}
+        >
           {labels.view}
         </a>
       ) : null}
@@ -193,6 +205,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
         {consent('privacy', labels.agreePrivacy, `/${locale}/privacy`)}
         {consent('marketing', labels.agreeMarketing)}
       </section>
+      <LegalConsentModal kind={viewing} locale={locale} onClose={() => setViewing(null)} onAgree={(k) => k !== 'refund' && setC((prev) => ({ ...prev, [k]: true }))} />
 
       {error ? (
         <p role="alert" className={s.banner}>

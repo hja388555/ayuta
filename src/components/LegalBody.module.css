@@ -1,0 +1,35 @@
+/* Figma [v2] 13-A · 13-C · 13-D */
+.body { display: flex; flex-direction: column; gap: 16px; color: var(--ink-700); font-size: 16px; line-height: 1.65; letter-spacing: -0.005em; }
+.pre { margin: 0; white-space: pre-line; word-break: keep-all; overflow-wrap: anywhere; }
+.para { color: var(--ink-700); }
+
+.heading { display: flex; align-items: center; gap: 10px; margin: 16px 0 -4px; font-size: 22px; line-height: 1.4; color: var(--ink-900); scroll-margin-top: 96px; }
+.badge { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 999px; background: var(--brand-600); color: #fff; font-size: 14px; font-weight: 700; }
+
+.callout { display: flex; flex-direction: column; gap: 10px; padding: 26px 28px; border-radius: 16px; background: var(--brand-50); color: var(--brand-900); }
+.calloutTitle { margin: 0; font-size: 20px; font-weight: 700; }
+
+.note { padding: 20px 24px; border-radius: 14px; background: #fffaeb; color: #b54708; }
+.closing { padding: 14px 16px; border-radius: 12px; background: var(--surface); color: var(--ink-900); font-weight: 700; }
+
+.toc { display: flex; flex-direction: column; gap: 10px; padding: 22px 24px; border-radius: 16px; background: var(--surface); }
+.tocTitle { margin: 0; font-size: 18px; font-weight: 700; color: var(--ink-900); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px 10px; }
+.chip { padding: 7px 12px; border-radius: 999px; background: #fff; color: var(--ink-700); font-size: 14px; text-decoration: none; }
+.chip:hover { color: var(--brand-600); }
+
+.tableWrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+.table { width: 100%; border-collapse: collapse; font-size: 16px; }
+.table th { padding: 16px 20px; background: var(--surface); text-align: left; font-weight: 700; color: var(--ink-700); }
+.table td { padding: 16px 20px; border-top: 1px solid var(--line); color: var(--ink-700); }
+
+/* 모달(13-A): 제목 18px, 문단 1.7 */
+.modal { gap: 6px; line-height: 1.7; }
+.modal .closing { margin-top: 16px; }
+.headingModal { margin: 16px 0 0; font-size: 18px; line-height: 1.4; color: var(--ink-900); }
+.modal .headingModal:first-child { margin-top: 0; }
+
+@media (max-width: 640px) {
+  .heading { font-size: 19px; }
+  .callout { padding: 20px; }
+}

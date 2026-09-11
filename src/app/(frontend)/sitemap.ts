@@ -10,8 +10,8 @@ import { siteUrl } from '@/lib/seo'
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl()
-  // 약관 두 문서(큐 Q25 2차)도 공개 페이지다 — 우선순위만 낮게
-  const paths = ['', ...CATEGORIES.map((c) => `/order/${c.slug}`), '/terms', '/privacy']
+  // 약관 세 문서(큐 Q25 2차, 환불 정책 v2 13-C)도 공개 페이지다 — 우선순위만 낮게
+  const paths = ['', ...CATEGORIES.map((c) => `/order/${c.slug}`), '/terms', '/privacy', '/refund']
   const abs = (p: string) => new URL(p, base).toString()
 
   return paths.flatMap((path) => {

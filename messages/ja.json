@@ -565,7 +565,8 @@
     "contact": "担当者",
     "mailOrder": "通信販売業届出",
     "terms": "利用規約",
-    "privacy": "個人情報処理方針"
+    "privacy": "個人情報処理方針",
+    "refund": "返金・キャンセルポリシー"
   },
   "seo": {
     "siteName": "AYUTA アユタ",
@@ -581,7 +582,18 @@
   "legal": {
     "termsTitle": "利用規約",
     "privacyTitle": "個人情報処理方針",
-    "notReady": "ただいま準備中です。ご不明な点はお問い合わせください。"
+    "notReady": "ただいま準備中です。ご不明な点はお問い合わせください。",
+    "refundTitle": "返金・キャンセルポリシー",
+    "revised": "最終改定 {date}",
+    "toc": "目次",
+    "modalHint": "スクロールして全文をご確認いただけます",
+    "agreeAndClose": "同意して閉じる",
+    "close": "閉じる",
+    "loading": "読み込み中です。",
+    "loadFailed": "文書を読み込めませんでした。しばらくしてから再度お試しください。",
+    "agreeTerms": "サービス利用規約に同意します。",
+    "agreePrivacy": "個人情報の収集・利用に同意します。",
+    "agreeRefund": "キャンセル・返金条件を確認し、同意します。"
   },
   "contact": {
     "title": "ご不明な点はございますか？",

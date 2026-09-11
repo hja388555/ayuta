@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { ChoiceCard, ChoiceGrid, StepTitle } from '@/components/ui'
+import { LegalConsentModal } from './LegalConsentModal'
 import s from './InquiryQuote.module.css'
 
 type Labels = {
@@ -57,6 +58,7 @@ export function InquiryForm({ locale, initialType, initialContact, labels }: Pro
   const [phone, setPhone] = useState(initialContact?.phone ?? '')
   const [email, setEmail] = useState(initialContact?.email ?? '')
   const [consent, setConsent] = useState(false)
+  const [viewPrivacy, setViewPrivacy] = useState(false)
   const [files, setFiles] = useState<File[]>([])
   const [dragging, setDragging] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -178,10 +180,20 @@ export function InquiryForm({ locale, initialType, initialContact, labels }: Pro
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} disabled={busy} required />
           <span className={s.checkBox} aria-hidden />
           <span className={s.checkText}>{labels.consent}</span>
-          <a className={s.viewLink} href={`/${locale}/privacy`} target="_blank" rel="noopener noreferrer">
+          <a
+            className={s.viewLink}
+            href={`/${locale}/privacy`}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.preventDefault()
+              setViewPrivacy(true)
+            }}
+          >
             {labels.consentView}
           </a>
         </label>
+        <LegalConsentModal kind={viewPrivacy ? 'privacy' : null} locale={locale} onClose={() => setViewPrivacy(false)} onAgree={() => setConsent(true)} />
       </section>
 
       <p className={s.notice}>{labels.notice}</p>
