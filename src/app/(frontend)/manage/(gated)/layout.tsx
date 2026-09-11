@@ -8,18 +8,21 @@
  * 앞으로 추가하는 관리자 페이지는 반드시 (gated) 안에 넣을 것.
  */
 import { notFound } from 'next/navigation'
-import { AuthError, requireAdmin } from '@/lib/dal'
+import { AdminShell } from '@/components/admin/AdminShell'
+import { AuthError, requireAdmin, type SessionUser } from '@/lib/dal'
 
 export const dynamic = 'force-dynamic'
 
 export default async function ManageLayout({ children }: { children: React.ReactNode }) {
+  let user: SessionUser
   try {
-    await requireAdmin()
+    user = await requireAdmin()
   } catch (err) {
     // 예상된 인증 실패(비로그인·비관리자)만 404로 감춘다
     if (err instanceof AuthError) notFound()
     // 그 외(DB 장애 등)는 그대로 올려보내 500으로 드러낸다
     throw err
   }
-  return <>{children}</>
+  // 셸은 게이트를 통과한 뒤에만 렌더한다 — 비관리자에게 메뉴 구조조차 내보내지 않는다
+  return <AdminShell user={user}>{children}</AdminShell>
 }

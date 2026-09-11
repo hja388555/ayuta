@@ -1,45 +1,166 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { AuthError, requireAdmin } from '@/lib/dal'
+import { Badge } from '@/components/ui'
+import { authedPayload } from '@/lib/admin/orders-data'
+import { statusTone } from '@/lib/mypage/status'
+import { statusLabel } from '@/lib/orders/transitions'
+import s from './dashboard.module.css'
 
-export default async function ManagePage() {
-  let user
-  try {
-    user = await requireAdmin()
-  } catch (err) {
-    // 예상된 인증 실패만 404로 감춘다. 진짜 장애는 그대로 올려보내 500으로 드러낸다
-    if (err instanceof AuthError) notFound()
-    throw err
+// 게이트(requireAdmin)는 (gated)/layout.tsx 가 한다. 여기는 세션 사용자 권한으로 읽기만 한다
+export const dynamic = 'force-dynamic'
+
+const CATEGORY_LABEL: Record<number, string> = {
+  1: '1. 디지털 · SNS',
+  2: '2. 현지 영상',
+  3: '3. 신문 · 블로그',
+  4: '4. 지하철 · 버스',
+  5: '5. 기타',
+}
+const REVENUE_STATUSES = ['paid', 'in_progress', 'done']
+
+/** 서울 기준 오늘 0시와 이번 달 1일 0시(UTC Date) */
+function seoulBoundaries(now = new Date()) {
+  const ymd = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' }).format(now)
+  return {
+    today: new Date(`${ymd}T00:00:00+09:00`).toISOString(),
+    month: new Date(`${ymd.slice(0, 8)}01T00:00:00+09:00`).toISOString(),
   }
+}
+
+const won = (n: number) => n.toLocaleString('ko-KR')
+const dateKst = (iso: string) =>
+  new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: '2-digit', day: '2-digit' }).format(new Date(iso))
+
+async function loadDashboard() {
+  const { payload, user } = await authedPayload()
+  const opts = { user, overrideAccess: false } as const
+  const { today, month } = seoulBoundaries()
+
+  const [todayOrders, awaiting, newInquiries, monthOrders, recent] = await Promise.all([
+    payload.count({ collection: 'orders', where: { createdAt: { greater_than_equal: today } }, ...opts }),
+    payload.count({ collection: 'orders', where: { status: { equals: 'paid' } }, ...opts }),
+    payload.count({ collection: 'inquiries', where: { status: { equals: 'new' } }, ...opts }),
+    payload.find({
+      collection: 'orders',
+      where: { and: [{ status: { in: REVENUE_STATUSES } }, { createdAt: { greater_than_equal: month } }] },
+      pagination: false,
+      depth: 0,
+      select: { amount: true, currency: true },
+      ...opts,
+    }),
+    payload.find({ collection: 'orders', sort: '-createdAt', limit: 5, depth: 0, ...opts }),
+  ])
+
+  let revenueKrw = 0
+  let jpyCount = 0
+  for (const o of monthOrders.docs) {
+    if (o.currency === 'KRW') revenueKrw += Number(o.amount) || 0
+    else jpyCount += 1
+  }
+  return {
+    todayOrders: todayOrders.totalDocs,
+    awaiting: awaiting.totalDocs,
+    newInquiries: newInquiries.totalDocs,
+    revenueKrw,
+    jpyCount,
+    recent: recent.docs,
+  }
+}
+
+function Kpi({ label, value, unit, tone, hint }: { label: string; value: string; unit?: string; tone?: 'danger' | 'muted'; hint?: string }) {
+  return (
+    <div className={s.kpi}>
+      <p className={s.kpiLabel}>{label}</p>
+      <div className={s.kpiValue}>
+        <span className={`${s.num} ${tone ? s[tone] : ''}`}>{value}</span>
+        {unit ? <span className={s.unit}>{unit}</span> : null}
+      </div>
+      {hint ? <p className={s.kpiHint}>{hint}</p> : null}
+    </div>
+  )
+}
+
+export default async function ManageDashboard() {
+  const d = await loadDashboard()
+  const checks = [
+    d.awaiting > 0 ? { href: '/manage/orders?status=paid', text: `접수 확인이 안 된 주문 ${d.awaiting}건이 있습니다` } : null,
+    d.newInquiries > 0 ? { href: '/manage/inquiries', text: `답변을 기다리는 새 문의 ${d.newInquiries}건이 있습니다` } : null,
+  ].filter((c): c is { href: string; text: string } => c !== null)
 
   return (
-    <main style={{ padding: 40, fontFamily: 'sans-serif' }}>
-      <h1>AYUTA 관리자</h1>
-      <p>
-        {user.email} · {user.role}
-      </p>
-      <ul style={{ lineHeight: 2 }}>
-        <li>
-          <Link href="/manage/orders">주문 관리</Link>
-        </li>
-        <li>
-          <Link href="/manage/inquiries">문의 관리 (5번 기타)</Link>
-        </li>
-        <li>
-          <Link href="/manage/prices">단가 관리</Link>
-        </li>
-        <li>
-          <Link href="/manage/settings">설정 (회사 정보 · 서명)</Link>
-        </li>
-        <li>
-          <Link href="/manage/legal">계약서 · 약관</Link>
-        </li>
-        {user.role === 'super' ? (
-          <li>
-            <Link href="/manage/accounts">관리자 계정</Link>
-          </li>
-        ) : null}
-      </ul>
-    </main>
+    <div className={s.page}>
+      <h1 className={s.title}>대시보드</h1>
+
+      <section className={s.kpis} aria-label="주요 지표">
+        <Kpi label="오늘 주문" value={String(d.todayOrders)} unit="건" />
+        <Kpi label="접수 대기" value={String(d.awaiting)} unit="건" />
+        <Kpi label="환불 신청" value="-" tone="muted" hint="결제 연동 후" />
+        <Kpi label="이번 달 매출" value={won(d.revenueKrw)} unit="원" hint={d.jpyCount > 0 ? `엔화 주문 ${d.jpyCount}건 별도` : undefined} />
+      </section>
+
+      {checks.length > 0 ? (
+        <section className={s.alert}>
+          <h2 className={s.alertHead}>
+            <img className={s.alertIcon} src="/ui/admin-alert.svg" alt="" width={20} height={20} />
+            확인이 필요한 항목
+          </h2>
+          {checks.map((c) => (
+            <p key={c.href} className={s.alertLine}>
+              · <Link href={c.href}>{c.text}</Link>
+            </p>
+          ))}
+        </section>
+      ) : null}
+
+      <section className={s.card}>
+        <div className={s.cardHead}>
+          <h2 className={s.cardTitle}>최근 주문</h2>
+          <Link href="/manage/orders" className={s.more}>
+            전체 보기
+          </Link>
+        </div>
+        <div className={s.tableWrap}>
+          <table className={s.table}>
+            <thead>
+              <tr>
+                <th>주문번호</th>
+                <th>주문일</th>
+                <th>고객</th>
+                <th>서비스</th>
+                <th>금액</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody>
+              {d.recent.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className={s.empty}>
+                    아직 주문이 없습니다
+                  </td>
+                </tr>
+              ) : (
+                d.recent.map((o) => (
+                  <tr key={o.id}>
+                    <td>
+                      <Link href={`/manage/orders/${o.id}`} className={s.orderNo}>
+                        {o.orderNumber}
+                      </Link>
+                    </td>
+                    <td>{dateKst(o.createdAt)}</td>
+                    <td>{o.orderer?.name ?? '-'}</td>
+                    <td>{CATEGORY_LABEL[o.category] ?? o.category}</td>
+                    <td>
+                      {o.currency === 'JPY' ? '¥' : '₩'} {won(o.amount)}
+                    </td>
+                    <td>
+                      <Badge tone={statusTone(o.status)}>{statusLabel(o.status)}</Badge>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
   )
 }
