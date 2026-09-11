@@ -65,6 +65,7 @@ export default async function LocaleLayout({
       <SiteFooter
         info={await loadFooterInfo(locale === 'ja' ? 'ja' : 'ko')}
         labels={{ businessNo: tFooter('businessNo'), phone: tFooter('phone'), ceo: tFooter('ceo'), contact: tFooter('contact'), mailOrder: tFooter('mailOrder') }}
+        legal={{ terms: { href: `/${locale}/terms`, label: tFooter('terms') }, privacy: { href: `/${locale}/privacy`, label: tFooter('privacy') } }}
       />
     </NextIntlClientProvider>
   )

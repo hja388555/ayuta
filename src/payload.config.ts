@@ -17,6 +17,8 @@ import { InquiryFiles } from './collections/InquiryFiles'
 import { Quotes } from './collections/Quotes'
 import { AdminLoginLogs } from './collections/AdminLoginLogs'
 import { BrandAssets } from './collections/BrandAssets'
+import { LegalDocuments } from './collections/LegalDocuments'
+import { LegalRevisions } from './collections/LegalRevisions'
 import { CompanySettings } from './globals/CompanySettings'
 import { PricingSettings } from './globals/PricingSettings'
 
@@ -40,6 +42,8 @@ export default buildConfig({
     Quotes,
     AdminLoginLogs,
     BrandAssets,
+    LegalDocuments,
+    LegalRevisions,
   ],
   globals: [PricingSettings, CompanySettings],
   editor: lexicalEditor(),

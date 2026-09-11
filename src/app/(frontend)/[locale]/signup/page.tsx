@@ -36,6 +36,7 @@ export default async function SignupPage({ params }: Props) {
               address2: t('address2'),
               agreeTerms: t('agreeTerms'),
               agreePrivacy: t('agreePrivacy'),
+              view: t('view'),
               submit: t('submit'),
               submitting: t('submitting'),
               errors: t.raw('errors'),

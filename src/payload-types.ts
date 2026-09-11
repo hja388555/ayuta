@@ -79,6 +79,8 @@ export interface Config {
     quotes: Quote;
     'admin-login-logs': AdminLoginLog;
     'brand-assets': BrandAsset;
+    'legal-documents': LegalDocument;
+    'legal-revisions': LegalRevision;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -98,6 +100,8 @@ export interface Config {
     quotes: QuotesSelect<false> | QuotesSelect<true>;
     'admin-login-logs': AdminLoginLogsSelect<false> | AdminLoginLogsSelect<true>;
     'brand-assets': BrandAssetsSelect<false> | BrandAssetsSelect<true>;
+    'legal-documents': LegalDocumentsSelect<false> | LegalDocumentsSelect<true>;
+    'legal-revisions': LegalRevisionsSelect<false> | LegalRevisionsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -415,6 +419,36 @@ export interface BrandAsset {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-documents".
+ */
+export interface LegalDocument {
+  id: number;
+  kind: 'terms' | 'privacy';
+  locale: 'ko' | 'ja';
+  title: string;
+  body: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-revisions".
+ */
+export interface LegalRevision {
+  id: number;
+  target: 'contract-templates' | 'legal-documents';
+  docId: number;
+  label: string;
+  title: string;
+  body: string;
+  editor?: (number | null) | User;
+  editorEmail: string;
+  at: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -484,6 +518,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'brand-assets';
         value: number | BrandAsset;
+      } | null)
+    | ({
+        relationTo: 'legal-documents';
+        value: number | LegalDocument;
+      } | null)
+    | ({
+        relationTo: 'legal-revisions';
+        value: number | LegalRevision;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -780,6 +822,34 @@ export interface BrandAssetsSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-documents_select".
+ */
+export interface LegalDocumentsSelect<T extends boolean = true> {
+  kind?: T;
+  locale?: T;
+  title?: T;
+  body?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "legal-revisions_select".
+ */
+export interface LegalRevisionsSelect<T extends boolean = true> {
+  target?: T;
+  docId?: T;
+  label?: T;
+  title?: T;
+  body?: T;
+  editor?: T;
+  editorEmail?: T;
+  at?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

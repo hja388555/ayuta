@@ -10,7 +10,8 @@ import { siteUrl } from '@/lib/seo'
  */
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteUrl()
-  const paths = ['', ...CATEGORIES.map((c) => `/order/${c.slug}`)]
+  // 약관 두 문서(큐 Q25 2차)도 공개 페이지다 — 우선순위만 낮게
+  const paths = ['', ...CATEGORIES.map((c) => `/order/${c.slug}`), '/terms', '/privacy']
   const abs = (p: string) => new URL(p, base).toString()
 
   return paths.flatMap((path) => {
@@ -18,7 +19,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     return routing.locales.map((locale) => ({
       url: abs(`/${locale}${path}`),
       changeFrequency: 'weekly' as const,
-      priority: path === '' ? 1 : 0.8,
+      priority: path === '' ? 1 : path.startsWith('/order/') ? 0.8 : 0.3,
       alternates: { languages },
     }))
   })
