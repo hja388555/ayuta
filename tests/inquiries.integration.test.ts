@@ -236,8 +236,10 @@ describe('상담신청 → 5번 문의 폼 (1-18, v2)', () => {
     expect(html).toContain('/ko/privacy')
   })
 
-  it('1~4번 폼 하단에 그 카테고리로 가는 상담신청 링크가 있다', async () => {
+  // 2026-09-11 사용자 결정 "시안대로" — v2 시안에는 폼 하단 상담신청 링크가 없다. 공통 문의 박스가 대신한다
+  it('1~4번 폼 하단 상담신청 링크는 없고 공통 문의 박스가 있다', async () => {
     const html = await (await api('/ko/order/press-blog')).text()
-    expect(html).toContain('/ko/order/other?type=press-blog')
+    expect(html).not.toContain('/ko/order/other?type=press-blog')
+    expect(html).toContain('궁금한 점이 있으신가요?')
   })
 })
