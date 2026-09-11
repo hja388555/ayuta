@@ -10,8 +10,10 @@ import { getSessionUser } from '@/lib/dal'
 import s from '@/components/Mypage.module.css'
 
 /**
- * 마이페이지 공통 틀(Figma [v2] 09 사이드바). 로그인하지 않았으면 로그인 화면으로 보낸다.
- * 레이아웃은 현재 경로를 모르므로 돌아올 곳은 마이페이지 첫 화면이다 — 하위 페이지가 정확한 경로로 다시 검사한다.
+ * 마이페이지 공통 틀(Figma [v2] 09 사이드바).
+ * 로그인 검사는 각 하위 페이지가 한다 — 레이아웃은 현재 경로를 몰라서 여기서 보내면 로그인 뒤 돌아올 곳이
+ * 항상 마이페이지 첫 화면이 된다(주문 상세·정보 수정으로 곧장 들어온 사람이 길을 잃는다).
+ * 세션이 없으면 사이드바 없이 페이지를 그대로 넘기고, 페이지가 정확한 next 로 로그인에 보낸다.
  */
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { robots: { index: false, follow: false } }
@@ -20,7 +22,7 @@ export default async function MypageLayout({ children, params }: { children: Rea
   const { locale } = await params
   setRequestLocale(locale)
   const session = await getSessionUser()
-  if (!session) redirect(`/${locale}/login?next=${encodeURIComponent(`/${locale}/mypage`)}`)
+  if (!session) return <>{children}</>
 
   const t = await getTranslations('mypage')
   const payload = await getPayload({ config })

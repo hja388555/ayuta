@@ -15,7 +15,9 @@
 .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
 .label { font-size: 15px; line-height: 1.5; color: var(--ink-700); }
 .inline { display: flex; gap: 8px; }
-.input { flex: 1; min-width: 0; width: 100%; height: 54px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: #fff; font: inherit; font-size: 17px; color: var(--ink-900); }
+/* 가로 줄(우편번호 + 주소 검색)에서만 늘린다 — 세로 .field 안에서 flex:1 이면 높이가 0 부터 줄어 입력칸이 납작해진다 */
+.inline .input { flex: 1; }
+.input { min-width: 0; width: 100%; height: 54px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: #fff; font: inherit; font-size: 17px; color: var(--ink-900); }
 .input::placeholder { color: var(--ink-400); }
 .input:focus { outline: none; border-color: var(--brand-600); }
 .invalid .input { border: 1.6px solid var(--danger-600); }

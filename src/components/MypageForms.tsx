@@ -243,19 +243,6 @@ export function PasswordForm({ locale = 'ko', labels, errors }: { locale?: strin
   )
 }
 
-/**
- * 옛 한 화면 마이페이지(mypage/page.tsx)가 아직 쓰는 탈퇴 버튼. 주문 내역 전용으로 바뀌면 지운다 —
- * 새 화면은 /mypage/withdraw 의 WithdrawForm(확인 모달)을 쓴다.
- */
-export function WithdrawButton({ locale }: { locale: string; labels: Record<'button' | 'confirm', string>; errors: Dict }) {
-  const router = useRouter()
-  return (
-    <button type="button" className={`btn ${s.danger}`} onClick={() => router.push(`/${locale}/mypage/withdraw`)}>
-      {/* 탈퇴 절차는 새 화면에서만 진행한다 */}
-      {locale === 'ja' ? '退会' : '회원 탈퇴'}
-    </button>
-  )
-}
 
 const REASONS = ['reason1', 'reason2', 'reason3', 'reason4', 'reason5'] as const
 
