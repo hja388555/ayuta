@@ -7,6 +7,8 @@
  */
 const MESSAGES: Record<string, string> = {
   unauthenticated: '로그인이 풀렸습니다. 다시 로그인해 주세요.',
+  wrong_password: '현재 비밀번호가 맞지 않습니다. 5회 틀리면 10분간 잠깁니다.',
+  weak_password: '새 비밀번호는 영문 · 숫자 · 기호를 섞어 10자 이상이어야 합니다.',
   forbidden: '이 작업을 할 권한이 없습니다.',
   invalid_input: '입력값이 올바르지 않습니다. 다시 확인해 주세요.',
   invalid_transition: '지금 상태에서는 그 상태로 바꿀 수 없습니다. 화면을 새로고침해 주세요.',

@@ -6,7 +6,7 @@ import { AuthError, requireAdmin } from '@/lib/dal'
 import { isSuperRole } from '@/lib/roles'
 import { companyFromSettings, type CompanySettingsRow } from '@/lib/company'
 import { Badge } from '@/components/ui'
-import { AccountsManager, CompanyForm, NotifyMailCard, SealUploadForm } from '@/components/admin/SettingsForms'
+import { AccountsManager, AdminPasswordForm, CompanyForm, NotifyMailCard, SealUploadForm } from '@/components/admin/SettingsForms'
 import { listPendingInvites } from '@/lib/invites/service'
 import s from '@/components/admin/admin-v2.module.css'
 
@@ -101,6 +101,12 @@ export default async function SettingsPage() {
             <h2 className={s.cardTitle}>계약서 을(아유타) 서명 · 날인</h2>
             <p className={s.hint}>등록하신 이미지가 모든 계약서의 을 서명란에 자동으로 표시됩니다.</p>
             <SealUploadForm hasSeal={Boolean(row.sealImage)} canEdit={canEdit} />
+          </section>
+
+          {/* 내 비밀번호 변경 — 중간관리자도 자기 비밀번호는 바꾼다(Figma A10 282:2) */}
+          <section className={s.card}>
+            <h2 className={s.cardTitle}>비밀번호 변경</h2>
+            <AdminPasswordForm />
           </section>
         </div>
 

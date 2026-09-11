@@ -3,6 +3,7 @@
 import { useState, type DragEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
+import { passwordIssue } from '@/lib/password-policy'
 import { Badge } from '@/components/ui'
 import { AdminConfirm, NoPermission } from './AdminConfirm'
 import s from './admin-v2.module.css'
@@ -375,6 +376,60 @@ export function NotifyMailCard({ email }: { email: string }) {
           저장
         </button>
       </div>
+    </>
+  )
+}
+
+/**
+ * 내 비밀번호 변경(Figma [v2] A10 282:2 PC / 282:49 Mobile, 2026-09-12 추가). 로그인한 관리자 누구나 자기 비밀번호만 바꾼다.
+ * 서버(/api/me/password)가 현재 비밀번호를 로그인으로 확인하고 규칙(10자·조합)을 다시 본다 — 여기 검사는 안내용이다.
+ */
+export function AdminPasswordForm() {
+  const [v, setV] = useState({ current: '', next: '', confirm: '' })
+  const [busy, setBusy] = useState(false)
+  const [msg, setMsg] = useState<Msg>(null)
+
+  async function save() {
+    if (busy) return
+    if (!v.current || !v.next || !v.confirm) return setMsg({ ok: false, text: '세 칸을 모두 입력해 주세요.' })
+    if (passwordIssue(v.next)) return setMsg({ ok: false, text: adminErrorMessage('weak_password') })
+    if (v.next !== v.confirm) return setMsg({ ok: false, text: '새 비밀번호와 확인이 다릅니다.' })
+    setBusy(true)
+    setMsg(null)
+    const r = await postJson('/api/me/password', { currentPassword: v.current, newPassword: v.next })
+    setBusy(false)
+    if (r !== true) return setMsg(r)
+    setV({ current: '', next: '', confirm: '' })
+    setMsg({ ok: true, text: '비밀번호를 바꿨습니다. 다음 로그인부터 새 비밀번호를 쓰세요.' })
+  }
+
+  const fields: Array<{ key: keyof typeof v; label: string; placeholder: string; autoComplete: string }> = [
+    { key: 'current', label: '현재 비밀번호', placeholder: '현재 비밀번호를 입력해 주세요', autoComplete: 'current-password' },
+    { key: 'next', label: '새 비밀번호', placeholder: '영문 · 숫자 · 기호 조합 10자 이상', autoComplete: 'new-password' },
+    { key: 'confirm', label: '새 비밀번호 확인', placeholder: '새 비밀번호를 한 번 더 입력해 주세요', autoComplete: 'new-password' },
+  ]
+
+  return (
+    <>
+      {fields.map((f) => (
+        <label key={f.key} className={s.field}>
+          <span>{f.label}</span>
+          <input
+            className={s.input}
+            type="password"
+            value={v[f.key]}
+            placeholder={f.placeholder}
+            autoComplete={f.autoComplete}
+            onChange={(e) => setV({ ...v, [f.key]: e.target.value })}
+            disabled={busy}
+          />
+        </label>
+      ))}
+      <p className={s.hint}>로그인한 내 계정의 비밀번호를 바꿉니다. 영문 · 숫자 · 기호를 섞어 10자 이상으로 정해 주세요.</p>
+      <button type="button" className={`btn btn-primary btn-block ${s.bigBtn}`} onClick={save} disabled={busy}>
+        {busy ? '바꾸는 중…' : '비밀번호 변경'}
+      </button>
+      <MsgLine msg={msg} />
     </>
   )
 }
