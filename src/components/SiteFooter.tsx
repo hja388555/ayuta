@@ -8,7 +8,8 @@ type Labels = { businessNo: string; phone: string; ceo: string; contact: string;
  * 자리표시(0000)를 찍지 않고 그 칸을 뺀다. 값은 관리자 설정(company-settings)에서 온다.
  * 약관 링크 줄은 시안에 없지만 가입 동의 대상 문서를 언제든 다시 볼 수 있어야 해서 둔다(Q25 2차).
  */
-type LegalLinks = { terms: { href: string; label: string }; privacy: { href: string; label: string } }
+type LegalLink = { href: string; label: string }
+type LegalLinks = { terms: LegalLink; privacy: LegalLink; refund: LegalLink }
 
 export function SiteFooter({ info, labels, legal }: { info: Info; labels: Labels; legal: LegalLinks }) {
   const parts = [
@@ -31,6 +32,8 @@ export function SiteFooter({ info, labels, legal }: { info: Info; labels: Labels
           <a href={legal.privacy.href}>
             <strong>{legal.privacy.label}</strong>
           </a>
+          {' · '}
+          <a href={legal.refund.href}>{legal.refund.label}</a>
         </p>
       </div>
     </footer>

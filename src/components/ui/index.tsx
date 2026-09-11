@@ -84,6 +84,8 @@ export function Modal({
   open,
   onClose,
   title,
+  subtitle,
+  className,
   closeLabel,
   footer,
   children,
@@ -91,6 +93,8 @@ export function Modal({
   open: boolean
   onClose: () => void
   title: string
+  subtitle?: string
+  className?: string
   closeLabel: string
   footer?: ReactNode
   children: ReactNode
@@ -105,7 +109,7 @@ export function Modal({
   return (
     <dialog
       ref={ref}
-      className="modal"
+      className={className ? `modal ${className}` : 'modal'}
       aria-label={title}
       onClose={onClose}
       onClick={(e) => {
@@ -113,7 +117,10 @@ export function Modal({
       }}
     >
       <div className="modal-head">
-        <h2>{title}</h2>
+        <div className="modal-titles">
+          <h2>{title}</h2>
+          {subtitle ? <p className="modal-sub">{subtitle}</p> : null}
+        </div>
         <button type="button" className="modal-close" onClick={onClose} aria-label={closeLabel}>
           ×
         </button>

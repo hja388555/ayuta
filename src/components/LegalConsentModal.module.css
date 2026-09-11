@@ -1,0 +1,8 @@
+/* Figma [v2] 13-A 이용약관 모달 */
+.wide { width: min(900px, calc(100vw - 32px)); }
+.foot { display: flex; flex-direction: column; gap: 14px; width: 100%; }
+.agreeLine { display: flex; align-items: center; gap: 12px; min-height: 60px; margin: 0; padding: 0 18px; border-radius: 12px; background: var(--brand-50); color: var(--ink-900); font-size: 16px; font-weight: 700; line-height: 1.7; }
+.check { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 7px; background: var(--brand-600); }
+.check img { display: block; width: 14px; height: 14px; }
+.agreeBtn { height: 58px; font-size: 17px; }
+.muted { margin: 0; color: var(--ink-500); }

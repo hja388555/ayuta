@@ -79,7 +79,7 @@ export default async function LocaleLayout({
       <SiteFooter
         info={footerInfo}
         labels={{ businessNo: tFooter('businessNo'), phone: tFooter('phone'), ceo: tFooter('ceo'), contact: tFooter('contact'), mailOrder: tFooter('mailOrder') }}
-        legal={{ terms: { href: `/${locale}/terms`, label: tFooter('terms') }, privacy: { href: `/${locale}/privacy`, label: tFooter('privacy') } }}
+        legal={{ terms: { href: `/${locale}/terms`, label: tFooter('terms') }, privacy: { href: `/${locale}/privacy`, label: tFooter('privacy') }, refund: { href: `/${locale}/refund`, label: tFooter('refund') } }}
       />
       <MobileTabBar locale={locale} phone={footerInfo.phone} labels={{ home: tTabs('home'), call: tTabs('call'), chat: tTabs('chat'), mypage: tTabs('mypage') }} />
     </NextIntlClientProvider>

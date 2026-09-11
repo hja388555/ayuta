@@ -208,7 +208,7 @@ export default async function QuotePage({ params }: Props) {
           <h2 className={s.cardTitle}>{t('agreeTitle')}</h2>
           {agree(t('agreeTerms'), `/${locale}/terms`, t('view'))}
           {agree(t('agreePrivacy'), `/${locale}/privacy`, t('view'))}
-          {agree(t('agreeContract'), `/${locale}/terms`, t('viewContract'))}
+          {agree(t('agreeContract'), `/${locale}/refund`, t('viewContract'))}
           <div className={`${s.check} ${s.sign}`}>
             <span className={s.checkBox} aria-hidden />
             <span className={s.checkText}>{t('signText')}</span>

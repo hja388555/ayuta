@@ -6,6 +6,7 @@ import type { PriceBook } from '@ayuta/pricing'
 import type { ConsentDef } from '@/lib/checkout/consents'
 import type { CheckoutLabels } from '@/lib/checkout/labels'
 import { ChoiceCard, Modal, StepTitle, TotalBar } from './ui'
+import { LegalConsentModal, type LegalKind } from './LegalConsentModal'
 import s from './Checkout.module.css'
 
 export type OrdererFormState = {
@@ -105,7 +106,7 @@ type Props = {
   labels: CheckoutLabels
 }
 
-// 약관·개인정보는 공개 문서 페이지로, 그 밖의 동의(계약 내용 등)는 계약서 미리보기 팝업으로
+// 약관·개인정보는 약관 동의 모달(v2 13-A)로, 그 밖의 동의(계약 내용 등)는 계약서 미리보기 팝업으로
 const PUBLIC_DOC_KEYS = new Set(['terms', 'privacy'])
 
 export function CheckoutForm({ locale, categorySlug, selection, amount, currency, reviewRows, editHref, template, initialOrderer, labels }: Props) {
@@ -115,6 +116,7 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
   const [touched, setTouched] = useState<Partial<Record<OrdererField, boolean>>>({})
   const [attempted, setAttempted] = useState(false)
   const [showContract, setShowContract] = useState(false)
+  const [viewDoc, setViewDoc] = useState<LegalKind | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // 결제 버튼 더블클릭·네트워크 재시도로 같은 주문이 두 번 만들어지지 않게, 폼이 마운트될
@@ -306,10 +308,10 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
               <span>{c.label}</span>
             </label>
             {PUBLIC_DOC_KEYS.has(c.key) ? (
-              <a href={`/${locale}/${c.key}`} target="_blank" rel="noopener noreferrer" className={`btn btn-secondary ${s.viewBtn}`}>
+              <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setViewDoc(c.key as LegalKind)}>
                 <img src="/ui/doc.svg" alt="" width={16} height={16} />
                 {labels.viewContent}
-              </a>
+              </button>
             ) : (
               <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setShowContract(true)}>
                 <img src="/ui/doc.svg" alt="" width={16} height={16} />
@@ -329,6 +331,7 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
 
       {/* 빈칸이 채워진 상태를 그대로 보여준다 — createOrder가 실제로 저장할 것과 같은 텍스트를
           서버가 미리 렌더해 넘긴다(template.body는 이미 fillContract를 거친 미리보기다) */}
+      <LegalConsentModal kind={viewDoc} locale={locale} onClose={() => setViewDoc(null)} onAgree={(k) => setChecked((prev) => ({ ...prev, [k]: true }))} />
       <Modal open={showContract} onClose={() => setShowContract(false)} title={template.title} closeLabel={labels.close}>
         <pre className={s.contractText}>{template.body}</pre>
       </Modal>
