@@ -1,0 +1,116 @@
+/* v2 05 기타 문의(219:435 / 219:551) · 11 견적서(232:2 / 232:170) · 11-B 만료(232:334 / 232:378) */
+
+/* ── 05 문의 폼 ── */
+.form { display: flex; flex-direction: column; gap: 56px; margin-top: 32px; }
+.section { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.label { font-size: 15px; line-height: 1.5; color: var(--ink-700); }
+.input,
+.textarea {
+  width: 100%; min-width: 0; padding: 0 16px; height: 54px;
+  border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: #fff;
+  font: inherit; font-size: 17px; line-height: 1.5; color: var(--ink-900);
+}
+.textarea { height: 150px; padding: 16px; resize: vertical; }
+.input::placeholder, .textarea::placeholder { color: var(--ink-400); }
+.cols3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+
+.drop {
+  display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 36px 20px;
+  border: 1px dashed var(--line-strong); border-radius: var(--radius-md); background: var(--surface);
+  text-align: center; color: var(--ink-500); font-size: 15px; line-height: 1.5; cursor: pointer;
+}
+.dropActive { border-color: var(--brand-600); background: var(--brand-50); }
+.drop input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+.drop:has(input:focus-visible) { outline: 2px solid var(--brand-600); outline-offset: 2px; }
+.dropIcon { width: 28px; height: 28px; }
+.dropBtn {
+  display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border: 1px solid var(--line-strong);
+  border-radius: var(--radius); background: #fff; color: var(--ink-900); font-weight: 700;
+}
+.fileList { margin: 0; padding: 0; list-style: none; font-size: 14px; color: var(--ink-700); }
+.hint { font-size: 13px; color: var(--ink-500); }
+
+/* 체크 행(동의) — .choice-box 모양을 그대로 쓴다 */
+.check {
+  position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 12px 18px;
+  border: 1px solid var(--line); border-radius: var(--radius-md); background: #fff;
+  font-size: 16px; line-height: 1.5; color: var(--ink-700); cursor: pointer;
+}
+.check input { position: absolute; opacity: 0; pointer-events: none; }
+.check:has(input:checked) .checkBox { border-color: var(--brand-600); background: var(--brand-600) url('/ui/check.svg') center / 14px 14px no-repeat; }
+.check:has(input:focus-visible) { outline: 2px solid var(--brand-600); outline-offset: 2px; }
+.checkBox { flex: none; width: 22px; height: 22px; border: 1.6px solid var(--line-strong); border-radius: 7px; background: #fff; }
+.checkText { flex: 1; min-width: 0; }
+.viewLink { flex: none; font-size: 14px; font-weight: 700; color: var(--ink-500); text-decoration: none; }
+
+.notice { padding: 14px 16px; border-radius: var(--radius-md); background: var(--brand-50); color: var(--brand-900); font-size: 15px; line-height: 1.5; margin: 0; }
+.error { margin: 0; color: var(--danger-600); }
+.submit { height: 72px; border-radius: var(--radius-lg); font-size: 20px; }
+.submitIcon { width: 22px; height: 22px; }
+
+/* ── 11 견적서 ── */
+.band { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 44px var(--side); background: var(--brand-50); }
+.chip { padding: 6px 12px; border-radius: 999px; background: var(--brand-100); color: var(--brand-900); font-size: 13px; font-weight: 700; line-height: 1.5; }
+.bandTitle { margin: 0; font-size: 38px; line-height: 1.25; letter-spacing: -0.02em; color: var(--ink-900); }
+.bandSub { margin: 0; font-size: 17px; line-height: 1.5; color: var(--ink-700); }
+.page { display: flex; flex-direction: column; gap: 32px; padding: 48px var(--side) 64px; }
+.card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; min-width: 0; }
+.cardHead { display: flex; align-items: center; gap: 10px; }
+.cardTitle { flex: 1; margin: 0; font-size: 22px; line-height: 1.5; color: var(--ink-900); }
+.cardDesc { margin: 0; font-size: 15px; color: var(--ink-500); }
+.info { margin: 0; padding: 6px 20px; border-radius: var(--radius-md); background: var(--surface); }
+.infoRow { display: flex; gap: 16px; padding: 10px 0; }
+.infoRow + .infoRow { border-top: 1px solid var(--line); }
+.infoRow dt { flex: none; width: 120px; font-size: 15px; color: var(--ink-500); }
+.infoRow dd { flex: 1; min-width: 0; margin: 0; font-size: 16px; color: var(--ink-700); overflow-wrap: anywhere; }
+
+.table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; font-size: 15px; color: var(--ink-700); }
+.table th { padding: 14px 18px; background: var(--surface); text-align: left; font-weight: 700; }
+.table td { padding: 16px 18px; border-top: 1px solid var(--line); }
+.table .colItem { width: 66.66%; }
+.table .num { white-space: nowrap; }
+
+.agreeBtn { display: inline-flex; align-items: center; gap: 6px; height: 40px; padding: 0 14px; border-radius: var(--radius); background: var(--surface); color: var(--ink-700); font-size: 14px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+.agreeBtn img { width: 16px; height: 16px; }
+.sign { border: 1.6px solid var(--brand-600); background: var(--brand-50); color: var(--ink-900); min-height: 72px; }
+.signName { flex: none; display: inline-flex; align-items: center; height: 46px; padding: 0 18px; border-radius: var(--radius); background: #fff; color: var(--brand-900); font-size: 18px; font-weight: 700; }
+.method { display: flex; align-items: center; gap: 12px; min-height: 64px; padding: 0 20px; border: 1.6px solid var(--brand-600); border-radius: var(--radius-md); background: var(--brand-50); font-size: 17px; font-weight: 700; color: var(--ink-900); }
+.radioDot { flex: none; width: 22px; height: 22px; border-radius: 999px; background: var(--brand-600) url('/ui/check.svg') center / 14px 14px no-repeat; }
+.methodIcon { width: 20px; height: 20px; }
+.pay { height: 58px; font-size: 17px; }
+.footNote { margin: 0; padding: 14px 16px; border-radius: var(--radius-md); background: var(--surface); color: var(--ink-500); font-size: 14px; line-height: 1.5; list-style: none; display: flex; flex-direction: column; gap: 4px; }
+
+/* ── 11-B 열 수 없음 ── */
+.blockedWrap { display: flex; justify-content: center; padding: 100px var(--side); }
+.blocked { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; max-width: 560px; padding: 48px 40px; border: 1px solid var(--line); border-radius: 20px; background: #fff; }
+.alertCircle { display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 999px; background: var(--warning-50); }
+.alertCircle img { width: 34px; height: 34px; }
+.blockedTitle { margin: 0; font-size: 30px; line-height: 1.3; letter-spacing: -0.02em; text-align: center; color: var(--ink-900); }
+.blockedSub { margin: 0; font-size: 17px; line-height: 1.5; text-align: center; color: var(--ink-500); }
+.blocked .info { width: 100%; }
+.btnFull { width: 100%; height: 58px; font-size: 17px; }
+.phoneIcon { width: 20px; height: 20px; }
+.blockedFoot { margin: 0; width: 100%; font-size: 14px; line-height: 1.5; color: var(--ink-500); }
+
+@media (max-width: 767px) {
+  .form { gap: 40px; }
+  .cols3, .cols2 { grid-template-columns: minmax(0, 1fr); }
+  .submit { height: 60px; font-size: 18px; }
+  .band { padding-block: 28px; }
+  .bandTitle { font-size: 26px; }
+  .bandSub { font-size: 15px; }
+  .page { gap: 20px; padding-top: 24px; }
+  .card { padding: 20px 18px; }
+  .cardTitle { font-size: 19px; }
+  .infoRow dt { width: 84px; font-size: 14px; }
+  .infoRow dd { font-size: 15px; }
+  .table th, .table td { padding: 12px 10px; font-size: 14px; }
+  .check { flex-wrap: wrap; }
+  .sign .signName { margin-left: 34px; }
+  .blockedWrap { padding-block: 40px; }
+  .blocked { padding: 32px 20px; }
+  .blockedTitle { font-size: 24px; }
+  .blockedSub { font-size: 15px; }
+}

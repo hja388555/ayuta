@@ -6,13 +6,12 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { InquiryForm } from '@/components/InquiryForm'
 import { getSessionUser } from '@/lib/dal'
-import { Shell } from '@/components/Shell'
 import { ImageBand } from '@/components/ImageBand'
 import { TierForm } from '@/components/TierForm'
 import { GroupForm } from '@/components/GroupForm'
 import type { TierRow } from '@/components/TierForm'
 import styles from '@/components/OrderForms.module.css'
-import { CATEGORIES, categoryBySlug } from '@/lib/categories'
+import { categoryBySlug } from '@/lib/categories'
 import { formFor } from '@/lib/category-groups'
 import { loadPriceBook } from '@/lib/price-book'
 import { loadCategoryModel } from '@/lib/pricing-model'
@@ -141,28 +140,41 @@ export default async function OrderPage({ params, searchParams }: Props) {
           </div>
         </>
       ) : (
-        <Shell as="section">
-          <div style={{ padding: '32px 0 64px' }}>
-            <h1 style={{ fontSize: 'var(--fs-h1)' }}>{tCat(def.slug)}</h1>
-            {/* 5번 — 금액이 없다. 문의를 받아 관리자가 견적을 발행한다(Q14 · Q14-B) */}
-            <p style={{ color: 'var(--ink-500)' }}>{tForm('intro')}</p>
+        <>
+          {/* 머리 띠 — 1~4번과 같은 v2 띠(광고 서비스 5 배지 · 제목 · 설명). 5번은 금액 없이 문의를 받아
+              관리자가 견적을 발행한다(Q14 · Q14-B) */}
+          <section className={styles.band}>
+            <span className={styles.bandBadge}>{tPage('badge', { n: def.no })}</span>
+            <h1 className={styles.bandTitle}>{tPage(`titles.${def.slug}`)}</h1>
+            <p className={styles.bandDesc}>{tPage(`descriptions.${def.slug}`)}</p>
+          </section>
+          <div className={styles.body}>
             <InquiryForm
               locale={locale}
-              types={CATEGORIES.map((c) => ({ slug: c.slug, label: tCat(c.slug) }))}
               initialType={initialType}
               initialContact={initialContact}
               labels={{
-                typeLabel: tForm('typeLabel'),
-                typeNone: tForm('typeNone'),
+                countryTitle: tForm('countryTitle'),
+                countries: tForm.raw('countries'),
+                bodyTitle: tForm('bodyTitle'),
                 bodyLabel: tForm('bodyLabel'),
                 bodyPlaceholder: tForm('bodyPlaceholder'),
                 regionLabel: tForm('regionLabel'),
-                filesLabel: tForm('filesLabel'),
+                regionPlaceholder: tForm('regionPlaceholder'),
+                filesDrop: tForm('filesDrop'),
+                filesButton: tForm('filesButton'),
                 filesHint: tForm('filesHint'),
                 contactTitle: tForm('contactTitle'),
+                contactHint: tForm('contactHint'),
                 name: tForm('name'),
+                namePlaceholder: tForm('namePlaceholder'),
                 phone: tForm('phone'),
+                phonePlaceholder: tForm('phonePlaceholder'),
                 email: tForm('email'),
+                emailPlaceholder: tForm('emailPlaceholder'),
+                consent: tForm('consent'),
+                consentView: tForm('consentView'),
+                notice: tForm('notice'),
                 submit: tForm('submit'),
                 submitting: tForm('submitting'),
                 done: tForm('done'),
@@ -170,7 +182,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
               }}
             />
           </div>
-        </Shell>
+        </>
       )}
     </main>
   )

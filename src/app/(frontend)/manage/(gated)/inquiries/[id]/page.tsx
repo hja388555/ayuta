@@ -6,7 +6,6 @@ import { formatAmount, formatDateTime } from '@/lib/admin/format'
 import { currencyForLocale } from '@/lib/payments/channel'
 import { card } from '@/components/admin/styles'
 import { QuoteIssueForm, QuoteRevokeButton } from '@/components/admin/QuoteIssueForm'
-import koMessages from '../../../../../../../messages/ko.json'
 import { INQUIRY_STATUS_LABELS } from '../page'
 
 /** 5번 문의 상세. 견적 발행(Q14-B)이 이 화면에 붙는다 */
@@ -30,7 +29,7 @@ export default async function InquiryDetailPage({ params }: Props) {
   } catch {
     notFound()
   }
-  const typeLabels = koMessages.categories as Record<string, string>
+  const countryText = (c: unknown) => (Array.isArray(c) && c.length ? c.map((v) => (v === 'jp' ? '일본' : '한국')).join(' · ') : '-')
   // depth: 1 이라 관계가 펼쳐져 오지만, 타입상으로는 id(number)일 수도 있다 — 펼쳐진 것만 쓴다
   const files = (Array.isArray(doc.files) ? doc.files : []).flatMap((f) =>
     typeof f === 'object' && f !== null ? [{ id: f.id, originalName: f.originalName ?? null, filesize: f.filesize ?? null }] : [],
@@ -62,7 +61,7 @@ export default async function InquiryDetailPage({ params }: Props) {
       <section style={card}>
         {row('접수', formatDateTime(doc.createdAt as string))}
         {row('상태', INQUIRY_STATUS_LABELS[doc.status as string] ?? (doc.status as string))}
-        {row('유형', doc.type ? (typeLabels[doc.type as string] ?? '-') : '선택 안 함')}
+        {row('국가', countryText(doc.country))}
         {row('언어', doc.locale === 'ja' ? '일본어' : '한국어')}
         {row('희망 지역', (doc.region as string) || '-')}
         {row('내용', doc.body as string)}

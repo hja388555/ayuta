@@ -39,7 +39,7 @@ beforeAll(async () => {
     tokens[name] = (await login(email, PW)).token
   }
   const fd = new FormData()
-  for (const [k, v] of Object.entries({ type: 'other', body: marker, name: '견적고객', phone: '010-5555-0000', email: `quote+${RUN}@example.com`, locale: 'ko' })) fd.set(k, v)
+  for (const [k, v] of Object.entries({ type: 'other', body: marker, name: '견적고객', phone: '010-5555-0000', email: `quote+${RUN}@example.com`, locale: 'ko', consent: 'on', country: 'kr' })) fd.set(k, v)
   const res = await fetch(`${BASE}/api/inquiry`, { method: 'POST', body: fd })
   inquiryId = (await res.json()).inquiryId
 })
