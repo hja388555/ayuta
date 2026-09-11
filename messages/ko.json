@@ -732,5 +732,37 @@
     "saveBody": "저장하지 않고 나가시면 입력하신 내용이 사라집니다.",
     "saveDiscard": "저장 안 함",
     "saveConfirm": "저장"
+  },
+  "invite": {
+    "title": "관리자 초대",
+    "sub": "이름·연락처·비밀번호를 정하면 관리자 계정이 만들어집니다.",
+    "email": "초대받은 이메일",
+    "role": "권한",
+    "roles": {
+      "manager": "중간관리자",
+      "super": "최고관리자"
+    },
+    "name": "이름",
+    "namePh": "홍길동",
+    "phone": "연락처",
+    "phonePh": "010-0000-0000",
+    "password": "비밀번호",
+    "passwordHint": "영문·숫자·기호 조합 10자 이상",
+    "passwordConfirm": "비밀번호 확인",
+    "passwordConfirmPh": "한 번 더 입력해 주세요",
+    "submit": "계정 만들기",
+    "submitting": "만드는 중...",
+    "invalidTitle": "초대 링크를 사용할 수 없습니다",
+    "invalidBody": "링크가 만료되었거나 이미 사용되었습니다. 초대한 관리자에게 다시 요청해 주세요.",
+    "home": "홈으로",
+    "errors": {
+      "invalid_invite": "초대 링크를 사용할 수 없습니다. 초대한 관리자에게 다시 요청해 주세요.",
+      "invalid_input": "입력값을 다시 확인해 주세요.",
+      "weak_password": "비밀번호는 영문·숫자·기호를 모두 넣어 10자 이상으로 입력해 주세요.",
+      "password_mismatch": "비밀번호가 서로 다릅니다.",
+      "required": "필수 항목입니다.",
+      "network": "서버에 연결하지 못했습니다. 네트워크를 확인해 주세요.",
+      "generic": "처리하지 못했습니다. 잠시 후 다시 시도해 주세요."
+    }
   }
 }

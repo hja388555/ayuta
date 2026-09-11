@@ -7,6 +7,7 @@ import { isSuperRole } from '@/lib/roles'
 import { companyFromSettings, type CompanySettingsRow } from '@/lib/company'
 import { Badge } from '@/components/ui'
 import { AccountsManager, CompanyForm, NotifyMailCard, SealUploadForm } from '@/components/admin/SettingsForms'
+import { listPendingInvites } from '@/lib/invites/service'
 import s from '@/components/admin/admin-v2.module.css'
 
 /**
@@ -32,7 +33,7 @@ export default async function SettingsPage() {
   const canEdit = isSuperRole(user.role)
 
   const payload = await getPayload({ config })
-  const [row, accounts, { docs: contracts }, { docs: documents }] = await Promise.all([
+  const [row, accounts, invites, { docs: contracts }, { docs: documents }] = await Promise.all([
     payload.findGlobal({ slug: 'company-settings', depth: 0, overrideAccess: true }) as Promise<CompanySettingsRow & { sealImage?: unknown }>,
     canEdit
       ? payload
@@ -46,6 +47,7 @@ export default async function SettingsPage() {
           })
           .then((r) => r.docs.map((d) => ({ id: d.id as number, email: d.email as string, name: (d.name as string) ?? '', role: d.role as string })))
       : Promise.resolve(null),
+    canEdit ? listPendingInvites(payload) : Promise.resolve([]),
     payload.find({ collection: 'contract-templates', sort: 'category', limit: 50, depth: 0, overrideAccess: true }),
     payload.find({ collection: 'legal-documents', limit: 20, depth: 0, overrideAccess: true }),
   ])
@@ -105,7 +107,7 @@ export default async function SettingsPage() {
         <div className={s.col}>
           <section className={s.card}>
             <h2 className={s.cardTitle}>관리자 계정</h2>
-            <AccountsManager accounts={accounts} meId={user.id as number} />
+            <AccountsManager accounts={accounts} invites={invites} meId={user.id as number} />
           </section>
 
           <section className={s.card}>
