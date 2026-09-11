@@ -1,14 +1,13 @@
-import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { AuthError, requireSuper } from '@/lib/dal'
-import { card } from '@/components/admin/styles'
 import { AccountsManager } from '@/components/admin/SettingsForms'
+import s from '@/components/admin/admin-v2.module.css'
 
 /**
  * 관리자 계정 관리 — 최고관리자만(요구사항 1-16 규칙 2). 중간관리자에게는 화면 자체를 감춘다.
- * 관리자 권한이 있는 계정(manager·super, 탈퇴 제외)만 보여준다.
+ * 관리자 권한이 있는 계정(manager·super, 탈퇴 제외)만 보여준다. 설정 화면의 '관리자 계정' 카드와 같은 부품이다.
  */
 export default async function AccountsPage() {
   let me
@@ -30,14 +29,14 @@ export default async function AccountsPage() {
   })
 
   return (
-    <main style={{ padding: 40, fontFamily: 'sans-serif', color: '#3D4046', maxWidth: 760 }}>
-      <p style={{ margin: '0 0 8px' }}>
-        <Link href="/manage">← 관리자 홈</Link>
-      </p>
-      <h1 style={{ fontSize: 20, marginBottom: 16 }}>관리자 계정</h1>
-      <section style={card}>
-        <AccountsManager meId={me.id} accounts={docs.map((d) => ({ id: d.id as number, email: d.email as string, name: d.name as string, role: d.role as string }))} />
+    <div className={s.page}>
+      <div className={s.head}>
+        <h1 className={s.title}>관리자 계정</h1>
+        <span className={s.superOnly}>최고관리자 전용</span>
+      </div>
+      <section className={s.card} style={{ maxWidth: 720 }}>
+        <AccountsManager meId={me.id} accounts={docs.map((d) => ({ id: d.id as number, email: d.email as string, name: (d.name as string) ?? '', role: d.role as string }))} />
       </section>
-    </main>
+    </div>
   )
 }
