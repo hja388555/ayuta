@@ -1,14 +1,17 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
-import { button, errorBox, input, label, okBox } from './styles'
+import { errorBox, okBox } from './styles'
+import s from './AdminOrders.module.css'
 
 type Props = {
   orderId: number
   /** 'YYYY-MM-DD' 또는 '' (미정) */
   initial: { contractStart: string; contractEnd: string; adStartDate: string }
+  /** 저장 버튼 옆에 붙는 보조 버튼(Figma A4 "계약서 보기") */
+  extraAction?: ReactNode
 }
 
 /**
@@ -19,7 +22,7 @@ type Props = {
  * 역순 기간 검증은 서버가 한다(invalid_schedule) — 여기서 미리 막지 않는 이유는
  * 판정이 두 곳에 생기면 갈라지기 때문이다.
  */
-export function OrderScheduleForm({ orderId, initial }: Props) {
+export function OrderScheduleForm({ orderId, initial, extraAction }: Props) {
   const router = useRouter()
   const [form, setForm] = useState(initial)
   const [busy, setBusy] = useState(false)
@@ -62,14 +65,12 @@ export function OrderScheduleForm({ orderId, initial }: Props) {
   }
 
   const field = (key: keyof Props['initial'], text: string) => (
-    <div style={{ marginRight: 16 }}>
-      <label style={label} htmlFor={`schedule-${key}`}>
-        {text}
-      </label>
+    <div className={s.field}>
+      <label htmlFor={`schedule-${key}`}>{text}</label>
       <input
         id={`schedule-${key}`}
         type="date"
-        style={input}
+        className={s.input}
         value={form[key]}
         onChange={(e) => set(key, e.target.value)}
         disabled={busy}
@@ -78,18 +79,21 @@ export function OrderScheduleForm({ orderId, initial }: Props) {
   )
 
   return (
-    <div>
-      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'flex-end' }}>
-        {field('contractStart', '계약 시작일')}
-        {field('contractEnd', '계약 종료일')}
-        {field('adStartDate', '광고 시작일')}
-        <button type="button" style={button} onClick={submit} disabled={busy}>
-          {busy ? '저장 중…' : '저장'}
-        </button>
+    <>
+      <div className={s.fieldRow}>
+        {field('contractStart', '시작일')}
+        {field('contractEnd', '종료일')}
       </div>
-      <p style={{ fontSize: 12, color: '#767B85', marginTop: 8 }}>비워 두면 미정(협의 중)으로 저장됩니다.</p>
+      {field('adStartDate', '광고 진행일')}
+      <p className={s.hint}>비워 두면 미정(협의 중)으로 저장됩니다.</p>
+      <div className={s.btnRow}>
+        <button type="button" className={`btn btn-primary ${s.bigBtn}`} onClick={submit} disabled={busy}>
+          {busy ? '저장 중…' : '계약기간 저장'}
+        </button>
+        {extraAction}
+      </div>
       {error ? <p style={errorBox}>{error}</p> : null}
       {message ? <p style={okBox}>{message}</p> : null}
-    </div>
+    </>
   )
 }
