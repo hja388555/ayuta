@@ -277,7 +277,6 @@
     "businessNo": "사업자등록번호",
     "businessNoPh": "000-00-00000 (개인은 비워두세요)",
     "addressSearch": "주소 검색",
-    "addressSearchSoon": "주소 검색은 준비 중입니다. 직접 입력해 주세요.",
     "agreeAll": "전체 동의",
     "agreeAge": "[필수] 만 14세 이상입니다",
     "agreeMarketing": "[선택] 광고·혜택 정보 수신에 동의합니다"
@@ -478,7 +477,6 @@
     "emailPh": "name@email.com",
     "postalCodePh": "00000",
     "addressSearch": "주소 검색",
-    "addressSearchSoon": "주소 검색은 준비 중입니다. 직접 입력해 주세요",
     "address1Ph": "서울특별시 동대문구 …",
     "address2Ph": "동 · 호수 등",
     "representativePh": "홍길동",
@@ -566,7 +564,8 @@
     "contact": "담당자",
     "mailOrder": "통신판매업신고",
     "terms": "이용약관",
-    "privacy": "개인정보처리방침"
+    "privacy": "개인정보처리방침",
+    "refund": "환불 및 취소 정책"
   },
   "seo": {
     "siteName": "AYUTA 아유타",
@@ -582,7 +581,18 @@
   "legal": {
     "termsTitle": "이용약관",
     "privacyTitle": "개인정보처리방침",
-    "notReady": "문서를 준비하고 있습니다. 궁금한 점은 고객센터로 문의해 주세요."
+    "notReady": "문서를 준비하고 있습니다. 궁금한 점은 고객센터로 문의해 주세요.",
+    "refundTitle": "환불 및 취소 정책",
+    "revised": "최종 개정 {date}",
+    "toc": "목차",
+    "modalHint": "스크롤하여 전문을 확인하실 수 있습니다",
+    "agreeAndClose": "동의하고 닫기",
+    "close": "닫기",
+    "loading": "문서를 불러오는 중입니다.",
+    "loadFailed": "문서를 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.",
+    "agreeTerms": "서비스 이용 약관에 동의 합니다.",
+    "agreePrivacy": "개인정보 수집·이용에 동의합니다.",
+    "agreeRefund": "취소·환불 조건을 확인하고 동의합니다."
   },
   "contact": {
     "title": "궁금한 점이 있으신가요?",
@@ -628,7 +638,6 @@
       "postalCode": "우편번호",
       "postalCodePh": "00000",
       "addressSearch": "주소 검색",
-      "addressSearchSoon": "주소 검색은 준비 중입니다. 직접 입력해 주세요.",
       "address1": "기본 주소",
       "address1Ph": "서울특별시 동대문구 …",
       "address2": "상세 주소",
@@ -695,5 +704,33 @@
       "network": "서버에 연결하지 못했습니다. 네트워크를 확인해 주세요.",
       "weak_password": "새 비밀번호는 영문·숫자·기호를 모두 넣어 10자 이상이어야 합니다."
     }
+  },
+  "address": {
+    "button": "주소 검색",
+    "title": "주소 검색",
+    "close": "닫기",
+    "krExample": "예) 답십리동 323 · 아유타빌딩 · 동대문구 천호대로",
+    "jpPlaceholder": "우편번호 7자리를 입력하세요",
+    "jpExample": "예) 100-0001 또는 1000001",
+    "submit": "검색",
+    "loading": "불러오는 중입니다…",
+    "noResult": "검색 결과가 없습니다. 우편번호를 다시 확인해 주세요.",
+    "invalidZip": "우편번호는 7자리 숫자로 입력해 주세요.",
+    "failed": "주소 검색을 불러오지 못했습니다. 잠시 후 다시 시도하거나 직접 입력해 주세요."
+  },
+  "modal": {
+    "close": "닫기",
+    "contractScrollHint": "스크롤하여 전문을 확인하실 수 있습니다",
+    "contractConfirmCheck": "위 계약 내용을 모두 확인하였으며 이에 동의합니다.",
+    "contractConfirm": "계약 확인 완료",
+    "loginTitle": "로그인이 필요합니다",
+    "loginBody1": "주문 내역과 계약서는 로그인하셔야 확인하실 수 있습니다.",
+    "loginBody2": "비회원으로 결제하신 경우 주문 조회를 이용해 주세요.",
+    "loginGuest": "비회원 주문 조회",
+    "loginGo": "로그인",
+    "saveTitle": "변경 내용을 저장할까요?",
+    "saveBody": "저장하지 않고 나가시면 입력하신 내용이 사라집니다.",
+    "saveDiscard": "저장 안 함",
+    "saveConfirm": "저장"
   }
 }

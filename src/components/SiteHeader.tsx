@@ -2,6 +2,8 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { LoginRequiredModal } from './LoginRequiredModal'
 
 type Labels = { home: string; inquiry: string; login: string; signup: string; mypage: string; logout: string; admin: string }
 
@@ -9,6 +11,7 @@ type Labels = { home: string; inquiry: string; login: string; signup: string; my
  * 사이트 헤더(큐 Q32, Figma [v2] 205:3 PC / 207:3 Mobile).
  * PC: 로고 · 홈/1:1 문의/마이페이지 · 대표번호 · 로그인/회원가입 · 한국어/日本語.
  * Mobile: 로고 · 로그인/회원가입 · 언어 — 메뉴와 전화는 하단 탭바(MobileTabBar)가 맡는다.
+ * 비회원이 마이페이지를 누르면 이동하지 않고 로그인 유도 팝업(227:153)을 띄운다.
  * [관리자] 버튼 숨김은 보안이 아니다 — /manage 는 서버가 매 요청 판정한다(1-16 규칙 3).
  */
 export function SiteHeader({
@@ -26,6 +29,7 @@ export function SiteHeader({
 }) {
   const pathname = usePathname() ?? `/${locale}`
   const router = useRouter()
+  const [askLogin, setAskLogin] = useState(false)
   const pathFor = (target: string) => pathname.replace(/^\/(ko|ja)(?=\/|$)/, `/${target}`)
   const home = `/${locale}`
   const current = (href: string) => (pathname === href || pathname.startsWith(`${href}/`) ? 'page' : undefined)
@@ -48,10 +52,19 @@ export function SiteHeader({
         <Link href={`${home}/order/other`} aria-current={current(`${home}/order/other`)}>
           {labels.inquiry}
         </Link>
-        <Link href={`${home}/mypage`} aria-current={current(`${home}/mypage`)}>
+        <Link
+          href={`${home}/mypage`}
+          aria-current={current(`${home}/mypage`)}
+          onClick={(e) => {
+            if (loggedIn) return
+            e.preventDefault()
+            setAskLogin(true)
+          }}
+        >
           {labels.mypage}
         </Link>
       </nav>
+      <LoginRequiredModal locale={locale} open={askLogin} onClose={() => setAskLogin(false)} />
       <div className="site-header-right">
         <a className="site-phone" href={`tel:${phone.replace(/[^\d+]/g, '')}`}>
           <img src="/ui/phone.svg" alt="" width={18} height={18} />

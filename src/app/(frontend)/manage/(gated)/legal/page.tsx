@@ -17,6 +17,7 @@ export const dynamic = 'force-dynamic'
 const DOC_KINDS = [
   { kind: 'terms', name: '이용약관' },
   { kind: 'privacy', name: '개인정보처리방침' },
+  { kind: 'refund', name: '환불 및 취소 정책' },
 ] as const
 const LOCALES = ['ko', 'ja'] as const
 
@@ -36,7 +37,7 @@ export default async function LegalPage({ searchParams }: Props) {
   const payload = await getPayload({ config })
   const [{ docs: contracts }, { docs: documents }] = await Promise.all([
     payload.find({ collection: 'contract-templates', sort: 'category', limit: 50, depth: 0, overrideAccess: true }),
-    payload.find({ collection: 'legal-documents', limit: 10, depth: 0, overrideAccess: true }),
+    payload.find({ collection: 'legal-documents', limit: 20, depth: 0, overrideAccess: true }),
   ])
 
   const entries = [

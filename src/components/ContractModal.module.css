@@ -1,0 +1,54 @@
+/* 13-B 계약서 팝업(Figma [v2] 226:43 PC · 226:204 Mobile). 겉틀·backdrop 은 globals.css .modal */
+.dialog { width: min(900px, calc(100vw - 32px)); max-height: 90vh; border-radius: 20px; flex-direction: column; overflow: hidden; }
+.dialog[open] { display: flex; }
+
+.head { display: flex; align-items: center; gap: 12px; padding: 24px 32px; border-bottom: 1px solid var(--line); }
+.titles { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.title { margin: 0; font-size: 24px; font-weight: 700; line-height: 1.4; color: var(--ink-900); letter-spacing: -0.005em; }
+.sub { margin: 0; font-size: 14px; line-height: 1.7; color: var(--ink-500); }
+.close { flex: none; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 0; border-radius: 999px; background: var(--surface); cursor: pointer; }
+.close img { width: 20px; height: 20px; }
+
+.body { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 22px; padding: 28px 32px; }
+
+.facts { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 18px 20px; border-radius: 14px; background: var(--surface); }
+.fact { display: flex; align-items: center; gap: 12px; }
+.fact dt { flex: none; width: 140px; font-size: 14px; line-height: 1.7; color: var(--ink-500); }
+.fact dd { flex: 1; min-width: 0; display: flex; align-items: center; min-height: 42px; margin: 0; padding: 8px 14px; border-radius: 10px; background: var(--brand-50, #eff5ff); color: #002e80; font-size: 15px; font-weight: 700; line-height: 1.7; overflow-wrap: anywhere; }
+
+.notice { margin: 0; font-weight: 600; color: var(--ink-500); }
+
+.text { display: flex; flex-direction: column; gap: 22px; }
+.article { display: flex; flex-direction: column; gap: 6px; }
+.articleTitle { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.4; color: var(--ink-900); }
+.articleBody { margin: 0; white-space: pre-wrap; font-size: 16px; line-height: 1.7; color: var(--ink-700); overflow-wrap: anywhere; }
+
+.seal { text-align: right; }
+.seal img { max-width: 160px; max-height: 100px; }
+
+.foot { display: flex; flex-direction: column; gap: 14px; padding: 24px 32px; border-top: 1px solid var(--line); background: #fff; }
+.check { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 0 18px; border-radius: 12px; background: var(--brand-50, #eff5ff); font-size: 16px; font-weight: 700; line-height: 1.7; color: var(--ink-900); cursor: pointer; }
+.check input { position: absolute; opacity: 0; pointer-events: none; }
+.checkBox { flex: none; width: 22px; height: 22px; border: 1.6px solid var(--brand-600); border-radius: 7px; background: #fff; }
+.check:has(input:checked) .checkBox { background: var(--brand-600) url('/ui/modal-check.svg') center / 14px 14px no-repeat; }
+.check:has(input:focus-visible) { outline: 2px solid var(--brand-600); outline-offset: 2px; }
+.confirmBtn { height: 58px; border-radius: 12px; font-size: 17px; }
+
+@media (max-width: 767px) {
+  .dialog { max-height: calc(100vh - 48px); }
+  .head { padding: 16px 18px; }
+  .title { font-size: 18px; }
+  .sub { font-size: 12px; }
+  .close { width: 38px; height: 38px; }
+  .close img { width: 18px; height: 18px; }
+  .body { gap: 16px; padding: 20px 18px; }
+  .facts { padding: 14px; }
+  .fact { flex-direction: column; align-items: stretch; gap: 3px; }
+  .fact dt { width: auto; font-size: 12px; }
+  .fact dd { min-height: 38px; font-size: 13px; }
+  .articleTitle { font-size: 15px; }
+  .articleBody { font-size: 14px; }
+  .foot { gap: 10px; padding: 16px 18px; }
+  .check { min-height: 54px; padding: 0 14px; font-size: 13px; }
+  .confirmBtn { height: 52px; font-size: 16px; }
+}

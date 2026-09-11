@@ -278,7 +278,6 @@
     "businessNo": "事業者登録番号",
     "businessNoPh": "000-00-00000（個人の方は空欄）",
     "addressSearch": "住所検索",
-    "addressSearchSoon": "住所検索は準備中です。直接入力してください。",
     "agreeAll": "すべてに同意",
     "agreeAge": "［必須］14歳以上です",
     "agreeMarketing": "［任意］広告・特典情報の受信に同意します"
@@ -479,7 +478,6 @@
     "emailPh": "name@email.com",
     "postalCodePh": "000-0000",
     "addressSearch": "住所検索",
-    "addressSearchSoon": "住所検索は準備中です。直接ご入力ください",
     "address1Ph": "東京都…",
     "address2Ph": "建物名・部屋番号など",
     "representativePh": "山田太郎",
@@ -567,7 +565,8 @@
     "contact": "担当者",
     "mailOrder": "通信販売業届出",
     "terms": "利用規約",
-    "privacy": "個人情報処理方針"
+    "privacy": "個人情報処理方針",
+    "refund": "返金・キャンセルポリシー"
   },
   "seo": {
     "siteName": "AYUTA アユタ",
@@ -583,7 +582,18 @@
   "legal": {
     "termsTitle": "利用規約",
     "privacyTitle": "個人情報処理方針",
-    "notReady": "ただいま準備中です。ご不明な点はお問い合わせください。"
+    "notReady": "ただいま準備中です。ご不明な点はお問い合わせください。",
+    "refundTitle": "返金・キャンセルポリシー",
+    "revised": "最終改定 {date}",
+    "toc": "目次",
+    "modalHint": "スクロールして全文をご確認いただけます",
+    "agreeAndClose": "同意して閉じる",
+    "close": "閉じる",
+    "loading": "読み込み中です。",
+    "loadFailed": "文書を読み込めませんでした。しばらくしてから再度お試しください。",
+    "agreeTerms": "サービス利用規約に同意します。",
+    "agreePrivacy": "個人情報の収集・利用に同意します。",
+    "agreeRefund": "キャンセル・返金条件を確認し、同意します。"
   },
   "contact": {
     "title": "ご不明な点はございますか？",
@@ -629,7 +639,6 @@
       "postalCode": "郵便番号",
       "postalCodePh": "00000",
       "addressSearch": "住所検索",
-      "addressSearchSoon": "住所検索は準備中です。直接ご入力ください。",
       "address1": "住所",
       "address1Ph": "ソウル特別市 東大門区 …",
       "address2": "詳細住所",
@@ -696,5 +705,33 @@
       "network": "サーバーに接続できませんでした。ネットワークをご確認ください。",
       "weak_password": "新しいパスワードは英字・数字・記号をすべて含む10文字以上にしてください。"
     }
+  },
+  "address": {
+    "button": "住所検索",
+    "title": "住所検索",
+    "close": "閉じる",
+    "krExample": "例) 답십리동 323 · 아유타빌딩 · 동대문구 천호대로",
+    "jpPlaceholder": "郵便番号（7桁）を入力してください",
+    "jpExample": "例) 100-0001 または 1000001",
+    "submit": "検索",
+    "loading": "読み込み中です…",
+    "noResult": "該当する住所がありません。郵便番号をご確認ください。",
+    "invalidZip": "郵便番号は7桁の数字で入力してください。",
+    "failed": "住所検索を読み込めませんでした。しばらくしてから再度お試しいただくか、直接ご入力ください。"
+  },
+  "modal": {
+    "close": "閉じる",
+    "contractScrollHint": "スクロールして全文をご確認いただけます",
+    "contractConfirmCheck": "上記の契約内容をすべて確認し、同意します。",
+    "contractConfirm": "契約内容の確認完了",
+    "loginTitle": "ログインが必要です",
+    "loginBody1": "注文履歴と契約書はログインしてご確認いただけます。",
+    "loginBody2": "非会員でお支払いの場合は注文照会をご利用ください。",
+    "loginGuest": "非会員注文照会",
+    "loginGo": "ログイン",
+    "saveTitle": "変更内容を保存しますか？",
+    "saveBody": "保存せずに移動すると、入力した内容が失われます。",
+    "saveDiscard": "保存しない",
+    "saveConfirm": "保存"
   }
 }

@@ -16,7 +16,6 @@ export const CHECKOUT_LABEL_KEYS = [
   'postalCode',
   'postalCodePh',
   'addressSearch',
-  'addressSearchSoon',
   'address1',
   'address1Ph',
   'address2',

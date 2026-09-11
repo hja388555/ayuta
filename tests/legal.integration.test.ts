@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 // localApi 를 먼저 — .env 를 읽기 전에 payload config 를 가져오면 "missing secret key"
 import { localPayload } from './helpers/localApi.js'
 import { api, login } from './helpers/server.js'
+import { REFUND_KO_BODY, REFUND_KO_TITLE } from '../src/lib/legal/refund-policy.js'
 
 const RUN = Date.now()
 const PW = 'Ayuta!Test-2026'
@@ -15,6 +16,7 @@ const post = (body: unknown, who?: string) => api('/api/admin/legal', { method: 
 
 let contract: { id: number; title: string; body: string }
 let privacyJaBefore: { id: number; title: string; body: string } | null = null
+let refundJaBefore: { id: number; title: string; body: string } | null = null
 const createdDocIds: number[] = []
 
 beforeAll(async () => {
@@ -30,6 +32,14 @@ beforeAll(async () => {
   contract = { id: docs[0].id as number, title: docs[0].title, body: docs[0].body }
   const existing = await payload.find({ collection: 'legal-documents', where: { and: [{ kind: { equals: 'privacy' } }, { locale: { equals: 'ja' } }] }, limit: 1, overrideAccess: true })
   if (existing.docs[0]) privacyJaBefore = { id: existing.docs[0].id as number, title: existing.docs[0].title, body: existing.docs[0].body }
+  // /ko/refund 확인용 — 시드(pnpm seed:legal)가 안 돼 있으면 같은 원문으로 만들고 끝나면 지운다
+  const refundKo = await payload.find({ collection: 'legal-documents', where: { and: [{ kind: { equals: 'refund' } }, { locale: { equals: 'ko' } }] }, limit: 1, overrideAccess: true })
+  if (!refundKo.docs[0]) {
+    const created = await payload.create({ collection: 'legal-documents', data: { kind: 'refund', locale: 'ko', title: REFUND_KO_TITLE, body: REFUND_KO_BODY }, overrideAccess: true })
+    createdDocIds.push(created.id as number)
+  }
+  const refundJa = await payload.find({ collection: 'legal-documents', where: { and: [{ kind: { equals: 'refund' } }, { locale: { equals: 'ja' } }] }, limit: 1, overrideAccess: true })
+  if (refundJa.docs[0]) refundJaBefore = { id: refundJa.docs[0].id as number, title: refundJa.docs[0].title, body: refundJa.docs[0].body }
 })
 
 afterAll(async () => {
@@ -41,6 +51,12 @@ afterAll(async () => {
   }
   const { docs } = await payload.find({ collection: 'legal-documents', where: { and: [{ kind: { equals: 'privacy' } }, { locale: { equals: 'ja' } }] }, limit: 1, overrideAccess: true })
   if (!privacyJaBefore && docs[0]) createdDocIds.push(docs[0].id as number)
+  if (refundJaBefore) {
+    await payload.update({ collection: 'legal-documents', id: refundJaBefore.id, data: { title: refundJaBefore.title, body: refundJaBefore.body }, overrideAccess: true }).catch(() => {})
+  } else {
+    const r = await payload.find({ collection: 'legal-documents', where: { and: [{ kind: { equals: 'refund' } }, { locale: { equals: 'ja' } }] }, limit: 1, overrideAccess: true })
+    if (r.docs[0]) createdDocIds.push(r.docs[0].id as number)
+  }
   await payload.db.pool.query('DELETE FROM legal_revisions WHERE body LIKE $1 OR title LIKE $1', [`%${RUN}%`]).catch(() => {})
   for (const id of createdDocIds) await payload.db.pool.query('DELETE FROM legal_documents WHERE id = $1', [id]).catch(() => {})
   await payload.db.pool.query('DELETE FROM admin_login_logs WHERE user_id = ANY($1::int[])', [userIds]).catch(() => {})
@@ -98,6 +114,25 @@ describe('약관 문서', () => {
     expect(home).toContain('href="/ko/privacy"')
     const signup = await (await api('/ko/signup')).text()
     expect(signup).toContain('href="/ko/terms"')
+  })
+
+  it('환불 및 취소 정책 화면이 E절 원문을 보여주고 푸터·사이트맵이 가리킨다', async () => {
+    const res = await api('/ko/refund')
+    expect(res.status).toBe(200)
+    const html = await res.text()
+    expect(html).toContain('광고 진행 당일 취소: 총 결제금액의 10% 공제 후 90% 환불')
+    expect(html).toContain('href="/ko/refund"')
+    const sitemap = await (await api('/sitemap.xml')).text()
+    expect(sitemap).toContain('/ko/refund')
+  })
+
+  it('최고관리자는 환불 정책(kind refund)도 저장할 수 있다', async () => {
+    const body = `返金テスト ${RUN}`
+    expect((await post({ target: 'document', kind: 'refund', locale: 'ja', title: `返金 ${RUN}`, body }, 'super')).status).toBe(200)
+    expect(await (await api('/ja/refund')).text()).toContain(body)
+    const payload = await localPayload()
+    const { docs } = await payload.find({ collection: 'legal-revisions', where: { title: { equals: `返金 ${RUN}` } }, limit: 1, overrideAccess: true })
+    expect(docs[0]?.label).toBe('환불 및 취소 정책 (ja)')
   })
 
   it('수정 이력은 고객이 REST 로 읽을 수 없다', async () => {

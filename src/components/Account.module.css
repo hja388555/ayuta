@@ -72,6 +72,14 @@
 .confirmFoot { display: flex; gap: 10px; width: 100%; }
 .confirmFoot :global(.btn) { height: 54px; font-size: 16px; }
 
+/* 저장 확인(227:168) — 아이콘 없이 왼쪽 정렬 제목·설명 */
+:global(.modal):has(.saveAsk) { width: min(440px, calc(100vw - 32px)); }
+:global(.modal):has(.saveAsk) :global(.modal-head) { display: none; }
+:global(.modal):has(.saveAsk) :global(.modal-body) { padding: 28px; }
+:global(.modal):has(.saveAsk) :global(.modal-foot) { padding: 20px 28px; }
+.saveAsk { display: flex; flex-direction: column; gap: 12px; }
+.saveAskTitle { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.4; color: var(--ink-900); }
+
 @media (max-width: 767px) {
   .h1 { font-size: 26px; }
   .stack, .page { gap: 20px; }

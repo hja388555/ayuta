@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation'
 import type { PriceBook } from '@ayuta/pricing'
 import type { ConsentDef } from '@/lib/checkout/consents'
 import type { CheckoutLabels } from '@/lib/checkout/labels'
-import { ChoiceCard, Modal, StepTitle, TotalBar } from './ui'
+import { ChoiceCard, StepTitle, TotalBar } from './ui'
+import { AddressSearch } from './AddressSearch'
+import { ContractDialog } from './ContractModal'
+import { LegalConsentModal, type LegalKind } from './LegalConsentModal'
 import s from './Checkout.module.css'
 
 export type OrdererFormState = {
@@ -105,7 +108,7 @@ type Props = {
   labels: CheckoutLabels
 }
 
-// 약관·개인정보는 공개 문서 페이지로, 그 밖의 동의(계약 내용 등)는 계약서 미리보기 팝업으로
+// 약관·개인정보는 약관 동의 모달(v2 13-A)로, 그 밖의 동의(계약 내용 등)는 계약서 미리보기 팝업으로
 const PUBLIC_DOC_KEYS = new Set(['terms', 'privacy'])
 
 export function CheckoutForm({ locale, categorySlug, selection, amount, currency, reviewRows, editHref, template, initialOrderer, labels }: Props) {
@@ -114,7 +117,8 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
   const [checked, setChecked] = useState<Record<string, boolean>>({})
   const [touched, setTouched] = useState<Partial<Record<OrdererField, boolean>>>({})
   const [attempted, setAttempted] = useState(false)
-  const [showContract, setShowContract] = useState(false)
+  const [showContract, setShowContract] = useState<string | null>(null)
+  const [viewDoc, setViewDoc] = useState<LegalKind | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
   // 결제 버튼 더블클릭·네트워크 재시도로 같은 주문이 두 번 만들어지지 않게, 폼이 마운트될
@@ -252,12 +256,14 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
           {field('postalCode', {
             required: true,
             autoComplete: 'postal-code',
-            // 주소 검색 팝업은 Q35 에서 붙는다. 그 전까지는 모양만 두고 눌러도 아무 일이 없게 막는다
             addon: (
-              <button type="button" className={`btn btn-secondary ${s.searchBtn}`} disabled title={labels.addressSearchSoon}>
-                <img src="/ui/search.svg" alt="" width={18} height={18} />
-                {labels.addressSearch}
-              </button>
+              <AddressSearch
+                locale={locale}
+                className={`btn btn-secondary ${s.searchBtn}`}
+                labels={{ button: labels.addressSearch, close: labels.close }}
+                focusId="co-address2"
+                onSelect={(p) => setOrderer((prev) => ({ ...prev, ...p }))}
+              />
             ),
           })}
           {field('address1', { required: true, autoComplete: 'address-line1' })}
@@ -306,12 +312,12 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
               <span>{c.label}</span>
             </label>
             {PUBLIC_DOC_KEYS.has(c.key) ? (
-              <a href={`/${locale}/${c.key}`} target="_blank" rel="noopener noreferrer" className={`btn btn-secondary ${s.viewBtn}`}>
+              <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setViewDoc(c.key as LegalKind)}>
                 <img src="/ui/doc.svg" alt="" width={16} height={16} />
                 {labels.viewContent}
-              </a>
+              </button>
             ) : (
-              <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setShowContract(true)}>
+              <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setShowContract(c.key)}>
                 <img src="/ui/doc.svg" alt="" width={16} height={16} />
                 {labels.viewContract}
               </button>
@@ -329,9 +335,19 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
 
       {/* 빈칸이 채워진 상태를 그대로 보여준다 — createOrder가 실제로 저장할 것과 같은 텍스트를
           서버가 미리 렌더해 넘긴다(template.body는 이미 fillContract를 거친 미리보기다) */}
-      <Modal open={showContract} onClose={() => setShowContract(false)} title={template.title} closeLabel={labels.close}>
-        <pre className={s.contractText}>{template.body}</pre>
-      </Modal>
+      {/* 13-B 계약서 팝업 확인 모드 — [계약 확인 완료]를 누르면 연 줄의 동의가 체크된다 */}
+      <ContractDialog
+        open={showContract !== null}
+        onClose={() => setShowContract(null)}
+        onConfirm={() => {
+          if (showContract) setChecked((prev) => ({ ...prev, [showContract]: true }))
+          setShowContract(null)
+        }}
+        title={template.title}
+        closeLabel={labels.close}
+        contractText={template.body}
+      />
+      <LegalConsentModal kind={viewDoc} locale={locale} onClose={() => setViewDoc(null)} onAgree={(k) => setChecked((prev) => ({ ...prev, [k]: true }))} />
 
       <section className={s.card} aria-labelledby="co-pay">
         <StepTitle n={4} id="co-pay" title={labels.payTitle} />
