@@ -1,8 +1,7 @@
 import 'server-only'
-import { readFile } from 'fs/promises'
-import path from 'path'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { readUploadFile } from './uploads/storage'
 
 /**
  * 대표자 서명·날인 이미지(큐 Q25 3차).
@@ -14,7 +13,7 @@ import config from '@payload-config'
  * 주문에는 결제 시점의 자산 id 를 고정한다(orders.sealAsset). 관리자가 나중에 도장을 바꿔도
  * 옛 계약서는 그때 찍힌 도장 그대로다. 업로드는 매번 새 자산을 만들고 지우지 않으므로 옛 파일이 남는다.
  */
-type AssetRef = number | { id: number; filename?: string | null } | null | undefined
+type AssetRef = number | { id: number; filename?: string | null; prefix?: string | null } | null | undefined
 
 /** 지금 설정된 도장 자산 id. 없으면 null — 도장 없이도 주문은 된다 */
 export async function currentSealAssetId(): Promise<number | null> {
@@ -34,15 +33,9 @@ export async function sealDataUri(ref: AssetRef): Promise<string | undefined> {
     typeof ref === 'object' && ref.filename
       ? ref
       : await payload.findByID({ collection: 'brand-assets', id: typeof ref === 'object' ? ref.id : ref, depth: 0, overrideAccess: true }).catch(() => null)
-  const filename = path.basename(String(asset?.filename ?? ''))
-  if (!filename) return undefined
-  const staticDir = (payload.collections['brand-assets'].config.upload as { staticDir: string }).staticDir
-  try {
-    const buf = await readFile(path.join(staticDir, filename))
-    return `data:image/png;base64,${buf.toString('base64')}`
-  } catch {
-    return undefined
-  }
+  if (!asset) return undefined
+  const buf = await readUploadFile(payload, 'brand-assets', asset)
+  return buf ? `data:image/png;base64,${buf.toString('base64')}` : undefined
 }
 
 /** 목록 화면용 — 같은 도장을 쓰는 주문이 여러 개여도 파일은 한 번만 읽는다 */

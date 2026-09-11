@@ -1,9 +1,9 @@
 import { randomUUID } from 'node:crypto'
-import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { readUploadFile } from '@/lib/uploads/storage'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { requireSuperForApi } from '@/lib/admin/require-super'
 import { isTransparentCapablePng } from '@/lib/png-alpha'
@@ -64,15 +64,9 @@ export async function GET(): Promise<Response> {
   const settings = await payload.findGlobal({ slug: 'company-settings', depth: 1, overrideAccess: true })
   const seal = settings.sealImage
   if (!seal || typeof seal !== 'object') return NextResponse.json({ error: 'not_found' }, { status: 404 })
-  const staticDir = (payload.collections['brand-assets'].config.upload as { staticDir: string }).staticDir
-  const filename = path.basename(String(seal.filename ?? ''))
-  if (!filename) return NextResponse.json({ error: 'not_found' }, { status: 404 })
-  try {
-    const data = await readFile(path.join(staticDir, filename))
-    return new Response(new Uint8Array(data), {
-      headers: { 'Content-Type': 'image/png', 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, no-store' },
-    })
-  } catch {
-    return NextResponse.json({ error: 'not_found' }, { status: 404 })
-  }
+  const data = await readUploadFile(payload, 'brand-assets', seal)
+  if (!data) return NextResponse.json({ error: 'not_found' }, { status: 404 })
+  return new Response(new Uint8Array(data), {
+    headers: { 'Content-Type': 'image/png', 'X-Content-Type-Options': 'nosniff', 'Cache-Control': 'private, no-store' },
+  })
 }

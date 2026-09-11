@@ -11,8 +11,8 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
  * Local API 로 저장한다 — REST create 를 닫는다.
  * 날인 이미지는 위조에 쓰일 수 있어 공개 URL 을 두지 않는다(읽기는 관리자만).
  *
- * ⚠ 지금은 로컬 디스크(uploads/, gitignore)에 저장한다. Supabase Storage 어댑터로 교체해야
- *   Vercel 배포가 가능하다(inquiry-files 와 같은 사정).
+ * 운영은 Supabase Storage 비공개 버킷(brand-assets/ 접두사), 로컬·CI 는 uploads/ 디스크에 저장한다
+ * (payload.config 의 s3Storage, S3_ENABLED). 읽기는 src/lib/uploads/storage.ts.
  */
 export const BrandAssets: CollectionConfig = {
   slug: 'brand-assets',

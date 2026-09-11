@@ -13,8 +13,8 @@ const dirname = path.dirname(fileURLToPath(import.meta.url))
  * 열람도 관리자만: Payload 가 여는 파일 URL(/api/inquiry-files/file/…)은
  * 이 컬렉션의 read access 를 탄다.
  *
- * ⚠ 지금은 로컬 디스크(staticDir)에 저장한다. Supabase Storage S3 키를 받으면 저장소
- *   어댑터로 교체한다 — Vercel 은 디스크가 요청마다 사라지므로 배포 전 교체 필수.
+ * 운영은 Supabase Storage 비공개 버킷(inquiry-files/ 접두사), 로컬·CI 는 아래 staticDir 디스크에 저장한다
+ * (payload.config 의 s3Storage, S3_ENABLED). 읽기는 src/lib/uploads/storage.ts.
  */
 export const InquiryFiles: CollectionConfig = {
   slug: 'inquiry-files',
