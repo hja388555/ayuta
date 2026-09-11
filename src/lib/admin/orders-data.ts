@@ -1,7 +1,8 @@
 import 'server-only'
 import { headers } from 'next/headers'
-import { getPayload } from 'payload'
+import { getPayload, type Where } from 'payload'
 import config from '@payload-config'
+import type { OrderStatus } from '../../collections/Orders'
 import type { Order, OrderNote, OrderTransition } from '../../payload-types'
 import type { OrderListQuery } from './order-list-query'
 
@@ -48,6 +49,43 @@ export async function findOrdersForAdmin(query: OrderListQuery): Promise<OrderLi
     totalPages: res.totalPages ?? 1,
     totalDocs: res.totalDocs ?? 0,
   }
+}
+
+/**
+ * 상태 칩 건수. where 는 상태 조건을 뺀 목록 조건(검색·기간)이다.
+ * 목록과 같은 세션 사용자·access 로 센다 — 건수만 따로 overrideAccess 로 열지 않는다.
+ */
+export async function countOrdersByStatus(
+  where: Where,
+  statuses: readonly OrderStatus[],
+): Promise<{ total: number; byStatus: Record<string, number> }> {
+  const { payload, user } = await authedPayload()
+  const count = async (w: Where) =>
+    (await payload.count({ collection: 'orders', where: w, user, overrideAccess: false })).totalDocs
+  const and = (extra: Where): Where => (Object.keys(where).length > 0 ? { and: [where, extra] } : extra)
+  const [total, ...each] = await Promise.all([
+    count(where),
+    ...statuses.map((s) => count(and({ status: { equals: s } }))),
+  ])
+  return { total, byStatus: Object.fromEntries(statuses.map((s, i) => [s, each[i] ?? 0])) }
+}
+
+/** CSV 내보내기 상한. 이보다 많으면 기간을 좁혀 받게 한다 — 한 요청이 DB 를 오래 붙잡지 않게 */
+export const ORDER_EXPORT_LIMIT = 5000
+
+export async function findOrdersForExport(where: Where): Promise<Order[]> {
+  const { payload, user } = await authedPayload()
+  const res = await payload.find({
+    collection: 'orders',
+    where,
+    limit: ORDER_EXPORT_LIMIT,
+    sort: '-createdAt',
+    depth: 0,
+    pagination: false,
+    user,
+    overrideAccess: false,
+  })
+  return res.docs as Order[]
 }
 
 /** 없거나 권한이 없으면 null. 둘을 구분해 알려주지 않는다 — 호출자는 양쪽 다 404 로 만든다 */

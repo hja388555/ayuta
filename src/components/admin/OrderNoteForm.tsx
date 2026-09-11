@@ -3,7 +3,8 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
-import { button, errorBox, input } from './styles'
+import { errorBox } from './styles'
+import s from './AdminOrders.module.css'
 
 /**
  * 연락메모 작성 폼.
@@ -48,19 +49,20 @@ export function OrderNoteForm({ orderId }: { orderId: number }) {
   }
 
   return (
-    <div>
+    <>
       <textarea
-        style={{ ...input, width: '100%', minHeight: 80, display: 'block' }}
-        placeholder="고객과 연락한 내용을 남기세요. 저장 후에는 수정·삭제할 수 없습니다."
+        className={s.textarea}
+        aria-label="연락 메모"
+        placeholder="통화 내용 · 진행 상황을 기록하세요 (저장 후 수정·삭제할 수 없습니다)"
         value={body}
         maxLength={5000}
         onChange={(e) => setBody(e.target.value)}
         disabled={busy}
       />
-      <button type="button" style={{ ...button, marginTop: 8 }} onClick={submit} disabled={busy}>
+      <button type="button" className={`btn btn-secondary btn-block ${s.bigBtn}`} onClick={submit} disabled={busy}>
         {busy ? '저장 중…' : '메모 추가'}
       </button>
       {error ? <p style={errorBox}>{error}</p> : null}
-    </div>
+    </>
   )
 }
