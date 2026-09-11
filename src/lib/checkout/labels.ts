@@ -46,6 +46,7 @@ export const CHECKOUT_LABEL_KEYS = [
   'errPhone',
   'errSummary',
   'errConsents',
+  'contractNeedsOrderer',
 ] as const
 
 export type CheckoutLabels = Record<(typeof CHECKOUT_LABEL_KEYS)[number], string>

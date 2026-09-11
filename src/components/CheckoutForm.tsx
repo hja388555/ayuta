@@ -139,6 +139,19 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
     setOrderer((prev) => ({ ...prev, [key]: value }))
   }
 
+  // 계약서에는 주문자 정보가 들어가므로, 주문자 정보가 끝나기 전에는 계약서를 열거나 동의하지 못하게 한다.
+  // 막았을 때는 빠진 칸을 보여 주고 첫 칸으로 포커스를 옮긴다
+  const contractLocked = errorCount > 0
+  const [contractBlocked, setContractBlocked] = useState(false)
+  function guardContract(): boolean {
+    if (!contractLocked) return true
+    setAttempted(true)
+    setContractBlocked(true)
+    const first = REQUIRED_FIELDS.concat(['phone', 'email']).find((f) => errors[f])
+    if (first) document.getElementById(`co-${first}`)?.focus()
+    return false
+  }
+
   async function submit() {
     if (submitting) return
     if (!canPay) {
@@ -306,7 +319,11 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
               <input
                 type="checkbox"
                 checked={checked[c.key] === true}
-                onChange={(e) => setChecked((prev) => ({ ...prev, [c.key]: e.target.checked }))}
+                onChange={(e) => {
+                  // 약관류(이용약관 등)는 주문자 정보와 무관하다 — 계약서 동의만 막는다
+                  if (e.target.checked && !PUBLIC_DOC_KEYS.has(c.key) && !guardContract()) return
+                  setChecked((prev) => ({ ...prev, [c.key]: e.target.checked }))
+                }}
               />
               <span className="choice-box" aria-hidden />
               <span>{c.label}</span>
@@ -317,13 +334,25 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
                 {labels.viewContent}
               </button>
             ) : (
-              <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setShowContract(c.key)}>
+              <button
+                type="button"
+                className={`btn btn-secondary ${s.viewBtn}`}
+                aria-disabled={contractLocked || undefined}
+                onClick={() => {
+                  if (guardContract()) setShowContract(c.key)
+                }}
+              >
                 <img src="/ui/doc.svg" alt="" width={16} height={16} />
                 {labels.viewContract}
               </button>
             )}
           </div>
         ))}
+        {contractLocked && contractBlocked ? (
+          <p className={s.contractLock} role="alert">
+            {labels.contractNeedsOrderer}
+          </p>
+        ) : null}
         {/* 입력칸을 직접 고치게 하지 않는다 — 필수 동의가 끝나면 주문자명이 자동 기입된다 */}
         <div className={signature ? `${s.sign} ${s.signOn}` : s.sign} aria-live="polite">
           <span className={s.signBox} aria-hidden />
