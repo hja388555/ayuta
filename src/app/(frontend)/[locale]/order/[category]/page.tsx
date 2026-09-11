@@ -49,7 +49,6 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const t = await getTranslations('tierForm')
   const tGroup = await getTranslations('groupForm')
   const tCat = await getTranslations('categories')
-  const tInquiry = await getTranslations('inquiry')
   const tForm = await getTranslations('inquiryForm')
 
   // 5번 문의 폼: ?type= 은 URL 에서 온 값이라 카테고리 표와 대조한다. 없는 값이면 미선택(1-18).
@@ -160,9 +159,6 @@ export default async function OrderPage({ params, searchParams }: Props) {
             </section>
           ) : null}
 
-          <p style={{ marginTop: 48, color: 'var(--ink-500)', fontSize: 'var(--fs-sm)' }}>
-            {tInquiry('notice')}
-          </p>
         </div>
       </Shell>
     </main>

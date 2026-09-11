@@ -6,64 +6,89 @@ import { usePathname, useRouter } from 'next/navigation'
 type Labels = { home: string; inquiry: string; login: string; signup: string; mypage: string; logout: string; admin: string }
 
 /**
- * 최소 헤더 — 로그인·마이페이지 진입과 [관리자] 버튼(요구사항 1-16), 언어 전환.
- * 대표번호 크게 표기·모바일 하단 탭바 등 전체 헤더 디자인은 별도 작업이다.
+ * 사이트 헤더(큐 Q32, Figma [v2] 205:3 PC / 207:3 Mobile).
+ * PC: 로고 · 홈/1:1 문의/마이페이지 · 대표번호 · 로그인/회원가입 · 한국어/日本語.
+ * Mobile: 로고 · 로그인/회원가입 · 언어 — 메뉴와 전화는 하단 탭바(MobileTabBar)가 맡는다.
  * [관리자] 버튼 숨김은 보안이 아니다 — /manage 는 서버가 매 요청 판정한다(1-16 규칙 3).
  */
-export function SiteHeader({ locale, loggedIn, isAdmin, labels }: { locale: string; loggedIn: boolean; isAdmin: boolean; labels: Labels }) {
+export function SiteHeader({
+  locale,
+  loggedIn,
+  isAdmin,
+  phone,
+  labels,
+}: {
+  locale: string
+  loggedIn: boolean
+  isAdmin: boolean
+  phone: string
+  labels: Labels
+}) {
   const pathname = usePathname() ?? `/${locale}`
   const router = useRouter()
-  const other = locale === 'ja' ? 'ko' : 'ja'
-  const switchPath = pathname.replace(/^\/(ko|ja)(?=\/|$)/, `/${other}`)
+  const pathFor = (target: string) => pathname.replace(/^\/(ko|ja)(?=\/|$)/, `/${target}`)
+  const home = `/${locale}`
+  const current = (href: string) => (pathname === href || pathname.startsWith(`${href}/`) ? 'page' : undefined)
 
   async function logout() {
     await fetch('/api/users/logout', { method: 'POST' }).catch(() => {})
-    router.push(`/${locale}`)
+    router.push(home)
     router.refresh()
   }
 
-  const link = { textDecoration: 'none', color: 'inherit' } as const
   return (
-    <header style={{ borderBottom: '1px solid var(--ink-100, #ECEEF1)' }}>
-      <nav style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px var(--side)', flexWrap: 'wrap', fontSize: 'var(--fs-sm, 14px)' }}>
-        <Link href={`/${locale}`} style={{ ...link, fontWeight: 700, fontSize: 18 }}>
-          AYUTA
-        </Link>
-        <Link href={`/${locale}`} style={link}>
+    <header className="site-header">
+      <Link href={home} className="site-logo" aria-label="AYUTA">
+        <img src="/ui/logo.png" alt="" width={84} height={56} />
+      </Link>
+      <nav className="site-nav">
+        <Link href={home} aria-current={pathname === home ? 'page' : undefined}>
           {labels.home}
         </Link>
-        <Link href={`/${locale}/order/other`} style={link}>
+        <Link href={`${home}/order/other`} aria-current={current(`${home}/order/other`)}>
           {labels.inquiry}
         </Link>
-        <span style={{ flex: 1 }} />
-        {isAdmin ? (
-          <Link href="/manage" style={{ ...link, fontWeight: 700 }}>
-            {`[${labels.admin}]`}
-          </Link>
-        ) : null}
-        {loggedIn ? (
-          <>
-            <Link href={`/${locale}/mypage`} style={link}>
-              {labels.mypage}
-            </Link>
-            <button type="button" onClick={logout} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit' }}>
-              {labels.logout}
-            </button>
-          </>
-        ) : (
-          <>
-            <Link href={`/${locale}/login`} style={link}>
-              {labels.login}
-            </Link>
-            <Link href={`/${locale}/signup`} style={link}>
-              {labels.signup}
-            </Link>
-          </>
-        )}
-        <Link href={switchPath} style={link} hrefLang={other}>
-          {other === 'ja' ? '日本語' : '한국어'}
+        <Link href={`${home}/mypage`} aria-current={current(`${home}/mypage`)}>
+          {labels.mypage}
         </Link>
       </nav>
+      <div className="site-header-right">
+        <a className="site-phone" href={`tel:${phone.replace(/[^\d+]/g, '')}`}>
+          <img src="/ui/phone.svg" alt="" width={18} height={18} />
+          {phone}
+        </a>
+        <div className="site-auth">
+          {loggedIn ? (
+            <>
+              {isAdmin ? (
+                <Link href="/manage" className="btn btn-primary">
+                  {`[${labels.admin}]`}
+                </Link>
+              ) : null}
+              <button type="button" onClick={logout} className="btn btn-secondary">
+                {labels.logout}
+              </button>
+            </>
+          ) : (
+            <>
+              <Link href={`${home}/login`} className="btn btn-secondary">
+                {labels.login}
+              </Link>
+              <Link href={`${home}/signup`} className="btn btn-primary">
+                {labels.signup}
+              </Link>
+            </>
+          )}
+        </div>
+        <nav className="seg" aria-label="Language">
+          <Link href={pathFor('ko')} hrefLang="ko" aria-current={locale === 'ko' ? 'true' : undefined}>
+            한국어
+          </Link>
+          <Link href={pathFor('ja')} hrefLang="ja" aria-current={locale === 'ja' ? 'true' : undefined}>
+            日本語
+          </Link>
+        </nav>
+      </div>
     </header>
   )
 }

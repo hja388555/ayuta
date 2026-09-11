@@ -4,6 +4,9 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { InstallBanner } from '@/components/InstallBanner'
+import { ContactBox } from '@/components/ContactBox'
+import { MobileTabBar } from '@/components/MobileTabBar'
+import { Shell } from '@/components/Shell'
 import { loadFooterInfo } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
 import { isAdminRole } from '@/lib/roles'
@@ -51,6 +54,10 @@ export default async function LocaleLayout({
   const t = await getTranslations('header')
   const tFooter = await getTranslations('footer')
   const tInstall = await getTranslations('install')
+  const tContact = await getTranslations('contact')
+  const tTabs = await getTranslations('tabs')
+  // 대표번호는 헤더·문의 박스·탭바·푸터가 같은 값을 쓴다 — 관리자 설정(company-settings) 하나가 출처
+  const footerInfo = await loadFooterInfo(locale === 'ja' ? 'ja' : 'ko')
 
   return (
     <NextIntlClientProvider>
@@ -58,15 +65,23 @@ export default async function LocaleLayout({
         locale={locale}
         loggedIn={Boolean(user)}
         isAdmin={Boolean(user && isAdminRole(user.role))}
+        phone={footerInfo.phone}
         labels={{ home: t('home'), inquiry: t('inquiry'), login: t('login'), signup: t('signup'), mypage: t('mypage'), logout: t('logout'), admin: t('admin') }}
       />
       {children}
+      {/* 본문 하단 문의 박스 — 모든 고객 화면 공통(큐 Q32, Figma [v2] 205:102) */}
+      <Shell as="section">
+        <div style={{ padding: '0 0 64px' }}>
+          <ContactBox phone={footerInfo.phone} chatHref={`/${locale}/order/other`} labels={{ title: tContact('title'), hours: tContact('hours'), chat: tContact('chat') }} />
+        </div>
+      </Shell>
       <InstallBanner labels={{ title: tInstall('title'), install: tInstall('install'), close: tInstall('close'), iosHint: tInstall('iosHint') }} />
       <SiteFooter
-        info={await loadFooterInfo(locale === 'ja' ? 'ja' : 'ko')}
+        info={footerInfo}
         labels={{ businessNo: tFooter('businessNo'), phone: tFooter('phone'), ceo: tFooter('ceo'), contact: tFooter('contact'), mailOrder: tFooter('mailOrder') }}
         legal={{ terms: { href: `/${locale}/terms`, label: tFooter('terms') }, privacy: { href: `/${locale}/privacy`, label: tFooter('privacy') } }}
       />
+      <MobileTabBar locale={locale} phone={footerInfo.phone} labels={{ home: tTabs('home'), call: tTabs('call'), chat: tTabs('chat'), mypage: tTabs('mypage') }} />
     </NextIntlClientProvider>
   )
 }
