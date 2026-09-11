@@ -39,7 +39,8 @@ export function LegalBody({ body, variant = 'page', toc = false, tocLabel }: { b
           <div className={s.chips}>
             {headings.map((h) => (
               <a key={h.id} href={`#${h.id}`} className={s.chip}>
-                {h.num} {h.text.replace(/^(제\s*\d+\s*조|\d+\.)\s*/, '')}
+                {/* "제1조 (목적)"·"第1条 目的" 모두 번호 뒤 제목만 — 제목을 감싼 괄호도 목차에서는 뗀다 */}
+                {h.num} {h.text.replace(/^(제\s*\d+\s*조|第\s*\d+\s*条|\d+\.)\s*/, '').replace(/^\((.*)\)$/, '$1')}
               </a>
             ))}
           </div>
