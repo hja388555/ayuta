@@ -20,7 +20,7 @@ const ITEMS: NavItem[] = [
   { label: '대시보드', icon: 'home', href: '/manage' },
   { label: '주문 · 접수 관리', icon: 'doc', href: '/manage/orders' },
   { label: '환불 관리', icon: 'refund', hint: '결제 연동 후' },
-  { label: '이미지 관리', icon: 'image', hint: '준비 중' },
+  { label: '이미지 관리', icon: 'image', href: '/manage/images' },
   { label: '단가 관리', icon: 'card', href: '/manage/prices' },
   { label: '문의 · 채팅', icon: 'chat', href: '/manage/inquiries' },
   { label: '설정', icon: 'user', href: '/manage/settings' },

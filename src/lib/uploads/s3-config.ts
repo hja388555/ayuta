@@ -7,7 +7,7 @@ import type { S3ClientConfig } from '@aws-sdk/client-s3'
  * 운영 버킷 키가 들어 있어서, 키만 보고 켜면 로컬 개발·통합 테스트 파일이 운영 버킷에 쌓인다.
  * Vercel 환경변수에만 S3_ENABLED=true 를 둔다.
  */
-export const S3_PREFIX = { 'inquiry-files': 'inquiry-files', 'brand-assets': 'brand-assets' } as const
+export const S3_PREFIX = { 'inquiry-files': 'inquiry-files', 'brand-assets': 'brand-assets', 'band-images': 'band-images' } as const
 
 export function s3Enabled(): boolean {
   return process.env.S3_ENABLED === 'true'
