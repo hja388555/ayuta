@@ -1,0 +1,83 @@
+/* [v2] 09-D 회원정보 수정 225:2/225:91 · 09-E 비밀번호 변경 225:190/225:251 · 09-F 회원 탈퇴 225:322/225:416 · 팝업 A 탈퇴 확인 227:119 */
+.page { display: flex; flex-direction: column; gap: 24px; min-width: 0; }
+.h1 { margin: 0; font-size: 34px; line-height: 1.25; letter-spacing: -0.02em; }
+.stack { display: flex; flex-direction: column; gap: 24px; }
+
+.card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; }
+.cardTitle { margin: 0; font-size: 20px; line-height: 1.5; }
+.cardHint { margin: -8px 0 0; font-size: 15px; line-height: 1.5; color: var(--ink-500); }
+
+/* 입력 — Checkout.module.css 와 같은 모양 */
+.row2 { display: grid; gap: 14px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.label { font-size: 15px; line-height: 1.5; color: var(--ink-700); }
+.inline { display: flex; gap: 8px; }
+.control { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
+.input { width: 100%; height: 54px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: #fff; font: inherit; font-size: 17px; color: var(--ink-900); }
+.input::placeholder { color: var(--ink-400); }
+.input:focus { outline: none; border-color: var(--brand-600); }
+.invalid .input { border: 1.6px solid var(--danger-600); padding-right: 44px; }
+.locked { padding-right: 88px; background: var(--surface); color: var(--ink-500); -webkit-text-fill-color: var(--ink-500); opacity: 1; }
+.lockNote { position: absolute; right: 16px; font-size: 13px; color: var(--ink-400); white-space: nowrap; pointer-events: none; }
+.fieldIcon { position: absolute; right: 16px; width: 18px; height: 18px; pointer-events: none; }
+.fieldError { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 14px; line-height: 1.6; color: var(--danger-600); }
+.fieldError img { flex: none; width: 14px; height: 14px; }
+.searchBtn { height: 54px; border-radius: var(--radius-md); }
+.searchBtn img { width: 18px; height: 18px; }
+.note { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 14px 16px; border-radius: var(--radius-md); background: var(--surface); font-size: 14px; line-height: 1.5; color: var(--ink-500); list-style: none; }
+.note li::before { content: '· '; }
+
+.actions { display: flex; gap: 12px; }
+.grow1 { flex: 1 1 0; min-width: 0; }
+.grow2 { flex: 2 1 0; min-width: 0; }
+.danger { background: var(--danger-600); color: #fff; }
+
+/* 탈퇴 — 진행 중 주문 경고 */
+.warn { display: flex; align-items: flex-start; gap: 14px; margin: 0; padding: 22px 24px; border-radius: var(--radius-xl); background: var(--warning-50); color: #b54708; }
+.warn img { flex: none; width: 24px; height: 24px; }
+.warnBody { display: flex; flex-direction: column; gap: 6px; min-width: 0; line-height: 1.5; }
+.warnTitle { margin: 0; font-size: 18px; font-weight: 700; }
+.warnList { margin: 0; padding: 0; list-style: none; font-size: 15px; overflow-wrap: anywhere; }
+
+.effects { display: flex; flex-direction: column; gap: 18px; margin: 0; padding: 0; list-style: none; }
+.effects li { position: relative; display: flex; flex-direction: column; gap: 2px; padding-left: 18px; line-height: 1.5; }
+.effects li::before { content: ''; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; border-radius: 999px; background: var(--ink-400); }
+.effects strong { font-size: 17px; color: var(--ink-900); }
+.effects span { font-size: 15px; color: var(--ink-500); }
+
+.reasons { display: flex; flex-direction: column; gap: 18px; }
+.reasons :global(.choice) { min-height: 56px; padding: 0 18px; gap: 12px; font-size: 16px; }
+.reasons :global(.choice-box) { width: 20px; height: 20px; border-radius: 6px; }
+
+.agree { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 0 18px; border-radius: var(--radius-md); background: var(--danger-50); color: var(--danger-600); font-size: 16px; font-weight: 700; line-height: 1.5; cursor: pointer; }
+.agree input { position: absolute; opacity: 0; pointer-events: none; }
+.agreeBox { flex: none; width: 22px; height: 22px; border: 1.6px solid var(--danger-600); border-radius: 7px; background: #fff; }
+.agree:has(input:checked) .agreeBox { background: var(--danger-600) url('/ui/check.svg') center / 14px 14px no-repeat; }
+.agree:has(input:focus-visible) { outline: 2px solid var(--danger-600); outline-offset: 2px; }
+.agree:has(input:disabled) { opacity: 0.45; cursor: not-allowed; }
+
+.banner { display: flex; align-items: center; gap: 12px; margin: 0; padding: 14px 16px; border-radius: var(--radius-md); background: var(--danger-50); color: var(--danger-600); font-size: 15px; font-weight: 700; line-height: 1.6; }
+.banner img { flex: none; width: 18px; height: 18px; }
+
+/* 탈퇴 확인 모달(227:119) — 공통 Modal 의 머리줄 대신 가운데 정렬 아이콘·제목을 쓴다 */
+:global(.modal):has(.confirm) { width: min(480px, calc(100vw - 32px)); }
+:global(.modal):has(.confirm) :global(.modal-head) { display: none; }
+:global(.modal):has(.confirm) :global(.modal-body) { padding: 32px 28px; }
+:global(.modal):has(.confirm) :global(.modal-foot) { padding: 20px 28px; }
+.confirm { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+.confirmIcon { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 999px; background: var(--danger-50); }
+.confirmIcon img { width: 30px; height: 30px; }
+.confirmTitle { margin: 0; font-size: 22px; font-weight: 700; line-height: 1.4; color: var(--ink-900); }
+.confirmBody { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink-500); }
+.confirmFoot { display: flex; gap: 10px; width: 100%; }
+.confirmFoot :global(.btn) { height: 54px; font-size: 16px; }
+
+@media (max-width: 767px) {
+  .h1 { font-size: 26px; }
+  .stack, .page { gap: 20px; }
+  .card { padding: 22px 20px; }
+  .row2 { grid-template-columns: minmax(0, 1fr); }
+  .actions { flex-direction: column; }
+  .actions > * { flex: none; width: 100%; }
+  .warn { padding: 18px 20px; }
+}
