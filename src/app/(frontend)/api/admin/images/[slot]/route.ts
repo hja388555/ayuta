@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto'
 import { NextResponse } from 'next/server'
+import sharp from 'sharp'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { requireSuperForApi } from '@/lib/admin/require-super'
@@ -45,9 +46,18 @@ export async function POST(req: Request, { params }: Ctx): Promise<Response> {
     return NextResponse.json({ error: checked.status === 413 ? 'band_image_too_large' : 'invalid_band_image' }, { status: checked.status })
   }
 
+  // 앞머리 바이트는 맞지만 내용이 깨진 파일을 지우기 전에 걸러낸다 — 실제로 디코딩되는지 확인한다.
+  // 이 확인 없이 교체하면 이전 이미지를 지운 뒤 저장이 실패해 슬롯이 비어 버린다
+  try {
+    const meta = await sharp(buf).metadata()
+    if (!meta.width || !meta.height) throw new Error('no dimensions')
+  } catch {
+    return NextResponse.json({ error: 'invalid_band_image' }, { status: 400 })
+  }
+
   const payload = await getPayload({ config })
   try {
-    // slot 은 unique — 새 문서를 만들기 전에 이전 문서(와 파일)를 지운다
+    // slot 은 unique — 새 문서를 만들기 전에 이전 문서(와 파일)를 지운다. 새 파일은 위에서 디코딩을 확인했다
     await removeSlot(slot)
     await payload.create({
       collection: 'band-images',

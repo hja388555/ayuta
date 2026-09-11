@@ -6,6 +6,7 @@ import * as migration_20260911_093339_legal_refund_kind from './20260911_093339_
 import * as migration_20260911_103148_admin_invites from './20260911_103148_admin_invites';
 import * as migration_20260911_110128_band_images from './20260911_110128_band_images';
 import * as migration_20260911_110443_chat from './20260911_110443_chat';
+import * as migration_20260911_111245_schema_sync_q37 from './20260911_111245_schema_sync_q37';
 
 export const migrations = [
   {
@@ -41,9 +42,16 @@ export const migrations = [
   {
     up: migration_20260911_110128_band_images.up,
     down: migration_20260911_110128_band_images.down,
-    name: '20260911_110128_band_images'
+    name: '20260911_110128_band_images',
+  },
+  {
     up: migration_20260911_110443_chat.up,
     down: migration_20260911_110443_chat.down,
-    name: '20260911_110443_chat'
+    name: '20260911_110443_chat',
+  },
+  {
+    up: migration_20260911_111245_schema_sync_q37.up,
+    down: migration_20260911_111245_schema_sync_q37.down,
+    name: '20260911_111245_schema_sync_q37'
   },
 ];
