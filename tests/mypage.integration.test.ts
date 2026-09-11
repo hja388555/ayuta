@@ -162,6 +162,7 @@ describe('마이페이지', () => {
   let token: string | undefined
   let memberId: number
   let otherOrderNumber: string
+  let myOrderNumber: string
 
   beforeAll(async () => {
     await post('/api/signup', signupBody(email))
@@ -169,7 +170,7 @@ describe('마이페이지', () => {
     memberId = u!.id as number
     userIds.push(memberId)
     token = (await login(email, PW)).token
-    await makeOrder('done', memberId, { email, phone: '010-7777-0000' })
+    myOrderNumber = (await makeOrder('done', memberId, { email, phone: '010-7777-0000' })).orderNumber as string
     const other = await makeOrder('done', null, { email: 'someone@example.com', phone: '010-1111-2222' })
     otherOrderNumber = other.orderNumber as string
   })
@@ -184,6 +185,34 @@ describe('마이페이지', () => {
     const html = await (await api('/ko/mypage', { headers: auth(token) })).text()
     expect(html).toContain('주문 내역')
     expect(html).not.toContain(otherOrderNumber)
+    // 주문 상세는 마이페이지 안의 새 화면으로 간다(09-B) — 예전 /order/complete 링크가 아니다
+    expect(html).toContain(`/ko/mypage/orders/${encodeURIComponent(myOrderNumber)}`)
+    expect(html).not.toContain('/ko/order/complete?order=')
+    // 메뉴(09 사이드바)
+    for (const href of ['/ko/mypage/contracts', '/ko/mypage/profile', '/ko/mypage/password', '/ko/mypage/withdraw']) expect(html).toContain(href)
+  })
+
+  it('주문 상세: 내 주문은 200 이고 진행 상태·계약서가 보인다', async () => {
+    const res = await api(`/ko/mypage/orders/${encodeURIComponent(myOrderNumber)}`, { headers: auth(token) })
+    expect(res.status).toBe(200)
+    const html = await res.text()
+    expect(html).toContain(myOrderNumber)
+    expect(html).toContain('진행 상태')
+    expect(html).toContain('테스트용 계약서 전문')
+  })
+
+  it('주문 상세: 남의 주문·없는 주문은 404 이고 내용이 새지 않는다', async () => {
+    for (const no of [otherOrderNumber, 'AY-NOPE-0000']) {
+      const res = await api(`/ko/mypage/orders/${encodeURIComponent(no)}`, { headers: auth(token) })
+      expect(res.status).toBe(404)
+      expect(await res.text()).not.toContain('테스트용 계약서 전문')
+    }
+  })
+
+  it('주문 상세: 비로그인은 로그인 화면으로 보낸다', async () => {
+    const res = await api(`/ko/mypage/orders/${encodeURIComponent(myOrderNumber)}`, { redirect: 'manual' })
+    expect([303, 307, 308]).toContain(res.status)
+    expect(res.headers.get('location')).toContain('/ko/login')
   })
 
   it('정보 수정: 모르는 필드(role)가 섞이면 통째로 거부하고, 정상 수정은 반영된다', async () => {

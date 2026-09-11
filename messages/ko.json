@@ -328,7 +328,70 @@
       "generic": "처리하지 못했습니다. 잠시 후 다시 시도해 주세요.",
       "network": "서버에 연결하지 못했습니다. 네트워크를 확인해 주세요."
     },
-    "contractsLink": "계약서 보관함"
+    "contractsLink": "계약서 보관함",
+    "greeting": "{name} 님",
+    "nav": {
+      "label": "마이페이지 메뉴",
+      "orders": "주문 내역",
+      "contracts": "계약서 보관함",
+      "profile": "회원정보 수정",
+      "password": "비밀번호 변경",
+      "withdraw": "회원 탈퇴",
+      "logout": "로그아웃"
+    },
+    "summary": {
+      "total": "전체",
+      "active": "진행중",
+      "done": "완료",
+      "refund": "환불",
+      "count": "{n} 건"
+    },
+    "list": {
+      "orderedAt": "주문일 {date}",
+      "detail": "주문 상세",
+      "contract": "계약서"
+    },
+    "badge": {
+      "pending": "결제 대기",
+      "paid": "결제완료",
+      "in_progress": "진행중",
+      "done": "완료",
+      "failed": "결제 실패",
+      "cancelled": "환불완료",
+      "fraud_suspected": "확인 중"
+    },
+    "detail": {
+      "title": "주문 상세",
+      "progressTitle": "진행 상태",
+      "steps": {
+        "paid": "결제완료",
+        "received": "접수확인",
+        "in_progress": "진행중",
+        "done": "완료"
+      },
+      "contentTitle": "주문 내용",
+      "service": "광고 서비스",
+      "country": "광고 국가",
+      "contractPeriod": "계약기간",
+      "adStartDate": "광고 진행일",
+      "amount": "결제 금액",
+      "contractTitle": "계약서",
+      "contractHint": "결제 시점의 내용이 그대로 보관됩니다.",
+      "viewContract": "계약서 보기",
+      "contractPending": "결제가 끝나기 전의 계약서 초안입니다. 결제가 완료되면 체결됩니다.",
+      "cancelledNotice": "취소된 주문의 계약서입니다. 결제 당시 체결된 원문을 그대로 보관합니다.",
+      "refundTitle": "환불 신청",
+      "refundHint": "환불 신청은 결제완료 · 접수확인 단계까지만 가능합니다. 광고 진행일 기준으로 공제율이 계산됩니다.",
+      "refundButton": "환불 신청하기",
+      "refundSoon": "온라인 환불 신청은 결제 연동 후 열립니다. 지금은 1:1 문의로 요청해 주세요.",
+      "inquiry": "1:1 문의",
+      "close": "닫기",
+      "sealAlt": "대표자 서명·날인",
+      "countries": {
+        "kr": "한국",
+        "jp": "일본"
+      }
+    }
   },
   "quote": {
     "title": "견적서 확인 및 결제",
@@ -486,7 +549,15 @@
     "schedulePending": "협의 중",
     "cancelledNotice": "취소된 주문의 계약서입니다. 결제 당시 체결된 원문을 그대로 보관합니다.",
     "footnote": "계약서는 결제한 시점의 원문 그대로 보관됩니다. 계약기간·광고 시작일은 담당자와 협의 후 정해지면 표시됩니다.",
-    "sealAlt": "대표자 서명·날인"
+    "sealAlt": "대표자 서명·날인",
+    "intro": "결제하신 주문의 계약서를 모두 확인하실 수 있습니다. 계약서는 결제 시점의 내용 그대로 보관됩니다.",
+    "signed": "체결 완료",
+    "periodPendingBadge": "기간 미정",
+    "cancelledBadge": "취소",
+    "contractDateLine": "계약일 {date}",
+    "periodLine": "계약기간 {period}",
+    "note1": "계약기간은 담당자와 협의한 뒤 확정되며, 확정 전에는 협의 중으로 표시됩니다.",
+    "note2": "계약서 본문은 결제 시점의 내용이 그대로 보관되어 변경되지 않습니다."
   },
   "footer": {
     "businessNo": "사업자등록번호",
