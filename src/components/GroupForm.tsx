@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import type { CategoryForm, GroupDef, ItemDef } from '@/lib/category-groups'
 import { ChoiceCard, ChoiceGrid, StepTitle } from './ui'
-import { formatAmount, PaySection, toggleValue } from './TierForm'
+import { formatAmount, PaySection } from './TierForm'
 import s from './OrderForms.module.css'
 
 /**
@@ -69,6 +69,40 @@ export function buildGroupQuery(
 
 export type CountryTab = 'kr' | 'jp'
 
+/**
+ * 항목을 눌렀을 때의 다음 선택. 단일 그룹은 하나만, 중복 그룹은 켜고 끈다.
+ * exclusive 항목(예: "포스터 제작 안함")은 혼자만 남고, 다른 항목을 고르면 빠진다.
+ */
+export function nextSelection(group: GroupDef, current: readonly string[], key: string): string[] {
+  if (!group.multi) return current.includes(key) ? [] : [key]
+  if (current.includes(key)) return current.filter((k) => k !== key)
+  if (group.items.find((i) => i.key === key)?.exclusive) return [key]
+  const exclusive = new Set(group.items.filter((i) => i.exclusive).map((i) => i.key))
+  return [...current.filter((k) => !exclusive.has(k)), key]
+}
+
+/** 표지에서 고른 광고 국가(kr·jp)만, 한국 → 일본 순서로 */
+export function coverCountries(country: readonly string[]): CountryTab[] {
+  return (['kr', 'jp'] as const).filter((c) => country.includes(c))
+}
+
+/** 화면에 둘 나라 탭. 표지에서 한 나라만 골랐으면 그 탭만, 둘 다 골랐거나 안 골랐으면 두 탭 */
+export function countryTabsFor(country: readonly string[]): CountryTab[] {
+  const picked = coverCountries(country)
+  return picked.length === 1 ? picked : ['kr', 'jp']
+}
+
+/** 첫 선택 상태. 2번의 "촬영 국가" 묶음은 표지에서 고른 나라를 미리 체크해 둔다 */
+export function initialSelections(form: CategoryForm, country: readonly string[]): Record<string, string[]> {
+  const picked = coverCountries(country)
+  const out: Record<string, string[]> = {}
+  const group = form.groups.find((g) => g.key === 'country')
+  if (group && picked.length > 0) {
+    out[group.key] = group.items.map((i) => i.key).filter((k) => picked.some((c) => k === `country-${c}`))
+  }
+  return out
+}
+
 /** 한국/일본 탭에 보일 항목만 남긴다. country 가 없는 항목(위치·포스터 등)은 두 탭 모두에 보인다 */
 export function visibleItems(group: GroupDef, tab: CountryTab | null): ItemDef[] {
   if (!tab) return group.items
@@ -108,12 +142,16 @@ type Props = {
 
 export function GroupForm({ form, model, book, locale, categorySlug, country, purpose, labels }: Props) {
   const router = useRouter()
-  const [selections, setSelections] = useState<Record<string, string[]>>({})
+  // 표지 1단계의 광고 국가를 그대로 적용한다(2026-09-12 사용자 요청)
+  const [selections, setSelections] = useState<Record<string, string[]>>(() => initialSelections(form, country))
   const [period, setPeriod] = useState<string | undefined>(undefined)
   const [size, setSize] = useState('')
   // 첫 탭은 표지에서 고른 나라를 따른다. 없으면 화면 언어로 정한다
+  const tabs = countryTabsFor(country)
+  // 한국·일본을 둘 다 골랐으면 탭을 오가도 고른 것을 유지한다 — 두 나라 항목을 함께 주문할 수 있다
+  const keepAcrossTabs = coverCountries(country).length === 2
   const [tab, setTab] = useState<CountryTab>(() =>
-    country[0] === 'jp' || country[0] === 'kr' ? (country[0] as CountryTab) : locale === 'ja' ? 'jp' : 'kr',
+    tabs.length === 1 ? tabs[0]! : coverCountries(country)[0] ?? (locale === 'ja' ? 'jp' : 'kr'),
   )
   const activeTab = form.countryTabs ? tab : null
 
@@ -126,16 +164,17 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
   function pick(group: GroupDef, key: string) {
     setSelections((prev) => {
       const current = prev[group.key] ?? []
-      const next = group.multi ? toggleValue(current, key) : current.includes(key) ? [] : [key]
+      const next = nextSelection(group, current, key)
       return { ...prev, [group.key]: next }
     })
   }
 
-  // 탭을 바꾸면 고른 것을 비운다 — 안 보이는 다른 나라 항목이 몰래 합산되면 안 된다
+  // 탭을 바꾸면 고른 것을 비운다 — 안 보이는 다른 나라 항목이 몰래 합산되면 안 된다.
+  // 단, 표지에서 두 나라를 모두 골랐으면 둘 다 주문하려는 것이라 유지한다(아래 요약에 전부 보인다)
   function switchTab(next: CountryTab) {
     if (next === tab) return
     setTab(next)
-    setSelections({})
+    if (!keepAcrossTabs) setSelections(initialSelections(form, country))
   }
 
   function labelForItem(key: string): string {
@@ -155,7 +194,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     .filter((g) => g.items.length > 0)
 
   const summary = [
-    ...(activeTab ? [labels.countryTabs[activeTab]] : []),
+    ...(activeTab && !keepAcrossTabs ? [labels.countryTabs[activeTab]] : []),
     ...allSelected.map(labelForItem),
     ...(period ? [labels.periods[period] ?? period] : []),
   ]
@@ -165,7 +204,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     <>
       {form.countryTabs && (
         <div className={s.tabs} role="tablist">
-          {(['kr', 'jp'] as const).map((c) => (
+          {tabs.map((c) => (
             <button
               key={c}
               type="button"

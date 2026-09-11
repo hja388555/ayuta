@@ -35,6 +35,7 @@ type Labels = {
 
 type Props = {
   locale: string
+  initialCountry?: readonly string[]
   /** ?type= 로 넘어와 서버가 카테고리 표와 대조를 끝낸 값. 화면에는 없고 그대로 함께 보낸다 */
   initialType: string | null
   initialContact?: { name?: string; phone?: string; email?: string }
@@ -50,8 +51,9 @@ const COUNTRIES = ['kr', 'jp'] as const
  * 5번 기타 문의 폼(v2 219:435). 금액이 없다 — 문의를 받은 담당자가 견적을 발행한다(Q14-B).
  * 개인정보 동의는 서버도 확인한다(consent_required).
  */
-export function InquiryForm({ locale, initialType, initialContact, labels }: Props) {
-  const [country, setCountry] = useState<string[]>([])
+export function InquiryForm({ locale, initialType, initialContact, initialCountry, labels }: Props) {
+  // 표지 1단계에서 고른 광고 국가를 그대로 체크해 둔다(2026-09-12). 여기서 바꿀 수도 있다
+  const [country, setCountry] = useState<string[]>(() => (initialCountry ?? []).filter((c) => c === 'kr' || c === 'jp'))
   const [body, setBody] = useState('')
   const [region, setRegion] = useState('')
   const [name, setName] = useState(initialContact?.name ?? '')

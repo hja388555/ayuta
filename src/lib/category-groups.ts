@@ -11,6 +11,8 @@ export type ItemDef = {
   priced: boolean
   /** 한국/일본 탭(3·4번)에서 어느 탭에 속하는지. 없으면 두 탭 모두에 보인다 */
   country?: 'kr' | 'jp'
+  /** 중복 선택 그룹에서도 이 항목은 혼자만 고른다(예: "포스터 제작 안함") — 고르면 나머지를 비우고, 나머지를 고르면 이 항목을 뺀다 */
+  exclusive?: true
 }
 
 export type GroupDef = {
@@ -121,11 +123,12 @@ const category3: CategoryForm = {
 }
 
 // 4. 지하철 / 버스 / 옥외광고
+// 2026-09-12 사용자 요청: 도시·포스터도 중복 선택. 금액은 고른 항목 합계(sumMultiplier)라 계산기는 그대로다
 const category4: CategoryForm = {
   groups: [
     {
       key: 'subwayCity',
-      multi: false,
+      multi: true,
       items: [
         kr('subway-city-seoul'),
         kr('subway-city-gyeonggi-incheon'),
@@ -153,17 +156,17 @@ const category4: CategoryForm = {
     // 일반 항목이 됐다. 사이즈에 따라 달라지는 금액은 관리자가 단가를 고쳐 반영한다
     {
       key: 'posterBillboard',
-      multi: false,
+      multi: true,
       items: [
         priced('poster-make-inquiry'),
-        priced('poster-skip'),
+        { key: 'poster-skip', priced: true, exclusive: true },
         priced('poster-video-image'),
         priced('poster-digital'),
       ],
     },
     {
       key: 'busCity',
-      multi: false,
+      multi: true,
       items: [
         kr('bus-city-seoul'),
         kr('bus-city-gyeonggi-incheon'),

@@ -153,6 +153,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
               locale={locale}
               initialType={initialType}
               initialContact={initialContact}
+              initialCountry={country}
               labels={{
                 countryTitle: tForm('countryTitle'),
                 countries: tForm.raw('countries'),
