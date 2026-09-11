@@ -1,0 +1,45 @@
+/* [v2] 10 주문 완료 213:2(PC) / 213:82(Mobile) */
+.page { display: flex; flex-direction: column; gap: 32px; padding: 64px 0; }
+.hero { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 48px 40px; border-radius: 20px; background: var(--success-50); text-align: center; }
+.heroIcon { display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 999px; background: #067647; }
+.heroIcon img { width: 36px; height: 36px; }
+.heroTitle { margin: 0; font-size: 38px; line-height: 1.25; letter-spacing: -0.02em; }
+.heroText { margin: 0; font-size: 17px; line-height: 1.5; color: var(--ink-700); }
+.pending { margin: 0; padding: 14px 16px; border-radius: var(--radius-md); background: var(--warning-50); color: #b54708; font-size: 15px; font-weight: 700; line-height: 1.6; }
+.card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; }
+.cardTitle { margin: 0; font-size: 22px; line-height: 1.5; }
+.table { margin: 0; padding: 18px 20px; border-radius: var(--radius-md); background: var(--surface); }
+.tableRow { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); line-height: 1.5; }
+.tableRow:first-child { padding-top: 0; border-top: 0; }
+.tableRow:last-child { padding-bottom: 0; }
+.tableRow dt { flex: none; width: 120px; font-size: 15px; color: var(--ink-500); }
+.tableRow dd { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 0; font-size: 17px; font-weight: 700; color: var(--ink-900); overflow-wrap: anywhere; }
+.copyBtn { height: 32px; padding: 0 12px; font-size: 13px; }
+.guest { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-500); }
+.steps { display: flex; flex-direction: column; gap: 18px; margin: 0; padding: 0; list-style: none; }
+.steps li { display: flex; gap: 14px; line-height: 1.5; }
+.stepNum { flex: none; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 999px; background: var(--brand-50); color: var(--brand-600); font-size: 15px; font-weight: 700; }
+.steps strong { display: block; font-size: 17px; }
+.steps span { display: block; margin-top: 2px; font-size: 15px; color: var(--ink-500); }
+.actions { display: flex; gap: 12px; }
+.primary { flex: 2 1 0; }
+.secondary { flex: 1 1 0; }
+.secondary button { width: 100%; border-color: var(--line-strong); }
+
+@media (max-width: 767px) {
+  .page { gap: 20px; padding: 32px 0 48px; }
+  .hero { padding: 32px 20px; }
+  .heroIcon { width: 56px; height: 56px; }
+  .heroIcon img { width: 28px; height: 28px; }
+  .heroTitle { font-size: 24px; }
+  .heroText { font-size: 14px; }
+  .card { padding: 22px 18px; }
+  .cardTitle { font-size: 18px; }
+  .tableRow { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .tableRow dt { width: auto; font-size: 13px; }
+  .tableRow dd { font-size: 16px; }
+  .steps strong { font-size: 15px; }
+  .steps span { font-size: 13px; }
+  .actions { flex-direction: column; }
+  .primary, .secondary { flex: none; width: 100%; }
+}

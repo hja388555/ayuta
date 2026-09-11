@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 
-type Props = { orderNumber: string; copyLabel: string; copiedLabel: string }
+type Props = { orderNumber: string; copyLabel: string; copiedLabel: string; className?: string }
 
-export function CopyOrderNumber({ orderNumber, copyLabel, copiedLabel }: Props) {
+export function CopyOrderNumber({ orderNumber, copyLabel, copiedLabel, className }: Props) {
   const [copied, setCopied] = useState(false)
 
   async function copy() {
@@ -19,7 +19,7 @@ export function CopyOrderNumber({ orderNumber, copyLabel, copiedLabel }: Props) 
   }
 
   return (
-    <button type="button" onClick={copy} style={{ marginLeft: 12 }}>
+    <button type="button" onClick={copy} className={className} style={className ? undefined : { marginLeft: 12 }} aria-live="polite">
       {copied ? copiedLabel : copyLabel}
     </button>
   )
