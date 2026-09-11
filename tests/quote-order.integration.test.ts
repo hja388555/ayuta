@@ -167,7 +167,7 @@ describe('POST /api/quote/order', () => {
     }
 
     // 비회원도 완료 화면에서 방금 만든 주문을 연다(서명된 쿠키)
-    const complete = await api(`/ko/order/complete?order=${encodeURIComponent(body.orderNumber)}`, { headers: { cookie } })
+    const complete = await api(`/ko/order/complete?order=${encodeURIComponent(body.orderNumber)}`, { headers: { cookie: cookie ?? '' } })
     expect(await complete.text()).toContain(body.orderNumber)
   })
 
