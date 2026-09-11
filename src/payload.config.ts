@@ -24,6 +24,8 @@ import { BrandAssets } from './collections/BrandAssets'
 import { BandImages } from './collections/BandImages'
 import { LegalDocuments } from './collections/LegalDocuments'
 import { LegalRevisions } from './collections/LegalRevisions'
+import { ChatThreads } from './collections/ChatThreads'
+import { ChatMessages } from './collections/ChatMessages'
 import { CompanySettings } from './globals/CompanySettings'
 import { PricingSettings } from './globals/PricingSettings'
 
@@ -51,6 +53,8 @@ export default buildConfig({
     BandImages,
     LegalDocuments,
     LegalRevisions,
+    ChatThreads,
+    ChatMessages,
   ],
   globals: [PricingSettings, CompanySettings],
   editor: lexicalEditor(),

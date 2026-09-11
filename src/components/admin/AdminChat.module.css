@@ -1,0 +1,28 @@
+/* [v2] A9 문의·채팅 — 1:1 채팅 탭. 카드·색은 inquiries.module.css 와 같은 값 */
+.wrap { display: flex; gap: 20px; align-items: flex-start; min-width: 0; }
+.list { flex: 0 0 340px; display: flex; flex-direction: column; gap: 10px; padding: 16px; border: 1px solid #eceef1; border-radius: 16px; background: #fff; max-height: 76vh; overflow-y: auto; }
+.room { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.muted { margin: 0; font-size: 14px; color: #767b85; }
+
+.thread { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 14px 16px; border: 1px solid #eceef1; border-radius: 12px; background: #fff; font: inherit; text-align: left; color: #3d4046; cursor: pointer; }
+.threadActive { border-color: #005afa; background: #eff5ff; }
+.threadHead { display: flex; align-items: center; gap: 8px; }
+.threadName { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; color: #0b0b0c; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.unread { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #e5484d; color: #fff; font-size: 12px; font-weight: 700; line-height: 22px; text-align: center; }
+.threadMeta { font-size: 13px; color: #a3a8b0; overflow-wrap: anywhere; }
+.preview { font-size: 14px; color: #3d4046; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.roomHead { display: flex; align-items: center; gap: 12px; }
+.roomWho { flex: 1; min-width: 0; display: flex; flex-direction: column; font-size: 13px; color: #767b85; }
+.roomWho strong { font-size: 17px; color: #0b0b0c; }
+.back { display: none; }
+.messages { max-height: 60vh; }
+
+@media (max-width: 1023px) {
+  .wrap { flex-direction: column; }
+  .list { flex: none; width: 100%; max-height: none; }
+  .room { width: 100%; }
+  .hasSelection .list { display: none; }
+  .wrap:not(.hasSelection) .room { display: none; }
+  .back { display: inline-flex; }
+}

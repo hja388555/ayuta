@@ -83,6 +83,8 @@ export interface Config {
     'band-images': BandImage;
     'legal-documents': LegalDocument;
     'legal-revisions': LegalRevision;
+    'chat-threads': ChatThread;
+    'chat-messages': ChatMessage;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -106,6 +108,8 @@ export interface Config {
     'band-images': BandImagesSelect<false> | BandImagesSelect<true>;
     'legal-documents': LegalDocumentsSelect<false> | LegalDocumentsSelect<true>;
     'legal-revisions': LegalRevisionsSelect<false> | LegalRevisionsSelect<true>;
+    'chat-threads': ChatThreadsSelect<false> | ChatThreadsSelect<true>;
+    'chat-messages': ChatMessagesSelect<false> | ChatMessagesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -505,6 +509,39 @@ export interface LegalRevision {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chat-threads".
+ */
+export interface ChatThread {
+  id: number;
+  customer: number | User;
+  locale: 'ko' | 'ja';
+  status: 'open' | 'closed';
+  lastMessageAt?: string | null;
+  unreadForAdmin: number;
+  unreadForCustomer: number;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chat-messages".
+ */
+export interface ChatMessage {
+  id: number;
+  thread: number | ChatThread;
+  sender: 'customer' | 'admin';
+  senderUser?: (number | null) | User;
+  senderEmail?: string | null;
+  body: string;
+  sourceLang?: string | null;
+  translatedBody?: string | null;
+  translatedLang?: string | null;
+  translationStatus: 'ok' | 'failed' | 'skipped';
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -590,6 +627,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'legal-revisions';
         value: number | LegalRevision;
+      } | null)
+    | ({
+        relationTo: 'chat-threads';
+        value: number | ChatThread;
+      } | null)
+    | ({
+        relationTo: 'chat-messages';
+        value: number | ChatMessage;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -954,6 +999,37 @@ export interface LegalRevisionsSelect<T extends boolean = true> {
   editor?: T;
   editorEmail?: T;
   at?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chat-threads_select".
+ */
+export interface ChatThreadsSelect<T extends boolean = true> {
+  customer?: T;
+  locale?: T;
+  status?: T;
+  lastMessageAt?: T;
+  unreadForAdmin?: T;
+  unreadForCustomer?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "chat-messages_select".
+ */
+export interface ChatMessagesSelect<T extends boolean = true> {
+  thread?: T;
+  sender?: T;
+  senderUser?: T;
+  senderEmail?: T;
+  body?: T;
+  sourceLang?: T;
+  translatedBody?: T;
+  translatedLang?: T;
+  translationStatus?: T;
   updatedAt?: T;
   createdAt?: T;
 }
