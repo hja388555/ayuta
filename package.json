@@ -10,6 +10,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "payload migrate && pnpm db:bootstrap && pnpm db:rls && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run src",
@@ -23,6 +24,7 @@
     "seed:contracts": "payload run scripts/seed-contracts.ts",
     "seed:legal": "payload run scripts/seed-legal.ts",
     "db:bootstrap": "payload run scripts/ensure-order-counters.ts",
+    "db:rls": "payload run scripts/ensure-rls.ts",
     "db:up": "docker compose up -d",
     "db:down": "docker compose down"
   },
