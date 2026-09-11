@@ -9,6 +9,7 @@ import { ContractModal } from '@/components/ContractModal'
 import { getSessionUser } from '@/lib/dal'
 import { CATEGORIES } from '@/lib/categories'
 import { formatOrderSchedule } from '@/lib/order-lookup'
+import { createSealLoader } from '@/lib/seal'
 
 /**
  * 계약서 보관함(큐 Q21-B). 결제한 모든 계약서를 목록으로 보여주고 [계약서 보기]로 스냅샷 전문을 띄운다.
@@ -44,6 +45,10 @@ export default async function ContractsPage({ params }: Props) {
     overrideAccess: true,
   })
 
+  // 주문마다 결제 시점 도장(없으면 undefined). 같은 도장은 한 번만 읽는다
+  const loadSeal = createSealLoader()
+  const seals = await Promise.all(orders.map((o) => loadSeal(o.sealAsset as number | null | undefined)))
+
   const dateFmt = new Intl.DateTimeFormat(locale === 'ja' ? 'ja-JP' : 'ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' })
   const statusLabels = tMy.raw('status') as Record<string, string>
   const slugFor = (no: number) => CATEGORIES.find((c) => c.no === no)?.slug
@@ -73,7 +78,7 @@ export default async function ContractsPage({ params }: Props) {
                   </tr>
                 </thead>
                 <tbody>
-                  {orders.map((o) => {
+                  {orders.map((o, i) => {
                     const slug = slugFor(o.category as number)
                     const schedule = formatOrderSchedule(o, t('schedulePending'))
                     return (
@@ -94,6 +99,7 @@ export default async function ContractsPage({ params }: Props) {
                             ]}
                             notice={o.status === 'cancelled' ? t('cancelledNotice') : undefined}
                             contractText={o.contractText as string}
+                            seal={seals[i] ? { src: seals[i]!, alt: t('sealAlt') } : undefined}
                           />
                         </td>
                       </tr>

@@ -259,7 +259,8 @@
     "adStartLabel": "광고 시작일",
     "schedulePending": "협의 중",
     "contractPendingLabel": "결제 대기중 — 아직 체결되지 않은 계약서 초안입니다.",
-    "close": "닫기"
+    "close": "닫기",
+    "sealAlt": "대표자 서명·날인"
   },
   "contracts": {
     "title": "계약서 보관함",
@@ -275,7 +276,8 @@
     "modalTitle": "계약서",
     "schedulePending": "협의 중",
     "cancelledNotice": "취소된 주문의 계약서입니다. 결제 당시 체결된 원문을 그대로 보관합니다.",
-    "footnote": "계약서는 결제한 시점의 원문 그대로 보관됩니다. 계약기간·광고 시작일은 담당자와 협의 후 정해지면 표시됩니다."
+    "footnote": "계약서는 결제한 시점의 원문 그대로 보관됩니다. 계약기간·광고 시작일은 담당자와 협의 후 정해지면 표시됩니다.",
+    "sealAlt": "대표자 서명·날인"
   },
   "footer": {
     "businessNo": "사업자등록번호",

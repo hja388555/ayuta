@@ -140,6 +140,9 @@ export const Orders: CollectionConfig = {
     // 결제 시점 계약서 전문. 값으로 복사한다 — 나중에 템플릿을 고쳐도 이미 체결된 주문은
     // 그 순간 고객이 읽고 서명한 문서 그대로 남아야 한다
     { name: 'contractText', type: 'textarea', required: true, access: IMMUTABLE },
+    // 결제 시점의 대표자 서명·날인(큐 Q25 3차). 도장을 나중에 바꿔도 이 계약서는 그때 도장 그대로다.
+    // 도장을 아직 올리지 않았으면 비어 있다(주문은 막지 않는다) — 화면은 src/lib/seal.ts 가 그린다
+    { name: 'sealAsset', type: 'relationship', relationTo: 'brand-assets', access: IMMUTABLE },
     // 계약기간·광고시작일 (Q22-B). 계약서 스냅샷(contractText)에 써넣지 않고 별도 컬럼에
     // 담는다 — 스냅샷은 고객이 읽고 서명한 문서 그대로여야 하므로 확정된 날짜를 나중에
     // 그 안에 끼워 넣으면 "서명한 문서"가 아니게 된다. 고객 화면은 스냅샷과 이 컬럼을

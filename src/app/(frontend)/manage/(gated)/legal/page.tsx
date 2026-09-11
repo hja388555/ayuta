@@ -49,6 +49,7 @@ export default async function LegalPage({ searchParams }: Props) {
         target: { target: 'contract' as const, id: c.id },
         title: c.title,
         body: c.body,
+        consents: ((c.consents ?? []) as Array<{ key: string; label: string; required: boolean }>).map(({ key, label, required }) => ({ key, label, required })),
         revisionWhere: { and: [{ target: { equals: 'contract-templates' } }, { docId: { equals: c.id } }] } as Where | null,
       })),
     ...DOC_KINDS.flatMap(({ kind, name }) =>
@@ -60,6 +61,7 @@ export default async function LegalPage({ searchParams }: Props) {
           target: { target: 'document' as const, kind, locale },
           title: d?.title ?? name,
           body: d?.body ?? '',
+          consents: undefined,
           revisionWhere: (d ? { and: [{ target: { equals: 'legal-documents' } }, { docId: { equals: d.id } }] } : null) as Where | null,
         }
       }),
@@ -93,7 +95,7 @@ export default async function LegalPage({ searchParams }: Props) {
       {current ? (
         <section style={card}>
           <h2 style={{ fontSize: 15, margin: '0 0 12px' }}>{current.name}</h2>
-          <LegalEditor key={current.key} target={current.target} initialTitle={current.title} initialBody={current.body} canEdit={canEdit} />
+          <LegalEditor key={current.key} target={current.target} initialTitle={current.title} initialBody={current.body} initialConsents={current.consents} canEdit={canEdit} />
           <h3 style={{ fontSize: 14, margin: '20px 0 8px' }}>최근 수정 이력</h3>
           {revisions.length === 0 ? (
             <p style={{ fontSize: 13, color: '#767B85', margin: 0 }}>아직 기록이 없습니다.</p>
@@ -105,7 +107,7 @@ export default async function LegalPage({ searchParams }: Props) {
                     <summary>
                       {new Date(r.at).toLocaleString('ko-KR', { timeZone: 'Asia/Seoul' })} · {r.editorEmail}
                     </summary>
-                    <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', background: '#F7F7F7', padding: 8 }}>{`${r.title}\n\n${r.body}`}</pre>
+                    <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', background: '#F7F7F7', padding: 8 }}>{`${r.title}\n\n${r.body}${Array.isArray(r.consents) ? `\n\n[동의 문구]\n${(r.consents as Array<{ label: string }>).map((c) => `- ${c.label}`).join('\n')}` : ''}`}</pre>
                   </details>
                 </li>
               ))}

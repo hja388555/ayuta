@@ -8,6 +8,7 @@ import { ContractModal } from '@/components/ContractModal'
 import { findOwnedOrder, formatOrderSchedule } from '@/lib/order-lookup'
 import { GUEST_PROOF_COOKIE_NAME, readGuestProof } from '@/lib/checkout/guest-proof'
 import { getSessionUser } from '@/lib/dal'
+import { sealDataUri } from '@/lib/seal'
 
 export const dynamic = 'force-dynamic'
 // 주문번호가 URL 에 실리는 개인 화면 — 검색에 올리지 않는다
@@ -54,6 +55,7 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
   }
 
   const schedule = formatOrderSchedule(order, t('schedulePending'))
+  const sealSrc = await sealDataUri(order.sealAsset as number | null | undefined)
 
   return (
     <main>
@@ -104,6 +106,7 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
               ]}
               notice={order.status !== 'paid' ? t('contractPendingLabel') : undefined}
               contractText={order.contractText}
+              seal={sealSrc ? { src: sealSrc, alt: t('sealAlt') } : undefined}
             />
           </div>
         </div>
