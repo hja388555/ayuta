@@ -3,6 +3,7 @@
 import { useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { ChoiceCard, Modal, Toast } from '@/components/ui'
+import { AddressSearch } from '@/components/AddressSearch'
 import { passwordIssue } from '@/lib/password-policy'
 import s from './Account.module.css'
 
@@ -126,12 +127,14 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
             required: true,
             autoComplete: 'postal-code',
             max: 20,
-            // 주소 검색(우편번호 서비스)은 큐 Q35에서 붙는다 — 그때까지 버튼만 두고 막는다
             addon: (
-              <button type="button" className={`btn btn-secondary ${s.searchBtn}`} disabled title={tx(labels, 'addressSearchSoon')}>
-                <img src="/ui/search.svg" alt="" width={18} height={18} />
-                {tx(labels, 'addressSearch')}
-              </button>
+              <AddressSearch
+                className={`btn btn-secondary ${s.searchBtn}`}
+                disabled={busy}
+                labels={{ button: tx(labels, 'addressSearch') }}
+                focusId="pf-address2"
+                onSelect={(p) => setV((prev) => ({ ...prev, ...p }))}
+              />
             ),
           })}
           {input('address1', { required: true, autoComplete: 'address-line1' })}
