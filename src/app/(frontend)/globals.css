@@ -46,6 +46,8 @@ body {
   word-break: normal;
 }
 :lang(ko) { word-break: keep-all; }
+/* 일본어 제목은 문절 단위로 끊어 한 글자만 다음 줄로 넘어가지 않게 한다(지원하지 않는 브라우저는 기존대로) */
+:lang(ja) :is(h1, h2, h3, h4) { word-break: auto-phrase; }
 
 /* 표는 좁은 화면에서 셀을 줄이지 않고 가로로 스크롤한다 */
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
