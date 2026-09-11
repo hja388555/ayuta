@@ -5,7 +5,10 @@ import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
 import { button, errorBox, input } from './styles'
 
-type Target = { target: 'contract'; id: number } | { target: 'document'; kind: 'terms' | 'privacy' | 'refund'; locale: 'ko' | 'ja' }
+type Target =
+  | { target: 'contract'; id: number }
+  | { target: 'contract-new'; category: number; locale: 'ko' | 'ja' }
+  | { target: 'document'; kind: 'terms' | 'privacy' | 'refund'; locale: 'ko' | 'ja' }
 type Consent = { key: string; label: string; required: boolean }
 
 /**
@@ -45,7 +48,7 @@ export function LegalEditor({
         ...target,
         title,
         body,
-        ...(target.target === 'contract' && consentsDirty ? { consents: consents.map(({ key, label }) => ({ key, label })) } : {}),
+        ...((target.target === 'contract' && consentsDirty) || target.target === 'contract-new' ? { consents: consents.map(({ key, label }) => ({ key, label })) } : {}),
       }
       const res = await fetch('/api/admin/legal', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
       const json = await res.json().catch(() => ({}))
@@ -53,6 +56,8 @@ export function LegalEditor({
         const detail = Array.isArray(json?.detail) ? ` (${json.detail.map((k: string) => `{{${k}}}`).join(', ')})` : ''
         return setMsg({ ok: false, text: adminErrorMessage(json?.error) + detail })
       }
+      // 새로 만든 계약서는 목록 키가 contract-<id> 로 바뀐다 — 그 문서를 펼친 화면으로 옮긴다
+      if (target.target === 'contract-new' && typeof json.id === 'number') return router.replace(`/manage/legal?doc=contract-${json.id}`)
       setMsg({ ok: true, text: '저장했습니다. 수정 이력에 남았습니다.' })
       router.refresh()
     } catch {

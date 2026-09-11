@@ -6,9 +6,11 @@ import { AuthError, requireAdmin } from '@/lib/dal'
 import { isSuperRole } from '@/lib/roles'
 import s from '@/components/admin/admin-v2.module.css'
 import { LegalEditor } from '@/components/admin/LegalEditor'
+import { CONTRACT_CATEGORIES, defaultAgreeConsent } from '@/lib/legal/contract-defaults'
 
 /**
- * 계약서·약관 관리(큐 Q25 2차). 계약서 1~4번(한·일)과 이용약관·개인정보처리방침 문구를 고친다.
+ * 계약서·약관 관리(큐 Q25 2차). 계약서 1~5번(한·일)과 이용약관·개인정보처리방침 문구를 고친다.
+ * 아직 없는 계약서(5번 기타 광고처럼 고정 원문이 없는 것)는 "아직 없음" 칸으로 보이고, 문구를 넣어 저장하면 만들어지며 결제가 열린다(Q38).
  * 조회는 관리자, 저장은 최고관리자만(API 가 최종 판정). 문서마다 최근 수정 이력 5건을 보여준다.
  * ?doc= 로 한 문서만 펼친다 — 본문이 길어 한 화면에 전부 펼치면 쓰기 어렵다.
  */
@@ -53,6 +55,17 @@ export default async function LegalPage({ searchParams }: Props) {
         consents: ((c.consents ?? []) as Array<{ key: string; label: string; required: boolean }>).map(({ key, label, required }) => ({ key, label, required })),
         revisionWhere: { and: [{ target: { equals: 'contract-templates' } }, { docId: { equals: c.id } }] } as Where | null,
       })),
+    ...CONTRACT_CATEGORIES.flatMap((category) =>
+      LOCALES.filter((locale) => !contracts.some((c) => c.category === category && c.locale === locale)).map((locale) => ({
+        key: `contract-new-${category}-${locale}`,
+        name: `${category}번 계약서 (${locale}) — 아직 없음 · 문구를 넣어 저장하면 결제가 열립니다`,
+        target: { target: 'contract-new' as const, category, locale },
+        title: '',
+        body: '',
+        consents: [defaultAgreeConsent(locale)] as Array<{ key: string; label: string; required: boolean }> | undefined,
+        revisionWhere: null as Where | null,
+      })),
+    ),
     ...DOC_KINDS.flatMap(({ kind, name }) =>
       LOCALES.map((locale) => {
         const d = documents.find((x) => x.kind === kind && x.locale === locale)

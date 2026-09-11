@@ -132,8 +132,8 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
           <h1 className={s.h1}>{t('title')}</h1>
           <CheckoutForm
             locale={locale}
-            categorySlug={def.slug}
-            selection={rawSelection}
+            endpoint="/api/checkout"
+            requestBody={{ categorySlug: def.slug, selection: rawSelection }}
             amount={quote.total}
             currency={currency}
             reviewRows={reviewRows}

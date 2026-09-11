@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getSessionUser } from '@/lib/dal'
 import { createOrder } from '@/lib/checkout/create-order'
-import { createGuestProofCookie } from '@/lib/checkout/guest-proof'
+import { orderCreatedResponse } from '@/lib/checkout/order-response'
 
 /**
  * 결제 직전 화면이 부르는 유일한 쓰기 경로.
@@ -25,26 +25,6 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ ok: false, reason: result.reason }, { status: 400 })
   }
 
-  const res = NextResponse.json({
-    ok: true,
-    orderNumber: result.orderNumber,
-    amount: result.amount,
-    currency: result.currency,
-  })
-
-  // 비회원은 세션이 없다 — 주문 완료 화면이 본인 확인을 할 유일한 근거를 서명된 쿠키로
-  // 넘긴다. 쿼리스트링에 이메일·연락처를 실으면 브라우저 히스토리·서버 로그·리퍼러로
-  // 새어 나간다(I6). 회원은 세션 자체가 본인 확인이라 쿠키가 필요 없다
-  if (!sessionUser) {
-    const proof = createGuestProofCookie(result.orderNumber, result.orderer.email, result.orderer.phone)
-    res.cookies.set(proof.name, proof.value, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      path: '/',
-      maxAge: proof.maxAgeSeconds,
-    })
-  }
-
-  return res
+  // 비회원 본인 확인 쿠키는 order-response.ts 가 붙인다(견적 결제와 같은 응답)
+  return orderCreatedResponse(result, !sessionUser)
 }

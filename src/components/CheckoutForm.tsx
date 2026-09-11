@@ -95,23 +95,27 @@ type Template = { title: string; body: string; consents: ConsentDef[] }
 
 type Props = {
   locale: string
-  categorySlug: string
-  selection: unknown
+  /** 주문을 만드는 API. 카테고리 결제는 /api/checkout, 견적 결제는 /api/quote/order */
+  endpoint: string
+  /** 주문자·동의·서명 말고 함께 보낼 값(카테고리 선택값, 견적 토큰 등). 금액은 싣지 않는다 — 서버가 정한다 */
+  requestBody: Record<string, unknown>
   amount: number
   currency: PriceBook['currency']
-  /** 주문 내역 표 — 서버가 금액까지 서식을 맞춰 넘긴다 */
-  reviewRows: { label: string; value: string }[]
-  /** 같은 선택값을 실은 폼 주소(선택 내용 수정하기) */
-  editHref: string
+  /** 주문 내역 표 — 서버가 금액까지 서식을 맞춰 넘긴다. 견적처럼 내역을 폼 밖에서 보여주면 생략한다 */
+  reviewRows?: { label: string; value: string }[]
+  /** 같은 선택값을 실은 폼 주소(선택 내용 수정하기). 고칠 수 없는 견적은 생략한다 */
+  editHref?: string
   template: Template
   initialOrderer?: Partial<OrdererFormState>
   labels: CheckoutLabels
+  /** 서버 거부 사유(reason)별 안내. 없는 사유는 errorGeneric 을 보인다 */
+  errorMessages?: Partial<Record<string, string>>
 }
 
 // 약관·개인정보는 약관 동의 모달(v2 13-A)로, 그 밖의 동의(계약 내용 등)는 계약서 미리보기 팝업으로
 const PUBLIC_DOC_KEYS = new Set(['terms', 'privacy'])
 
-export function CheckoutForm({ locale, categorySlug, selection, amount, currency, reviewRows, editHref, template, initialOrderer, labels }: Props) {
+export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, reviewRows, editHref, template, initialOrderer, labels, errorMessages }: Props) {
   const router = useRouter()
   const [orderer, setOrderer] = useState<OrdererFormState>({ ...EMPTY_ORDERER, ...initialOrderer })
   const [checked, setChecked] = useState<Record<string, boolean>>({})
@@ -164,13 +168,12 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
     setSubmitting(true)
     setError(null)
     try {
-      const res = await fetch('/api/checkout', {
+      const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          categorySlug,
+          ...requestBody,
           locale,
-          selection,
           consents: checked,
           orderer: {
             name: orderer.name,
@@ -186,9 +189,9 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
           idempotencyKey,
         }),
       })
-      const body = (await res.json()) as { ok: boolean; orderNumber?: string }
+      const body = (await res.json()) as { ok: boolean; orderNumber?: string; reason?: string }
       if (!res.ok || !body.ok || !body.orderNumber) {
-        setError(labels.errorGeneric)
+        setError((body.reason && errorMessages?.[body.reason]) || labels.errorGeneric)
         return
       }
       // 이메일·연락처는 URL에 싣지 않는다(I6) — /api/checkout이 응답에 실어 준 서명된
@@ -295,21 +298,25 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
         ) : null}
       </section>
 
-      <section className={s.card} aria-labelledby="co-review">
-        <StepTitle n={2} id="co-review" title={labels.reviewTitle} hint={labels.reviewHint} />
-        <dl className={s.table}>
-          {reviewRows.map((row) => (
-            <div key={row.label} className={s.tableRow}>
-              <dt>{row.label}</dt>
-              <dd>{row.value}</dd>
-            </div>
-          ))}
-        </dl>
-        <a href={editHref} className={`btn btn-outline btn-block ${s.editLink}`}>
-          {labels.editSelection}
-        </a>
-        <TotalBar label={labels.totalLabel} amount={formatAmount(amount, currency)} />
-      </section>
+      {reviewRows ? (
+        <section className={s.card} aria-labelledby="co-review">
+          <StepTitle n={2} id="co-review" title={labels.reviewTitle} hint={labels.reviewHint} />
+          <dl className={s.table}>
+            {reviewRows.map((row) => (
+              <div key={row.label} className={s.tableRow}>
+                <dt>{row.label}</dt>
+                <dd>{row.value}</dd>
+              </div>
+            ))}
+          </dl>
+          {editHref ? (
+            <a href={editHref} className={`btn btn-outline btn-block ${s.editLink}`}>
+              {labels.editSelection}
+            </a>
+          ) : null}
+          <TotalBar label={labels.totalLabel} amount={formatAmount(amount, currency)} />
+        </section>
+      ) : null}
 
       <section className={s.card} aria-labelledby="co-contract">
         <StepTitle n={3} id="co-contract" title={labels.contractTitle} hint={labels.contractHint} />

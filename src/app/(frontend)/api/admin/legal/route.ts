@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { authedPayload } from '@/lib/admin/orders-data'
 import { requireSuperForApi } from '@/lib/admin/require-super'
 import { unknownPlaceholders } from '@/lib/legal/placeholders'
+import { defaultAgreeConsent } from '@/lib/legal/contract-defaults'
 
 /**
  * 계약서·이용약관·개인정보처리방침·환불 및 취소 정책 문구 저장. 최고관리자만(큐 Q25 2차).
@@ -17,6 +18,9 @@ const ConsentLabel = z.object({ key: z.string().min(1).max(50), label: z.string(
 const BodySchema = z.discriminatedUnion('target', [
   z.object({ target: z.literal('contract'), id: z.number().int().positive(), ...Text, consents: z.array(ConsentLabel).max(20).optional() }).strict(),
   z.object({ target: z.literal('document'), kind: z.enum(['terms', 'privacy', 'refund']), locale: z.enum(['ko', 'ja']), ...Text }).strict(),
+  // 아직 없는 계약서(예: 5번 기타 광고 — 고정 원문이 없다)를 관리자가 문구를 넣어 처음 만든다(2026-09-11 사용자 결정 A).
+  // 만들면 바로 게시(active)되고, 그 상품의 결제(견적 결제 포함)가 열린다
+  z.object({ target: z.literal('contract-new'), category: z.number().int().min(1).max(5), locale: z.enum(['ko', 'ja']), ...Text, consents: z.array(ConsentLabel).max(20).optional() }).strict(),
 ])
 
 type StoredConsent = { key: string; label: string; required: boolean }
@@ -36,13 +40,34 @@ export async function POST(req: Request): Promise<Response> {
   const d = parsed.data
 
   // 채울 수 없는 빈칸이 있으면 그 상품 주문이 전부 막힌다 — 저장 전에 거절한다
-  if (d.target === 'contract') {
+  if (d.target === 'contract' || d.target === 'contract-new') {
     const unknown = unknownPlaceholders(d.body)
     if (unknown.length > 0) return NextResponse.json({ error: 'unknown_placeholder', detail: unknown }, { status: 400 })
   }
 
   try {
     const { payload, user } = await authedPayload()
+    if (d.target === 'contract-new') {
+      const { docs } = await payload.find({
+        collection: 'contract-templates',
+        where: { and: [{ category: { equals: d.category } }, { locale: { equals: d.locale } }] },
+        limit: 1,
+        depth: 0,
+        overrideAccess: true,
+      })
+      // 이미 있으면 새로 만들지 않는다 — 그사이 다른 관리자가 만들었으면 그 문서를 고쳐야 한다
+      if (docs[0]) return NextResponse.json({ error: 'contract_exists', id: docs[0].id }, { status: 409 })
+      const base = defaultAgreeConsent(d.locale)
+      const incoming = d.consents
+      if (incoming && (incoming.length !== 1 || incoming[0]!.key !== base.key)) return NextResponse.json({ error: 'consent_keys_mismatch' }, { status: 400 })
+      const created = await payload.create({
+        collection: 'contract-templates',
+        data: { category: d.category, locale: d.locale, title: d.title, body: d.body, consents: [{ ...base, label: incoming?.[0]?.label ?? base.label }], active: true },
+        user,
+        overrideAccess: false,
+      })
+      return NextResponse.json({ ok: true, id: created.id })
+    }
     if (d.target === 'contract') {
       let consents: StoredConsent[] | undefined
       const incoming = d.consents
