@@ -3,12 +3,14 @@
 import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import type { CategoryForm, GroupDef } from '@/lib/category-groups'
-import { toggleValue } from './TierForm'
+import type { CategoryForm, GroupDef, ItemDef } from '@/lib/category-groups'
+import { ChoiceCard, ChoiceGrid, StepTitle } from './ui'
+import { formatAmount, PaySection, toggleValue } from './TierForm'
+import s from './OrderForms.module.css'
 
 /**
  * 화면의 묶음 선택(그룹키 → 고른 항목 키 목록)에서, 실제로 금액칸을 가진 항목만 뽑는다.
- * country · posterBillboard 처럼 priced:false 인 항목은 계산기에 보내면 "단가 없음"으로
+ * country 처럼 priced:false 인 항목은 계산기에 보내면 "단가 없음"으로
  * 통째로 거부된다 — 계산에 들어갈 항목과 주문 메모에만 실릴 항목을 여기서 갈라야 한다.
  */
 export function pricedKeys(form: CategoryForm, selections: Readonly<Record<string, readonly string[]>>): string[] {
@@ -43,7 +45,7 @@ export function previewGroupTotal(
 /**
  * 결제 화면으로 넘길 쿼리스트링을 만든다.
  * 금액은 절대 포함하지 않는다 — 서버가 DB 단가로 다시 계산한 값만 청구한다.
- * 금액이 없는 선택(국가, 별도문의 플래그)도 주문 메모로 쓰이므로 함께 담는다.
+ * 금액이 없는 선택(국가)도 주문 메모로 쓰이므로 함께 담는다.
  * 사이즈 자유 입력은 원문을 그대로 화면에 되돌려 그리지 않고, 길이 상한을 넘기면 자른다.
  */
 export function buildGroupQuery(
@@ -65,30 +67,31 @@ export function buildGroupQuery(
   return qs.toString()
 }
 
-function formatAmount(amount: number, currency: PriceBook['currency']): string {
-  return new Intl.NumberFormat(currency === 'KRW' ? 'ko-KR' : 'ja-JP', {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 0,
-  }).format(amount)
+export type CountryTab = 'kr' | 'jp'
+
+/** 한국/일본 탭에 보일 항목만 남긴다. country 가 없는 항목(위치·포스터 등)은 두 탭 모두에 보인다 */
+export function visibleItems(group: GroupDef, tab: CountryTab | null): ItemDef[] {
+  if (!tab) return group.items
+  return group.items.filter((i) => !i.country || i.country === tab)
 }
 
-// 포스터·전광판 제작(4번)처럼 priced 항목이 하나도 없는 그룹은 가격표가 아니라
-// 별도문의 안내다 — 체크박스로 그리면 "이건 공짜구나"로 읽힌다 (Correction D)
-function isInquiryOnlyGroup(group: GroupDef): boolean {
-  return group.items.length > 0 && group.items.every((i) => !i.priced)
-}
+// 도시처럼 금액칸 없이 카드로 고르는 그룹(Figma v2: 3열 카드). 나머지는 금액이 붙는 행 목록
+const CARD_GROUPS = new Set(['country', 'subwayCity', 'busCity'])
 
 type Labels = {
   groupTitles: Record<string, string>
+  groupHints: Record<string, string>
   itemLabels: Record<string, string>
   periods: Record<string, string>
+  countryTabs: Record<CountryTab, string>
   sizeLabel: string
   sizePlaceholder: string
   totalLabel: string
   payButton: string
-  inquiryBadge: string
-  basicIncludedNote?: string
+  notice: string
+  /** 2번 기본 포함 칩 — 선택지가 아니라 안내다 */
+  basicIncludedItems?: string[]
+  shortVideoNote?: string
 }
 
 type Props = {
@@ -108,6 +111,11 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
   const [selections, setSelections] = useState<Record<string, string[]>>({})
   const [period, setPeriod] = useState<string | undefined>(undefined)
   const [size, setSize] = useState('')
+  // 첫 탭은 표지에서 고른 나라를 따른다. 없으면 화면 언어로 정한다
+  const [tab, setTab] = useState<CountryTab>(() =>
+    country[0] === 'jp' || country[0] === 'kr' ? (country[0] as CountryTab) : locale === 'ja' ? 'jp' : 'kr',
+  )
+  const activeTab = form.countryTabs ? tab : null
 
   const priced = useMemo(() => pricedKeys(form, selections), [form, selections])
   const total = useMemo(() => previewGroupTotal(book, model, priced, period), [book, model, priced, period])
@@ -123,9 +131,16 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     })
   }
 
+  // 탭을 바꾸면 고른 것을 비운다 — 안 보이는 다른 나라 항목이 몰래 합산되면 안 된다
+  function switchTab(next: CountryTab) {
+    if (next === tab) return
+    setTab(next)
+    setSelections({})
+  }
+
   function labelForItem(key: string): string {
     // 금액칸이 있는 항목은 loadPriceBook 이 이미 통화에 맞는 언어로 라벨을 골라 뒀다.
-    // 금액이 없는 항목(국가, 별도문의)은 단가표에 없으므로 messages 쪽 라벨로 보충한다.
+    // 금액이 없는 항목(국가)과 단가가 아직 없는 항목은 messages 쪽 라벨로 보충한다.
     return book.entries[key]?.label ?? labels.itemLabels[key] ?? key
   }
 
@@ -135,104 +150,143 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
-  return (
-    <div>
-      {form.groups.map((group) => (
-        <section key={group.key} style={{ marginTop: 32 }}>
-          <h3 style={{ fontSize: 'var(--fs-h3)' }}>{labels.groupTitles[group.key] ?? group.key}</h3>
+  const groups = form.groups
+    .map((g) => ({ group: g, items: visibleItems(g, activeTab) }))
+    .filter((g) => g.items.length > 0)
 
-          {isInquiryOnlyGroup(group) ? (
-            // 별도문의 그룹 — 가격이 보이는 체크박스 목록이 아니라 별개의 안내 박스로 그린다
-            <div style={{ border: '1px dashed var(--line-strong)', padding: '12px 16px', borderRadius: 8 }}>
-              <span style={{ fontWeight: 600 }}>{labels.inquiryBadge}</span>
-              <div style={{ display: 'flex', gap: 16, marginTop: 8, flexWrap: 'wrap' }}>
-                {group.items.map((item) => (
-                  <label key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <input
-                      type="radio"
-                      name={`group-${group.key}`}
-                      checked={(selections[group.key] ?? []).includes(item.key)}
-                      onChange={() => pick(group, item.key)}
-                    />
-                    {labelForItem(item.key)}
-                  </label>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-              {group.items.map((item) => (
-                <label key={item.key} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <input
+  const summary = [
+    ...(activeTab ? [labels.countryTabs[activeTab]] : []),
+    ...allSelected.map(labelForItem),
+    ...(period ? [labels.periods[period] ?? period] : []),
+  ]
+
+  let n = 0
+  return (
+    <>
+      {form.countryTabs && (
+        <div className={s.tabs} role="tablist">
+          {(['kr', 'jp'] as const).map((c) => (
+            <button
+              key={c}
+              type="button"
+              role="tab"
+              aria-selected={tab === c}
+              className={s.tab}
+              onClick={() => switchTab(c)}
+            >
+              {labels.countryTabs[c]}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {groups.map(({ group, items }) => {
+        n += 1
+        const id = `group-${group.key}`
+        const chosen = selections[group.key] ?? []
+        const cards = CARD_GROUPS.has(group.key)
+        return (
+          <section key={group.key} className={`${s.step} ${cards ? s.grid : ''}`}>
+            <StepTitle
+              n={n}
+              id={id}
+              title={labels.groupTitles[group.key] ?? group.key}
+              hint={labels.groupHints[group.key]}
+            />
+            {cards ? (
+              <ChoiceGrid cols={group.key === 'country' ? 2 : 3} labelledBy={id}>
+                {items.map((item) => (
+                  <ChoiceCard
+                    key={item.key}
                     type={group.multi ? 'checkbox' : 'radio'}
-                    name={group.multi ? undefined : `group-${group.key}`}
-                    checked={(selections[group.key] ?? []).includes(item.key)}
-                    onChange={() => pick(group, item.key)}
-                  />
-                  {labelForItem(item.key)}
-                  {item.priced && book.entries[item.key] && (
-                    <span style={{ color: 'var(--ink-500)', fontSize: 'var(--fs-caption)' }}>
-                      ({formatAmount(book.entries[item.key]!.amount, book.currency)})
-                    </span>
-                  )}
-                </label>
-              ))}
+                    name={group.multi ? undefined : id}
+                    checked={chosen.includes(item.key)}
+                    onClick={() => pick(group, item.key)}
+                  >
+                    {labelForItem(item.key)}
+                  </ChoiceCard>
+                ))}
+              </ChoiceGrid>
+            ) : (
+              <div className={s.rows} role="group" aria-labelledby={id}>
+                {items.map((item) => {
+                  const entry = book.entries[item.key]
+                  return (
+                    <ChoiceCard
+                      key={item.key}
+                      type={group.multi ? 'checkbox' : 'radio'}
+                      name={group.multi ? undefined : id}
+                      checked={chosen.includes(item.key)}
+                      onClick={() => pick(group, item.key)}
+                    >
+                      <span>{labelForItem(item.key)}</span>
+                      {item.priced && entry && <span className={s.price}>{formatAmount(entry.amount, book.currency)}</span>}
+                    </ChoiceCard>
+                  )
+                })}
+              </div>
+            )}
+          </section>
+        )
+      })}
+
+      {(form.periods || form.freeText) && (
+        <section className={`${s.step} ${s.grid}`}>
+          <StepTitle n={++n} id="group-period" title={labels.groupTitles.sizePeriod ?? labels.groupTitles.period ?? ''} />
+          {form.freeText?.map((t) => (
+            <div key={t.key} className={s.field}>
+              <label htmlFor={`free-${t.key}`}>{labels.sizeLabel}</label>
+              <input
+                id={`free-${t.key}`}
+                type="text"
+                value={size}
+                maxLength={t.maxLength}
+                placeholder={labels.sizePlaceholder}
+                onChange={(e) => setSize(e.target.value)}
+              />
             </div>
+          ))}
+          {form.periods && (
+            <ChoiceGrid cols={form.periods.length} labelledBy="group-period">
+              {form.periods.map((p) => (
+                <ChoiceCard key={p} type="radio" name="period" checked={period === p} onChange={() => setPeriod(p)}>
+                  {labels.periods[p] ?? p}
+                </ChoiceCard>
+              ))}
+            </ChoiceGrid>
           )}
         </section>
-      ))}
-
-      {form.periods && (
-        <section style={{ marginTop: 32 }}>
-          <h3 style={{ fontSize: 'var(--fs-h3)' }}>{labels.groupTitles.period ?? '기간'}</h3>
-          <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-            {form.periods.map((p) => (
-              <label key={p} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <input
-                  type="radio"
-                  name="period"
-                  checked={period === p}
-                  onChange={() => setPeriod(p)}
-                />
-                {labels.periods[p] ?? p}
-              </label>
-            ))}
-          </div>
-        </section>
       )}
 
-      {form.freeText?.map((t) => (
-        <section key={t.key} style={{ marginTop: 32 }}>
-          <h3 style={{ fontSize: 'var(--fs-h3)' }}>{labels.sizeLabel}</h3>
-          <input
-            type="text"
-            value={size}
-            maxLength={t.maxLength}
-            placeholder={labels.sizePlaceholder}
-            onChange={(e) => setSize(e.target.value)}
-            style={{ width: '100%', padding: '10px 12px' }}
+      {labels.basicIncludedItems && (
+        <section className={s.step}>
+          <StepTitle
+            n={++n}
+            title={labels.groupTitles.basicIncluded ?? ''}
+            hint={labels.groupHints.basicIncluded}
           />
+          <ul className={s.chips} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+            {labels.basicIncludedItems.map((c) => (
+              <li key={c} className={s.chip}>
+                <img src="/ui/check-chip.svg" alt="" width={16} height={16} />
+                {c}
+              </li>
+            ))}
+          </ul>
         </section>
-      ))}
-
-      {labels.basicIncludedNote && (
-        <p style={{ marginTop: 24, color: 'var(--ink-500)', fontSize: 'var(--fs-sm)' }}>{labels.basicIncludedNote}</p>
       )}
 
-      <section style={{ marginTop: 32 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <span>{labels.totalLabel}</span>
-          <strong style={{ fontSize: 'var(--fs-h1)' }}>{formatAmount(total, book.currency)}</strong>
-        </div>
-        <button
-          type="button"
-          disabled={!canPay}
-          onClick={goToPayment}
-          style={{ marginTop: 16, width: '100%', padding: '14px 0' }}
-        >
-          {labels.payButton}
-        </button>
-      </section>
-    </div>
+      {labels.shortVideoNote && <p className={s.note}>{labels.shortVideoNote}</p>}
+
+      <PaySection
+        totalLabel={labels.totalLabel}
+        sub={allSelected.length ? summary.join(' · ') : undefined}
+        amount={formatAmount(total, book.currency)}
+        payButton={labels.payButton}
+        notice={labels.notice}
+        disabled={!canPay}
+        onPay={goToPayment}
+      />
+    </>
   )
 }

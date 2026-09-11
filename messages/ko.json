@@ -25,37 +25,102 @@
   "categories": {
     "digital-sns": "디지털 / SNS 광고",
     "local-video": "현지 전문 영상 촬영",
-    "press-blog": "블로그",
-    "transit": "지하철 · 버스 광고",
+    "press-blog": "대표신문 / 지역신문 / 블로그",
+    "transit": "지하철 · 버스광고",
     "other": "기타"
   },
   "tierForm": {
-    "sectionTitle": "등급을 선택해주세요 (중복 선택 가능)",
-    "platformHint": "플랫폼 선택은 금액에 영향을 주지 않습니다",
+    "platformHint": "중복 선택하실 수 있습니다. 금액에는 영향이 없습니다",
     "totalLabel": "총 금액",
-    "payButton": "결제하러 가기"
+    "payButton": "결제하러 가기",
+    "platformTitle": "플랫폼",
+    "tierTitle": "등급 선택",
+    "tierHint": "여러 개를 고르시면 금액이 합산됩니다",
+    "contentHead": "제공 콘텐츠",
+    "priceRow": "금액",
+    "selected": "{names} 선택",
+    "platforms": {
+      "instagram": "인스타그램 (피드, 캐러셀, 릴스)",
+      "youtube": "유튜브, 쇼츠",
+      "tiktok": "틱톡 (숏폼영상)",
+      "line": "라인 (이미지, 메시지 콘텐츠)"
+    },
+    "rows": [
+      {
+        "label": "총 콘텐츠 갯수",
+        "basic": "10개",
+        "standard": "20개",
+        "premium": "30개"
+      },
+      {
+        "label": "릴스 · 숏폼영상",
+        "basic": "2개",
+        "standard": "4개",
+        "premium": "6개"
+      },
+      {
+        "label": "사진 · 이미지 · 피드",
+        "basic": "5개",
+        "standard": "10개",
+        "premium": "15개"
+      },
+      {
+        "label": "여러장 이미지 (캐러셀)",
+        "basic": "3개",
+        "standard": "6개",
+        "premium": "9개"
+      },
+      {
+        "label": "SNS 게시물, 홍보 글 작성",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "기본자막 테스트",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "SNS 채널 맞춤제작",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "SNS 업로드",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      }
+    ]
   },
   "groupForm": {
     "groupTitles": {
-      "country": "촬영 국가 (중복 선택 가능)",
+      "country": "촬영 국가",
       "videoType": "영상 종류",
       "videoLength": "완성 영상 길이",
       "national": "전국지",
       "local": "지역신문",
       "community": "지역 커뮤니티",
       "blog": "블로그",
-      "subwayCity": "지하철 광고 — 도시",
+      "subwayCity": "지하철 — 도시",
       "subwaySpot": "지하철 광고 위치",
       "posterBillboard": "포스터 · 전광판 제작",
       "busCity": "버스 광고 — 도시",
       "busSpot": "버스 광고 위치",
-      "period": "광고 기간"
+      "period": "광고 기간",
+      "sizePeriod": "사이즈 · 광고 기간",
+      "basicIncluded": "기본 포함"
     },
     "itemLabels": {
       "country-kr": "한국 현지 촬영",
       "country-jp": "일본 현지 촬영",
       "poster-make-inquiry": "역내 포스터 제작 함",
-      "poster-skip": "역내 포스터 제작 안함"
+      "poster-skip": "역내 포스터 제작 안함",
+      "poster-video-image": "영상 이미지 광고",
+      "poster-digital": "역내 디지털 광고"
     },
     "periods": {
       "1w": "1주",
@@ -64,11 +129,29 @@
       "3m": "3개월"
     },
     "sizeLabel": "사이즈",
-    "sizePlaceholder": "원하시는 사이즈를 자유롭게 입력해주세요",
+    "sizePlaceholder": "예) 가로 1200 × 세로 800",
     "totalLabel": "총 금액",
     "payButton": "결제하러 가기",
-    "inquiryBadge": "별도 문의",
-    "basicIncludedNote": "영상 기획 구성 · 현지 전문 촬영 · 영상 편집 · 자막 테스트 · 배경 음악 · 색보정 · 오프닝/엔딩 · 완성 영상 제공은 모든 상품에 기본 포함되며 별도로 선택하지 않습니다"
+    "groupHints": {
+      "country": "중복 선택하실 수 있습니다",
+      "posterBillboard": "사이즈에 따라 금액이 달라질 수 있습니다",
+      "basicIncluded": "아래 항목은 모든 상품에 포함됩니다"
+    },
+    "countryTabs": {
+      "kr": "한국",
+      "jp": "일본"
+    },
+    "basicIncludedItems": [
+      "영상 기획 구성",
+      "현지 전문 촬영",
+      "영상 편집",
+      "자막 테스트",
+      "배경 음악",
+      "색보정",
+      "오프닝 · 엔딩",
+      "완성 영상 제공"
+    ],
+    "shortVideoNote": "10분 미만의 릴스, 틱톡, 유튜브 쇼츠 등 SNS 영상은 1번 디지털 / SNS커뮤니티를 이용해주시면 감사하겠습니다."
   },
   "inquiry": {
     "notice": "문의사항이 있으시면 1:1 문의를 이용해주세요"
@@ -89,8 +172,6 @@
     "submit": "문의 보내기",
     "submitting": "보내는 중...",
     "done": "문의가 접수되었습니다. 담당자가 확인 후 연락드리겠습니다.",
-    "consultTitle": "원하는 상품이 없거나 상담이 필요하신가요?",
-    "consultCta": "상담 신청하기",
     "errors": {
       "required": "문의 내용과 연락처(이름·연락처·이메일)를 모두 입력해 주세요.",
       "invalid_input": "입력값을 다시 확인해 주세요.",
@@ -316,5 +397,21 @@
     "call": "상담전화",
     "chat": "1:1 채팅",
     "mypage": "마이페이지"
+  },
+  "orderPage": {
+    "badge": "광고 서비스 {n}",
+    "notice": "다음 화면에서 주문자 정보와 주문 내역을 확인하시고 계약서에 동의하신 뒤 결제하시게 됩니다.",
+    "titles": {
+      "digital-sns": "디지털광고 / SNS커뮤니티",
+      "local-video": "현지 전문 영상 촬영",
+      "press-blog": "대표신문 / 지역신문 / 블로그",
+      "transit": "지하철 · 버스 · 옥외광고"
+    },
+    "descriptions": {
+      "digital-sns": "플랫폼을 고르고 등급을 선택하시면 금액이 바로 계산됩니다.",
+      "local-video": "촬영 국가와 영상 종류, 길이를 고르시면 금액이 계산됩니다.",
+      "press-blog": "국가별 매체를 고르시면 금액이 계산됩니다.",
+      "transit": "도시와 광고 위치, 기간을 고르시면 금액이 계산됩니다."
+    }
   }
 }

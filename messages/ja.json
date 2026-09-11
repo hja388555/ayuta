@@ -26,37 +26,102 @@
   "categories": {
     "digital-sns": "デジタル / SNS 広告",
     "local-video": "現地専門映像撮影",
-    "press-blog": "ブログ",
-    "transit": "地下鉄・バス広告",
+    "press-blog": "全国紙 / 地域紙 / ブログ",
+    "transit": "地下鉄 · バス広告",
     "other": "その他"
   },
   "tierForm": {
-    "sectionTitle": "グレードを選択してください（重複選択可能）",
-    "platformHint": "プラットフォームの選択は金額に影響しません",
+    "platformHint": "複数選択できます。金額には影響しません",
     "totalLabel": "合計金額",
-    "payButton": "お支払いへ進む"
+    "payButton": "お支払いへ進む",
+    "platformTitle": "プラットフォーム",
+    "tierTitle": "グレード選択",
+    "tierHint": "複数選ぶと金額が合算されます",
+    "contentHead": "提供コンテンツ",
+    "priceRow": "金額",
+    "selected": "{names} を選択",
+    "platforms": {
+      "instagram": "Instagram（フィード、カルーセル、リール）",
+      "youtube": "YouTube、ショート",
+      "tiktok": "TikTok（ショート動画）",
+      "line": "LINE（画像、メッセージコンテンツ）"
+    },
+    "rows": [
+      {
+        "label": "総コンテンツ数",
+        "basic": "10件",
+        "standard": "20件",
+        "premium": "30件"
+      },
+      {
+        "label": "リール · ショート動画",
+        "basic": "2件",
+        "standard": "4件",
+        "premium": "6件"
+      },
+      {
+        "label": "写真 · 画像 · フィード",
+        "basic": "5件",
+        "standard": "10件",
+        "premium": "15件"
+      },
+      {
+        "label": "複数枚画像（カルーセル）",
+        "basic": "3件",
+        "standard": "6件",
+        "premium": "9件"
+      },
+      {
+        "label": "SNS投稿・PR文作成",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "基本字幕テスト",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "SNSチャンネル別制作",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      },
+      {
+        "label": "SNSアップロード",
+        "basic": "V",
+        "standard": "V",
+        "premium": "V"
+      }
+    ]
   },
   "groupForm": {
     "groupTitles": {
-      "country": "撮影国（重複選択可能）",
+      "country": "撮影国",
       "videoType": "映像の種類",
       "videoLength": "完成映像の長さ",
       "national": "全国紙",
       "local": "地方紙",
       "community": "地域コミュニティ",
       "blog": "ブログ",
-      "subwayCity": "地下鉄広告 — 都市",
+      "subwayCity": "地下鉄 — 都市",
       "subwaySpot": "地下鉄広告位置",
       "posterBillboard": "ポスター・電光掲示板制作",
       "busCity": "バス広告 — 都市",
       "busSpot": "バス広告位置",
-      "period": "広告期間"
+      "period": "広告期間",
+      "sizePeriod": "サイズ · 広告期間",
+      "basicIncluded": "標準で含まれるもの"
     },
     "itemLabels": {
       "country-kr": "韓国現地撮影",
       "country-jp": "日本現地撮影",
       "poster-make-inquiry": "駅構内ポスター制作 する",
-      "poster-skip": "駅構内ポスター制作 しない"
+      "poster-skip": "駅構内ポスター制作 しない",
+      "poster-video-image": "映像・画像広告",
+      "poster-digital": "駅構内デジタル広告"
     },
     "periods": {
       "1w": "1週間",
@@ -65,11 +130,29 @@
       "3m": "3ヶ月"
     },
     "sizeLabel": "サイズ",
-    "sizePlaceholder": "ご希望のサイズを自由にご記入ください",
+    "sizePlaceholder": "例）横 1200 × 縦 800",
     "totalLabel": "合計金額",
     "payButton": "お支払いへ進む",
-    "inquiryBadge": "別途お問い合わせ",
-    "basicIncludedNote": "映像企画構成・現地専門撮影・映像編集・字幕テスト・BGM・カラー補正・オープニング/エンディング・完成映像の提供はすべての商品に標準で含まれており、別途選択の必要はありません"
+    "groupHints": {
+      "country": "複数選択できます",
+      "posterBillboard": "サイズによって金額が変わる場合があります",
+      "basicIncluded": "以下の項目はすべての商品に含まれます"
+    },
+    "countryTabs": {
+      "kr": "韓国",
+      "jp": "日本"
+    },
+    "basicIncludedItems": [
+      "映像企画構成",
+      "現地専門撮影",
+      "映像編集",
+      "字幕テスト",
+      "BGM",
+      "カラー補正",
+      "オープニング · エンディング",
+      "完成映像の提供"
+    ],
+    "shortVideoNote": "10分未満のリール、TikTok、YouTubeショートなどのSNS動画は、1番 デジタル / SNSコミュニティをご利用ください。"
   },
   "inquiry": {
     "notice": "お問い合わせは1:1お問い合わせをご利用ください"
@@ -90,8 +173,6 @@
     "submit": "お問い合わせを送信",
     "submitting": "送信中...",
     "done": "お問い合わせを受け付けました。担当者が確認のうえご連絡いたします。",
-    "consultTitle": "ご希望の商品がない、またはご相談が必要ですか？",
-    "consultCta": "相談を申し込む",
     "errors": {
       "required": "お問い合わせ内容とご連絡先（お名前・連絡先・メールアドレス）をすべてご入力ください。",
       "invalid_input": "入力内容をご確認ください。",
@@ -317,5 +398,21 @@
     "call": "電話相談",
     "chat": "1:1チャット",
     "mypage": "マイページ"
+  },
+  "orderPage": {
+    "badge": "広告サービス {n}",
+    "notice": "次の画面でご注文者情報とご注文内容をご確認のうえ、契約書に同意してお支払いいただきます。",
+    "titles": {
+      "digital-sns": "デジタル広告 / SNSコミュニティ",
+      "local-video": "現地専門映像撮影",
+      "press-blog": "全国紙 / 地域紙 / ブログ",
+      "transit": "地下鉄 · バス · 屋外広告"
+    },
+    "descriptions": {
+      "digital-sns": "プラットフォームとグレードを選ぶと、金額がすぐに計算されます。",
+      "local-video": "撮影国と映像の種類・長さを選ぶと、金額が計算されます。",
+      "press-blog": "国別の媒体を選ぶと、金額が計算されます。",
+      "transit": "都市と広告位置・期間を選ぶと、金額が計算されます。"
+    }
   }
 }
