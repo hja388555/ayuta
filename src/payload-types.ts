@@ -242,6 +242,7 @@ export interface Order {
   };
   signature: string;
   contractText: string;
+  sealAsset?: (number | null) | BrandAsset;
   /**
    * 주문 상세의 계약기간 저장 경로로만 변경됩니다. 변경 이력이 남습니다.
    */
@@ -258,6 +259,25 @@ export interface Order {
   failReason?: string | null;
   updatedAt: string;
   createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "brand-assets".
+ */
+export interface BrandAsset {
+  id: number;
+  kind: 'seal';
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -400,25 +420,6 @@ export interface AdminLoginLog {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "brand-assets".
- */
-export interface BrandAsset {
-  id: number;
-  kind: 'seal';
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "legal-documents".
  */
 export interface LegalDocument {
@@ -441,6 +442,15 @@ export interface LegalRevision {
   label: string;
   title: string;
   body: string;
+  consents?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   editor?: (number | null) | User;
   editorEmail: string;
   at: string;
@@ -662,6 +672,7 @@ export interface OrdersSelect<T extends boolean = true> {
       };
   signature?: T;
   contractText?: T;
+  sealAsset?: T;
   contractStart?: T;
   contractEnd?: T;
   adStartDate?: T;
@@ -845,6 +856,7 @@ export interface LegalRevisionsSelect<T extends boolean = true> {
   label?: T;
   title?: T;
   body?: T;
+  consents?: T;
   editor?: T;
   editorEmail?: T;
   at?: T;

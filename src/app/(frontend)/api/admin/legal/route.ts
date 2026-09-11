@@ -8,12 +8,18 @@ import { unknownPlaceholders } from '@/lib/legal/placeholders'
  * 계약서·이용약관·개인정보처리방침 문구 저장. 최고관리자만(큐 Q25 2차).
  * 이미 체결된 계약서는 주문에 원문이 복사돼 있어(orders.contractText) 여기서 바꿔도 바뀌지 않는다.
  * 저장할 때마다 legal-revisions 에 이력이 남는다(컬렉션 훅).
+ *
+ * 계약서 동의 체크박스(3차)는 문구만 고친다. 항목 key·개수·필수 여부는 결제 검증(createOrder 의
+ * allRequiredChecked)과 화면이 함께 기대하는 구조라, 문구 수정 화면에서 바꾸게 두지 않는다.
  */
 const Text = { title: z.string().trim().min(1).max(200), body: z.string().min(1).max(50_000) }
+const ConsentLabel = z.object({ key: z.string().min(1).max(50), label: z.string().trim().min(1).max(300) }).strict()
 const BodySchema = z.discriminatedUnion('target', [
-  z.object({ target: z.literal('contract'), id: z.number().int().positive(), ...Text }).strict(),
+  z.object({ target: z.literal('contract'), id: z.number().int().positive(), ...Text, consents: z.array(ConsentLabel).max(20).optional() }).strict(),
   z.object({ target: z.literal('document'), kind: z.enum(['terms', 'privacy']), locale: z.enum(['ko', 'ja']), ...Text }).strict(),
 ])
+
+type StoredConsent = { key: string; label: string; required: boolean }
 
 export async function POST(req: Request): Promise<Response> {
   const gate = await requireSuperForApi()
@@ -38,7 +44,23 @@ export async function POST(req: Request): Promise<Response> {
   try {
     const { payload, user } = await authedPayload()
     if (d.target === 'contract') {
-      await payload.update({ collection: 'contract-templates', id: d.id, data: { title: d.title, body: d.body }, user, overrideAccess: false })
+      let consents: StoredConsent[] | undefined
+      const incoming = d.consents
+      if (incoming) {
+        const current = await payload.findByID({ collection: 'contract-templates', id: d.id, depth: 0, overrideAccess: true })
+        const existing = ((current.consents ?? []) as StoredConsent[]).map(({ key, label, required }) => ({ key, label, required }))
+        // 같은 key 가 같은 순서로 와야 한다 — 다른 사람이 그사이 구성을 바꿨거나 조작된 요청이다
+        const sameShape = existing.length === incoming.length && existing.every((c, i) => c.key === incoming[i]!.key)
+        if (!sameShape) return NextResponse.json({ error: 'consent_keys_mismatch' }, { status: 400 })
+        consents = existing.map((c, i) => ({ ...c, label: incoming[i]!.label }))
+      }
+      await payload.update({
+        collection: 'contract-templates',
+        id: d.id,
+        data: { title: d.title, body: d.body, ...(consents ? { consents } : {}) },
+        user,
+        overrideAccess: false,
+      })
       return NextResponse.json({ ok: true })
     }
     const { docs } = await payload.find({

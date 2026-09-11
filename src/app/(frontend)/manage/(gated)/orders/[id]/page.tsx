@@ -10,6 +10,7 @@ import { OrderScheduleForm } from '@/components/admin/OrderScheduleForm'
 import { OrderStatusForm } from '@/components/admin/OrderStatusForm'
 import { card, td, th } from '@/components/admin/styles'
 import type { User } from '@/payload-types'
+import { sealDataUri } from '@/lib/seal'
 
 type Props = { params: Promise<{ id: string }> }
 
@@ -46,7 +47,11 @@ export default async function OrderDetailPage({ params }: Props) {
   // 없는 주문과 권한 없는 주문을 구분해 알려주지 않는다 — 게이트 밖 접근과 같은 404
   if (!order) notFound()
 
-  const [notes, transitions] = await Promise.all([findOrderNotes(orderId), findOrderTransitions(orderId)])
+  const [notes, transitions, sealSrc] = await Promise.all([
+    findOrderNotes(orderId),
+    findOrderTransitions(orderId),
+    sealDataUri(order.sealAsset as number | { id: number; filename?: string | null } | null | undefined),
+  ])
   const isSuper = isSuperRole(user.role)
   const options = availableTransitions(order.status, { isSuper }).map((value) => ({
     value,
@@ -115,6 +120,11 @@ export default async function OrderDetailPage({ params }: Props) {
           >
             {order.contractText}
           </pre>
+          {sealSrc ? (
+            <img data-contract-seal="" src={sealSrc} alt="결제 시점 대표자 서명·날인" style={{ maxWidth: 160, maxHeight: 100, display: 'block', marginLeft: 'auto' }} />
+          ) : (
+            <p style={{ fontSize: 12, color: '#767B85' }}>이 주문은 서명·날인 이미지 없이 체결됐습니다.</p>
+          )}
         </details>
       </section>
 

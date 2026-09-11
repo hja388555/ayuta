@@ -6,6 +6,7 @@ import { getPayload, ValidationError } from 'payload'
 import config from '@payload-config'
 import { z } from 'zod'
 import { calculate, fillContract, type Currency } from '@ayuta/pricing'
+import { currentSealAssetId } from '../seal'
 import { categoryBySlug } from '../categories'
 import { formFor } from '../category-groups'
 import { loadPriceBook } from '../price-book'
@@ -262,6 +263,8 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
         },
         signature: input.signature,
         contractText,
+        // 계약서 전문과 같은 이유로 도장도 이 시점 것을 고정한다(src/lib/seal.ts)
+        sealAsset: (await currentSealAssetId()) ?? undefined,
       },
     })
   } catch (err) {

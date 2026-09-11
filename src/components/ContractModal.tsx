@@ -10,6 +10,8 @@ type Props = {
   facts?: Array<{ label: string; value: string }>
   notice?: string
   contractText: string
+  /** 결제 시점 대표자 서명·날인. 서버가 권한 확인 후 data URI 로 넘긴다(src/lib/seal.ts) */
+  seal?: { src: string; alt: string }
 }
 
 /**
@@ -17,7 +19,7 @@ type Props = {
  * 내용은 결제 시점에 저장한 스냅샷 그대로다. <dialog> 를 써서 포커스 가두기·ESC 닫기를
  * 브라우저에 맡긴다. 본문은 서버가 그린 HTML 에 들어 있고 열 때 보이기만 한다.
  */
-export function ContractModal({ buttonLabel, closeLabel, title, facts = [], notice, contractText }: Props) {
+export function ContractModal({ buttonLabel, closeLabel, title, facts = [], notice, contractText, seal }: Props) {
   const ref = useRef<HTMLDialogElement>(null)
   return (
     <>
@@ -52,6 +54,11 @@ export function ContractModal({ buttonLabel, closeLabel, title, facts = [], noti
           ) : null}
           {notice ? <p style={{ fontWeight: 600, color: 'var(--ink-500)' }}>{notice}</p> : null}
           <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'inherit', margin: 0 }}>{contractText}</pre>
+          {seal ? (
+            <div style={{ textAlign: 'right', marginTop: 16 }}>
+              <img data-contract-seal="" src={seal.src} alt={seal.alt} style={{ maxWidth: 160, maxHeight: 100 }} />
+            </div>
+          ) : null}
         </div>
       </dialog>
     </>
