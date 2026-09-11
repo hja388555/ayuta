@@ -349,6 +349,7 @@ export interface ContractTemplate {
 export interface Inquiry {
   id: number;
   type?: string | null;
+  country?: ('kr' | 'jp')[] | null;
   body: string;
   region?: string | null;
   name: string;
@@ -749,6 +750,7 @@ export interface ContractTemplatesSelect<T extends boolean = true> {
  */
 export interface InquiriesSelect<T extends boolean = true> {
   type?: T;
+  country?: T;
   body?: T;
   region?: T;
   name?: T;

@@ -3,6 +3,7 @@ import { isActiveAdmin } from '../lib/admin-access'
 
 export const INQUIRY_STATUSES = ['new', 'quoted', 'closed'] as const
 export type InquiryStatus = (typeof INQUIRY_STATUSES)[number]
+export const INQUIRY_COUNTRIES = ['kr', 'jp'] as const
 
 /**
  * 5번(기타 광고) 문의. 금액이 정해져 있지 않아 계산기 대신 관리자가 이 문의를 보고 견적을
@@ -24,7 +25,10 @@ export const Inquiries: CollectionConfig = {
   },
   fields: [
     // 문의 유형 = 카테고리 슬러그(src/lib/categories.ts). 비워 둘 수 있다(1-18: 모르면 미선택)
+    // v2(2026-09-11)부터 화면에서 고르지 않는다. 이전 문의 데이터 때문에 필드는 남긴다
     { name: 'type', type: 'text', index: true },
+    // 광고할 나라(v2 ① 국가). 여러 개 고를 수 있다
+    { name: 'country', type: 'select', hasMany: true, options: [...INQUIRY_COUNTRIES] },
     { name: 'body', type: 'textarea', required: true },
     { name: 'region', type: 'text' },
     { name: 'name', type: 'text', required: true },

@@ -11,7 +11,7 @@ import { Shell } from '@/components/Shell'
 import { ImageBand } from '@/components/ImageBand'
 import { TierForm } from '@/components/TierForm'
 import { GroupForm } from '@/components/GroupForm'
-import { CATEGORIES, categoryBySlug } from '@/lib/categories'
+import { categoryBySlug } from '@/lib/categories'
 import { formFor } from '@/lib/category-groups'
 import { loadPriceBook } from '@/lib/price-book'
 import { loadCategoryModel } from '@/lib/pricing-model'
@@ -125,21 +125,30 @@ export default async function OrderPage({ params, searchParams }: Props) {
               <p style={{ color: 'var(--ink-500)' }}>{tForm('intro')}</p>
               <InquiryForm
                 locale={locale}
-                types={CATEGORIES.map((c) => ({ slug: c.slug, label: tCat(c.slug) }))}
                 initialType={initialType}
                 initialContact={initialContact}
                 labels={{
-                  typeLabel: tForm('typeLabel'),
-                  typeNone: tForm('typeNone'),
+                  countryTitle: tForm('countryTitle'),
+                  countries: tForm.raw('countries'),
+                  bodyTitle: tForm('bodyTitle'),
                   bodyLabel: tForm('bodyLabel'),
                   bodyPlaceholder: tForm('bodyPlaceholder'),
                   regionLabel: tForm('regionLabel'),
-                  filesLabel: tForm('filesLabel'),
+                  regionPlaceholder: tForm('regionPlaceholder'),
+                  filesDrop: tForm('filesDrop'),
+                  filesButton: tForm('filesButton'),
                   filesHint: tForm('filesHint'),
                   contactTitle: tForm('contactTitle'),
+                  contactHint: tForm('contactHint'),
                   name: tForm('name'),
+                  namePlaceholder: tForm('namePlaceholder'),
                   phone: tForm('phone'),
+                  phonePlaceholder: tForm('phonePlaceholder'),
                   email: tForm('email'),
+                  emailPlaceholder: tForm('emailPlaceholder'),
+                  consent: tForm('consent'),
+                  consentView: tForm('consentView'),
+                  notice: tForm('notice'),
                   submit: tForm('submit'),
                   submitting: tForm('submitting'),
                   done: tForm('done'),
