@@ -267,6 +267,7 @@ export interface Order {
 export interface BrandAsset {
   id: number;
   kind: 'seal';
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -367,6 +368,7 @@ export interface Inquiry {
 export interface InquiryFile {
   id: number;
   originalName?: string | null;
+  prefix?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -765,6 +767,7 @@ export interface InquiriesSelect<T extends boolean = true> {
  */
 export interface InquiryFilesSelect<T extends boolean = true> {
   originalName?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -822,6 +825,7 @@ export interface AdminLoginLogsSelect<T extends boolean = true> {
  */
 export interface BrandAssetsSelect<T extends boolean = true> {
   kind?: T;
+  prefix?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

@@ -3,6 +3,8 @@ import { fileURLToPath } from 'url'
 import { buildConfig } from 'payload'
 import { postgresAdapter } from '@payloadcms/db-postgres'
 import { poolConfig } from './lib/db-pool'
+import { s3Storage } from '@payloadcms/storage-s3'
+import { S3_PREFIX, s3ClientConfig, s3Enabled } from './lib/uploads/s3-config'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { integer, pgTable, serial, text, unique } from 'drizzle-orm/pg-core'
 
@@ -50,6 +52,23 @@ export default buildConfig({
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
+  // 업로드(문의 첨부·도장)를 Supabase Storage 비공개 버킷에 저장한다(큐 Q31 2단계). Vercel 은 디스크가
+  // 요청마다 사라진다. S3_ENABLED=true 일 때만 켠다(src/lib/uploads/s3-config.ts) — 로컬·CI 는 디스크.
+  // alwaysInsertFields: 켜지든 꺼지든 스키마(prefix 열)가 같아야 마이그레이션 하나로 모든 환경이 맞는다.
+  // 파일 URL 은 Payload 접근 제어(read access)를 거친다 — 버킷 공개 주소는 없다
+  plugins: [
+    s3Storage({
+      enabled: s3Enabled(),
+      alwaysInsertFields: true,
+      acl: 'private',
+      bucket: process.env.S3_BUCKET || '',
+      config: s3ClientConfig(),
+      collections: {
+        'inquiry-files': { prefix: S3_PREFIX['inquiry-files'] },
+        'brand-assets': { prefix: S3_PREFIX['brand-assets'] },
+      },
+    }),
+  ],
   db: postgresAdapter({
     // 운영은 DATABASE_CA_CERT 로 인증서를 검증해 접속한다(src/lib/db-pool.ts)
     pool: poolConfig(process.env.DATABASE_URI || '', process.env.DATABASE_CA_CERT),
