@@ -2,6 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
 import { bubbleText, MAX_BODY, type ChatLocale } from '@/lib/chat/rules'
+import { ChatFrame } from './ChatFrame'
 import s from './Chat.module.css'
 
 export type ChatMessageView = {
@@ -253,15 +254,7 @@ export function ChatRoom({ locale, labels }: { locale: ChatLocale; labels: Label
   }
 
   return (
-    <div className={s.page}>
-      <div className={s.head}>
-        <h1 className={s.title}>{labels.title}</h1>
-        <span className={s.badge}>
-          <img src="/ui/chat-globe.svg" alt="" width={16} height={16} />
-          {labels.badge}
-        </span>
-      </div>
-
+    <ChatFrame title={labels.title} badge={labels.badge} notices={[labels.notice1, labels.notice2]}>
       <div className={s.card} ref={listRef} aria-live="polite">
         {!loaded && !error ? <p className={s.empty}>{labels.loading}</p> : null}
         {loaded && messages.length === 0 ? <p className={s.empty}>{labels.empty}</p> : null}
@@ -276,10 +269,6 @@ export function ChatRoom({ locale, labels }: { locale: ChatLocale; labels: Label
       ) : null}
       <Composer value={text} onChange={setText} onSend={send} sending={sending || !loaded} placeholder={labels.placeholder} sendLabel={labels.send} attachLabel={labels.attach} />
 
-      <div className={s.notice}>
-        <p>{labels.notice1}</p>
-        <p>{labels.notice2}</p>
-      </div>
-    </div>
+    </ChatFrame>
   )
 }

@@ -787,7 +787,29 @@
     "loadError": "会話を読み込めませんでした。再読み込みしてください。",
     "translationFailed": "翻訳できませんでした",
     "loading": "読み込み中…",
-    "loginBody1": "1:1チャットはログイン後にご利用いただけます。",
-    "loginBody2": "ログインすると担当者とすぐにお話しいただけます。"
+    "guestTitle": "ログインせずにチャットを始める",
+    "guestDesc": "お名前とご連絡先をご入力いただくと、すぐに担当者とチャットできます。会話はこのブラウザに保存され、ご案内するチャットリンクから他の端末でも続けてご覧いただけます。",
+    "guestName": "お名前",
+    "guestNamePlaceholder": "山田 太郎",
+    "guestEmail": "メールアドレス",
+    "guestEmailPlaceholder": "name@email.com",
+    "guestPhone": "電話番号",
+    "guestPhonePlaceholder": "090-0000-0000",
+    "guestConsent": "[必須] 個人情報の収集・利用に同意します",
+    "guestConsentView": "内容を見る",
+    "guestStart": "チャットを始める",
+    "guestStarting": "開始しています…",
+    "guestMemberHint": "会員の方ですか？ログインすると、これまでの会話を続けてご覧いただけます。",
+    "guestLogin": "ログイン →",
+    "guestNotice2": "· お名前・ご連絡先・ご住所などの個人情報は翻訳サービスに送信されません。",
+    "guestLinkInvalid": "チャットリンクの有効期限が切れたか、新しいリンクに切り替わりました。担当者に新しいリンクをお問い合わせいただくか、下のフォームから新しく始めてください。",
+    "guestErrors": {
+      "required": "必須項目を入力してください。",
+      "consent_required": "個人情報の収集・利用に同意してください。",
+      "invalid_input": "メールアドレスと電話番号の形式をご確認ください。",
+      "too_many_threads": "短時間に多くのチャットが開始されました。しばらくしてから再度お試しください。",
+      "generic": "チャットを開始できませんでした。しばらくしてから再度お試しください。",
+      "network": "通信エラーが発生しました。もう一度お試しください。"
+    }
   }
 }

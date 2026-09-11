@@ -7,6 +7,7 @@ import * as migration_20260911_103148_admin_invites from './20260911_103148_admi
 import * as migration_20260911_110128_band_images from './20260911_110128_band_images';
 import * as migration_20260911_110443_chat from './20260911_110443_chat';
 import * as migration_20260911_111245_schema_sync_q37 from './20260911_111245_schema_sync_q37';
+import * as migration_20260911_232040_guest_chat from './20260911_232040_guest_chat';
 
 export const migrations = [
   {
@@ -52,6 +53,11 @@ export const migrations = [
   {
     up: migration_20260911_111245_schema_sync_q37.up,
     down: migration_20260911_111245_schema_sync_q37.down,
-    name: '20260911_111245_schema_sync_q37'
+    name: '20260911_111245_schema_sync_q37',
+  },
+  {
+    up: migration_20260911_232040_guest_chat.up,
+    down: migration_20260911_232040_guest_chat.down,
+    name: '20260911_232040_guest_chat'
   },
 ];

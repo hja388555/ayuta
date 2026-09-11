@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import { Badge } from '@/components/ui'
 import { Composer, MessageList, mergeMessages, useVisiblePolling, type ChatMessageView } from '@/components/ChatRoom'
 import c from '@/components/Chat.module.css'
@@ -12,8 +13,11 @@ type ThreadItem = {
   status: 'open' | 'closed'
   lastMessageAt: string | null
   unreadForAdmin: number
+  guest: boolean
   customerName: string | null
   customerEmail: string | null
+  customerPhone: string | null
+  inquiryId: number | null
   preview: string | null
 }
 
@@ -28,16 +32,23 @@ const ERRORS: Record<number, string> = {
 const when = (iso: string | null) =>
   iso ? new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).format(new Date(iso)) : ''
 
-/** [v2] A9 문의·채팅의 1:1 채팅 탭. 왼쪽 방 목록, 오른쪽 대화(원문 + 한국어 번역). 5초마다 갱신 */
-export function AdminChat() {
+/**
+ * [v2] A9 문의·채팅의 1:1 채팅 탭. 왼쪽 방 목록, 오른쪽 대화(원문 + 한국어 번역). 5초마다 갱신.
+ * initialThread(?thread=)가 있으면 그 방을 골라 연다 — 문의·주문의 "채팅 열기"가 여기로 온다.
+ * 비회원 방은 "채팅 링크 복사"로 고객에게 보낼 링크를 새로 발급한다(이전 링크는 끊긴다, 링크는 이때 한 번만 보인다).
+ */
+export function AdminChat({ initialThread = null }: { initialThread?: number | null }) {
   const [threads, setThreads] = useState<ThreadItem[] | null>(null)
-  const [selected, setSelected] = useState<number | null>(null)
+  const [selected, setSelected] = useState<number | null>(initialThread)
+  const [detail, setDetail] = useState<ThreadItem | null>(null)
   const [messages, setMessages] = useState<ChatMessageView[]>([])
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [link, setLink] = useState<{ threadId: number; url: string; copied: boolean } | null>(null)
   const listRef = useRef<HTMLDivElement>(null)
-  const current = threads?.find((t) => t.id === selected) ?? null
+  // 방금 연 방은 메시지가 없어 목록 100개 밖일 수 있다 — 메시지 조회 응답의 머리글 정보로 채운다
+  const current = threads?.find((t) => t.id === selected) ?? (detail?.id === selected ? detail : null)
   const lastId = messages.length ? messages[messages.length - 1]!.id : 0
 
   const loadThreads = useCallback(async () => {
@@ -63,8 +74,10 @@ export function AdminChat() {
     fetch(`/api/admin/chat/threads/${selected}/messages`, { cache: 'no-store' })
       .then(async (res) => {
         if (!res.ok) throw new Error(String(res.status))
-        const data = (await res.json()) as { messages: ChatMessageView[] }
-        if (alive) setMessages(data.messages)
+        const data = (await res.json()) as { thread: ThreadItem; messages: ChatMessageView[] }
+        if (!alive) return
+        setMessages(data.messages)
+        setDetail(data.thread)
         markRead(selected)
       })
       .catch(() => alive && setError('대화를 불러오지 못했습니다.'))
@@ -121,6 +134,27 @@ export function AdminChat() {
       return
     }
     setThreads((prev) => prev?.map((t) => (t.id === current.id ? { ...t, status } : t)) ?? prev)
+    setDetail((d) => (d && d.id === current.id ? { ...d, status } : d))
+  }
+
+  async function copyLink() {
+    if (!current?.guest) return
+    if (!window.confirm('새 채팅 링크를 발급합니다. 이전에 보낸 링크와 고객 브라우저의 기존 접속은 바로 끊기고, 새 링크로만 들어올 수 있습니다. 계속할까요?')) return
+    setError(null)
+    const res = await fetch(`/api/admin/chat/threads/${current.id}/link`, { method: 'POST' }).catch(() => null)
+    const body = (await res?.json().catch(() => ({}))) as { url?: string } | undefined
+    if (!res?.ok || !body?.url) {
+      setError(ERRORS[res?.status ?? 0] ?? '링크를 발급하지 못했습니다.')
+      return
+    }
+    let copied = false
+    try {
+      await navigator.clipboard.writeText(body.url)
+      copied = true
+    } catch {
+      copied = false
+    }
+    setLink({ threadId: current.id, url: body.url, copied })
   }
 
   return (
@@ -133,6 +167,7 @@ export function AdminChat() {
             <span className={s.threadHead}>
               <span className={s.threadName}>{t.customerName ?? '(이름 없음)'}</span>
               {t.unreadForAdmin > 0 ? <span className={s.unread}>{t.unreadForAdmin}</span> : null}
+              {t.guest ? <Badge tone="warning">비회원</Badge> : null}
               <Badge tone={t.status === 'open' ? 'brand' : 'neutral'}>{t.status === 'open' ? '진행 중' : '종료'}</Badge>
             </span>
             <span className={s.threadMeta}>
@@ -151,15 +186,36 @@ export function AdminChat() {
                 목록
               </button>
               <div className={s.roomWho}>
-                <strong>{current.customerName ?? '(이름 없음)'}</strong>
+                <strong>
+                  {current.customerName ?? '(이름 없음)'} {current.guest ? <Badge tone="warning">비회원</Badge> : null}
+                </strong>
                 <span>
-                  {current.customerEmail ?? ''} · {current.locale === 'ja' ? '일본어로 번역해 전달' : '한국어 방(번역 없음)'}
+                  {current.customerEmail ?? ''}
+                  {current.guest && current.customerPhone ? ` · ${current.customerPhone}` : ''} · {current.locale === 'ja' ? '일본어로 번역해 전달' : '한국어 방(번역 없음)'}
+                  {current.inquiryId ? (
+                    <>
+                      {' · '}
+                      <Link href={`/manage/inquiries/${current.inquiryId}`}>문의 보기</Link>
+                    </>
+                  ) : null}
                 </span>
               </div>
+              {current.guest ? (
+                <button type="button" className="btn btn-outline" onClick={copyLink}>
+                  채팅 링크 복사
+                </button>
+              ) : null}
               <button type="button" className="btn btn-outline" onClick={toggleStatus}>
                 {current.status === 'open' ? '채팅 종료' : '다시 열기'}
               </button>
             </div>
+            {link && link.threadId === current.id ? (
+              <p className={c.notice} role="status">
+                {link.copied ? '채팅 링크를 복사했습니다. ' : '복사하지 못했습니다. 아래 링크를 직접 복사해 주세요. '}
+                이 링크는 지금만 표시됩니다 — 고객에게 이메일·문자로 보내 주세요.
+                <input readOnly value={link.url} onFocus={(e) => e.currentTarget.select()} aria-label="채팅 링크" style={{ width: '100%', marginTop: 8, font: 'inherit' }} />
+              </p>
+            ) : null}
             <div className={`${c.card} ${s.messages}`} ref={listRef} aria-live="polite">
               {messages.length === 0 ? <p className={c.empty}>메시지가 없습니다.</p> : null}
               <MessageList messages={messages} viewer="ko" mine="admin" locale="ko" failedLabel="번역 실패 — 원문만 전달됨" />
@@ -172,7 +228,7 @@ export function AdminChat() {
             <Composer value={text} onChange={setText} onSend={send} sending={sending} placeholder="답장을 입력하세요" sendLabel="보내기" attachLabel="파일 첨부 (준비 중)" />
           </>
         ) : (
-          <p className={s.muted}>왼쪽에서 채팅을 선택하세요.</p>
+          <p className={s.muted}>{selected !== null && error ? error : '왼쪽에서 채팅을 선택하세요.'}</p>
         )}
       </section>
     </div>
