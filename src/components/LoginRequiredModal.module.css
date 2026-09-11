@@ -1,0 +1,20 @@
+/* 로그인 유도(227:153) — 공통 Modal 의 머리줄 대신 가운데 아이콘·제목. 탈퇴 확인(Account.module.css)과 같은 틀 */
+:global(.modal):has(.confirm) { width: min(480px, calc(100vw - 32px)); }
+:global(.modal):has(.confirm) :global(.modal-head) { display: none; }
+:global(.modal):has(.confirm) :global(.modal-body) { padding: 32px 28px; }
+:global(.modal):has(.confirm) :global(.modal-foot) { padding: 20px 28px; }
+.confirm { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
+.icon { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 999px; background: var(--brand-50, #eff5ff); }
+.icon img { width: 30px; height: 30px; }
+.title { margin: 0; font-size: 22px; font-weight: 700; line-height: 1.4; color: var(--ink-900); }
+.text { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink-500); }
+.foot { display: flex; gap: 10px; width: 100%; }
+.foot :global(.btn) { flex: 1; min-width: 0; height: 54px; border-radius: 12px; font-size: 16px; }
+
+@media (max-width: 767px) {
+  :global(.modal):has(.confirm) :global(.modal-body) { padding: 28px 20px; }
+  :global(.modal):has(.confirm) :global(.modal-foot) { padding: 16px 20px; }
+  .title { font-size: 20px; }
+  .text { font-size: 14px; }
+  .foot :global(.btn) { height: 50px; font-size: 15px; }
+}

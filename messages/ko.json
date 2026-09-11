@@ -705,5 +705,20 @@
     "noResult": "검색 결과가 없습니다. 우편번호를 다시 확인해 주세요.",
     "invalidZip": "우편번호는 7자리 숫자로 입력해 주세요.",
     "failed": "주소 검색을 불러오지 못했습니다. 잠시 후 다시 시도하거나 직접 입력해 주세요."
+  },
+  "modal": {
+    "close": "닫기",
+    "contractScrollHint": "스크롤하여 전문을 확인하실 수 있습니다",
+    "contractConfirmCheck": "위 계약 내용을 모두 확인하였으며 이에 동의합니다.",
+    "contractConfirm": "계약 확인 완료",
+    "loginTitle": "로그인이 필요합니다",
+    "loginBody1": "주문 내역과 계약서는 로그인하셔야 확인하실 수 있습니다.",
+    "loginBody2": "비회원으로 결제하신 경우 주문 조회를 이용해 주세요.",
+    "loginGuest": "비회원 주문 조회",
+    "loginGo": "로그인",
+    "saveTitle": "변경 내용을 저장할까요?",
+    "saveBody": "저장하지 않고 나가시면 입력하신 내용이 사라집니다.",
+    "saveDiscard": "저장 안 함",
+    "saveConfirm": "저장"
   }
 }
