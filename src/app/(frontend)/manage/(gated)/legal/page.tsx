@@ -4,7 +4,7 @@ import { getPayload, type Where } from 'payload'
 import config from '@payload-config'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { isSuperRole } from '@/lib/roles'
-import { card } from '@/components/admin/styles'
+import s from '@/components/admin/admin-v2.module.css'
 import { LegalEditor } from '@/components/admin/LegalEditor'
 
 /**
@@ -75,17 +75,19 @@ export default async function LegalPage({ searchParams }: Props) {
       : []
 
   return (
-    <main style={{ padding: 40, fontFamily: 'sans-serif', color: '#3D4046', maxWidth: 900 }}>
-      <p style={{ margin: '0 0 8px' }}>
-        <Link href="/manage">← 관리자 홈</Link>
-      </p>
-      <h1 style={{ fontSize: 20, marginBottom: 8 }}>계약서 · 약관</h1>
-      <p style={{ fontSize: 13, color: '#767B85' }}>
+    <div className={s.page} style={{ maxWidth: 900 }}>
+      <div className={s.head}>
+        <h1 className={s.title}>계약서 · 약관</h1>
+        <Link className={s.editLink} href="/manage/settings">
+          설정으로
+        </Link>
+      </div>
+      <p className={s.hint}>
         {canEdit ? '' : '중간관리자는 조회만 할 수 있습니다. '}
         저장하면 다음 주문부터 반영되고, 이미 체결된 계약서는 바뀌지 않습니다. 계약서의 {'{{amount}}'} 같은 빈칸은 주문 정보로 자동 채워지니 그대로 두세요.
       </p>
 
-      <section style={card}>
+      <section className={s.card}>
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.9, fontSize: 14 }}>
           {entries.map((e) => (
             <li key={e.key}>{e.key === selected ? <strong>{e.name}</strong> : <Link href={`/manage/legal?doc=${e.key}`}>{e.name}</Link>}</li>
@@ -94,7 +96,7 @@ export default async function LegalPage({ searchParams }: Props) {
       </section>
 
       {current ? (
-        <section style={card}>
+        <section className={s.card}>
           <h2 style={{ fontSize: 15, margin: '0 0 12px' }}>{current.name}</h2>
           <LegalEditor key={current.key} target={current.target} initialTitle={current.title} initialBody={current.body} initialConsents={current.consents} canEdit={canEdit} />
           <h3 style={{ fontSize: 14, margin: '20px 0 8px' }}>최근 수정 이력</h3>
@@ -116,6 +118,6 @@ export default async function LegalPage({ searchParams }: Props) {
           )}
         </section>
       ) : null}
-    </main>
+    </div>
   )
 }
