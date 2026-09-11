@@ -277,7 +277,6 @@
     "businessNo": "사업자등록번호",
     "businessNoPh": "000-00-00000 (개인은 비워두세요)",
     "addressSearch": "주소 검색",
-    "addressSearchSoon": "주소 검색은 준비 중입니다. 직접 입력해 주세요.",
     "agreeAll": "전체 동의",
     "agreeAge": "[필수] 만 14세 이상입니다",
     "agreeMarketing": "[선택] 광고·혜택 정보 수신에 동의합니다"
@@ -478,7 +477,6 @@
     "emailPh": "name@email.com",
     "postalCodePh": "00000",
     "addressSearch": "주소 검색",
-    "addressSearchSoon": "주소 검색은 준비 중입니다. 직접 입력해 주세요",
     "address1Ph": "서울특별시 동대문구 …",
     "address2Ph": "동 · 호수 등",
     "representativePh": "홍길동",
@@ -628,7 +626,6 @@
       "postalCode": "우편번호",
       "postalCodePh": "00000",
       "addressSearch": "주소 검색",
-      "addressSearchSoon": "주소 검색은 준비 중입니다. 직접 입력해 주세요.",
       "address1": "기본 주소",
       "address1Ph": "서울특별시 동대문구 …",
       "address2": "상세 주소",
@@ -695,5 +692,18 @@
       "network": "서버에 연결하지 못했습니다. 네트워크를 확인해 주세요.",
       "weak_password": "새 비밀번호는 영문·숫자·기호를 모두 넣어 10자 이상이어야 합니다."
     }
+  },
+  "address": {
+    "button": "주소 검색",
+    "title": "주소 검색",
+    "close": "닫기",
+    "krExample": "예) 답십리동 323 · 아유타빌딩 · 동대문구 천호대로",
+    "jpPlaceholder": "우편번호 7자리를 입력하세요",
+    "jpExample": "예) 100-0001 또는 1000001",
+    "submit": "검색",
+    "loading": "불러오는 중입니다…",
+    "noResult": "검색 결과가 없습니다. 우편번호를 다시 확인해 주세요.",
+    "invalidZip": "우편번호는 7자리 숫자로 입력해 주세요.",
+    "failed": "주소 검색을 불러오지 못했습니다. 잠시 후 다시 시도하거나 직접 입력해 주세요."
   }
 }

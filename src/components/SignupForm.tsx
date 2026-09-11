@@ -3,13 +3,14 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { passwordIssue, PASSWORD_MAX, PASSWORD_MIN } from '@/lib/password-policy'
+import { AddressSearch } from './AddressSearch'
 import s from './Auth.module.css'
 
 export type SignupLabels = Record<
   | 'accountTitle' | 'ordererTitle' | 'ordererHint' | 'consentTitle'
   | 'email' | 'emailPh' | 'emailHelp' | 'password' | 'passwordHint' | 'passwordConfirm' | 'passwordConfirmPh'
   | 'name' | 'namePh' | 'phone' | 'phonePh' | 'postalCode' | 'postalCodePh' | 'address1' | 'address1Ph' | 'address2' | 'address2Ph'
-  | 'businessNo' | 'businessNoPh' | 'addressSearch' | 'addressSearchSoon'
+  | 'businessNo' | 'businessNoPh' | 'addressSearch'
   | 'agreeAll' | 'agreeAge' | 'agreeTerms' | 'agreePrivacy' | 'agreeMarketing' | 'view' | 'submit' | 'submitting',
   string
 > & { errors: Record<string, string> }
@@ -101,11 +102,14 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
             {...attrs}
           />
           {key === 'postalCode' ? (
-            // 우편번호 검색(큐 Q35)은 아직 연결 전 — 버튼만 시안대로 두고 비활성 + 안내 title
-            <button type="button" className={`btn btn-secondary ${s.searchBtn}`} disabled title={labels.addressSearchSoon}>
-              <img src="/ui/search.svg" alt="" width={18} height={18} />
-              {labels.addressSearch}
-            </button>
+            <AddressSearch
+              locale={locale}
+              className={`btn btn-secondary ${s.searchBtn}`}
+              disabled={busy}
+              labels={{ button: labels.addressSearch }}
+              focusId="su-address2"
+              onSelect={(p) => setF((prev) => ({ ...prev, ...p }))}
+            />
           ) : null}
         </div>
         {help ? (

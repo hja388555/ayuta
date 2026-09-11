@@ -1,0 +1,18 @@
+/* Figma [v2] 팝업 B 233:2 — 주소 검색 모달 안쪽 */
+.body { display: flex; flex-direction: column; gap: 14px; }
+.search { display: flex; align-items: center; gap: 10px; height: 52px; padding: 0 6px 0 16px; border: 1.6px solid #005afa; border-radius: 12px; background: #fff; }
+.search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; background: none; font: inherit; font-size: 16px; color: #0b0b0c; }
+.search input::placeholder { color: #a3a8b0; }
+.searchGo { flex: none; height: 40px; padding: 0 14px; }
+.hint { margin: 0; padding: 12px 14px; border-radius: 10px; background: #eff5ff; color: #002e80; font-size: 14px; line-height: 1.6; }
+.status { margin: 0; color: #767b85; font-size: 14px; }
+.error { margin: 0; color: #d92d20; font-size: 14px; }
+.list { display: flex; flex-direction: column; gap: 14px; margin: 0; padding: 0; list-style: none; }
+.card { display: flex; flex-direction: column; gap: 3px; width: 100%; padding: 14px 18px; border: 1px solid #eceef1; border-radius: 12px; background: #fff; text-align: left; font: inherit; cursor: pointer; }
+.card:hover, .card:focus-visible { border-color: #005afa; }
+.cardRow { display: flex; align-items: center; gap: 8px; }
+.zip { flex: none; padding: 4px 8px; border-radius: 6px; background: #f7f8fa; color: #3d4046; font-size: 13px; font-weight: 700; line-height: 1.6; }
+.addr { flex: 1; color: #0b0b0c; font-size: 16px; font-weight: 700; line-height: 1.6; }
+.sub { color: #767b85; font-size: 14px; line-height: 1.6; }
+/* 한국 주소: 카카오 우편번호 서비스를 모달 안에 embed */
+.embed { width: 100%; height: min(470px, 60vh); }

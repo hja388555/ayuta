@@ -17,7 +17,7 @@ const KEYS = [
   'accountTitle', 'ordererTitle', 'ordererHint', 'consentTitle',
   'email', 'emailPh', 'emailHelp', 'password', 'passwordHint', 'passwordConfirm', 'passwordConfirmPh',
   'name', 'namePh', 'phone', 'phonePh', 'postalCode', 'postalCodePh', 'address1', 'address1Ph', 'address2', 'address2Ph',
-  'businessNo', 'businessNoPh', 'addressSearch', 'addressSearchSoon',
+  'businessNo', 'businessNoPh', 'addressSearch',
   'agreeAll', 'agreeAge', 'agreeTerms', 'agreePrivacy', 'agreeMarketing', 'view', 'submit', 'submitting',
 ] as const
 

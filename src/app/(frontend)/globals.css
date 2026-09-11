@@ -135,9 +135,12 @@ body {
 .modal-body { padding: 0 24px 24px; overflow-y: auto; }
 .modal-foot { display: flex; gap: 8px; padding: 16px 24px 24px; border-top: 1px solid var(--line); }
 .toast { position: fixed; left: 50%; bottom: calc(var(--tabbar-offset) + 24px); transform: translateX(-50%); z-index: 60; display: flex; align-items: center; gap: 12px; max-width: calc(100vw - 32px); padding: 14px 18px; border-radius: var(--radius-md); background: var(--ink-900); color: #fff; font-size: 15px; box-shadow: 0 8px 24px rgba(11, 11, 12, 0.2); }
-.toast-success { background: var(--success-600); }
-.toast-error { background: var(--danger-600); }
-.toast button { border: 0; background: none; color: inherit; font: inherit; font-weight: 700; cursor: pointer; }
+/* 팝업 B 233:39 — 성공·오류는 옅은 바탕 + 진한 글자, 안내는 검정 바탕 */
+.toast { border-radius: 14px; padding: 16px 20px; font-weight: 700; }
+.toast-success { background: #ecfdf3; color: #067647; }
+.toast-error { background: #fef3f2; color: #d92d20; }
+.toast button { border: 0; background: none; color: inherit; font: inherit; font-size: 14px; font-weight: 700; cursor: pointer; }
+.toast:not(.toast-success):not(.toast-error) button { color: #a9b0bc; }
 
 /* 사이트 헤더 — PC: 로고·메뉴 / 전화·로그인·회원가입·언어. Mobile: 로고 / 로그인·회원가입·언어 */
 .site-header { display: flex; align-items: center; min-height: 132px; padding: 16px var(--side); background: #fff; border-bottom: 1px solid var(--line); }

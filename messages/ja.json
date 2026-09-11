@@ -278,7 +278,6 @@
     "businessNo": "事業者登録番号",
     "businessNoPh": "000-00-00000（個人の方は空欄）",
     "addressSearch": "住所検索",
-    "addressSearchSoon": "住所検索は準備中です。直接入力してください。",
     "agreeAll": "すべてに同意",
     "agreeAge": "［必須］14歳以上です",
     "agreeMarketing": "［任意］広告・特典情報の受信に同意します"
@@ -479,7 +478,6 @@
     "emailPh": "name@email.com",
     "postalCodePh": "000-0000",
     "addressSearch": "住所検索",
-    "addressSearchSoon": "住所検索は準備中です。直接ご入力ください",
     "address1Ph": "東京都…",
     "address2Ph": "建物名・部屋番号など",
     "representativePh": "山田太郎",
@@ -629,7 +627,6 @@
       "postalCode": "郵便番号",
       "postalCodePh": "00000",
       "addressSearch": "住所検索",
-      "addressSearchSoon": "住所検索は準備中です。直接ご入力ください。",
       "address1": "住所",
       "address1Ph": "ソウル特別市 東大門区 …",
       "address2": "詳細住所",
@@ -696,5 +693,18 @@
       "network": "サーバーに接続できませんでした。ネットワークをご確認ください。",
       "weak_password": "新しいパスワードは英字・数字・記号をすべて含む10文字以上にしてください。"
     }
+  },
+  "address": {
+    "button": "住所検索",
+    "title": "住所検索",
+    "close": "閉じる",
+    "krExample": "例) 답십리동 323 · 아유타빌딩 · 동대문구 천호대로",
+    "jpPlaceholder": "郵便番号（7桁）を入力してください",
+    "jpExample": "例) 100-0001 または 1000001",
+    "submit": "検索",
+    "loading": "読み込み中です…",
+    "noResult": "該当する住所がありません。郵便番号をご確認ください。",
+    "invalidZip": "郵便番号は7桁の数字で入力してください。",
+    "failed": "住所検索を読み込めませんでした。しばらくしてから再度お試しいただくか、直接ご入力ください。"
   }
 }

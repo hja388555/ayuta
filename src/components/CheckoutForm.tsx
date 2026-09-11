@@ -6,6 +6,7 @@ import type { PriceBook } from '@ayuta/pricing'
 import type { ConsentDef } from '@/lib/checkout/consents'
 import type { CheckoutLabels } from '@/lib/checkout/labels'
 import { ChoiceCard, Modal, StepTitle, TotalBar } from './ui'
+import { AddressSearch } from './AddressSearch'
 import s from './Checkout.module.css'
 
 export type OrdererFormState = {
@@ -252,12 +253,14 @@ export function CheckoutForm({ locale, categorySlug, selection, amount, currency
           {field('postalCode', {
             required: true,
             autoComplete: 'postal-code',
-            // 주소 검색 팝업은 Q35 에서 붙는다. 그 전까지는 모양만 두고 눌러도 아무 일이 없게 막는다
             addon: (
-              <button type="button" className={`btn btn-secondary ${s.searchBtn}`} disabled title={labels.addressSearchSoon}>
-                <img src="/ui/search.svg" alt="" width={18} height={18} />
-                {labels.addressSearch}
-              </button>
+              <AddressSearch
+                locale={locale}
+                className={`btn btn-secondary ${s.searchBtn}`}
+                labels={{ button: labels.addressSearch, close: labels.close }}
+                focusId="co-address2"
+                onSelect={(p) => setOrderer((prev) => ({ ...prev, ...p }))}
+              />
             ),
           })}
           {field('address1', { required: true, autoComplete: 'address-line1' })}
