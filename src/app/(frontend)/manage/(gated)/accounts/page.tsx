@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { AuthError, requireSuper } from '@/lib/dal'
 import { AccountsManager } from '@/components/admin/SettingsForms'
+import { listPendingInvites } from '@/lib/invites/service'
 import s from '@/components/admin/admin-v2.module.css'
 
 /**
@@ -19,6 +20,7 @@ export default async function AccountsPage() {
   }
 
   const payload = await getPayload({ config })
+  const invites = await listPendingInvites(payload)
   const { docs } = await payload.find({
     collection: 'users',
     where: { and: [{ role: { in: ['manager', 'super'] } }, { deletedAt: { exists: false } }] },
@@ -35,7 +37,7 @@ export default async function AccountsPage() {
         <span className={s.superOnly}>최고관리자 전용</span>
       </div>
       <section className={s.card} style={{ maxWidth: 720 }}>
-        <AccountsManager meId={me.id} accounts={docs.map((d) => ({ id: d.id as number, email: d.email as string, name: (d.name as string) ?? '', role: d.role as string }))} />
+        <AccountsManager meId={me.id} invites={invites} accounts={docs.map((d) => ({ id: d.id as number, email: d.email as string, name: (d.name as string) ?? '', role: d.role as string }))} />
       </section>
     </div>
   )

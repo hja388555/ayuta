@@ -3,6 +3,7 @@ import * as migration_20260911_052437_storage_prefix from './20260911_052437_sto
 import * as migration_20260911_081755_inquiry_country from './20260911_081755_inquiry_country';
 import * as migration_20260911_090442_users_consents from './20260911_090442_users_consents';
 import * as migration_20260911_093339_legal_refund_kind from './20260911_093339_legal_refund_kind';
+import * as migration_20260911_103148_admin_invites from './20260911_103148_admin_invites';
 
 export const migrations = [
   {
@@ -28,6 +29,11 @@ export const migrations = [
   {
     up: migration_20260911_093339_legal_refund_kind.up,
     down: migration_20260911_093339_legal_refund_kind.down,
-    name: '20260911_093339_legal_refund_kind'
+    name: '20260911_093339_legal_refund_kind',
+  },
+  {
+    up: migration_20260911_103148_admin_invites.up,
+    down: migration_20260911_103148_admin_invites.down,
+    name: '20260911_103148_admin_invites'
   },
 ];
