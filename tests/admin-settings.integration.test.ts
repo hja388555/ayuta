@@ -136,23 +136,13 @@ describe('대표자 서명·날인 이미지', () => {
 })
 
 describe('관리자 계정', () => {
-  it('계정 생성은 최고관리자만 — 중간관리자 403', async () => {
-    const body = { email: `set-new-mgr+${RUN}@ayuta.test`, name: '새 매니저', password: 'LongPass!2026', role: 'manager' }
-    expect((await post('/api/admin/accounts', body, 'manager')).status).toBe(403)
-    const res = await post('/api/admin/accounts', body, 'super')
-    expect(res.status).toBe(200)
+  // 계정 추가는 초대로만 한다(tests/admin-invite.integration.test.ts). 비밀번호를 받아 만드는 옛 경로는 없다
+  it('비밀번호로 계정을 만드는 옛 경로는 사라졌다', async () => {
+    const res = await post('/api/admin/accounts', { email: `set-old+${RUN}@ayuta.test`, name: 'x', password: 'LongPass!2026', role: 'manager' }, 'super')
+    expect(res.status).toBeGreaterThanOrEqual(400)
     const payload = await localPayload()
-    const { docs } = await payload.find({ collection: 'users', where: { email: { equals: body.email } }, overrideAccess: true })
-    expect(docs[0]?.role).toBe('manager')
-    expect((await login(body.email, body.password)).token).toBeTruthy()
-  })
-
-  it('비밀번호 규칙(영문·숫자·기호 10자 이상)에 안 맞으면 400 weak_password 다', async () => {
-    for (const password of ['short', 'LongPassword2026']) {
-      const res = await post('/api/admin/accounts', { email: `set-weak+${RUN}-${password.length}@ayuta.test`, name: 'x', password, role: 'manager' }, 'super')
-      expect(res.status).toBe(400)
-      expect(await res.json()).toEqual({ error: 'weak_password' })
-    }
+    const { totalDocs } = await payload.count({ collection: 'users', where: { email: { equals: `set-old+${RUN}@ayuta.test` } }, overrideAccess: true })
+    expect(totalDocs).toBe(0)
   })
 
   it('권한 변경: 자기 자신은 못 바꾸고, 다른 계정은 바꾼다', async () => {

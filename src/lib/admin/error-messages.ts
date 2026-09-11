@@ -23,6 +23,8 @@ const MESSAGES: Record<string, string> = {
   quote_failed: '견적을 처리하지 못했습니다. 화면을 새로고침한 뒤 다시 시도해 주세요.',
   invalid_image: '투명 배경 PNG 파일만 올릴 수 있습니다(2MB 이하). 흰 배경 이미지나 JPG 는 받지 않습니다.',
   account_failed: '계정을 처리하지 못했습니다. 이미 있는 이메일이 아닌지 확인해 주세요.',
+  already_admin: '이미 관리자 계정인 이메일입니다. 권한은 목록에서 바꿔 주세요.',
+  invite_failed: '초대를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.',
   cannot_change_self: '자기 자신의 권한은 바꿀 수 없습니다.',
   last_super: '마지막 최고관리자의 권한은 내릴 수 없습니다. 다른 최고관리자를 먼저 만들어 주세요.',
   password_too_short: '관리자 비밀번호는 10자 이상이어야 합니다.',

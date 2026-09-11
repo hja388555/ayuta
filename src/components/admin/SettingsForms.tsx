@@ -3,7 +3,6 @@
 import { useState, type DragEvent } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
-import { passwordIssue, PASSWORD_MIN } from '@/lib/password-policy'
 import { Badge } from '@/components/ui'
 import { AdminConfirm, NoPermission } from './AdminConfirm'
 import s from './admin-v2.module.css'
@@ -172,16 +171,48 @@ export function SealUploadForm({ hasSeal, canEdit }: { hasSeal: boolean; canEdit
 }
 
 type Account = { id: number; email: string; name: string; role: string }
+type Invite = { id: number; email: string; role: string; expiresAt: string }
 
 const roleLabel = (role: string) => (role === 'super' ? '최고관리자' : '중간관리자')
+const fmtExpiry = (iso: string) => new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' }).format(new Date(iso))
+
+async function postInvite(url: string, body: unknown): Promise<{ ok: true; sent: boolean; link?: string } | Msg> {
+  try {
+    const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+    const json = await res.json().catch(() => ({}))
+    if (!res.ok || !json?.ok) return { ok: false, text: adminErrorMessage(json?.error) }
+    return { ok: true, sent: json.sent === true, link: typeof json.link === 'string' ? json.link : undefined }
+  } catch {
+    return { ok: false, text: adminErrorMessage('network') }
+  }
+}
+
+/** 메일이 안 나갔을 때 최고관리자가 직접 전달할 링크 */
+function LinkBox({ link }: { link: string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <div className={s.warn} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <span>메일 발송 설정 전이라 링크를 직접 전달해 주세요.</span>
+      <input className={s.input} value={link} readOnly aria-label="초대 링크" onFocus={(e) => e.currentTarget.select()} />
+      <button
+        type="button"
+        className="btn btn-outline"
+        onClick={() => navigator.clipboard.writeText(link).then(() => setCopied(true), () => setCopied(false))}
+      >
+        {copied ? '복사했습니다' : '링크 복사'}
+      </button>
+    </div>
+  )
+}
 
 /**
- * 관리자 계정 목록·권한 변경·생성. accounts 가 null 이면(중간관리자) 목록 대신 권한 안내만 보여 준다.
- * 계정 생성은 A11 ⑥ 팝업. 시안은 "초대 메일 발송"이지만 메일 발송(Q28)이 아직 없어 비밀번호를 직접 정한다.
+ * 관리자 계정 목록·권한 변경·초대. accounts 가 null 이면(중간관리자) 목록 대신 권한 안내만 보여 준다.
+ * 계정 추가는 A11 ⑥ 팝업 — 이메일·권한만 받아 초대 메일을 보낸다(비밀번호는 초대받은 사람이 정한다).
+ * 메일 발송 설정(RESEND_API_KEY·MAIL_FROM)이 없으면 서버가 링크를 돌려주고, 여기서 복사해 전달한다.
  */
-export function AccountsManager({ accounts, meId }: { accounts: Account[] | null; meId: number }) {
+export function AccountsManager({ accounts, invites = [], meId }: { accounts: Account[] | null; invites?: Invite[]; meId: number }) {
   const router = useRouter()
-  const empty = { email: '', name: '', password: '', role: 'manager' }
+  const empty = { email: '', role: 'manager' }
   const [form, setForm] = useState(empty)
   const [creating, setCreating] = useState(false)
   const [pending, setPending] = useState<{ account: Account; role: string } | null>(null)
@@ -189,9 +220,9 @@ export function AccountsManager({ accounts, meId }: { accounts: Account[] | null
   const [busy, setBusy] = useState(false)
   const [msg, setMsg] = useState<Msg>(null)
   const [formMsg, setFormMsg] = useState<Msg>(null)
+  const [link, setLink] = useState<string | null>(null)
 
   const canManage = accounts !== null
-  const pwIssue = form.password ? passwordIssue(form.password) : null
 
   async function changeRole() {
     if (!pending) return
@@ -203,17 +234,27 @@ export function AccountsManager({ accounts, meId }: { accounts: Account[] | null
     if (r === true) router.refresh()
   }
 
-  async function create() {
-    if (pwIssue || form.password.length < PASSWORD_MIN) return setFormMsg({ ok: false, text: `비밀번호는 영문·숫자·기호를 모두 넣어 ${PASSWORD_MIN}자 이상으로 정해 주세요.` })
+  async function invite(body: { email: string; role: string }, fromForm: boolean) {
     setBusy(true)
     setFormMsg(null)
-    const r = await postJson('/api/admin/accounts', form)
+    setMsg(null)
+    setLink(null)
+    const r = await postInvite('/api/admin/accounts/invite', body)
     setBusy(false)
-    if (r !== true) return setFormMsg(r)
+    if (!r || !('sent' in r)) return fromForm ? setFormMsg(r) : setMsg(r)
     setCreating(false)
     setForm(empty)
-    setMsg({ ok: true, text: '계정을 만들었습니다. 비밀번호는 본인에게 따로 전달해 주세요.' })
+    if (r.sent) setMsg({ ok: true, text: '초대 메일을 보냈습니다.' })
+    else if (r.link) setLink(r.link)
     router.refresh()
+  }
+
+  async function cancel(inv: Invite) {
+    setBusy(true)
+    const r = await postJson('/api/admin/accounts/invite/cancel', { id: inv.id })
+    setBusy(false)
+    setMsg(r === true ? { ok: true, text: '초대를 취소했습니다.' } : r)
+    if (r === true) router.refresh()
   }
 
   const pendingText = pending
@@ -251,28 +292,46 @@ export function AccountsManager({ accounts, meId }: { accounts: Account[] | null
           )}
         </div>
       ))}
+      {canManage && invites.length > 0 ? (
+        <>
+          <p className={s.fieldHint}>초대 대기 중</p>
+          {invites.map((inv) => (
+            <div key={inv.id} className={s.listRow}>
+              <div className={s.listMain}>
+                <strong>{inv.email}</strong>
+                <span className={s.fieldHint}>
+                  {' '}
+                  · {roleLabel(inv.role)} · {fmtExpiry(inv.expiresAt)}까지
+                </span>
+              </div>
+              <button type="button" className="btn btn-outline" disabled={busy} onClick={() => invite({ email: inv.email, role: inv.role }, false)}>
+                다시 보내기
+              </button>
+              <button type="button" className="btn btn-outline" disabled={busy} onClick={() => cancel(inv)}>
+                취소
+              </button>
+            </div>
+          ))}
+        </>
+      ) : null}
       <button type="button" className={`btn btn-outline btn-block ${s.bigBtn}`} onClick={() => (canManage ? (setFormMsg(null), setCreating(true)) : setDenied(true))}>
         + 관리자 추가
       </button>
       <p className={s.note}>중간관리자는 환불 승인 · 단가 관리 · 설정 저장을 할 수 없습니다.</p>
       <MsgLine msg={msg} />
+      {link ? <LinkBox link={link} /> : null}
 
       <AdminConfirm
         open={creating}
         onClose={() => setCreating(false)}
-        onConfirm={create}
+        onConfirm={() => invite(form, true)}
         busy={busy}
-        confirmDisabled={!form.email || !form.password}
-        confirmLabel="계정 생성"
-        title="관리자 계정을 만들까요?"
-        description={'초대 메일 발송은 준비 중이라(Q28) 비밀번호를 직접 정해 전달해 주세요.\n권한은 나중에 변경하실 수 있습니다.'}
+        confirmDisabled={!form.email}
+        confirmLabel="초대 메일 보내기"
+        title="관리자를 초대할까요?"
+        description={'입력한 이메일로 초대 링크를 보냅니다(72시간 유효).\n받는 분이 이름·비밀번호를 정하면 계정이 만들어집니다.\n이미 고객으로 가입한 이메일이면 그 계정의 권한이 올라갑니다.'}
       >
         <input className={s.input} placeholder="이메일" type="email" aria-label="이메일" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
-        <input className={s.input} placeholder="이름" aria-label="이름" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-        <input className={s.input} placeholder="초기 비밀번호" type="password" autoComplete="new-password" aria-label="초기 비밀번호" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-        <span className={s.fieldHint} style={pwIssue ? { color: '#d92d20' } : undefined}>
-          영문·숫자·기호를 모두 넣어 {PASSWORD_MIN}자 이상
-        </span>
         <div className={s.radios} role="radiogroup" aria-label="권한">
           {(['manager', 'super'] as const).map((r) => (
             <label key={r} className={form.role === r ? `${s.radio} ${s.radioOn}` : s.radio}>

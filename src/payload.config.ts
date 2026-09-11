@@ -19,6 +19,7 @@ import { Inquiries } from './collections/Inquiries'
 import { InquiryFiles } from './collections/InquiryFiles'
 import { Quotes } from './collections/Quotes'
 import { AdminLoginLogs } from './collections/AdminLoginLogs'
+import { AdminInvites } from './collections/AdminInvites'
 import { BrandAssets } from './collections/BrandAssets'
 import { LegalDocuments } from './collections/LegalDocuments'
 import { LegalRevisions } from './collections/LegalRevisions'
@@ -44,6 +45,7 @@ export default buildConfig({
     InquiryFiles,
     Quotes,
     AdminLoginLogs,
+    AdminInvites,
     BrandAssets,
     LegalDocuments,
     LegalRevisions,

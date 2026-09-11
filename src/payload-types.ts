@@ -78,6 +78,7 @@ export interface Config {
     'inquiry-files': InquiryFile;
     quotes: Quote;
     'admin-login-logs': AdminLoginLog;
+    'admin-invites': AdminInvite;
     'brand-assets': BrandAsset;
     'legal-documents': LegalDocument;
     'legal-revisions': LegalRevision;
@@ -99,6 +100,7 @@ export interface Config {
     'inquiry-files': InquiryFilesSelect<false> | InquiryFilesSelect<true>;
     quotes: QuotesSelect<false> | QuotesSelect<true>;
     'admin-login-logs': AdminLoginLogsSelect<false> | AdminLoginLogsSelect<true>;
+    'admin-invites': AdminInvitesSelect<false> | AdminInvitesSelect<true>;
     'brand-assets': BrandAssetsSelect<false> | BrandAssetsSelect<true>;
     'legal-documents': LegalDocumentsSelect<false> | LegalDocumentsSelect<true>;
     'legal-revisions': LegalRevisionsSelect<false> | LegalRevisionsSelect<true>;
@@ -425,6 +427,21 @@ export interface AdminLoginLog {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "admin-invites".
+ */
+export interface AdminInvite {
+  id: number;
+  email: string;
+  role: 'manager' | 'super';
+  tokenHash: string;
+  expiresAt: string;
+  usedAt?: string | null;
+  invitedBy?: (number | null) | User;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "legal-documents".
  */
 export interface LegalDocument {
@@ -529,6 +546,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'admin-login-logs';
         value: number | AdminLoginLog;
+      } | null)
+    | ({
+        relationTo: 'admin-invites';
+        value: number | AdminInvite;
       } | null)
     | ({
         relationTo: 'brand-assets';
@@ -822,6 +843,20 @@ export interface AdminLoginLogsSelect<T extends boolean = true> {
   at?: T;
   ip?: T;
   userAgent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "admin-invites_select".
+ */
+export interface AdminInvitesSelect<T extends boolean = true> {
+  email?: T;
+  role?: T;
+  tokenHash?: T;
+  expiresAt?: T;
+  usedAt?: T;
+  invitedBy?: T;
   updatedAt?: T;
   createdAt?: T;
 }
