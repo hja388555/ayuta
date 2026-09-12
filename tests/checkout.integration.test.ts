@@ -390,4 +390,26 @@ describe('createOrder', () => {
     expect(order.country).toEqual(['kr', 'jp'])
     expect(order.contractText as string).toContain('광고 국가: 한국, 일본')
   })
+
+  it.each([
+    ['ko', '광고 기간 2주'],
+    ['ja', '広告期間 2週間'],
+  ] as const)('4번 기간 줄은 주문 언어 문구로 저장된다(%s) — 키(2w)가 그대로 찍히지 않는다', async (locale, label) => {
+    const result = await createOrder({
+      categorySlug: 'transit',
+      locale,
+      selection: { items: ['subway-city-seoul', 'subway-spot-door-side'], period: '2w', size: '', country: ['kr'] },
+      consents: { terms: true, privacy: true, contract: true },
+      orderer: { ...validOrderer },
+      signature: validOrderer.name,
+    })
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    createdOrderIds.push(result.orderId)
+
+    const payload = await localPayload()
+    const order = await payload.findByID({ collection: 'orders', id: result.orderId, overrideAccess: true })
+    const items = (order.items ?? []) as { code: string; label: string; unitAmount: number }[]
+    expect(items.find((i) => i.code === 'period:2w')).toEqual(expect.objectContaining({ label, unitAmount: 0 }))
+  })
 })

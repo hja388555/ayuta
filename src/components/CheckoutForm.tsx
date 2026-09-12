@@ -1,9 +1,11 @@
 'use client'
 
-import { useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import type { PriceBook } from '@ayuta/pricing'
 import type { ConsentDef } from '@/lib/checkout/consents'
+import { fillBuyerPreview } from '../lib/checkout/contract-preview'
+import { clearOrdererDraft, readOrdererDraft, writeOrdererDraft } from '../lib/checkout/orderer-draft'
 import type { CheckoutLabels } from '@/lib/checkout/labels'
 import { ChoiceCard, StepTitle, TotalBar } from './ui'
 import { AddressSearch } from './AddressSearch'
@@ -105,6 +107,8 @@ type Props = {
   reviewRows?: { label: string; value: string }[]
   /** 같은 선택값을 실은 폼 주소(선택 내용 수정하기). 고칠 수 없는 견적은 생략한다 */
   editHref?: string
+  /** 주문자 입력을 sessionStorage 에 임시 저장할 구분값(카테고리 슬러그 등). 없으면 저장하지 않는다 */
+  draftScope?: string
   template: Template
   initialOrderer?: Partial<OrdererFormState>
   labels: CheckoutLabels
@@ -115,9 +119,22 @@ type Props = {
 // 약관·개인정보는 약관 동의 모달(v2 13-A)로, 그 밖의 동의(계약 내용 등)는 계약서 미리보기 팝업으로
 const PUBLIC_DOC_KEYS = new Set(['terms', 'privacy'])
 
-export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, reviewRows, editHref, template, initialOrderer, labels, errorMessages }: Props) {
+export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, reviewRows, editHref, draftScope, template, initialOrderer, labels, errorMessages }: Props) {
   const router = useRouter()
   const [orderer, setOrderer] = useState<OrdererFormState>({ ...EMPTY_ORDERER, ...initialOrderer })
+  // 뒤로가기·새로고침으로 돌아왔으면 임시 저장한 주문자 입력을 되살린다(저장본 > 회원 정보).
+  // 서버 렌더와 첫 화면이 달라지지 않게 마운트 뒤에 읽고, 읽기 전에는 저장하지 않는다
+  const [draftLoaded, setDraftLoaded] = useState(false)
+  useEffect(() => {
+    if (draftScope) {
+      const draft = readOrdererDraft(window.sessionStorage, draftScope)
+      if (draft) setOrderer((prev) => ({ ...prev, ...draft }))
+    }
+    setDraftLoaded(true)
+  }, [draftScope])
+  useEffect(() => {
+    if (draftScope && draftLoaded) writeOrdererDraft(window.sessionStorage, draftScope, orderer)
+  }, [draftScope, draftLoaded, orderer])
   const [checked, setChecked] = useState<Record<string, boolean>>({})
   const [touched, setTouched] = useState<Partial<Record<OrdererField, boolean>>>({})
   const [attempted, setAttempted] = useState(false)
@@ -194,6 +211,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         setError((body.reason && errorMessages?.[body.reason]) || labels.errorGeneric)
         return
       }
+      if (draftScope) clearOrdererDraft(window.sessionStorage, draftScope)
       // 이메일·연락처는 URL에 싣지 않는다(I6) — /api/checkout이 응답에 실어 준 서명된
       // 쿠키로 완료 화면이 본인 확인을 한다. 주문번호는 URL에 남아도 된다(추측만으로는
       // 남의 주문을 못 연다)
@@ -369,8 +387,8 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         <p className={s.caption}>{labels.signatureNote}</p>
       </section>
 
-      {/* 빈칸이 채워진 상태를 그대로 보여준다 — createOrder가 실제로 저장할 것과 같은 텍스트를
-          서버가 미리 렌더해 넘긴다(template.body는 이미 fillContract를 거친 미리보기다) */}
+      {/* 빈칸이 채워진 상태를 그대로 보여준다 — createOrder가 실제로 저장할 것과 같은 텍스트다.
+          template.body 는 서버가 주문자 칸만 남기고 채운 미리보기이고, 주문자 칸은 입력 중인 값으로 여기서 채운다 */}
       {/* 13-B 계약서 팝업 확인 모드 — [계약 확인 완료]를 누르면 연 줄의 동의가 체크된다 */}
       <ContractDialog
         open={showContract !== null}
@@ -381,7 +399,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         }}
         title={template.title}
         closeLabel={labels.close}
-        contractText={template.body}
+        contractText={showContract !== null ? fillBuyerPreview(template.body, orderer, signature) : ''}
       />
       <LegalConsentModal kind={viewDoc} locale={locale} onClose={() => setViewDoc(null)} onAgree={(k) => setChecked((prev) => ({ ...prev, [k]: true }))} />
 

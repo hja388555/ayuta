@@ -4,6 +4,7 @@ import config from '@payload-config'
 import type { PricingModel } from '@ayuta/pricing'
 import type { CategoryDef } from './categories'
 import { multiplierError, PERIOD_KEYS } from '../globals/PricingSettings'
+import { periodLineLabels } from './checkout/period-labels'
 
 /**
  * 카테고리 정의(categories.ts)의 계산 모델에 관리자가 DB 에 저장한 값을 채운다.
@@ -13,7 +14,7 @@ import { multiplierError, PERIOD_KEYS } from '../globals/PricingSettings'
  * 모델을 그대로 쓰면 미리보기와 청구 금액이 갈라진다. 캐시하지 않는다: 관리자가 저장한
  * 값이 다음 요청부터 바로 반영돼야 한다(loadPriceBook 과 같은 판단).
  */
-export async function loadCategoryModel(def: CategoryDef): Promise<PricingModel> {
+export async function loadCategoryModel(def: CategoryDef, locale?: string): Promise<PricingModel> {
   if (def.model.kind !== 'sumMultiplier') return def.model
 
   const payload = await getPayload({ config })
@@ -29,5 +30,6 @@ export async function loadCategoryModel(def: CategoryDef): Promise<PricingModel>
     if (err) throw new Error(`pricing-settings.periodMultipliers.${key}: ${err}`)
     multipliers[key] = value as number
   }
-  return { ...def.model, multipliers }
+  // 언어를 넘기면 기간 줄 이름도 그 언어로 채운다(결제 화면 주문 내역 · 주문에 저장되는 항목). 금액과는 무관하다
+  return locale ? { ...def.model, multipliers, periodLabels: periodLineLabels(locale) } : { ...def.model, multipliers }
 }

@@ -32,7 +32,8 @@ export type PricingModel =
   // 2026-09-12: 2번은 영상 종류를 여러 개 고르고 종류마다 길이를 하나씩 붙이는 쌍 합산으로 바뀌었다.
   // 어느 키가 종류이고 어느 키가 길이인지는 단가 묶음에 없어서 모델이 들고 있는다
   | { kind: 'videoPairs'; category: 2; types: string[]; lengths: string[] }
-  | { kind: 'sumMultiplier'; category: 4; items: string[]; multipliers: Record<string, number> }
+  // periodLabels: 기간 줄에 찍을 화면 언어 이름(예: "광고 기간 2주"). 호출자가 messages 에서 채운다 — 없으면 키를 그대로 쓴다
+  | { kind: 'sumMultiplier'; category: 4; items: string[]; multipliers: Record<string, number>; periodLabels?: Record<string, string> }
   | { kind: 'inquiry'; category: 5 }
 
 /** 주문에 값으로 복사되는 한 줄. 단가가 나중에 바뀌어도 이 값은 변하지 않는다 */

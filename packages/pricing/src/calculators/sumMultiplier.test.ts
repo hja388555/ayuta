@@ -32,6 +32,19 @@ describe('calculateSumMultiplier — 기간 배수', () => {
     expect(r.ok).toBe(false)
   })
 
+  it('기간 줄 이름은 넘긴 화면 언어 문구를 쓰고 금액은 그대로다', () => {
+    const r = calculateSumMultiplier(book({ a: 100 }), { '2w': 2 }, { items: ['a'], period: '2w' }, { '2w': '광고 기간 2주' })
+    expect(r.ok && r.lines.at(-1)).toEqual({ key: 'period:2w', label: '광고 기간 2주', amount: 0 })
+    expect(total(r)).toBe(200)
+    const ja = calculateSumMultiplier(book({ a: 100 }), { '2w': 2 }, { items: ['a'], period: '2w' }, { '2w': '広告期間 2週間' })
+    expect(ja.ok && ja.lines.at(-1)?.label).toBe('広告期間 2週間')
+  })
+
+  it('기간 문구를 안 넘기면 키로 표기한다', () => {
+    const r = calculateSumMultiplier(book({ a: 100 }), { '2w': 2 }, { items: ['a'], period: '2w' })
+    expect(r.ok && r.lines.at(-1)?.label).toBe('기간 2w')
+  })
+
   it('모르는 기간·0·음수 배수는 거부한다', () => {
     const b = book({ a: 100 })
     expect(calculateSumMultiplier(b, { '1w': 1 }, { items: ['a'], period: '6m' }).ok).toBe(false)

@@ -13,7 +13,8 @@ import { loadPriceBook } from '@/lib/price-book'
 import { loadCategoryModel } from '@/lib/pricing-model'
 import { currencyForLocale } from '@/lib/payments/channel'
 import { selectionFromQuery, filterPricedSelection } from '@/lib/checkout/selection-from-query'
-import { buildContractItems, countryFactValue } from '@/lib/checkout/contract-items'
+import { buildContractItems, categoryContractFacts, unpricedReviewRows } from '@/lib/checkout/contract-items'
+import { BUYER_PLACEHOLDERS_PENDING } from '@/lib/checkout/contract-preview'
 import { loadCompanyContractFields } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
 import { CHECKOUT_LABEL_KEYS, type CheckoutLabels } from '@/lib/checkout/labels'
@@ -43,7 +44,8 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
 
   const form = formFor(def.no)
   // 4번 기간 배수 등 관리자가 DB 에서 고치는 값을 채운 모델 — 견적 화면·주문 생성과 같은 로더
-  const model = await loadCategoryModel(def)
+  // 언어를 넘겨 4번 기간 줄 이름도 화면 언어로 받는다(주문 생성과 같다)
+  const model = await loadCategoryModel(def, locale)
   const rawSelection = selectionFromQuery(model, sp)
   // calculate()에는 금액칸이 있는 선택만 넘긴다. 계약서·화면에는 원본 선택(rawSelection)을
   // 그대로 쓴다 — priced 필터는 계산 한 곳에서만 걸어야 국가·사이즈 같은 무료 선택이
@@ -94,18 +96,19 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
     day: 'numeric',
   }).format(new Date())
 
-  // 미리보기 전문 — 주문자 이름·서명은 아직 입력 전이라 비워 둔다. 실제로 저장되는
-  // 전문은 createOrder 가 주문자 입력을 받은 뒤 다시 채운다. 여기서 missing 을 막지
-  // 않는 이유도 그래서다: 이건 결제를 확정하는 계약서가 아니라 미리 읽어 보는 사본이다
+  // 미리보기 전문 — 주문자와 무관한 칸(상품·채널·국가·항목·회사)은 createOrder 와 같은 값으로
+  // 여기서 채우고, 주문자 칸({{buyerName}} 등)은 자리표시자로 남긴다. 화면(CheckoutForm)이
+  // 입력 중인 주문자 값으로 채워 저장될 전문과 같은 글이 보인다. 결제를 확정하는 계약서가
+  // 아니라 미리 읽어 보는 사본이라 여기서 missing 을 막지 않는다
   const contractLocale = locale === 'ja' ? 'ja' : 'ko'
+  const contractItems = buildContractItems(def, book, rawSelection, contractLocale)
   const preview = fillContract(template.body as string, {
     amount: quote.total,
     currency,
     contractDate,
-    buyerName: '',
-    signature: '',
-    items: buildContractItems(def, book, rawSelection, contractLocale),
-    country: countryFactValue(rawSelection, contractLocale),
+    ...BUYER_PLACEHOLDERS_PENDING,
+    items: contractItems,
+    ...categoryContractFacts(contractItems, rawSelection, contractLocale),
     ...(await loadCompanyContractFields(contractLocale)),
   })
 
@@ -114,6 +117,8 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   const reviewRows = [
     { label: t('serviceLabel'), value: `${def.no}. ${tCat(def.slug)}` },
     ...quote.lines.map((l) => ({ label: l.label, value: money.format(l.amount) })),
+    // 금액이 없는 선택(1번 플랫폼 · 2번 촬영 국가 · 4번 사이즈)도 고른 대로 보여 준다
+    ...unpricedReviewRows(def, rawSelection, contractLocale),
   ]
   // 선택 내용 수정하기 — 같은 쿼리를 그대로 실어 폼으로 돌려보낸다
   const editQuery = new URLSearchParams()
@@ -138,6 +143,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
             currency={currency}
             reviewRows={reviewRows}
             editHref={editHref}
+            draftScope={def.slug}
             template={{
               title: template.title as string,
               body: preview.text,

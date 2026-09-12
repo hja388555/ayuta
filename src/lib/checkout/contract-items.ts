@@ -115,6 +115,38 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
 }
 
 /**
+ * 결제 화면 "주문 내역 확인"에 금액 없이 보여 줄 선택 — 1번 플랫폼, 2번 촬영 국가, 4번 사이즈.
+ * 금액 줄(quote.lines)에는 금액칸이 있는 항목만 있어서, 이 값들은 따로 채워야 고객이 고른 게 보인다.
+ */
+export function unpricedReviewRows(def: CategoryDef, rawSelection: unknown, locale: 'ko' | 'ja'): ContractItem[] {
+  const messages = messagesFor(locale)
+  const sel = typeof rawSelection === 'object' && rawSelection !== null ? (rawSelection as Record<string, unknown>) : {}
+  const rows: ContractItem[] = []
+
+  if (def.model.kind === 'tier') {
+    const names: Record<string, string> = messages.tierForm.platforms
+    const platforms = asStringArray(sel.platforms)
+    if (platforms.length > 0) rows.push({ label: messages.tierForm.platformTitle, value: platforms.map((p) => names[p] ?? p).join(', ') })
+  }
+
+  if (def.model.kind === 'videoPairs') {
+    const itemLabels: Record<string, string> = messages.groupForm.itemLabels
+    const chosen = new Set(asStringArray(sel.items))
+    const countries = formFor(2)?.groups.find((g) => g.key === 'country')?.items.filter((i) => chosen.has(i.key)) ?? []
+    if (countries.length > 0) {
+      rows.push({ label: messages.groupForm.groupTitles.country, value: countries.map((i) => itemLabels[i.key] ?? i.key).join(', ') })
+    }
+  }
+
+  if (def.model.kind === 'sumMultiplier') {
+    const size = typeof sel.size === 'string' ? sel.size.trim() : ''
+    if (size) rows.push({ label: messages.groupForm.sizeLabel, value: size })
+  }
+
+  return rows
+}
+
+/**
  * 1번 계약서 제1조 "광고 국가" 줄({{country}})에 채울 값. 표지에서 고른 나라를
  * 원본 표기 순서(한국, 일본)로 렌더링한다. 나라를 하나도 못 고른 채 여기까지 온다면
  * (정상 흐름에서는 표지 가드가 막지만) 방어적으로 명시적 대시를 채운다 — undefined로
@@ -125,4 +157,24 @@ export function countryFactValue(rawSelection: unknown, locale: 'ko' | 'ja'): st
   const countries = asStringArray(sel.country)
   const formatted = formatCountries(countries, locale)
   return formatted || '-'
+}
+
+/**
+ * 계약서 자리표시자 중 카테고리 선택에서 채우는 칸(1번 제1조 "선택 상품 / 선택 채널 / 광고 국가").
+ * 결제 화면 미리보기와 주문 생성(createOrder)이 같은 값을 쓰도록 한 곳에 둔다.
+ * 다른 카테고리 템플릿에는 자리가 없으므로 값을 넘겨도 fillContract 가 조용히 무시한다.
+ */
+export function categoryContractFacts(
+  contractItems: readonly ContractItem[],
+  rawSelection: unknown,
+  locale: 'ko' | 'ja',
+): { productName: string; channels: string; country: string } {
+  // contractItems 는 tier 모델에서 "등급"/"플랫폼" 라벨로 쌓인다(위 buildContractItems).
+  // 플랫폼은 필수 선택이 아니라 비어 있을 수 있다 — undefined 로 두면 missing 판정으로
+  // 1번 주문이 전부 막히므로 명시적 대시로 채운다(buyerContractFields 와 같은 관례)
+  return {
+    productName: contractItems.find((item) => item.label === '등급')?.value ?? '-',
+    channels: contractItems.find((item) => item.label === '플랫폼')?.value ?? '-',
+    country: countryFactValue(rawSelection, locale),
+  }
 }
