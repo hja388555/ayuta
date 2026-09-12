@@ -75,7 +75,7 @@ export function SiteHeader({
   return (
     <header className="site-header">
       <Link href={home} className="site-logo" aria-label="AYUTA">
-        <img src="/ui/logo.png" alt="" width={84} height={56} />
+        <img src={locale === 'ja' ? '/ui/logo-ja.png' : '/ui/logo.png'} alt="" width={84} height={56} />
       </Link>
       <nav className="site-nav">
         <Link href={home} aria-current={pathname === home ? 'page' : undefined}>

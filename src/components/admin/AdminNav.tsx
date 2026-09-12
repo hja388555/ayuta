@@ -81,7 +81,7 @@ export function AdminBfcacheGuard() {
         .then((json: { user?: { role?: string } | null } | null) => {
           const role = json?.user?.role
           if (role === 'super' || role === 'manager') root.style.visibility = ''
-          else window.location.replace('/manage/login')
+          else window.location.replace('/ko/login?next=%2Fmanage')
         })
         .catch(() => window.location.reload())
     }
