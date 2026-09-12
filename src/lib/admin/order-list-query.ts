@@ -1,5 +1,6 @@
 import type { Where } from 'payload'
 import { ORDER_STATUSES, type OrderStatus } from '../../collections/Orders'
+import { phoneMatchKey } from '../phone'
 
 /** 한 페이지에 보여주는 주문 수 */
 export const ORDER_LIST_PAGE_SIZE = 50
@@ -153,13 +154,15 @@ export function orderExportHref(params: OrderListParams): string {
 }
 
 /**
- * 검색어가 연락처처럼 보이면(숫자·하이픈·공백만, 숫자 3자리 이상) 숫자만 남겨 돌려준다. 아니면 null.
- * 저장된 연락처는 '010-1234-5678' 과 '01012345678' 이 섞여 있어 like 한 번으로는 서로 못 찾는다.
+ * 검색어가 연락처처럼 보이면(숫자·하이픈·공백·앞 +만, 숫자 3자리 이상) 국가번호·앞 0 을 뗀 숫자를 돌려준다. 아니면 null.
+ * 저장된 연락처는 '+821012345678'(E.164) 과 예전 값 '010-1234-5678' · '01012345678' 이 섞여 있다 —
+ * 앞 0 을 떼야 '010-1234-5678' 로 찾을 때 E.164 저장값('821012345678')에도 걸린다.
  */
 export function phoneSearchDigits(q: string): string | null {
-  if (!/^[\d\s-]+$/.test(q)) return null
-  const digits = q.replace(/\D/g, '')
-  return digits.length >= 3 ? digits : null
+  if (!/^\+?[\d\s-]+$/.test(q.trim())) return null
+  if (q.replace(/\D/g, '').length < 3) return null
+  const key = phoneMatchKey(q)
+  return key.length > 0 ? key : null
 }
 
 const ORDER_LIST_PATH = '/manage/orders'

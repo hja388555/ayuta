@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { z } from 'zod'
 import { passwordIssue } from '@/lib/password-policy'
+import { normalizePhoneInput } from '@/lib/phone'
 
 /**
  * 회원가입. Payload 기본 REST(POST /api/users)를 화면에서 쓰지 않고 이 경로를 둔다 —
@@ -44,6 +45,9 @@ export async function POST(req: Request): Promise<Response> {
   }
   const d = parsed.data
   if (passwordIssue(d.password)) return NextResponse.json({ error: 'weak_password' }, { status: 400 })
+  // 화면은 E.164(+82…·+81…)로 보낸다. 국가번호가 없으면 한국 → 일본 번호 규칙 순으로 본다(lib/phone)
+  const phone = normalizePhoneInput(d.phone, 'KR')
+  if (!phone) return NextResponse.json({ error: 'invalid_phone' }, { status: 400 })
   const now = new Date().toISOString()
 
   const payload = await getPayload({ config })
@@ -54,7 +58,7 @@ export async function POST(req: Request): Promise<Response> {
         email: d.email.toLowerCase(),
         password: d.password,
         name: d.name,
-        phone: d.phone,
+        phone,
         postalCode: d.postalCode,
         address1: d.address1,
         address2: d.address2 || null,

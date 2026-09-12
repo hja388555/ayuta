@@ -6,6 +6,7 @@ import { formatAmount, formatDateTime } from '@/lib/admin/format'
 import { countryText, inquiryNumber, inquiryStatus } from '@/lib/admin/inquiry-display'
 import { currencyForLocale } from '@/lib/payments/channel'
 import { Badge } from '@/components/ui'
+import { formatPhone } from '@/lib/phone'
 import { QuoteIssueForm } from '@/components/admin/QuoteIssueForm'
 import s from '../inquiries.module.css'
 
@@ -72,7 +73,7 @@ export default async function InquiryDetailPage({ params }: Props) {
       <div className={s.info}>
         {row('접수일', formatDateTime(doc.createdAt as string))}
         {row('상태', <Badge tone={st.tone}>{st.label}</Badge>)}
-        {row('고객', `${doc.name as string} · ${doc.phone as string} · ${doc.email as string}`)}
+        {row('고객', `${doc.name as string} · ${formatPhone(doc.phone as string)} · ${doc.email as string}`)}
         {row('회원', doc.customer ? '회원 문의' : '비회원 문의')}
         {row('국가', countryText(doc.country))}
         {row('언어', doc.locale === 'ja' ? '일본어' : '한국어')}

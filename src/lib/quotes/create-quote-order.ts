@@ -3,7 +3,7 @@ import { getPayload, type Payload } from 'payload'
 import config from '@payload-config'
 import { z } from 'zod'
 import type { Currency } from '@ayuta/pricing'
-import { OrdererSchema } from '../checkout/orderer'
+import { OrdererSchema, normalizeOrdererPhone } from '../checkout/orderer'
 import { persistOrder, type CreateOrderResult } from '../checkout/create-order'
 import { hashQuoteToken, isQuoteTokenShape } from './token'
 import { parseQuoteLines } from './lines'
@@ -21,7 +21,7 @@ const QuoteOrderInputSchema = z.object({
   orderer: OrdererSchema,
   // 카테고리 결제와 같다 — 동의 체크 시 주문자명이 자동 기입되므로 다르면 조작이다
   signature: z.string().trim().min(1).max(100),
-})
+}).transform(normalizeOrdererPhone)
 
 export type QuoteOrderResult = CreateOrderResult | { ok: false; reason: 'invalid_quote' | 'quote_expired' | 'quote_revoked' }
 

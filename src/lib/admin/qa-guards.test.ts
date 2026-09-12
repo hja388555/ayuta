@@ -46,10 +46,14 @@ describe('requiresTransitionConfirm — 되돌릴 수 없는 전이', () => {
 })
 
 describe('phoneSearchDigits — 연락처 검색 정규화', () => {
-  it('하이픈·공백이 있어도 숫자만 남긴다', () => {
-    expect(phoneSearchDigits('010-1234-5678')).toBe('01012345678')
-    expect(phoneSearchDigits('010 1234 5678')).toBe('01012345678')
-    expect(phoneSearchDigits('01012345678')).toBe('01012345678')
+  it('하이픈·공백·국가번호·앞 0 을 떼어 E.164 저장값과 예전 값을 함께 찾는다', () => {
+    expect(phoneSearchDigits('010-1234-5678')).toBe('1012345678')
+    expect(phoneSearchDigits('010 1234 5678')).toBe('1012345678')
+    expect(phoneSearchDigits('01012345678')).toBe('1012345678')
+    expect(phoneSearchDigits('+82 10-1234-5678')).toBe('1012345678')
+    expect(phoneSearchDigits('090-1234-5678')).toBe('9012345678')
+    // '821012345678'(E.164 숫자) 과 '01012345678'(예전 값) 모두 이 열쇠를 품는다
+    expect('821012345678'.includes(phoneSearchDigits('010-1234-5678')!)).toBe(true)
   })
   it('주문번호·이름·짧은 숫자는 연락처 검색으로 보지 않는다', () => {
     expect(phoneSearchDigits('AY-2026-0001')).toBeNull()

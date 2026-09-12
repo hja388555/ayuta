@@ -231,7 +231,8 @@ describe('관리자 문의 화면 · 첨부 다운로드', () => {
 describe('상담신청 → 5번 문의 폼 (1-18, v2)', () => {
   it('문의 유형 선택 없이 국가·동의 항목이 있는 v2 폼이 열린다', async () => {
     const html = await (await api('/ko/order/other?type=transit')).text()
-    expect(html).not.toContain('<select')
+    // 연락처 칸의 나라 선택(국가번호) 말고는 select 가 없다 — 문의 유형을 고르는 칸이 없어야 한다
+    expect(html.match(/<select[^>]*>/g) ?? []).toEqual([expect.stringContaining('aria-label="국가번호"')])
     expect(html).toContain('개인정보 수집 이용에 동의합니다')
     expect(html).toContain('/ko/privacy')
   })

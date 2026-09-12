@@ -13,7 +13,7 @@ import { loadPriceBook } from '../price-book'
 import { loadCategoryModel } from '../pricing-model'
 import { nextOrderNumber } from '../order-counter'
 import { loadCompanyContractFields } from '../company-settings'
-import { OrdererSchema, buyerContractFields, type Orderer } from './orderer'
+import { OrdererSchema, buyerContractFields, normalizeOrdererPhone, type Orderer } from './orderer'
 import { allRequiredChecked, type ConsentDef } from './consents'
 import { buildContractItems, categoryContractFacts, type ContractItem } from './contract-items'
 import { filterPricedSelection } from './selection-from-query'
@@ -39,7 +39,7 @@ const CreateOrderInputSchema = z.object({
   // (Ruling 15). 서버는 이 키로 기존 주문이 있으면 새로 만들지 않고 그 결과를 그대로 돌려준다.
   // IP 기준 요청 제한은 여기서 다루지 않는다 — 보안 강화 큐(Q30)로 미룬다.
   idempotencyKey: z.string().trim().min(1).max(100).optional(),
-})
+}).transform(normalizeOrdererPhone)
 
 // input.selection은 모양이 카테고리마다 다른 z.unknown()이다 — country·purpose만
 // 안전하게 뽑아내는 작은 헬퍼. selection-from-query.ts가 이미 두 키를 항상 실어 보내지만,

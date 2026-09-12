@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import type { Order } from '../payload-types'
 import { toSeoulDay } from './orders/schedule'
+import { phoneMatchKey } from './phone'
 
 export type OrderOwnershipCheck =
   | { kind: 'member'; customerId: number }
@@ -28,18 +29,14 @@ type OwnershipRow = {
   orderer: { email: string; phone: string } | null | undefined
 }
 
-/** 연락처 비교용 — 숫자만 남긴다. 주문 때 "010-1234-5678", 조회 때 "01012345678"로 적어도 같은 번호다 */
-export function phoneDigits(phone: string | null | undefined): string {
-  return (phone ?? '').replace(/\D/g, '')
-}
-
 export function guestOwnershipMatches(order: OwnershipRow, check: { email: string; phone: string }): boolean {
   if (order.customer) return false
   if (!order.orderer) return false
   const emailMatches = order.orderer.email?.trim().toLowerCase() === check.email.trim().toLowerCase()
-  // 숫자가 하나도 없으면 빈 문자열끼리 같아지므로 막는다
-  const digits = phoneDigits(check.phone)
-  const phoneMatches = digits.length > 0 && phoneDigits(order.orderer.phone) === digits
+  // 연락처는 국가번호·앞 0·하이픈을 뗀 번호로 비교한다 — 저장값 +821012345678(또는 예전 값 010-1234-5678)을
+  // 조회 때 010-1234-5678 · 01012345678 로 적어도 같은 번호다. 숫자가 없으면 빈 값끼리 같아지므로 막는다
+  const key = phoneMatchKey(check.phone)
+  const phoneMatches = key.length > 0 && phoneMatchKey(order.orderer.phone) === key
   return Boolean(emailMatches && phoneMatches)
 }
 

@@ -3,8 +3,10 @@
 import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { passwordIssue, PASSWORD_MAX, PASSWORD_MIN } from '@/lib/password-policy'
+import { isValidPhone, phoneCountryForLocale, type PhoneCountry } from '@/lib/phone'
 import { focusFirstInvalid } from '@/lib/ui/focus-invalid'
 import { AddressSearch } from './AddressSearch'
+import { PhoneInput, phoneForSubmit, usePhoneErrorText } from './PhoneInput'
 import { LegalConsentModal, type LegalKind } from './LegalConsentModal'
 import s from './Auth.module.css'
 
@@ -21,11 +23,12 @@ type Form = { email: string; password: string; passwordConfirm: string; name: st
 type Consents = { age: boolean; terms: boolean; privacy: boolean; marketing: boolean }
 const REQUIRED: (keyof Form)[] = ['email', 'password', 'passwordConfirm', 'name', 'phone', 'postalCode', 'address1']
 
-/** 칸별 오류 코드. 서버도 같은 규칙(password-policy)으로 다시 본다 */
-function validate(f: Form): Partial<Record<keyof Form, string>> {
+/** 칸별 오류 코드. 서버도 같은 규칙(password-policy · lib/phone)으로 다시 본다 */
+function validate(f: Form, phoneCountry: PhoneCountry): Partial<Record<keyof Form, string>> {
   const e: Partial<Record<keyof Form, string>> = {}
   for (const k of REQUIRED) if (!f[k].trim()) e[k] = 'required'
   if (!e.email && !/^\S+@\S+\.\S+$/.test(f.email.trim())) e.email = 'email'
+  if (!e.phone && !isValidPhone(f.phone, phoneCountry)) e.phone = 'phone'
   if (!e.password && passwordIssue(f.password)) e.password = 'weak_password'
   if (!e.passwordConfirm && f.password !== f.passwordConfirm) e.passwordConfirm = 'password_mismatch'
   return e
@@ -38,6 +41,9 @@ function validate(f: Form): Partial<Record<keyof Form, string>> {
 export function SignupForm({ locale, labels }: { locale: string; labels: SignupLabels }) {
   const router = useRouter()
   const [f, setF] = useState<Form>({ email: '', password: '', passwordConfirm: '', name: '', phone: '', postalCode: '', address1: '', address2: '', businessNo: '' })
+  // 가입 화면은 표지를 거치지 않으므로 화면 언어로 나라를 정한다(ja → 일본)
+  const [phoneCountry, setPhoneCountry] = useState<PhoneCountry>(() => phoneCountryForLocale(locale))
+  const phoneErrorText = usePhoneErrorText()
   const [c, setC] = useState<Consents>({ age: false, terms: false, privacy: false, marketing: false })
   const [fieldErr, setFieldErr] = useState<Partial<Record<keyof Form, string>>>({})
   const [busy, setBusy] = useState(false)
@@ -50,7 +56,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (busy) return
-    const fe = validate(f)
+    const fe = validate(f, phoneCountry)
     setFieldErr(fe)
     if (Object.keys(fe).length) {
       focusFirstInvalid(formRef.current)
@@ -68,13 +74,17 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
       const res = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...rest, agreeAge: c.age, agreeTerms: c.terms, agreePrivacy: c.privacy, agreeMarketing: c.marketing }),
+        body: JSON.stringify({ ...rest, phone: phoneForSubmit(f.phone, phoneCountry), agreeAge: c.age, agreeTerms: c.terms, agreePrivacy: c.privacy, agreeMarketing: c.marketing }),
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok || !body?.ok) {
         if (body?.error === 'weak_password') {
           focusFirstInvalid(formRef.current)
           return setFieldErr({ password: 'weak_password' })
+        }
+        if (body?.error === 'invalid_phone') {
+          focusFirstInvalid(formRef.current)
+          return setFieldErr({ phone: 'phone' })
         }
         return setError(msg(body?.error ?? 'generic'))
       }
@@ -104,17 +114,34 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
           {required ? ' *' : ''}
         </label>
         <div className={s.inline}>
-          <input
-            id={id}
-            className={s.input}
-            placeholder={ph}
-            value={f[key]}
-            onChange={(e) => setF({ ...f, [key]: e.target.value })}
-            disabled={busy}
-            aria-invalid={err ? true : undefined}
-            aria-describedby={describedBy}
-            {...attrs}
-          />
+          {key === 'phone' ? (
+            <PhoneInput
+              id={id}
+              country={phoneCountry}
+              value={f.phone}
+              disabled={busy}
+              invalid={Boolean(err)}
+              describedBy={describedBy}
+              onChange={(next) => {
+                setPhoneCountry(next.country)
+                setF((prev) => ({ ...prev, phone: next.value }))
+                // 나라나 번호를 고치면 지난 형식 오류 문구를 지운다(다른 나라 기준 문구가 남지 않게)
+                if (fieldErr.phone) setFieldErr((prev) => ({ ...prev, phone: undefined }))
+              }}
+            />
+          ) : (
+            <input
+              id={id}
+              className={s.input}
+              placeholder={ph}
+              value={f[key]}
+              onChange={(e) => setF({ ...f, [key]: e.target.value })}
+              disabled={busy}
+              aria-invalid={err ? true : undefined}
+              aria-describedby={describedBy}
+              {...attrs}
+            />
+          )}
           {key === 'postalCode' ? (
             <AddressSearch
               locale={locale}
@@ -134,7 +161,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
         {err ? (
           <p id={`${id}-err`} className={s.fieldError}>
             <img src="/ui/alert-sm.svg" alt="" width={14} height={14} />
-            {msg(err)}
+            {err === 'phone' ? phoneErrorText(f.phone, phoneCountry) : msg(err)}
           </p>
         ) : null}
       </div>
@@ -185,7 +212,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
         <p className={s.cardHint}>{labels.ordererHint}</p>
         <div className={s.row}>
           {field('name', { autoComplete: 'name', maxLength: 100, ph: labels.namePh })}
-          {field('phone', { autoComplete: 'tel', inputMode: 'tel', maxLength: 40, ph: labels.phonePh })}
+          {field('phone')}
         </div>
         <div className={s.row}>
           {field('postalCode', { autoComplete: 'postal-code', maxLength: 20, ph: labels.postalCodePh })}

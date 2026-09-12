@@ -18,6 +18,7 @@ import s from '@/components/admin/AdminOrders.module.css'
 import ko from '../../../../../../../messages/ko.json'
 import type { User } from '@/payload-types'
 import { sealDataUri } from '@/lib/seal'
+import { formatPhone } from '@/lib/phone'
 
 type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }
 
@@ -97,7 +98,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
               <Row label="주문자명">{o?.name ?? '—'}</Row>
               <Row label="대표자 성명">{o?.representative || '—'}</Row>
               <Row label="사업자등록번호">{o?.businessNo || '—'}</Row>
-              <Row label="연락처">{o?.phone ?? '—'}</Row>
+              <Row label="연락처">{formatPhone(o?.phone) || '—'}</Row>
               <Row label="이메일">{o?.email ?? '—'}</Row>
               <Row label="주소">{address}</Row>
             </dl>

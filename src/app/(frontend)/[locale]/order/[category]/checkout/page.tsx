@@ -162,6 +162,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
                   }
                 : undefined
             }
+            coverCountries={Array.isArray(sp.country) ? sp.country : sp.country ? [sp.country] : []}
             labels={labels}
           />
         </div>

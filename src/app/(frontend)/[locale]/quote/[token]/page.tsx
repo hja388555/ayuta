@@ -207,6 +207,7 @@ export default async function QuotePage({ params }: Props) {
               phone: (inquiry?.phone as string) ?? '',
               email: (inquiry?.email as string) ?? '',
             }}
+            coverCountries={Array.isArray(inquiry?.country) ? (inquiry.country as string[]) : []}
             labels={labels}
             errorMessages={{
               already_ordered: t('errAlreadyOrdered'),

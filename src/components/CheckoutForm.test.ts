@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { EMPTY_ORDERER, autoSignature, canSubmit, validateOrderer, type OrdererFormState } from './CheckoutForm'
+import { EMPTY_ORDERER, autoSignature, canSubmit, initialOrdererState, validateOrderer, type OrdererFormState } from './CheckoutForm'
 import type { ConsentDef } from '@/lib/checkout/consents'
 
 const orderer: OrdererFormState = {
@@ -46,9 +46,26 @@ describe('주문자 칸 검증', () => {
     expect(validateOrderer({ ...orderer, email: 'name@' })).toEqual({ email: 'email' })
   })
 
-  it('연락처는 하이픈을 떼고 9~15자리 숫자여야 한다', () => {
+  it('연락처는 고른 나라의 번호 규칙을 따른다', () => {
     expect(validateOrderer({ ...orderer, phone: '010-0' })).toEqual({ phone: 'phone' })
     expect(validateOrderer({ ...orderer, phone: '+81 90-1234-5678' })).toEqual({})
+    expect(validateOrderer({ ...orderer, phoneCountry: 'JP', phone: '090-1234-5678' })).toEqual({})
+    expect(validateOrderer({ ...orderer, phoneCountry: 'JP', phone: '010-1234-5678' })).toEqual({ phone: 'phone' })
+    expect(validateOrderer({ ...orderer, phoneCountry: 'KR', phone: '090-1234-5678' })).toEqual({ phone: 'phone' })
+  })
+})
+
+describe('주문자 칸 처음 상태', () => {
+  it('저장된 E.164 연락처는 나라·국내 표기로 푼다', () => {
+    expect(initialOrdererState({ phone: '+819012345678' }, ['kr'], 'ko')).toMatchObject({ phone: '090-1234-5678', phoneCountry: 'JP' })
+  })
+  it('연락처가 없으면 표지 국가 하나 > 언어로 나라를 정한다', () => {
+    expect(initialOrdererState(undefined, ['jp'], 'ko').phoneCountry).toBe('JP')
+    expect(initialOrdererState(undefined, ['jp', 'kr'], 'ko').phoneCountry).toBe('KR')
+    expect(initialOrdererState(undefined, [], 'ja').phoneCountry).toBe('JP')
+  })
+  it('예전 형식 저장값은 그대로 둔다', () => {
+    expect(initialOrdererState({ phone: '010-1234-5678' }, [], 'ko')).toMatchObject({ phone: '010-1234-5678', phoneCountry: 'KR' })
   })
 
   it('상세 주소·사업자등록번호는 비워도 된다', () => {

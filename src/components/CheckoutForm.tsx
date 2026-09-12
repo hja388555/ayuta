@@ -7,7 +7,9 @@ import type { ConsentDef } from '@/lib/checkout/consents'
 import { fillBuyerPreview } from '../lib/checkout/contract-preview'
 import { clearOrdererDraft, readOrdererDraft, writeOrdererDraft } from '../lib/checkout/orderer-draft'
 import type { CheckoutLabels } from '@/lib/checkout/labels'
+import { defaultPhoneCountry, initialPhoneInput, isPhoneCountry, isValidPhone, type PhoneCountry } from '../lib/phone'
 import { ChoiceCard, StepTitle, TotalBar } from './ui'
+import { PhoneInput, phoneForSubmit, usePhoneErrorText } from './PhoneInput'
 import { AddressSearch } from './AddressSearch'
 import { ContractDialog } from './ContractModal'
 import { LegalConsentModal, type LegalKind } from './LegalConsentModal'
@@ -16,6 +18,7 @@ import s from './Checkout.module.css'
 export type OrdererFormState = {
   name: string
   phone: string
+  phoneCountry: PhoneCountry
   email: string
   postalCode: string
   address1: string
@@ -27,6 +30,7 @@ export type OrdererFormState = {
 export const EMPTY_ORDERER: OrdererFormState = {
   name: '',
   phone: '',
+  phoneCountry: 'KR',
   email: '',
   postalCode: '',
   address1: '',
@@ -35,15 +39,13 @@ export const EMPTY_ORDERER: OrdererFormState = {
   representative: '',
 }
 
-export type OrdererField = keyof OrdererFormState
+export type OrdererField = Exclude<keyof OrdererFormState, 'phoneCountry'>
 export type FieldError = 'required' | 'email' | 'phone'
 
 /** 시안(209:2)에서 * 가 붙은 칸 */
 export const REQUIRED_FIELDS: readonly OrdererField[] = ['name', 'phone', 'email', 'postalCode', 'address1', 'representative']
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-// 하이픈·공백은 허용하고 떼어 본다. 일본 번호(+81)도 받도록 앞 + 한 개와 9~15자리를 허용한다
-const PHONE_RE = /^\+?\d{9,15}$/
 
 /**
  * 칸별 검증(상태 모음 A 233:142). 화면 안내용이다 — 형식의 최종 판정은 서버 Zod 가 다시 한다.
@@ -53,8 +55,16 @@ export function validateOrderer(orderer: OrdererFormState): Partial<Record<Order
   const errors: Partial<Record<OrdererField, FieldError>> = {}
   for (const f of REQUIRED_FIELDS) if (!orderer[f].trim()) errors[f] = 'required'
   if (!errors.email && !EMAIL_RE.test(orderer.email.trim())) errors.email = 'email'
-  if (!errors.phone && !PHONE_RE.test(orderer.phone.replace(/[\s-]/g, ''))) errors.phone = 'phone'
+  // 고른 나라의 번호 규칙(lib/phone). 서버도 같은 규칙으로 다시 본다
+  if (!errors.phone && !isValidPhone(orderer.phone, orderer.phoneCountry)) errors.phone = 'phone'
   return errors
+}
+
+/** 입력칸 처음 상태 — 회원·문의 때 저장된 연락처(E.164)를 나라·국내 표기로 풀고, 없으면 표지 국가·언어로 나라를 정한다 */
+export function initialOrdererState(initial: Partial<Omit<OrdererFormState, 'phoneCountry'>> | undefined, coverCountries: readonly string[], locale: string): OrdererFormState {
+  const fallback = defaultPhoneCountry({ stored: initial?.phone, coverCountries, locale })
+  const phone = initialPhoneInput(initial?.phone, fallback)
+  return { ...EMPTY_ORDERER, ...initial, phone: phone.value, phoneCountry: phone.country }
 }
 
 function requiredConsentsChecked(consentDefs: readonly ConsentDef[], checked: Readonly<Record<string, boolean>>): boolean {
@@ -110,7 +120,9 @@ type Props = {
   /** 주문자 입력을 sessionStorage 에 임시 저장할 구분값(카테고리 슬러그 등). 없으면 저장하지 않는다 */
   draftScope?: string
   template: Template
-  initialOrderer?: Partial<OrdererFormState>
+  initialOrderer?: Partial<Omit<OrdererFormState, 'phoneCountry'>>
+  /** 표지에서 고른 광고 국가 — 하나만 골랐으면 연락처 나라의 기본값이 된다 */
+  coverCountries?: readonly string[]
   labels: CheckoutLabels
   /** 서버 거부 사유(reason)별 안내. 없는 사유는 errorGeneric 을 보인다 */
   errorMessages?: Partial<Record<string, string>>
@@ -119,16 +131,20 @@ type Props = {
 // 약관·개인정보는 약관 동의 모달(v2 13-A)로, 그 밖의 동의(계약 내용 등)는 계약서 미리보기 팝업으로
 const PUBLIC_DOC_KEYS = new Set(['terms', 'privacy'])
 
-export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, reviewRows, editHref, draftScope, template, initialOrderer, labels, errorMessages }: Props) {
+export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, reviewRows, editHref, draftScope, template, initialOrderer, coverCountries = [], labels, errorMessages }: Props) {
   const router = useRouter()
-  const [orderer, setOrderer] = useState<OrdererFormState>({ ...EMPTY_ORDERER, ...initialOrderer })
+  const phoneErrorText = usePhoneErrorText()
+  const [orderer, setOrderer] = useState<OrdererFormState>(() => initialOrdererState(initialOrderer, coverCountries, locale))
   // 뒤로가기·새로고침으로 돌아왔으면 임시 저장한 주문자 입력을 되살린다(저장본 > 회원 정보).
   // 서버 렌더와 첫 화면이 달라지지 않게 마운트 뒤에 읽고, 읽기 전에는 저장하지 않는다
   const [draftLoaded, setDraftLoaded] = useState(false)
   useEffect(() => {
     if (draftScope) {
       const draft = readOrdererDraft(window.sessionStorage, draftScope)
-      if (draft) setOrderer((prev) => ({ ...prev, ...draft }))
+      if (draft) {
+        const { phoneCountry, ...rest } = draft
+        setOrderer((prev) => ({ ...prev, ...rest, phoneCountry: isPhoneCountry(phoneCountry) ? phoneCountry : prev.phoneCountry }))
+      }
     }
     setDraftLoaded(true)
   }, [draftScope])
@@ -194,7 +210,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
           consents: checked,
           orderer: {
             name: orderer.name,
-            phone: orderer.phone,
+            phone: phoneForSubmit(orderer.phone, orderer.phoneCountry),
             email: orderer.email,
             postalCode: orderer.postalCode,
             address1: orderer.address1,
@@ -226,7 +242,8 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
   function field(key: OrdererField, opts: { required?: boolean; type?: string; autoComplete?: string; addon?: ReactNode } = {}) {
     const id = `co-${key}`
     const err = touched[key] || attempted ? errors[key] : undefined
-    const message = err === 'email' ? labels.errEmail : err === 'phone' ? labels.errPhone : labels.errRequired
+    const message = err === 'email' ? labels.errEmail : err === 'phone' ? phoneErrorText(orderer.phone, orderer.phoneCountry) : labels.errRequired
+    const markTouched = () => setTouched((prev) => ({ ...prev, [key]: true }))
     return (
       <div className={err ? `${s.field} ${s.invalid}` : s.field}>
         <label htmlFor={id} className={s.label}>
@@ -235,19 +252,32 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         </label>
         <div className={s.inline}>
           <div className={s.control}>
-            <input
-              id={id}
-              className={s.input}
-              type={opts.type ?? 'text'}
-              autoComplete={opts.autoComplete}
-              placeholder={labels[`${key}Ph`]}
-              value={orderer[key]}
-              required={opts.required}
-              aria-invalid={err ? true : undefined}
-              aria-describedby={err ? `${id}-err` : undefined}
-              onChange={(e) => setField(key, e.target.value)}
-              onBlur={() => setTouched((prev) => ({ ...prev, [key]: true }))}
-            />
+            {key === 'phone' ? (
+              <PhoneInput
+                id={id}
+                country={orderer.phoneCountry}
+                value={orderer.phone}
+                required={opts.required}
+                invalid={Boolean(err)}
+                describedBy={err ? `${id}-err` : undefined}
+                onChange={(next) => setOrderer((prev) => ({ ...prev, phone: next.value, phoneCountry: next.country }))}
+                onBlur={markTouched}
+              />
+            ) : (
+              <input
+                id={id}
+                className={s.input}
+                type={opts.type ?? 'text'}
+                autoComplete={opts.autoComplete}
+                placeholder={labels[`${key}Ph`]}
+                value={orderer[key]}
+                required={opts.required}
+                aria-invalid={err ? true : undefined}
+                aria-describedby={err ? `${id}-err` : undefined}
+                onChange={(e) => setField(key, e.target.value)}
+                onBlur={markTouched}
+              />
+            )}
             {err ? <img src="/ui/alert-field.svg" alt="" width={18} height={18} className={s.fieldIcon} /> : null}
           </div>
           {opts.addon}
@@ -283,7 +313,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         <StepTitle n={1} id="co-orderer" title={labels.ordererTitle} hint={labels.ordererHint} />
         <div className={s.row} style={{ ['--cols' as string]: 3 }}>
           {field('name', { required: true, autoComplete: 'name' })}
-          {field('phone', { required: true, type: 'tel', autoComplete: 'tel' })}
+          {field('phone', { required: true })}
           {field('email', { required: true, type: 'email', autoComplete: 'email' })}
         </div>
         <div className={s.row} style={{ ['--cols' as string]: 2 }}>
@@ -399,7 +429,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         }}
         title={template.title}
         closeLabel={labels.close}
-        contractText={showContract !== null ? fillBuyerPreview(template.body, orderer, signature) : ''}
+        contractText={showContract !== null ? fillBuyerPreview(template.body, { ...orderer, phone: phoneForSubmit(orderer.phone, orderer.phoneCountry) }, signature) : ''}
       />
       <LegalConsentModal kind={viewDoc} locale={locale} onClose={() => setViewDoc(null)} onAgree={(k) => setChecked((prev) => ({ ...prev, [k]: true }))} />
 
