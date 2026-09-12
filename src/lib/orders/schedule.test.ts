@@ -1,11 +1,31 @@
 import { describe, expect, it } from 'vitest'
-import { mergeScheduleDays, seoulMidnight, toSeoulDay, type ScheduleDays } from './schedule'
+import { adDateOutsidePeriod, mergeScheduleDays, seoulMidnight, toSeoulDay, type ScheduleDays } from './schedule'
 import { OrderScheduleChanges } from '../../collections/OrderScheduleChanges'
 
 // 실제 트랜잭션(setOrderSchedule)은 tests/order-schedule.integration.test.ts 가 다룬다.
 // 여기서는 DB 없이 판정 로직만 못박는다 — 날짜 절단, 역순 거부, "변경 없음" 판정.
 
 const empty: ScheduleDays = { contractStart: null, contractEnd: null, adStartDate: null }
+
+describe('광고 진행일은 계약기간 안(양 끝 포함)', () => {
+  const period = { contractStart: '2026-10-01', contractEnd: '2026-10-31' }
+  it('시작일·종료일 당일과 그 사이는 통과한다', () => {
+    for (const ad of ['2026-10-01', '2026-10-15', '2026-10-31']) expect(adDateOutsidePeriod({ ...period, adStartDate: ad })).toBeNull()
+  })
+  it('시작일 전·종료일 뒤는 거부한다', () => {
+    expect(adDateOutsidePeriod({ ...period, adStartDate: '2026-09-30' })).not.toBeNull()
+    expect(adDateOutsidePeriod({ ...period, adStartDate: '2026-11-01' })).not.toBeNull()
+  })
+  it('정해진 경계만 본다 — 기간·진행일이 미정이면 판단하지 않는다', () => {
+    expect(adDateOutsidePeriod({ contractStart: null, contractEnd: '2026-10-31', adStartDate: '2026-01-01' })).toBeNull()
+    expect(adDateOutsidePeriod({ ...period, adStartDate: null })).toBeNull()
+  })
+  it('merge 는 저장된 기간과 합친 최종 상태로 ad_outside_period 를 낸다', () => {
+    const r = mergeScheduleDays({ ...empty, ...period }, { adStartDate: '2026-09-01' })
+    expect(r.ok).toBe(false)
+    expect(!r.ok && r.reason).toBe('ad_outside_period')
+  })
+})
 
 describe('toSeoulDay', () => {
   it('YYYY-MM-DD 는 그대로 통과한다', () => {
