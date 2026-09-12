@@ -1,14 +1,15 @@
 'use client'
 
 import { useEffect, useRef, useState, type ReactNode } from 'react'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { ChoiceCard, Modal, Toast } from '@/components/ui'
 import { AddressSearch } from '@/components/AddressSearch'
 import { passwordIssue } from '@/lib/password-policy'
 import { isProfileDirty } from '@/lib/mypage/profile-dirty'
-import { isValidPhone } from '@/lib/phone'
+import { defaultPhoneCountry, initialPhoneInput, isValidPhone } from '@/lib/phone'
 import { focusFirstInvalid } from '@/lib/ui/focus-invalid'
+import { PhoneInput, phoneForSubmit, usePhoneErrorText } from '@/components/PhoneInput'
 import s from './Account.module.css'
 
 /**
@@ -56,19 +57,25 @@ const REQUIRED: (keyof ProfileValues)[] = ['name', 'phone', 'postalCode', 'addre
 /** 09-D 회원정보 수정. 이메일은 바꾸지 않는다(새 주소 인증 메일이 필요, Q28 이후) */
 export function ProfileForm({ email = '', initial: init, labels, errors }: { email?: string; initial: Omit<ProfileValues, 'businessNo'> & { businessNo?: string }; labels: Dict; errors: Dict }) {
   const router = useRouter()
-  const initial: ProfileValues = { ...init, businessNo: init.businessNo ?? '' }
+  const locale = useLocale()
+  // 저장된 연락처(E.164)를 나라·국내 표기로 푼다. 예전 형식 값은 그대로 두고 나라는 화면 언어로 정한다
+  const [initialPhone] = useState(() => initialPhoneInput(init.phone, defaultPhoneCountry({ stored: init.phone, locale })))
+  const initial: ProfileValues = { ...init, phone: initialPhone.value, businessNo: init.businessNo ?? '' }
   const [v, setV] = useState(initial)
+  const [country, setCountry] = useState(initialPhone.country)
   const [attempted, setAttempted] = useState(false)
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null)
   const missing = (k: keyof ProfileValues) => attempted && REQUIRED.includes(k) && !v[k].trim()
-  // 연락처 형식은 비회원 채팅 시작과 같은 규칙(lib/phone). 서버도 같은 규칙으로 다시 본다
-  const badPhone = attempted && v.phone.trim() !== '' && !isValidPhone(v.phone)
+  // 연락처 형식은 가입·결제와 같은 나라별 규칙(lib/phone). 서버도 같은 규칙으로 다시 본다
+  const badPhone = attempted && v.phone.trim() !== '' && !isValidPhone(v.phone, country)
+  const phoneErrorText = usePhoneErrorText()
   const formRef = useRef<HTMLFormElement>(null)
   const tm = useTranslations('modal')
   // 저장 확인 팝업(Figma [v2] 팝업 A ⑥ 227:168) — 고친 채로 다른 화면으로 가려 하면 붙잡는다
   const [saved, setSaved] = useState(initial)
-  const dirty = isProfileDirty(saved, v)
+  const [savedCountry, setSavedCountry] = useState(initialPhone.country)
+  const dirty = isProfileDirty(saved, v) || country !== savedCountry
   const [leaveTo, setLeaveTo] = useState<string | null>(null)
 
   useEffect(() => {
@@ -95,16 +102,17 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
   async function persist(): Promise<boolean> {
     if (busy) return false
     setAttempted(true)
-    if (REQUIRED.some((k) => !v[k].trim()) || !isValidPhone(v.phone)) {
+    if (REQUIRED.some((k) => !v[k].trim()) || !isValidPhone(v.phone, country)) {
       focusFirstInvalid(formRef.current)
       return false
     }
     setBusy(true)
     try {
-      const r = await postJson('/api/me/profile', v)
+      const r = await postJson('/api/me/profile', { ...v, phone: phoneForSubmit(v.phone, country) })
       setToast(r.ok ? { ok: true, text: tx(labels, 'saved') } : { ok: false, text: errorText(errors, r.error) })
       if (r.ok) {
         setSaved(v)
+        setSavedCountry(country)
         router.refresh()
       }
       return r.ok
@@ -129,9 +137,24 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
 
   const input = (k: keyof ProfileValues, opts: { required?: boolean; autoComplete?: string; addon?: ReactNode; max?: number } = {}) => {
     const id = `pf-${k}`
-    const err = missing(k) ? tx(labels, 'errRequired') : k === 'phone' && badPhone ? tx(labels, 'errPhone') : undefined
+    const err = missing(k) ? tx(labels, 'errRequired') : k === 'phone' && badPhone ? phoneErrorText(v.phone, country) : undefined
     return (
       <Field id={id} label={tx(labels, k)} required={opts.required} error={err} addon={opts.addon}>
+        {k === 'phone' ? (
+          <PhoneInput
+            id={id}
+            country={country}
+            value={v.phone}
+            required={opts.required}
+            disabled={busy}
+            invalid={Boolean(err)}
+            describedBy={err ? `${id}-err` : undefined}
+            onChange={(next) => {
+              setCountry(next.country)
+              setV((prev) => ({ ...prev, phone: next.value }))
+            }}
+          />
+        ) : (
         <input
           id={id}
           className={s.input}
@@ -145,6 +168,7 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
           aria-describedby={err ? `${id}-err` : undefined}
           onChange={(e) => setV({ ...v, [k]: e.target.value })}
         />
+        )}
       </Field>
     )
   }

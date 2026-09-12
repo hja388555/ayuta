@@ -4,8 +4,10 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { validateGuestStart, type GuestStartErrors } from '@/lib/chat/guest-form'
+import { phoneCountryForLocale, type PhoneCountry } from '@/lib/phone'
 import { focusFirstInvalid } from '@/lib/ui/focus-invalid'
 import { LegalConsentModal } from './LegalConsentModal'
+import { PhoneInput, phoneForSubmit, usePhoneErrorText } from './PhoneInput'
 import c from './Chat.module.css'
 import s from './InquiryQuote.module.css'
 
@@ -39,6 +41,8 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
+  const [phoneCountry, setPhoneCountry] = useState<PhoneCountry>(() => phoneCountryForLocale(locale))
+  const phoneErrorText = usePhoneErrorText()
   const [consent, setConsent] = useState(false)
   const [viewPrivacy, setViewPrivacy] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -49,7 +53,7 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (busy) return
-    const fe = validateGuestStart({ name, email, phone, consent })
+    const fe = validateGuestStart({ name, email, phone, phoneCountry, consent })
     setFieldErr(fe)
     if (Object.keys(fe).length > 0) {
       setError(null)
@@ -61,7 +65,7 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
       const res = await fetch('/api/chat/guest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, consent: true, locale }),
+        body: JSON.stringify({ name, email, phone: phoneForSubmit(phone, phoneCountry), consent: true, locale }),
       })
       const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string }
       if (res.status === 409) return router.refresh()
@@ -79,7 +83,7 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
   const fieldError = (k: keyof GuestStartErrors) =>
     fieldErr[k] ? (
       <p id={`gc-${k}-err`} className={c.fieldError}>
-        {err(fieldErr[k]!)}
+        {k === 'phone' && fieldErr[k] === 'phone' ? phoneErrorText(phone, phoneCountry) : err(fieldErr[k]!)}
       </p>
     ) : null
   const invalid = (k: keyof GuestStartErrors) => (fieldErr[k] ? { 'aria-invalid': true, 'aria-describedby': `gc-${k}-err` } : {})
@@ -102,11 +106,26 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
           <input className={s.input} type="email" placeholder={labels.emailPlaceholder} value={email} maxLength={200} autoComplete="email" onChange={(e) => (setEmail(e.target.value), clear('email'))} disabled={busy} required {...invalid('email')} />
           {fieldError('email')}
         </label>
-        <label className={s.field}>
-          <span className={s.label}>{labels.phone} *</span>
-          <input className={s.input} placeholder={labels.phonePlaceholder} value={phone} maxLength={40} autoComplete="tel" inputMode="tel" onChange={(e) => (setPhone(e.target.value), clear('phone'))} disabled={busy} required {...invalid('phone')} />
+        <div className={s.field}>
+          <label htmlFor="gc-phone" className={s.label}>
+            {labels.phone} *
+          </label>
+          <PhoneInput
+            id="gc-phone"
+            country={phoneCountry}
+            value={phone}
+            disabled={busy}
+            required
+            invalid={Boolean(fieldErr.phone)}
+            describedBy={fieldErr.phone ? 'gc-phone-err' : undefined}
+            onChange={(next) => {
+              setPhone(next.value)
+              setPhoneCountry(next.country)
+              clear('phone')
+            }}
+          />
           {fieldError('phone')}
-        </label>
+        </div>
         <div>
           <label className={s.check}>
             <input type="checkbox" checked={consent} onChange={(e) => (setConsent(e.target.checked), clear('consent'))} disabled={busy} required {...invalid('consent')} />

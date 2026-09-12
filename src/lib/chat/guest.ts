@@ -1,6 +1,6 @@
 import { createHash, createHmac, randomBytes } from 'node:crypto'
 import { z } from 'zod'
-import { isValidPhone } from '../phone'
+import { normalizePhoneInput, PHONE_MAX, phoneCountryForLocale } from '../phone'
 
 /**
  * 비회원 1:1 채팅의 순수 규칙(2026-09-12 사용자 결정 "비회원도 채팅 가능").
@@ -34,12 +34,20 @@ export const GuestStartSchema = z
   .object({
     name: z.string().trim().min(1).max(100),
     email: z.string().trim().email().max(200),
-    // 숫자가 최소 6개는 있어야 연락처로 본다(+·-·공백·괄호는 허용) — 마이페이지 회원정보와 같은 규칙(lib/phone)
-    phone: z.string().trim().refine(isValidPhone),
+    // 화면은 E.164(+81…·+82…)로 보낸다. 국가번호가 없으면 화면 언어의 나라 → 다른 나라 순으로 본다(lib/phone)
+    phone: z.string().trim().max(PHONE_MAX),
     consent: z.literal(true),
     locale: z.enum(['ko', 'ja']),
   })
   .strict()
+  .transform((d, ctx) => {
+    const phone = normalizePhoneInput(d.phone, phoneCountryForLocale(d.locale))
+    if (!phone) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['phone'], message: 'invalid_phone' })
+      return z.NEVER
+    }
+    return { ...d, phone }
+  })
 export type GuestStart = z.infer<typeof GuestStartSchema>
 
 /**

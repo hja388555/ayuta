@@ -8,6 +8,7 @@ import type { ChatMessage, ChatThread } from '@/payload-types'
 import { generateGuestToken, GUEST_COOKIE, hashGuestToken, isGuestTokenShape } from './guest'
 import { cleanBody, fallbackTarget, isRateLimited, rateWindowStart, targetLang, toChatLocale, type ChatLocale } from './rules'
 import { translate } from './translate'
+import { formatPhone } from '../phone'
 
 /**
  * 1:1 채팅 서버 로직(큐 Q37). 컬렉션 REST 는 닫혀 있고 여기 함수들만 Local API 로 읽고 쓴다.
@@ -247,7 +248,7 @@ export async function adminThreadItems(payload: Payload, threads: ChatThread[]):
       guest,
       customerName: guest ? (t.guestName ?? null) : ((u?.name as string | undefined) ?? null),
       customerEmail: guest ? (t.guestEmail ?? null) : ((u?.email as string | undefined) ?? null),
-      customerPhone: guest ? (t.guestPhone ?? null) : ((u?.phone as string | undefined) ?? null),
+      customerPhone: formatPhone(guest ? t.guestPhone : (u?.phone as string | undefined)) || null,
       inquiryId: relId(t.inquiry),
       preview: text ? text.slice(0, 80) : null,
     }

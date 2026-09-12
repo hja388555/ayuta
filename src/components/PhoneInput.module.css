@@ -1,0 +1,24 @@
+/* 연락처 입력칸 — 나라 선택(한국 +82 ▾ / 모바일 +82 ▾) · 세로 구분선 · 번호. 다른 입력칸(54px)과 같은 틀 */
+.wrap { display: flex; align-items: center; width: 100%; min-width: 0; height: 54px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: #fff; }
+.wrap:focus-within { border-color: var(--brand-600); }
+.wrap[data-invalid='true'] { border: 1.6px solid var(--danger-600); }
+.wrap[data-disabled='true'] { background: var(--surface); }
+
+.country { position: relative; flex: none; display: flex; align-items: center; gap: 6px; height: 100%; padding: 0 12px 0 16px; font-size: 17px; line-height: 1; color: var(--ink-900); white-space: nowrap; }
+/* 실제 고르는 칸은 보이지 않는 기본 select 를 겹쳐 둔다 — 키보드·스크린리더·모바일 선택기를 그대로 쓴다 */
+.select { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; font-size: 16px; }
+.select:disabled { cursor: default; }
+.country:has(.select:focus-visible) { outline: 2px solid var(--brand-600); outline-offset: -4px; border-radius: 10px; }
+.name { color: var(--ink-700); }
+.chevron { width: 7px; height: 7px; margin: -3px 0 0 2px; border-right: 1.5px solid var(--ink-500); border-bottom: 1.5px solid var(--ink-500); transform: rotate(45deg); }
+.divider { flex: none; width: 1px; height: 24px; background: var(--line-strong); }
+
+.input { flex: 1; min-width: 0; width: 100%; height: 100%; padding: 0 16px 0 12px; border: 0; border-radius: 0 var(--radius-md) var(--radius-md) 0; background: transparent; font: inherit; font-size: 17px; color: var(--ink-900); outline: none; }
+.input::placeholder { color: var(--ink-400); }
+/* 칸 오른쪽 경고 아이콘 자리 */
+.wrap[data-invalid='true'] .input { padding-right: 44px; }
+
+@media (max-width: 767px) {
+  .name { display: none; }
+  .country { padding: 0 10px 0 14px; }
+}

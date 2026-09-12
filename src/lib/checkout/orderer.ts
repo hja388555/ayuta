@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { formatPhoneForContract, normalizePhoneInput, PHONE_MAX, phoneCountryForLocale } from '../phone'
 
 // 회원·비회원 공용 주문자 정보. 회원도 세션을 신뢰하지 않고 이 스키마로 다시 검증한다 —
 // 비회원은 애초에 세션이 없으므로 검증 통로가 이것 하나뿐이다 (G2-5).
@@ -14,7 +15,7 @@ const businessNoPattern = /^\d{3}-\d{2}-\d{5}$/
 
 export const OrdererSchema = z.object({
   name: trimmedRequired(100),
-  phone: trimmedRequired(30),
+  phone: trimmedRequired(PHONE_MAX),
   email: z.string().trim().min(1).max(200).email(),
   postalCode: trimmedRequired(20),
   address1: trimmedRequired(200),
@@ -34,6 +35,19 @@ export const OrdererSchema = z.object({
 })
 
 export type Orderer = z.infer<typeof OrdererSchema>
+
+/**
+ * 주문 입력 스키마의 transform — 주문자 연락처를 E.164 로 바꿔 저장·계약서·본인 확인이 같은 값을 쓰게 한다.
+ * 국가번호 없이 온 값은 주문 언어의 나라를 먼저, 다음 다른 나라 규칙으로 본다(화면은 늘 국가번호를 붙여 보낸다).
+ */
+export function normalizeOrdererPhone<T extends { locale: 'ko' | 'ja'; orderer: Orderer }>(d: T, ctx: z.RefinementCtx): T {
+  const phone = normalizePhoneInput(d.orderer.phone, phoneCountryForLocale(d.locale))
+  if (!phone) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, path: ['orderer', 'phone'], message: 'invalid_phone' })
+    return z.NEVER
+  }
+  return { ...d, orderer: { ...d.orderer, phone } }
+}
 
 const NOT_APPLICABLE = '-'
 
@@ -56,10 +70,11 @@ export function buyerContractFields(orderer: Orderer): {
   return {
     buyerRepresentative: orderer.representative || NOT_APPLICABLE,
     buyerBusinessNo: orderer.businessNo || NOT_APPLICABLE,
-    buyerPhone: orderer.phone,
+    // 한국 번호는 010-1234-5678, 일본 번호는 +81 90-1234-5678 (lib/phone formatPhoneForContract)
+    buyerPhone: formatPhoneForContract(orderer.phone),
     // 담당자 연락처를 따로 받지 않으므로 전화번호와 동일하게 처리한다
     // (docs/법무문서-확정본.md C절 — "미입력 시 전화번호와 동일 처리")
-    buyerContactPhone: orderer.phone,
+    buyerContactPhone: formatPhoneForContract(orderer.phone),
     buyerAddress: [orderer.postalCode, orderer.address1, orderer.address2].filter(Boolean).join(' '),
     buyerEmail: orderer.email,
   }

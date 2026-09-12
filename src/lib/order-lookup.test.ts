@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatOrderSchedule, guestOwnershipMatches, phoneDigits } from './order-lookup'
+import { formatOrderSchedule, guestOwnershipMatches } from './order-lookup'
 
 // 실제 DB 조회(findOwnedOrder)는 tests/order-lookup.integration.test.ts가 다룬다.
 // 여기는 소유권 판정 로직만 DB 없이 떼어내 본다 — 특히 orderer가 없는 방어적 분기(Minor)는
@@ -30,9 +30,14 @@ describe('guestOwnershipMatches', () => {
     expect(guestOwnershipMatches(blank, { email: 'hong@example.com', phone: '---' })).toBe(false)
   })
 
-  it('phoneDigits 는 숫자 외 문자를 모두 뗀다', () => {
-    expect(phoneDigits('+81 90-1234-5678')).toBe('819012345678')
-    expect(phoneDigits(undefined)).toBe('')
+  it('E.164 로 저장된 주문도 하이픈·국가번호 유무와 무관하게 열린다', () => {
+    const e164 = { customer: null, orderer: { email: 'hong@example.com', phone: '+821012345678' } }
+    for (const phone of ['010-1234-5678', '01012345678', '+82 10-1234-5678', '+82 010 1234 5678']) {
+      expect(guestOwnershipMatches(e164, { email: 'hong@example.com', phone })).toBe(true)
+    }
+    const jp = { customer: null, orderer: { email: 'hong@example.com', phone: '+819012345678' } }
+    expect(guestOwnershipMatches(jp, { email: 'hong@example.com', phone: '090-1234-5678' })).toBe(true)
+    expect(guestOwnershipMatches(e164, { email: 'hong@example.com', phone: '010-1234-5679' })).toBe(false)
   })
 
   it('이메일만 맞고 연락처가 틀리면 거짓이다', () => {

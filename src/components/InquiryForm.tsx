@@ -2,7 +2,9 @@
 
 import { useState } from 'react'
 import { ChoiceCard, ChoiceGrid, StepTitle } from './ui'
+import { defaultPhoneCountry, initialPhoneInput, isValidPhone, type PhoneCountry } from '../lib/phone'
 import { LegalConsentModal } from './LegalConsentModal'
+import { PhoneInput, phoneForSubmit, usePhoneErrorText } from './PhoneInput'
 import s from './InquiryQuote.module.css'
 
 type Labels = {
@@ -51,20 +53,27 @@ const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'applica
 const ALLOWED_EXT = /\.(jpe?g|png|webp|pdf)$/i
 // 결제 화면(CheckoutForm)과 같은 형식 규칙
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const PHONE_RE = /^\+?\d{9,15}$/
 
 /** 화면 순서대로 — 첫 오류 칸으로 포커스를 옮길 때 이 순서를 쓴다 */
 export const INQUIRY_FIELDS = ['country', 'body', 'files', 'name', 'phone', 'email', 'consent'] as const
 export type InquiryField = (typeof INQUIRY_FIELDS)[number]
 
-/** 칸별 오류 코드(messages inquiryForm.errors 키). 형식의 최종 판정은 서버가 다시 한다 */
-export function validateInquiry(v: { country: readonly string[]; body: string; name: string; phone: string; email: string; consent: boolean }): Partial<Record<InquiryField, string>> {
+/** 칸별 오류 코드(messages inquiryForm.errors 키, 연락처 형식은 phone 네임스페이스). 형식의 최종 판정은 서버가 다시 한다 */
+export function validateInquiry(v: {
+  country: readonly string[]
+  body: string
+  name: string
+  phone: string
+  phoneCountry: PhoneCountry
+  email: string
+  consent: boolean
+}): Partial<Record<InquiryField, string>> {
   const errors: Partial<Record<InquiryField, string>> = {}
   if (v.country.length === 0) errors.country = 'country_required'
   if (!v.body.trim()) errors.body = 'field_required'
   if (!v.name.trim()) errors.name = 'field_required'
   if (!v.phone.trim()) errors.phone = 'field_required'
-  else if (!PHONE_RE.test(v.phone.replace(/[\s-]/g, ''))) errors.phone = 'phone'
+  else if (!isValidPhone(v.phone, v.phoneCountry)) errors.phone = 'phone'
   if (!v.email.trim()) errors.email = 'field_required'
   else if (!EMAIL_RE.test(v.email.trim())) errors.email = 'email'
   if (!v.consent) errors.consent = 'consent_required'
@@ -86,6 +95,7 @@ const SERVER_ERROR_FIELD: Partial<Record<string, InquiryField>> = {
   invalid_file: 'files',
   too_large: 'files',
   too_many_files: 'files',
+  invalid_phone: 'phone',
 }
 
 /**
@@ -99,7 +109,13 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
   const [body, setBody] = useState('')
   const [region, setRegion] = useState('')
   const [name, setName] = useState(initialContact?.name ?? '')
-  const [phone, setPhone] = useState(initialContact?.phone ?? '')
+  // 연락처 나라: 회원 연락처의 나라 > 표지에서 하나만 고른 광고 국가 > 화면 언어
+  const [phoneInit] = useState(() =>
+    initialPhoneInput(initialContact?.phone, defaultPhoneCountry({ stored: initialContact?.phone, coverCountries: initialCountry, locale })),
+  )
+  const [phone, setPhone] = useState(phoneInit.value)
+  const [phoneCountry, setPhoneCountry] = useState<PhoneCountry>(phoneInit.country)
+  const phoneErrorText = usePhoneErrorText()
   const [email, setEmail] = useState(initialContact?.email ?? '')
   const [consent, setConsent] = useState(false)
   const [viewPrivacy, setViewPrivacy] = useState(false)
@@ -113,10 +129,11 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
   const [fileCode, setFileCode] = useState<string | null>(null)
 
   const err = (code: string) => labels.errors[code] ?? labels.errors.generic ?? ''
+  const fieldText = (field: InquiryField, code: string) => (field === 'phone' && code === 'phone' ? phoneErrorText(phone, phoneCountry) : err(code))
   const toggle = (c: string) => setCountry((cur) => (cur.includes(c) ? cur.filter((x) => x !== c) : [...cur, c]))
 
   const fieldErrors: Partial<Record<InquiryField, string>> = {
-    ...(attempted ? validateInquiry({ country, body, name, phone, email, consent }) : {}),
+    ...(attempted ? validateInquiry({ country, body, name, phone, phoneCountry, email, consent }) : {}),
     ...(fileCode ? { files: fileCode } : {}),
   }
 
@@ -141,11 +158,11 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
     e.preventDefault()
     if (busy) return
     setAttempted(true)
-    const errors = { ...validateInquiry({ country, body, name, phone, email, consent }), ...(fileCode ? { files: fileCode } : {}) }
+    const errors = { ...validateInquiry({ country, body, name, phone, phoneCountry, email, consent }), ...(fileCode ? { files: fileCode } : {}) }
     const first = INQUIRY_FIELDS.find((f) => errors[f])
     if (first) {
       const count = Object.keys(errors).length
-      setError(count > 1 && labels.errors.summary ? labels.errors.summary.replace('{count}', String(count)) : err(errors[first]!))
+      setError(count > 1 && labels.errors.summary ? labels.errors.summary.replace('{count}', String(count)) : fieldText(first, errors[first]!))
       focusField(first)
       return
     }
@@ -158,7 +175,7 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
       fd.set('body', body)
       fd.set('region', region)
       fd.set('name', name)
-      fd.set('phone', phone)
+      fd.set('phone', phoneForSubmit(phone, phoneCountry))
       fd.set('email', email)
       fd.set('consent', 'on')
       fd.set('locale', locale)
@@ -187,7 +204,7 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
   const message = (field: InquiryField) =>
     fieldErrors[field] ? (
       <span id={`inq-${field}-err`} className={s.fieldError}>
-        {err(fieldErrors[field]!)}
+        {fieldText(field, fieldErrors[field]!)}
       </span>
     ) : null
   const cls = (base: string | undefined, field: InquiryField) => (fieldErrors[field] ? `${base} ${s.invalid}` : base)
@@ -258,11 +275,26 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
             <input id="inq-name" className={s.input} placeholder={labels.namePlaceholder} value={name} maxLength={100} autoComplete="name" onChange={(e) => setName(e.target.value)} disabled={busy} required {...invalid('name')} />
             {message('name')}
           </label>
-          <label className={cls(s.field, 'phone')}>
-            <span className={s.label}>{labels.phone} *</span>
-            <input id="inq-phone" className={s.input} placeholder={labels.phonePlaceholder} value={phone} maxLength={40} autoComplete="tel" inputMode="tel" onChange={(e) => setPhone(e.target.value)} disabled={busy} required {...invalid('phone')} />
+          {/* 나라 select 와 번호 칸이 함께 있어 label 로 감싸지 않는다 — 감싸면 라벨이 select 를 가리킨다 */}
+          <div className={s.field}>
+            <label htmlFor="inq-phone" className={s.label}>
+              {labels.phone} *
+            </label>
+            <PhoneInput
+              id="inq-phone"
+              country={phoneCountry}
+              value={phone}
+              disabled={busy}
+              required
+              invalid={Boolean(fieldErrors.phone)}
+              describedBy={fieldErrors.phone ? 'inq-phone-err' : undefined}
+              onChange={(next) => {
+                setPhone(next.value)
+                setPhoneCountry(next.country)
+              }}
+            />
             {message('phone')}
-          </label>
+          </div>
           <label className={cls(s.field, 'email')}>
             <span className={s.label}>{labels.email} *</span>
             <input id="inq-email" className={s.input} type="email" placeholder={labels.emailPlaceholder} value={email} maxLength={200} autoComplete="email" onChange={(e) => setEmail(e.target.value)} disabled={busy} required {...invalid('email')} />

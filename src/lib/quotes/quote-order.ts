@@ -2,6 +2,7 @@ import type { OrderLines } from '../checkout/create-order'
 import type { ContractItem } from '../checkout/contract-items'
 import { formatCountries, sanitizeCountries } from '../cover-selection'
 import type { QuoteLine } from './lines'
+import { phoneMatchKey } from '../phone'
 
 // 5번 견적 결제의 순수 규칙. DB·화면을 모른다 — 견적 화면 미리보기와 주문 생성이 같은 값을 쓰게 한 곳에 둔다.
 
@@ -59,11 +60,10 @@ export function quoteOrderLines(
 
 /**
  * 이미 만든 견적 주문을 이 요청에 돌려줘도 되는 같은 주문자인지 — 이메일(대소문자 무시)과
- * 연락처(숫자만)가 모두 같아야 한다. 다르면 링크를 받은 다른 사람이 앞 주문자의 주문을
+ * 연락처(국가번호·하이픈과 무관한 번호)가 모두 같아야 한다. 다르면 링크를 받은 다른 사람이 앞 주문자의 주문을
  * 완료 화면으로 열게 되므로 돌려주지 않는다.
  */
 export function isSameOrderer(a: { email: string; phone: string }, b: { email: string; phone: string }): boolean {
   const email = (v: string) => v.trim().toLowerCase()
-  const phone = (v: string) => v.replace(/\D/g, '')
-  return email(a.email) === email(b.email) && phone(a.phone) === phone(b.phone)
+  return email(a.email) === email(b.email) && phoneMatchKey(a.phone) === phoneMatchKey(b.phone)
 }

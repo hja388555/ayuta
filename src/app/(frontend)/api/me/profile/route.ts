@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { z } from 'zod'
 import { AuthError, requireUser } from '@/lib/dal'
-import { isValidPhone } from '@/lib/phone'
+import { normalizePhoneInput } from '@/lib/phone'
 
 /**
  * 마이페이지 정보 수정. 바꿀 수 있는 필드를 여기서 명시적으로 좁힌다 — role·email·deletedAt 은
@@ -39,14 +39,16 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = BodySchema.safeParse(raw)
   if (!parsed.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
   const d = parsed.data
-  // 연락처 형식은 비회원 채팅 시작과 같은 규칙. 따로 알려 줘야 고객이 어느 칸을 고칠지 안다
-  if (!isValidPhone(d.phone)) return NextResponse.json({ error: 'invalid_phone' }, { status: 400 })
+  // 연락처는 가입과 같은 규칙(lib/phone) — E.164 로 저장한다. 예전 형식으로 저장돼 있던 값도 여기서 정규화된다.
+  // 따로 알려 줘야 고객이 어느 칸을 고칠지 안다
+  const phone = normalizePhoneInput(d.phone, 'KR')
+  if (!phone) return NextResponse.json({ error: 'invalid_phone' }, { status: 400 })
 
   const payload = await getPayload({ config })
   await payload.update({
     collection: 'users',
     id: user.id,
-    data: { name: d.name, phone: d.phone, postalCode: d.postalCode, address1: d.address1, address2: d.address2 || null, businessNo: d.businessNo || null },
+    data: { name: d.name, phone, postalCode: d.postalCode, address1: d.address1, address2: d.address2 || null, businessNo: d.businessNo || null },
     overrideAccess: true,
   })
   return NextResponse.json({ ok: true })

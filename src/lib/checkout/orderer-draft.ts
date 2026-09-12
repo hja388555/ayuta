@@ -3,7 +3,7 @@
  * 입력한 주문자 정보가 남게 한다. 탭을 닫으면 사라지는 sessionStorage 에 둔다.
  * 동의·서명은 저장하지 않는다 — 동의는 매번 화면에서 다시 받아야 한다. 주문이 만들어지면 지운다.
  */
-export const ORDERER_DRAFT_FIELDS = ['name', 'phone', 'email', 'postalCode', 'address1', 'address2', 'businessNo', 'representative'] as const
+export const ORDERER_DRAFT_FIELDS = ['name', 'phone', 'phoneCountry', 'email', 'postalCode', 'address1', 'address2', 'businessNo', 'representative'] as const
 
 export type OrdererDraft = Partial<Record<(typeof ORDERER_DRAFT_FIELDS)[number], string>>
 

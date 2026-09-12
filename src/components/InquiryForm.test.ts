@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { INQUIRY_FIELDS, fileError, validateInquiry } from './InquiryForm'
 
-const ok = { country: ['kr'], body: '문의', name: '홍길동', phone: '010-1234-5678', email: 'hong@example.com', consent: true }
+const ok = { country: ['kr'], body: '문의', name: '홍길동', phone: '010-1234-5678', phoneCountry: 'KR' as const, email: 'hong@example.com', consent: true }
 
 describe('5번 문의 폼 칸 검증', () => {
   it('모두 올바르면 오류가 없다', () => {
@@ -9,7 +9,7 @@ describe('5번 문의 폼 칸 검증', () => {
   })
 
   it('빈 폼은 화면 순서대로 모든 필수 칸을 표시한다 — 첫 오류는 국가', () => {
-    const errors = validateInquiry({ country: [], body: ' ', name: '', phone: '', email: '', consent: false })
+    const errors = validateInquiry({ country: [], body: ' ', name: '', phone: '', phoneCountry: 'KR', email: '', consent: false })
     expect(errors).toEqual({
       country: 'country_required',
       body: 'field_required',
@@ -25,6 +25,8 @@ describe('5번 문의 폼 칸 검증', () => {
     expect(validateInquiry({ ...ok, email: 'name@' })).toEqual({ email: 'email' })
     expect(validateInquiry({ ...ok, phone: '010-12' })).toEqual({ phone: 'phone' })
     expect(validateInquiry({ ...ok, phone: '+81 90-1234-5678' })).toEqual({})
+    expect(validateInquiry({ ...ok, phone: '090-1234-5678' })).toEqual({ phone: 'phone' })
+    expect(validateInquiry({ ...ok, phoneCountry: 'JP', phone: '090-1234-5678' })).toEqual({})
   })
 })
 
