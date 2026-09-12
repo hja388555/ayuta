@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { buildGroupQuery, pricedKeys, previewGroupTotal, visibleItems } from './GroupForm'
+import { buildGroupQuery, countryTabsFor, initialSelections, nextSelection, pricedKeys, previewGroupTotal, visibleItems } from './GroupForm'
+import { formFor } from '../lib/category-groups'
 import type { CategoryForm } from '@/lib/category-groups'
 
 // 3번 모양(합산, 기간 없음)
@@ -158,5 +159,40 @@ describe('한국/일본 탭', () => {
 
   it('탭이 없는 폼이면 전부 보인다', () => {
     expect(visibleItems(group, null)).toHaveLength(3)
+  })
+})
+
+describe('중복 선택과 혼자만 고르는 항목(2026-09-12)', () => {
+  const poster = { key: 'posterBillboard', multi: true, items: [{ key: 'a', priced: true }, { key: 'skip', priced: true, exclusive: true as const }, { key: 'b', priced: true }] }
+  it('중복 그룹은 여러 개를 켜고 끈다', () => {
+    expect(nextSelection(poster, ['a'], 'b')).toEqual(['a', 'b'])
+    expect(nextSelection(poster, ['a', 'b'], 'a')).toEqual(['b'])
+  })
+  it('혼자만 고르는 항목을 고르면 나머지를 비우고, 다른 항목을 고르면 그 항목이 빠진다', () => {
+    expect(nextSelection(poster, ['a', 'b'], 'skip')).toEqual(['skip'])
+    expect(nextSelection(poster, ['skip'], 'a')).toEqual(['a'])
+  })
+  it('단일 그룹은 하나만 남는다', () => {
+    const single = { ...poster, multi: false }
+    expect(nextSelection(single, ['a'], 'b')).toEqual(['b'])
+    expect(nextSelection(single, ['b'], 'b')).toEqual([])
+  })
+  it('4번 지하철·버스 도시와 포스터는 중복 선택이다', () => {
+    const f = formFor(4)!
+    for (const key of ['subwayCity', 'subwaySpot', 'posterBillboard', 'busCity', 'busSpot']) expect(f.groups.find((g) => g.key === key)?.multi).toBe(true)
+  })
+})
+
+describe('표지 광고 국가 적용(2026-09-12)', () => {
+  it('한 나라만 골랐으면 그 탭만, 둘 다·없음이면 두 탭', () => {
+    expect(countryTabsFor(['jp'])).toEqual(['jp'])
+    expect(countryTabsFor(['jp', 'kr'])).toEqual(['kr', 'jp'])
+    expect(countryTabsFor([])).toEqual(['kr', 'jp'])
+  })
+  it('2번 촬영 국가 묶음을 표지 선택으로 미리 체크한다', () => {
+    const f = formFor(2)!
+    expect(initialSelections(f, ['jp'])).toEqual({ country: ['country-jp'] })
+    expect(initialSelections(f, ['kr', 'jp'])).toEqual({ country: ['country-kr', 'country-jp'] })
+    expect(initialSelections(f, [])).toEqual({})
   })
 })
