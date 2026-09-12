@@ -33,6 +33,8 @@ export async function POST(req: Request): Promise<Response> {
   if (!parsed.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
   // 새 비밀번호 규칙(Q34)을 현재 비밀번호 확인보다 먼저 본다 — 규칙 위반으로 로그인 실패 횟수를 쓰지 않게
   if (passwordIssue(parsed.data.newPassword)) return NextResponse.json({ error: 'weak_password' }, { status: 400 })
+  // 같은 비밀번호로 "바꾸기"는 변경이 아니다. 둘 다 요청에 있는 값이라 현재 비밀번호 확인 전에 거절해도 새는 정보가 없다
+  if (parsed.data.newPassword === parsed.data.currentPassword) return NextResponse.json({ error: 'same_password' }, { status: 400 })
 
   const payload = await getPayload({ config })
   try {

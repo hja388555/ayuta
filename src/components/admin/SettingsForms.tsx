@@ -393,6 +393,7 @@ export function AdminPasswordForm() {
     if (busy) return
     if (!v.current || !v.next || !v.confirm) return setMsg({ ok: false, text: '세 칸을 모두 입력해 주세요.' })
     if (passwordIssue(v.next)) return setMsg({ ok: false, text: adminErrorMessage('weak_password') })
+    if (v.next === v.current) return setMsg({ ok: false, text: adminErrorMessage('same_password') })
     if (v.next !== v.confirm) return setMsg({ ok: false, text: '새 비밀번호와 확인이 다릅니다.' })
     setBusy(true)
     setMsg(null)

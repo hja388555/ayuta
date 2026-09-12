@@ -39,3 +39,12 @@ export async function POST(req: Request): Promise<Response> {
   ;(await cookies()).set(GUEST_COOKIE, token, guestCookieOptions())
   return NextResponse.json({ ok: true, thread: threadView(thread) })
 }
+
+/**
+ * 이 브라우저에서 비회원 채팅 나가기 — 회원 로그아웃과 대화방의 "나가기"가 부른다(공용 PC).
+ * 요청한 브라우저의 쿠키만 만료시킨다. 방·토큰 해시는 그대로라 담당자 쪽 기록과 받은 채팅 링크는 살아 있다.
+ */
+export async function DELETE(): Promise<Response> {
+  ;(await cookies()).set(GUEST_COOKIE, '', { ...guestCookieOptions(), maxAge: 0 })
+  return NextResponse.json({ ok: true })
+}

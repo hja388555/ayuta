@@ -36,7 +36,9 @@
 .box { flex: none; width: 20px; height: 20px; border: 1.6px solid var(--line-strong); border-radius: 6px; background: #fff; }
 .keep:has(input:checked) .box { border-color: var(--brand-600); background: var(--brand-600) url('/ui/check.svg') center / 13px 13px no-repeat; }
 .keep:has(input:focus-visible) .box { outline: 2px solid var(--brand-600); outline-offset: 2px; }
-.findPw { flex: none; padding: 0; border: 0; background: none; font: inherit; font-weight: 700; color: var(--brand-600); cursor: not-allowed; opacity: 0.6; }
+.findPw { flex: none; min-height: 44px; padding: 0; border: 0; background: none; font: inherit; font-weight: 700; color: var(--brand-600); cursor: pointer; }
+.findPwNote { margin: -4px 0 0; padding: 12px 14px; border-radius: var(--radius-md); background: var(--surface-100, #f7f8fa); font-size: 14px; line-height: 1.6; color: var(--ink-600, #3d4046); }
+.findPwNote a { font-weight: 700; color: var(--brand-600); white-space: nowrap; }
 .primary { height: 58px; border-radius: var(--radius-md); font-size: 17px; }
 .outline { height: 58px; border-color: var(--line-strong); border-radius: var(--radius-md); font-size: 17px; }
 .divider { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.5; color: var(--ink-400); }
