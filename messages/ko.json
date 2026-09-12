@@ -296,6 +296,7 @@
     "title": "마이페이지",
     "ordersTitle": "주문 내역",
     "noOrders": "아직 주문이 없습니다.",
+    "noOrdersFiltered": "해당하는 주문이 없습니다.",
     "orderNumber": "주문번호",
     "service": "서비스",
     "amount": "금액",
@@ -350,6 +351,7 @@
       "logout": "로그아웃"
     },
     "summary": {
+      "label": "주문 상태별 보기",
       "total": "전체",
       "active": "진행중",
       "done": "완료",

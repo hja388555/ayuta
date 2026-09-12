@@ -23,6 +23,21 @@ export const statusTone = (status: string): BadgeTone => TONES[status as OrderSt
 
 export const isSigned = (status: string): boolean => (SIGNED_STATUSES as readonly string[]).includes(status)
 
+/** 요약 카드 필터(2026-09-12 사용자 결정: 카드를 누르면 그 묶음만 보인다) */
+export const SUMMARY_FILTERS = ['all', 'active', 'done', 'refund'] as const
+export type SummaryFilter = (typeof SUMMARY_FILTERS)[number]
+
+export const toSummaryFilter = (v: unknown): SummaryFilter =>
+  (SUMMARY_FILTERS as readonly string[]).includes(v as string) ? (v as SummaryFilter) : 'all'
+
+/** 요약 카드 묶음과 같은 규칙으로 주문 하나가 필터에 드는지 */
+export function matchesFilter(status: string, filter: SummaryFilter): boolean {
+  if (filter === 'active') return status === 'paid' || status === 'in_progress'
+  if (filter === 'done') return status === 'done'
+  if (filter === 'refund') return status === 'cancelled'
+  return true
+}
+
 /** 요약 카드 묶음: 진행중 = 결제완료+진행중, 완료 = 완료, 환불 = 취소 */
 export function summarize(statuses: string[]) {
   return {

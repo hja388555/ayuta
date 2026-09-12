@@ -27,6 +27,10 @@
 .stat { display: flex; flex-direction: column; gap: 4px; padding: 18px 22px; border-radius: var(--radius-lg); background: var(--surface); line-height: 1.5; }
 .stat span { font-size: 15px; color: var(--ink-500); }
 .stat strong { font-size: 26px; letter-spacing: -0.02em; color: var(--ink-900); }
+.stat { text-decoration: none; border: 1.5px solid transparent; cursor: pointer; }
+.stat:hover { border-color: var(--line-strong); }
+.statOn { border-color: var(--brand-600); background: var(--brand-50); }
+.statOn span { color: var(--brand-600); font-weight: 700; }
 
 .card { display: flex; flex-direction: column; gap: 14px; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; }
 .cardHead { display: flex; align-items: center; gap: 10px; }

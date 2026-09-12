@@ -297,6 +297,7 @@
     "title": "マイページ",
     "ordersTitle": "注文履歴",
     "noOrders": "まだ注文がありません。",
+    "noOrdersFiltered": "該当する注文はありません。",
     "orderNumber": "注文番号",
     "service": "サービス",
     "amount": "金額",
@@ -351,6 +352,7 @@
       "logout": "ログアウト"
     },
     "summary": {
+      "label": "ステータス別に表示",
       "total": "全体",
       "active": "進行中",
       "done": "完了",
