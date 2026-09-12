@@ -64,7 +64,19 @@
 .payBtn img { display: block; width: 22px; height: 22px; flex: none; }
 .notice { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-500); }
 
+/* 2번 영상별 완성 길이 — 고른 영상마다 한 덩어리(Figma 218:2 PC 4열 · 218:178 Mobile 세로 목록) */
+.pairs { display: flex; flex-direction: column; gap: 20px; }
+.pairBlock { display: flex; flex-direction: column; gap: 10px; }
+.pairTitle { margin: 0; font-size: 16px; font-weight: 700; line-height: 1.5; color: var(--ink-900); }
+.pairGrid :global(.choice) { min-height: 60px; padding: 0 16px; font-size: 16px; }
+.pairGrid :global(.choice) > span:last-child { flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 8px; min-width: 0; }
+.pairGrid :global(.choice):has(input:checked) .price { color: var(--brand-600); }
+.empty { margin: 0; padding: 14px 16px; border-radius: var(--radius-md); background: var(--surface); color: var(--ink-500); font-size: 15px; line-height: 1.5; }
+
 @media (max-width: 767px) {
+  .pairTitle { font-size: 15px; }
+  .pairGrid :global(.choice) { min-height: 56px; font-size: 15px; }
+  .empty { font-size: 13px; }
   .band { padding-block: 28px; }
   .bandTitle { font-size: 26px; }
   .bandDesc { font-size: 15px; }

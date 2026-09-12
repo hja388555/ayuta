@@ -113,7 +113,8 @@
       "busSpot": "バス広告位置",
       "period": "広告期間",
       "sizePeriod": "サイズ · 広告期間",
-      "basicIncluded": "標準で含まれるもの"
+      "basicIncluded": "標準で含まれるもの",
+      "videoPairs": "映像ごとの完成尺"
     },
     "itemLabels": {
       "country-kr": "韓国現地撮影",
@@ -136,7 +137,9 @@
     "groupHints": {
       "country": "複数選択できます",
       "posterBillboard": "サイズによって金額が変わる場合があります",
-      "basicIncluded": "以下の項目はすべての商品に含まれます"
+      "basicIncluded": "以下の項目はすべての商品に含まれます",
+      "videoType": "複数選択できます。選んだ映像ごとに下で長さを決めてください",
+      "videoPairs": "選んだ映像の種類ごとに長さを1つずつ選択してください"
     },
     "countryTabs": {
       "kr": "韓国",
@@ -152,7 +155,10 @@
       "オープニング · エンディング",
       "完成映像の提供"
     ],
-    "shortVideoNote": "10分未満のリール、TikTok、YouTubeショートなどのSNS動画は、1番 デジタル / SNSコミュニティをご利用ください。"
+    "shortVideoNote": "10分未満のリール、TikTok、YouTubeショートなどのSNS動画は、1番 デジタル / SNSコミュニティをご利用ください。",
+    "pairTitle": "映像 {n} · {type}",
+    "pairsEmpty": "先に上で映像の種類を選択してください",
+    "pairContractLabel": "映像 {n}"
   },
   "inquiry": {
     "notice": "お問い合わせは1:1お問い合わせをご利用ください"

@@ -1,10 +1,14 @@
 import type { PricingModel } from '@ayuta/pricing'
+import { formFor } from './category-groups'
 
 export type CategoryDef = {
   no: 1 | 2 | 3 | 4 | 5
   slug: string
   model: PricingModel
 }
+
+const groupKeys = (no: number, group: string): string[] =>
+  formFor(no)?.groups.find((g) => g.key === group)?.items.map((i) => i.key) ?? []
 
 // 표지·1번 폼·서버 액션이 모두 이 표 하나를 본다.
 // 세 곳이 각자 카테고리 번호를 하드코딩하면 하나를 고칠 때 나머지가 어긋난다.
@@ -17,8 +21,9 @@ export const CATEGORIES: readonly CategoryDef[] = [
   {
     no: 2,
     slug: 'local-video',
-    // 2번은 조합형이 아니라 합산이다 — packages/pricing 타입 정정과 짝을 맞춘다
-    model: { kind: 'sum', category: 2, groups: [] },
+    // 2번은 고른 영상 종류마다 길이를 하나씩 붙인 (종류 + 길이) 쌍의 합이다(2026-09-12).
+    // 종류·길이 키 목록은 화면 정의(category-groups.ts)에서 읽는다 — 단가 시드와 같은 출처다
+    model: { kind: 'videoPairs', category: 2, types: groupKeys(2, 'videoType'), lengths: groupKeys(2, 'videoLength') },
   },
   {
     no: 3,

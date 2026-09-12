@@ -71,3 +71,45 @@ describe('filterPricedSelection — priced/unpriced 분리는 계산 직전에�
     expect(pricedSelection.items).toContain('video-type-company')
   })
 })
+
+describe('selectionFromQuery — 2번 videoPairs', () => {
+  const keysOf = (group: string) => formFor(2)!.groups.find((g) => g.key === group)!.items.map((i) => i.key)
+  const model: PricingModel = { kind: 'videoPairs', category: 2, types: keysOf('videoType'), lengths: keysOf('videoLength') }
+
+  it('pair=종류:길이 를 순서대로 쌍으로 되돌리고, item=(촬영 국가)은 따로 담는다', () => {
+    const sel = selectionFromQuery(model, {
+      item: 'country-kr',
+      pair: ['video-type-company:video-length-10m', 'video-type-product:video-length-10m'],
+      country: 'kr',
+    })
+    expect(sel).toEqual({
+      items: ['country-kr'],
+      pairs: [
+        { type: 'video-type-company', length: 'video-length-10m' },
+        { type: 'video-type-product', length: 'video-length-10m' },
+      ],
+      country: ['kr'],
+      purpose: undefined,
+    })
+  })
+
+  it('콜론이 없는 pair 는 길이가 빈 쌍이 되어 계산에서 거부된다', () => {
+    const sel = selectionFromQuery(model, { pair: 'video-type-company' }) as { pairs: unknown }
+    expect(sel.pairs).toEqual([{ type: 'video-type-company', length: '' }])
+  })
+
+  it('옛 주소(item=종류&item=길이 하나씩)는 쌍 하나로 받는다', () => {
+    const sel = selectionFromQuery(model, { item: ['country-jp', 'video-type-event', 'video-length-20m'] }) as { pairs: unknown }
+    expect(sel.pairs).toEqual([{ type: 'video-type-event', length: 'video-length-20m' }])
+  })
+
+  it('옛 주소라도 종류·길이가 하나씩이 아니면 쌍을 만들지 않는다', () => {
+    const sel = selectionFromQuery(model, { item: ['video-type-event', 'video-type-store', 'video-length-20m'] }) as { pairs: unknown }
+    expect(sel.pairs).toEqual([])
+  })
+
+  it('filterPricedSelection 은 쌍만 남긴다', () => {
+    const raw = selectionFromQuery(model, { item: 'country-kr', pair: 'video-type-company:video-length-10m', country: 'kr' })
+    expect(filterPricedSelection(model, formFor(2), raw)).toEqual({ pairs: [{ type: 'video-type-company', length: 'video-length-10m' }] })
+  })
+})

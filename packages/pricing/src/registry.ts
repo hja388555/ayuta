@@ -3,6 +3,7 @@ import { calculateTier } from './calculators/tier'
 import { calculateSum } from './calculators/sum'
 import { calculateSumMultiplier } from './calculators/sumMultiplier'
 import { calculateInquiry } from './calculators/inquiry'
+import { calculateVideoPairs } from './calculators/videoPairs'
 
 const isStringArray = (v: unknown): v is string[] =>
   Array.isArray(v) && v.every((x) => typeof x === 'string')
@@ -39,6 +40,17 @@ export function calculate(model: PricingModel, book: PriceBook, sel: unknown): Q
       const o = asObject(sel)
       if (!o || !isStringArray(o.items) || typeof o.period !== 'string') return badShape('items')
       return calculateSumMultiplier(book, model.multipliers, { items: o.items, period: o.period })
+    }
+    case 'videoPairs': {
+      const o = asObject(sel)
+      if (!o || !Array.isArray(o.pairs)) return badShape('pairs')
+      const pairs: { type: string; length: string }[] = []
+      for (const p of o.pairs) {
+        const po = asObject(p)
+        if (!po || typeof po.type !== 'string' || typeof po.length !== 'string') return badShape('pairs')
+        pairs.push({ type: po.type, length: po.length })
+      }
+      return calculateVideoPairs(book, model, { pairs })
     }
     case 'inquiry':
       return calculateInquiry()

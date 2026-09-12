@@ -59,6 +59,29 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
     return items
   }
 
+  if (def.model.kind === 'videoPairs') {
+    const sel = typeof rawSelection === 'object' && rawSelection !== null ? (rawSelection as { items?: unknown; pairs?: unknown }) : {}
+    const items: ContractItem[] = []
+    // 촬영 국가(금액 없음) — item= 으로 온 것 중 촬영 국가 묶음에 있는 것만
+    const countryGroup = formFor(2)?.groups.find((g) => g.key === 'country')
+    const chosen = new Set(asStringArray(sel.items))
+    const countries = countryGroup?.items.filter((i) => chosen.has(i.key)) ?? []
+    if (countries.length > 0) {
+      items.push({ label: groupTitles.country ?? 'country', value: countries.map((i) => labelForKey(i.key)).join(', ') })
+    }
+    // 영상 한 편에 한 줄 — "영상 1: 회사·기업 소개 · 10분". 금액은 여기 섞지 않는다
+    const pairs = Array.isArray(sel.pairs) ? sel.pairs : []
+    pairs.forEach((p, i) => {
+      const pair = typeof p === 'object' && p !== null ? (p as { type?: unknown; length?: unknown }) : {}
+      if (typeof pair.type !== 'string' || typeof pair.length !== 'string') return
+      items.push({
+        label: messages.groupForm.pairContractLabel.replace('{n}', String(i + 1)),
+        value: `${labelForKey(pair.type)} · ${labelForKey(pair.length)}`,
+      })
+    })
+    return items
+  }
+
   if (def.model.kind !== 'sum' && def.model.kind !== 'sumMultiplier') return []
 
   const form = formFor(def.model.category)
