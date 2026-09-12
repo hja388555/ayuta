@@ -47,6 +47,9 @@
 
 .notice { padding: 14px 16px; border-radius: var(--radius-md); background: var(--brand-50); color: var(--brand-900); font-size: 15px; line-height: 1.5; margin: 0; }
 .error { margin: 0; color: var(--danger-600); }
+/* 칸별 오류(결제 화면 Checkout.module.css 와 같은 모양) */
+.invalid .input, .invalid .textarea, .invalid.drop, .invalid.check { border: 1.6px solid var(--danger-600); }
+.fieldError { margin: 0; font-size: 14px; line-height: 1.6; color: var(--danger-600); }
 .submit { height: 72px; border-radius: var(--radius-lg); font-size: 20px; }
 .submitIcon { width: 22px; height: 22px; }
 

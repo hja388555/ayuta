@@ -184,7 +184,11 @@
       "generic": "문의를 보내지 못했습니다. 잠시 후 다시 시도해 주세요.",
       "network": "서버에 연결하지 못했습니다. 네트워크를 확인해 주세요.",
       "country_required": "국가를 하나 이상 선택해 주세요.",
-      "consent_required": "개인정보 수집 이용에 동의해 주세요."
+      "consent_required": "개인정보 수집 이용에 동의해 주세요.",
+      "field_required": "필수 항목입니다",
+      "email": "올바른 이메일 주소를 입력해 주세요",
+      "phone": "숫자만 입력해 주세요 (예: 01012345678)",
+      "summary": "입력하지 않았거나 형식이 틀린 항목이 {count}개 있습니다."
     },
     "countryTitle": "국가",
     "countries": {
