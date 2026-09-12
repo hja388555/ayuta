@@ -1,7 +1,7 @@
 import path from 'path'
 import { fileURLToPath } from 'url'
 import type { CollectionConfig } from 'payload'
-import { BAND_MIME_TYPES, BAND_SLOTS } from '../lib/band-images'
+import { BAND_FOCUS_DEFAULT, BAND_MIME_TYPES, BAND_SLOTS } from '../lib/band-images'
 
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
@@ -29,5 +29,7 @@ export const BandImages: CollectionConfig = {
     { name: 'slot', type: 'select', required: true, unique: true, index: true, options: [...BAND_SLOTS] },
     { name: 'altKo', type: 'text' },
     { name: 'altJa', type: 'text' },
+    // 띠에 보일 위아래 위치(0~100%). 위치 저장은 PATCH /api/admin/images/[slot], 교체하면 새 문서라 가운데로 돌아간다
+    { name: 'focusY', type: 'number', required: true, defaultValue: BAND_FOCUS_DEFAULT, min: 0, max: 100 },
   ],
 }

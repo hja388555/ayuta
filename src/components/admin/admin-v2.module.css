@@ -100,6 +100,30 @@
 .bandMain { flex: 2; min-width: 0; color: var(--ink-900); }
 .bandDelete { flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-color: var(--line-strong); color: #d92d20; font-size: 15px; }
 .bandDelete img { display: block; width: 18px; height: 18px; }
+.bandAdjust { flex: 1.4; min-width: 0; display: inline-flex; align-items: center; justify-content: center; border-color: var(--line-strong); color: var(--ink-900); font-size: 15px; text-decoration: none; white-space: nowrap; }
+
+/* A6-B 띠 이미지 위치 조정 — Figma [v2] 294:2 PC / 295:2 Mobile */
+.crumb { margin: 0 0 -12px; font-size: 14px; line-height: 1.5; color: var(--ink-500); }
+.crumb a { color: inherit; text-decoration: none; }
+.focusCard { display: flex; flex-direction: column; gap: 20px; min-width: 0; padding: 22px 22px 24px; border: 1px solid var(--line); border-radius: 16px; background: #fff; }
+.focusStage { position: relative; max-width: 100%; margin: 0 auto; overflow: hidden; border-radius: 12px; background: var(--surface); cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; }
+.focusStage:active { cursor: grabbing; }
+.focusStage img { display: block; width: 100%; height: 100%; object-fit: fill; pointer-events: none; -webkit-user-drag: none; }
+.focusWindow { position: absolute; left: 0; right: 0; box-sizing: border-box; border: 3px solid var(--brand-600); box-shadow: 0 0 0 9999px rgba(11, 11, 12, 0.5); display: flex; align-items: center; justify-content: center; pointer-events: none; }
+.focusHandle { padding: 4px 12px; border-radius: 999px; background: var(--brand-600); color: #fff; font-size: 13px; font-weight: 700; line-height: 1.5; white-space: nowrap; }
+.focusRow { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+.focusLabel { flex: none; font-size: 15px; font-weight: 700; color: var(--ink-900); }
+.focusRange { flex: 1; min-width: 160px; accent-color: var(--brand-600); }
+.focusPct { flex: none; min-width: 44px; font-size: 16px; font-weight: 700; color: var(--brand-600); text-align: right; }
+.focusQuick { display: flex; gap: 8px; }
+.focusQuick button { height: 36px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: #fff; color: var(--ink-700); font: inherit; font-size: 14px; cursor: pointer; }
+.focusQuick button[aria-pressed='true'] { border-color: var(--brand-600); background: var(--brand-50); color: var(--brand-600); font-weight: 700; }
+.focusPreviews { display: grid; grid-template-columns: minmax(0, 2.8fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.focusPreview { display: flex; flex-direction: column; gap: 8px; min-width: 0; margin: 0; font-size: 14px; color: var(--ink-500); }
+.focusPreview img { display: block; width: 100%; height: auto; object-fit: cover; border-radius: 8px; background: var(--surface); }
+.focusBtns { display: flex; gap: 10px; }
+.focusBtns > * { min-width: 110px; }
+.focusNote { margin: 0; font-size: 13px; line-height: 1.5; color: var(--ink-500); }
 
 @media (max-width: 767px) {
   .page { gap: 18px; }
@@ -121,5 +145,14 @@
   .bandIcon { width: 22px; height: 22px; }
   .bandHint { font-size: 12px; }
   .bandBtns .bigBtn { height: 46px; font-size: 14px; }
-  .bandBtns .bandDelete { font-size: 13px; }
+  .bandBtns .bandDelete, .bandBtns .bandAdjust { font-size: 13px; }
+  .bandBtns .bandMain { flex: 1.2; }
+  .crumb { font-size: 13px; margin-bottom: -8px; }
+  .focusCard { gap: 16px; padding: 16px; }
+  .focusRow { gap: 10px 12px; }
+  .focusRange { min-width: 0; }
+  .focusQuick { width: 100%; }
+  .focusHandle { display: none; }
+  .focusPreviews { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .focusBtns > * { flex: 1; min-width: 0; }
 }

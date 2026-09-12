@@ -8,6 +8,7 @@ import * as migration_20260911_110128_band_images from './20260911_110128_band_i
 import * as migration_20260911_110443_chat from './20260911_110443_chat';
 import * as migration_20260911_111245_schema_sync_q37 from './20260911_111245_schema_sync_q37';
 import * as migration_20260911_232040_guest_chat from './20260911_232040_guest_chat';
+import * as migration_20260912_055606_band_focus from './20260912_055606_band_focus';
 
 export const migrations = [
   {
@@ -58,6 +59,11 @@ export const migrations = [
   {
     up: migration_20260911_232040_guest_chat.up,
     down: migration_20260911_232040_guest_chat.down,
-    name: '20260911_232040_guest_chat'
+    name: '20260911_232040_guest_chat',
+  },
+  {
+    up: migration_20260912_055606_band_focus.up,
+    down: migration_20260912_055606_band_focus.down,
+    name: '20260912_055606_band_focus'
   },
 ];
