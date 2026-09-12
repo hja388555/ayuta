@@ -3,6 +3,8 @@ import { Badge } from '@/components/ui'
 import { authedPayload } from '@/lib/admin/orders-data'
 import { statusTone } from '@/lib/mypage/status'
 import { statusLabel } from '@/lib/orders/transitions'
+import { formatMonthDay } from '@/lib/admin/order-display'
+import o from '@/components/admin/AdminOrders.module.css'
 import s from './dashboard.module.css'
 
 // 게이트(requireAdmin)는 (gated)/layout.tsx 가 한다. 여기는 세션 사용자 권한으로 읽기만 한다
@@ -27,8 +29,6 @@ function seoulBoundaries(now = new Date()) {
 }
 
 const won = (n: number) => n.toLocaleString('ko-KR')
-const dateKst = (iso: string) =>
-  new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', month: '2-digit', day: '2-digit' }).format(new Date(iso))
 
 async function loadDashboard() {
   const { payload, user } = await authedPayload()
@@ -122,7 +122,7 @@ export default async function ManageDashboard() {
             전체 보기
           </Link>
         </div>
-        <div className={s.tableWrap}>
+        <div className={`${s.tableWrap} ${s.recentTable}`}>
           <table className={s.table}>
             <thead>
               <tr>
@@ -142,21 +142,21 @@ export default async function ManageDashboard() {
                   </td>
                 </tr>
               ) : (
-                d.recent.map((o) => (
-                  <tr key={o.id}>
+                d.recent.map((r) => (
+                  <tr key={r.id}>
                     <td>
-                      <Link href={`/manage/orders/${o.id}`} className={s.orderNo}>
-                        {o.orderNumber}
+                      <Link href={`/manage/orders/${r.id}`} className={s.orderNo}>
+                        {r.orderNumber}
                       </Link>
                     </td>
-                    <td>{dateKst(o.createdAt)}</td>
-                    <td>{o.orderer?.name ?? '-'}</td>
-                    <td>{CATEGORY_LABEL[o.category] ?? o.category}</td>
+                    <td>{formatMonthDay(r.createdAt)}</td>
+                    <td>{r.orderer?.name ?? '-'}</td>
+                    <td>{CATEGORY_LABEL[r.category] ?? r.category}</td>
                     <td>
-                      {o.currency === 'JPY' ? '¥' : '₩'} {won(o.amount)}
+                      {r.currency === 'JPY' ? '¥' : '₩'} {won(r.amount)}
                     </td>
                     <td>
-                      <Badge tone={statusTone(o.status)}>{statusLabel(o.status)}</Badge>
+                      <Badge tone={statusTone(r.status)}>{statusLabel(r.status)}</Badge>
                     </td>
                   </tr>
                 ))
@@ -164,6 +164,32 @@ export default async function ManageDashboard() {
             </tbody>
           </table>
         </div>
+        {/* 모바일은 주문 목록 화면과 같은 카드 목록(날짜 표기도 같은 formatMonthDay) */}
+        <ul className={o.mobileList}>
+          {d.recent.length === 0 ? (
+            <li className={s.empty}>아직 주문이 없습니다</li>
+          ) : (
+            d.recent.map((r) => (
+              <li key={r.id}>
+                <Link href={`/manage/orders/${r.id}`} className={o.mItem} aria-label={`${r.orderNumber} 상세`}>
+                  <span className={o.mTop}>
+                    <span className={o.orderNo}>{r.orderNumber}</span>
+                    <Badge tone={statusTone(r.status)}>{statusLabel(r.status)}</Badge>
+                  </span>
+                  <span className={o.mMeta}>
+                    {r.orderer?.name ?? '-'} · {formatMonthDay(r.createdAt)} · {CATEGORY_LABEL[r.category] ?? r.category}
+                  </span>
+                  <span className={o.mBottom}>
+                    <strong>
+                      {r.currency === 'JPY' ? '¥' : '₩'} {won(r.amount)}
+                    </strong>
+                    <span className={o.detailLink}>상세 ›</span>
+                  </span>
+                </Link>
+              </li>
+            ))
+          )}
+        </ul>
       </section>
     </div>
   )

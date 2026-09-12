@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { Role } from '@/lib/roles'
-import { AdminLogoutButton, AdminNav } from './AdminNav'
+import { AdminBfcacheGuard, AdminLogoutButton, AdminNav } from './AdminNav'
 import s from './AdminShell.module.css'
 
 const ROLE_LABEL: Record<Role, string> = { super: '최고관리자', manager: '중간관리자', customer: '고객' }
@@ -12,6 +12,7 @@ const ROLE_LABEL: Record<Role, string> = { super: '최고관리자', manager: '�
 export function AdminShell({ user, children }: { user: { email: string; role: Role }; children: ReactNode }) {
   return (
     <div className={s.root}>
+      <AdminBfcacheGuard />
       <header className={s.header}>
         <p className={s.brand}>AYUTA 관리자</p>
         <span className={s.spacer} />

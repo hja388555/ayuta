@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { authedPayload } from '@/lib/admin/orders-data'
 import { requireSuperForApi } from '@/lib/admin/require-super'
+import { MAX_PRICE_AMOUNT } from '@/lib/admin/price-limits'
 
 /**
  * 단가 한 줄(KRW·JPY 금액, 사용 여부)을 고친다. 관리자 단가 화면(/manage/prices)이 부른다.
@@ -35,6 +36,10 @@ export async function POST(req: Request): Promise<Response> {
   if (!parsed.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
 
   const { id, priceKrw, priceJpy, active } = parsed.data
+  // 10억 초과는 오타로 본다. 안전 정수를 넘는 값은 JSON 파싱 단계에서 이미 반올림돼 있어 저장하면 입력과 달라진다
+  if (priceKrw > MAX_PRICE_AMOUNT || priceJpy > MAX_PRICE_AMOUNT) {
+    return NextResponse.json({ error: 'price_too_large' }, { status: 400 })
+  }
   try {
     const { payload, user } = await authedPayload()
     await payload.update({

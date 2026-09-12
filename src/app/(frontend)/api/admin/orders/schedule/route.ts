@@ -70,6 +70,7 @@ export async function POST(req: Request): Promise<Response> {
       // 아는 사실이고, 존재하지 않는 주문과 구분 가능한 정보도 되지 않아야 한다
       return NextResponse.json({ error: 'invalid_schedule' }, { status: 400 })
     }
+    if (res.reason === 'ad_outside_period') return NextResponse.json({ error: 'ad_date_outside_period' }, { status: 400 })
     // not_found. 존재 여부를 구분해 알려주지 않는다(transition 라우트와 같은 판단)
     return NextResponse.json({ error: 'schedule_failed' }, { status: 400 })
   } catch {

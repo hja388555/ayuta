@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
+import { priceAmountProblem } from '@/lib/admin/price-limits'
 import { Toast } from '@/components/ui'
 import { AdminConfirm, NoPermission } from './AdminConfirm'
 import s from './admin-v2.module.css'
@@ -41,9 +42,14 @@ export function PriceBoard({ sections, canEdit }: { sections: PriceSection[]; ca
   function askSave() {
     if (!canEdit) return setDenied(true)
     if (changed.length === 0) return setToast({ kind: 'error', text: '바뀐 단가가 없습니다.' })
-    // 빈칸·소수·음수는 여기서 먼저 막는다. 최종 판정은 서버(컬렉션 validate)가 한다
-    const bad = changed.find((r) => [(draft[r.id] as Draft).krw, (draft[r.id] as Draft).jpy].some((v) => v.trim() === '' || !Number.isInteger(Number(v)) || Number(v) < 0))
-    if (bad) return setToast({ kind: 'error', text: `${bad.labelKo}: ${adminErrorMessage('price_failed')}` })
+    // 빈칸·소수·음수·10억 초과는 여기서 먼저 막는다. 최종 판정은 서버(API · 컬렉션 validate)가 한다
+    for (const r of changed) {
+      const d = draft[r.id] as Draft
+      for (const [name, raw] of [['원화', d.krw], ['엔화', d.jpy]] as const) {
+        const problem = priceAmountProblem(raw)
+        if (problem) return setToast({ kind: 'error', text: `${r.labelKo} ${name}: ${adminErrorMessage(problem === 'too_large' ? 'price_too_large' : 'price_failed')}` })
+      }
+    }
     setConfirm(true)
   }
 
