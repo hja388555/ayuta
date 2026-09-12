@@ -9,7 +9,7 @@ import { getSessionUser } from '@/lib/dal'
 import { categoryByNo } from '@/lib/categories'
 import { formatOrderSchedule } from '@/lib/order-lookup'
 import { createSealLoader } from '@/lib/seal'
-import { isSigned, statusTone, summarize } from '@/lib/mypage/status'
+import { isSigned, matchesFilter, statusTone, summarize, toSummaryFilter } from '@/lib/mypage/status'
 import s from '@/components/Mypage.module.css'
 
 /**
@@ -18,10 +18,11 @@ import s from '@/components/Mypage.module.css'
  */
 export const dynamic = 'force-dynamic'
 
-type Props = { params: Promise<{ locale: string }> }
+type Props = { params: Promise<{ locale: string }>; searchParams: Promise<{ filter?: string }> }
 
-export default async function MyOrdersPage({ params }: Props) {
+export default async function MyOrdersPage({ params, searchParams }: Props) {
   const { locale } = await params
+  const filter = toSummaryFilter((await searchParams).filter)
   setRequestLocale(locale)
   const session = await getSessionUser()
   if (!session) redirect(`/${locale}/login?next=${encodeURIComponent(`/${locale}/mypage`)}`)
@@ -47,28 +48,38 @@ export default async function MyOrdersPage({ params }: Props) {
   const money = (n: number, c: string) => new Intl.NumberFormat(c === 'JPY' ? 'ja-JP' : 'ko-KR', { style: 'currency', currency: c, maximumFractionDigits: 0 }).format(n)
   const counts = summarize(orders.map((o) => o.status as string))
   const stats = [
-    [t('summary.total'), counts.total],
-    [t('summary.active'), counts.active],
-    [t('summary.done'), counts.done],
-    [t('summary.refund'), counts.refund],
+    ['all', t('summary.total'), counts.total],
+    ['active', t('summary.active'), counts.active],
+    ['done', t('summary.done'), counts.done],
+    ['refund', t('summary.refund'), counts.refund],
   ] as const
+  // 요약 카드를 누르면 그 묶음만 보인다. 요약 숫자는 필터와 상관없이 전체 기준이다
+  const visible = orders.map((o, i) => ({ o, i })).filter(({ o }) => matchesFilter(o.status as string, filter))
 
   return (
     <>
       <h1 className={s.title}>{t('ordersTitle')}</h1>
-      <div className={s.summary}>
-        {stats.map(([label, n]) => (
-          <div key={label} className={s.stat}>
+      <nav className={s.summary} aria-label={t('summary.label')}>
+        {stats.map(([key, label, n]) => (
+          <Link
+            key={key}
+            href={key === 'all' ? `/${locale}/mypage` : `/${locale}/mypage?filter=${key}`}
+            className={key === filter ? `${s.stat} ${s.statOn}` : s.stat}
+            aria-current={key === filter ? 'true' : undefined}
+            scroll={false}
+          >
             <span>{label}</span>
             <strong>{t('summary.count', { n })}</strong>
-          </div>
+          </Link>
         ))}
-      </div>
+      </nav>
 
       {orders.length === 0 ? (
         <p className={s.empty}>{t('noOrders')}</p>
+      ) : visible.length === 0 ? (
+        <p className={s.empty}>{t('noOrdersFiltered')}</p>
       ) : (
-        orders.map((o, i) => {
+        visible.map(({ o, i }) => {
           const status = o.status as string
           const category = categoryByNo(o.category as number)
           const orderNumber = o.orderNumber as string
