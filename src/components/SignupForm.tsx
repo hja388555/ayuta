@@ -78,7 +78,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
         }
         return setError(msg(body?.error ?? 'generic'))
       }
-      const login = await fetch('/api/users/login', {
+      const login = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: f.email.trim(), password: f.password }),

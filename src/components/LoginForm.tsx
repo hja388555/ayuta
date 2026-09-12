@@ -29,9 +29,8 @@ export function LoginForm({ locale, next, labels }: { locale: string; next?: str
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  // "로그인 상태 유지": 시안에 있어 그려 두지만 아직 동작하지 않는다. 세션 길이는 Users.auth.tokenExpiration(2시간)
-  // 하나로 고정이고, Payload 로그인은 요청마다 만료를 달리 줄 수 없다. 체크해도 서버에 보내지 않는다 —
-  // 켜면 오래 유지될 것처럼 보이게 속이지 않도록, 실제 연장(별도 refresh 경로)이 생기면 그때 연결한다.
+  // "로그인 상태 유지": 끄면 2시간·브라우저를 닫으면 끝나는 세션, 켜면 30일(관리자는 12시간 상한).
+  // 길이는 서버(/api/auth/login, src/lib/login-session.ts)가 정하고 강제한다 — 여기서는 선택만 보낸다
   const [keep, setKeep] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -43,10 +42,10 @@ export function LoginForm({ locale, next, labels }: { locale: string; next?: str
     setBusy(true)
     setError(null)
     try {
-      const res = await fetch('/api/users/login', {
+      const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password }),
+        body: JSON.stringify({ email: email.trim(), password, keep }),
       })
       if (!res.ok) {
         // 없는 계정·틀린 비밀번호·잠김을 구분해 보여주지 않는다

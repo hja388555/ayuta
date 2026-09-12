@@ -11,7 +11,7 @@ import { passwordIssue } from '@/lib/password-policy'
  *
  * role 은 받지 않는다(요구사항 1-16 규칙 1). 받지 않을 뿐 아니라, Users 의 beforeValidate 훅이
  * 생성 시 role 을 customer 로 강제한다 — 두 겹이다.
- * 가입만 하고 로그인은 화면이 이어서 /api/users/login 으로 한다(잠금·세션 규칙을 한 곳에 둔다).
+ * 가입만 하고 로그인은 화면이 이어서 /api/auth/login 으로 한다(잠금·세션 규칙을 한 곳에 둔다).
  */
 const BodySchema = z.object({
   email: z.string().trim().email().max(200),
