@@ -92,27 +92,32 @@ export function periodStart(period: OrderPeriod, now: Date): Date | null {
  */
 export function buildOrderWhere(
   params: OrderListParams,
-  opts: { includeStatus?: boolean; now?: Date } = {},
+  opts: { includeStatus?: boolean; now?: Date; phoneOrderIds?: readonly number[] } = {},
 ): Where {
   const and: Where[] = []
   if (params.status && opts.includeStatus !== false) and.push({ status: { equals: params.status } })
   if (params.q) {
-    and.push({
-      or: [
-        { orderNumber: { like: params.q } },
-        { 'orderer.name': { like: params.q } },
-        { 'orderer.phone': { like: params.q } },
-      ],
-    })
+    const or: Where[] = [
+      { orderNumber: { like: params.q } },
+      { 'orderer.name': { like: params.q } },
+      { 'orderer.phone': { like: params.q } },
+    ]
+    // 연락처처럼 보이는 검색어는 하이픈·공백을 뺀 숫자로 미리 찾은 주문 id 를 함께 본다(resolvePhoneOrderIds)
+    if (opts.phoneOrderIds && opts.phoneOrderIds.length > 0) or.push({ id: { in: [...opts.phoneOrderIds] } })
+    and.push({ or })
   }
   const start = periodStart(params.period, opts.now ?? new Date())
   if (start) and.push({ createdAt: { greater_than_equal: start.toISOString() } })
   return and.length > 0 ? { and } : {}
 }
 
-export function buildOrderListQuery(params: OrderListParams, now: Date = new Date()): OrderListQuery {
+export function buildOrderListQuery(
+  params: OrderListParams,
+  now: Date = new Date(),
+  phoneOrderIds?: readonly number[],
+): OrderListQuery {
   return {
-    where: buildOrderWhere(params, { now }),
+    where: buildOrderWhere(params, { now, phoneOrderIds }),
     limit: ORDER_LIST_PAGE_SIZE,
     page: params.page,
     // 최근 주문이 위로. 관리자가 매일 보는 건 오늘 들어온 건이다
@@ -145,6 +150,36 @@ export function orderStatusHref(params: OrderListParams, status: OrderStatus | n
 export function orderExportHref(params: OrderListParams): string {
   const s = filterQs(params).toString()
   return s ? `/api/admin/orders/export?${s}` : '/api/admin/orders/export'
+}
+
+/**
+ * 검색어가 연락처처럼 보이면(숫자·하이픈·공백만, 숫자 3자리 이상) 숫자만 남겨 돌려준다. 아니면 null.
+ * 저장된 연락처는 '010-1234-5678' 과 '01012345678' 이 섞여 있어 like 한 번으로는 서로 못 찾는다.
+ */
+export function phoneSearchDigits(q: string): string | null {
+  if (!/^[\d\s-]+$/.test(q)) return null
+  const digits = q.replace(/\D/g, '')
+  return digits.length >= 3 ? digits : null
+}
+
+const ORDER_LIST_PATH = '/manage/orders'
+
+/**
+ * 상세 화면의 "목록으로" 주소. ?from= 은 사용자가 고칠 수 있는 입력이라 주문 목록 경로와
+ * 그 쿼리스트링만 받는다 — 다른 경로·외부 주소(//evil.test)·역슬래시는 전부 기본 목록으로 떨어뜨린다.
+ */
+export function orderListBackHref(raw: unknown): string {
+  if (typeof raw !== 'string' || raw.length > 500) return ORDER_LIST_PATH
+  if (!raw.startsWith(ORDER_LIST_PATH)) return ORDER_LIST_PATH
+  const rest = raw.slice(ORDER_LIST_PATH.length)
+  if (rest !== '' && !rest.startsWith('?')) return ORDER_LIST_PATH
+  if (/[\\\s]/.test(rest) || rest.includes('//')) return ORDER_LIST_PATH
+  return raw
+}
+
+/** 목록 → 상세 링크. 지금 보고 있는 목록 주소를 from 으로 실어 "목록으로"가 필터·페이지를 되살린다 */
+export function orderDetailHref(id: number, listHref: string): string {
+  return listHref === ORDER_LIST_PATH ? `${ORDER_LIST_PATH}/${id}` : `${ORDER_LIST_PATH}/${id}?from=${encodeURIComponent(listHref)}`
 }
 
 /** 번호 페이지네이션에 보여줄 페이지 번호(현재 페이지 중심 최대 5개) */

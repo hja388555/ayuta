@@ -103,6 +103,15 @@ export function AdminChat({ initialThread = null }: { initialThread?: number | n
     if (el) el.scrollTop = el.scrollHeight
   }, [messages.length, selected])
 
+  // 모바일 [목록] — 주소의 ?thread= 도 지운다. 남겨 두면 새로고침할 때 방금 닫은 방이 다시 열린다
+  function backToList() {
+    setSelected(null)
+    const url = new URL(window.location.href)
+    if (!url.searchParams.has('thread')) return
+    url.searchParams.delete('thread')
+    window.history.replaceState(window.history.state, '', url)
+  }
+
   async function send() {
     const body = text.trim()
     if (!body || sending || selected === null) return
@@ -182,7 +191,7 @@ export function AdminChat({ initialThread = null }: { initialThread?: number | n
         {current ? (
           <>
             <div className={s.roomHead}>
-              <button type="button" className={`btn btn-outline ${s.back}`} onClick={() => setSelected(null)}>
+              <button type="button" className={`btn btn-outline ${s.back}`} onClick={backToList}>
                 목록
               </button>
               <div className={s.roomWho}>

@@ -223,3 +223,10 @@
     padding: 11px 10px;
   }
 }
+
+/* 최근 주문: 모바일은 표 대신 카드 목록(AdminOrders.module.css 의 mobileList) */
+@media (max-width: 767px) {
+  .recentTable {
+    display: none;
+  }
+}

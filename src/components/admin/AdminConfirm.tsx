@@ -32,6 +32,10 @@ export function AdminConfirm({
   children?: ReactNode
 }) {
   const ref = useRef<HTMLDialogElement>(null)
+  // 부모가 open=false 로 닫은 경우(단계 전환 등)에도 네이티브 close 이벤트가 뒤늦게 온다.
+  // 그때 onClose 를 부르면 부모가 이미 연 다음 단계까지 초기화된다 — 열린 상태에서 닫힌 경우(ESC)만 알린다
+  const openRef = useRef(open)
+  openRef.current = open
   useEffect(() => {
     const d = ref.current
     if (!d) return
@@ -40,7 +44,7 @@ export function AdminConfirm({
   }, [open])
 
   return (
-    <dialog ref={ref} className={s.dialog} aria-label={title} onClose={onClose}>
+    <dialog ref={ref} className={s.dialog} aria-label={title} onClose={() => openRef.current && onClose()}>
       <div className={s.dialogBody}>
         <div className={tone === 'danger' ? `${s.alertCircle} ${s.alertDanger}` : s.alertCircle}>
           <img src={tone === 'danger' ? '/ui/alert-danger.svg' : '/ui/admin-alert-brand.svg'} alt="" width={26} height={26} />

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { authedPayload } from '@/lib/admin/orders-data'
 import { requireSuperForApi } from '@/lib/admin/require-super'
+import { issueField } from '@/lib/admin/issue-field'
 import { unknownPlaceholders } from '@/lib/legal/placeholders'
 import { defaultAgreeConsent } from '@/lib/legal/contract-defaults'
 
@@ -36,7 +37,8 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
   }
   const parsed = BodySchema.safeParse(raw)
-  if (!parsed.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
+  // 어느 칸이 틀렸는지(field)만 알려준다. 스키마 내부 메시지는 싣지 않는다
+  if (!parsed.success) return NextResponse.json({ error: 'invalid_input', ...issueField(parsed.error) }, { status: 400 })
   const d = parsed.data
 
   // 채울 수 없는 빈칸이 있으면 그 상품 주문이 전부 막힌다 — 저장 전에 거절한다

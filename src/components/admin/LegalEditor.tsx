@@ -11,6 +11,14 @@ type Target =
   | { target: 'document'; kind: 'terms' | 'privacy' | 'refund'; locale: 'ko' | 'ja' }
 type Consent = { key: string; label: string; required: boolean }
 
+/** 서버가 알려준 틀린 칸(field) → 화면 이름과 허용 범위 */
+function fieldLabel(field: unknown): string | null {
+  if (field === 'title') return '제목(1~200자)'
+  if (field === 'body') return '본문(1~50,000자)'
+  const m = typeof field === 'string' ? /^consents\.(\d+)/.exec(field) : null
+  return m ? `동의 문구 ${Number(m[1]) + 1}번(1~300자)` : null
+}
+
 /**
  * 계약서·약관 문구 편집기(큐 Q25 2차). 저장하면 다음 주문·다음 방문부터 반영된다.
  * 이미 체결된 계약서는 주문에 복사된 원문이라 바뀌지 않는다 — 저장 전에 한 번 더 묻는다.
@@ -54,7 +62,8 @@ export function LegalEditor({
       const json = await res.json().catch(() => ({}))
       if (!res.ok || !json?.ok) {
         const detail = Array.isArray(json?.detail) ? ` (${json.detail.map((k: string) => `{{${k}}}`).join(', ')})` : ''
-        return setMsg({ ok: false, text: adminErrorMessage(json?.error) + detail })
+        const label = fieldLabel(json?.field)
+        return setMsg({ ok: false, text: (label ? `${label}: ` : '') + adminErrorMessage(json?.error) + detail })
       }
       // 새로 만든 계약서는 목록 키가 contract-<id> 로 바뀐다 — 그 문서를 펼친 화면으로 옮긴다
       if (target.target === 'contract-new' && typeof json.id === 'number') return router.replace(`/manage/legal?doc=contract-${json.id}`)

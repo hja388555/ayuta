@@ -4,7 +4,7 @@ import { getPayload, type Where } from 'payload'
 import config from '@payload-config'
 import type { OrderStatus } from '../../collections/Orders'
 import type { Order, OrderNote, OrderTransition } from '../../payload-types'
-import type { OrderListQuery } from './order-list-query'
+import { phoneSearchDigits, type OrderListQuery } from './order-list-query'
 
 /**
  * 관리자 화면·관리자 API가 데이터를 읽는 유일한 통로.
@@ -68,6 +68,26 @@ export async function countOrdersByStatus(
     ...statuses.map((s) => count(and({ status: { equals: s } }))),
   ])
   return { total, byStatus: Object.fromEntries(statuses.map((s, i) => [s, each[i] ?? 0])) }
+}
+
+/** 연락처 숫자 검색으로 모을 주문 id 상한. 목록·CSV 한 번에 보는 양보다 넉넉하게 */
+const PHONE_SEARCH_LIMIT = 5000
+
+/**
+ * 연락처처럼 보이는 검색어면 하이픈·공백을 뺀 숫자로 주문 id 를 찾는다. 아니면 undefined.
+ * Payload where 로는 저장값을 정규화해 비교할 수 없어 SQL 로 id 만 뽑는다 — 뽑은 id 는 다시
+ * 세션 사용자(overrideAccess: false) 조회의 조건으로만 쓰이므로 access 를 우회하지 않는다.
+ * digits 는 숫자뿐이라 LIKE 와일드카드가 섞일 수 없다.
+ */
+export async function resolvePhoneOrderIds(q: string): Promise<number[] | undefined> {
+  const digits = phoneSearchDigits(q)
+  if (!digits) return undefined
+  const payload = await getPayload({ config })
+  const { rows } = await payload.db.pool.query(
+    `SELECT id FROM orders WHERE regexp_replace(orderer_phone, '[^0-9]', '', 'g') LIKE $1 ORDER BY id DESC LIMIT ${PHONE_SEARCH_LIMIT}`,
+    [`%${digits}%`],
+  )
+  return rows.map((r: { id: number }) => Number(r.id))
 }
 
 /** CSV 내보내기 상한. 이보다 많으면 기간을 좁혀 받게 한다 — 한 요청이 DB 를 오래 붙잡지 않게 */
