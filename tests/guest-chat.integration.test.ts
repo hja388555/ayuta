@@ -161,6 +161,25 @@ describe('비회원 대화', () => {
     })
     expect((await res.json()).thread.id).toBe(threadA)
   })
+
+  it('DELETE /api/chat/guest 는 요청한 브라우저의 쿠키만 만료시키고, 방·다른 쿠키는 그대로', async () => {
+    const { cookie } = await startGuest('leave')
+    const res = await api('/api/chat/guest', { method: 'DELETE', headers: { Cookie: cookie! } })
+    expect(res.status).toBe(200)
+    const set = res.headers.getSetCookie().find((c) => c.startsWith('ayuta_chat_guest='))!
+    expect(set.split(';')[0]).toBe('ayuta_chat_guest=')
+    expect(set).toMatch(/Max-Age=0|Expires=Thu, 01 Jan 1970/i)
+    // 쿠키 없이 들어오면 시작 폼, 다른 손님의 쿠키는 여전히 된다
+    expect(await (await api('/ko/chat')).text()).toContain('id="guest-chat-title"')
+    expect((await api('/api/chat/messages', { headers: { Cookie: cookieA } })).status).toBe(200)
+    // 쿠키가 없어도 실패하지 않는다(로그아웃에서 무조건 부른다)
+    expect((await api('/api/chat/guest', { method: 'DELETE' })).status).toBe(200)
+  })
+
+  it('채팅 화면에서는 하단 문의 박스를 그리지 않는다', async () => {
+    const html = await (await api('/ko/chat', { headers: { Cookie: cookieA } })).text()
+    expect(html).not.toContain('class="contact-box"')
+  })
 })
 
 describe('생성 제한', () => {

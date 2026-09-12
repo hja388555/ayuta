@@ -52,13 +52,13 @@ export default async function ChatPage({ params, searchParams }: Props) {
     }
     return (
       <Shell bleed background="#f7f8fa">
-        <ChatRoom locale={chatLocale} labels={labels} />
+        <ChatRoom locale={chatLocale} labels={labels} guest={user ? undefined : { leave: t('guestLeave'), leaveConfirm: t('guestLeaveConfirm') }} />
       </Shell>
     )
   }
 
   const { link } = await searchParams
-  const errorCodes = ['required', 'consent_required', 'invalid_input', 'too_many_threads', 'generic', 'network'] as const
+  const errorCodes = ['required', 'email', 'phone', 'consent_required', 'invalid_input', 'too_many_threads', 'generic', 'network'] as const
   return (
     <Shell bleed background="#f7f8fa">
       <ChatFrame title={t('title')} badge={t('badge')} notices={[t('notice1'), t('guestNotice2')]}>

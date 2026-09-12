@@ -11,7 +11,7 @@ export type ContractItem = { label: string; value: string }
 // 골랐는지"가 남아야 하므로 고정 표기를 둔다. messages/*.json 에는 이 라벨이 없다
 // (TierForm 은 화면에 원문 키를 그대로 찍는다) — 계약서는 고객이 서명하는 문서라 사람이
 // 읽을 이름으로 바꿔 넣는다.
-const PLATFORM_LABELS: Record<string, { ko: string; ja: string }> = {
+export const PLATFORM_LABELS: Record<string, { ko: string; ja: string }> = {
   instagram: { ko: '인스타그램', ja: 'Instagram' },
   youtube: { ko: '유튜브', ja: 'YouTube' },
   tiktok: { ko: '틱톡', ja: 'TikTok' },
@@ -22,7 +22,9 @@ const PLATFORM_LABELS: Record<string, { ko: string; ja: string }> = {
 // 명시돼 있다(docs/법무문서-확정본.md H절 · G절). 1번은 별도 자리({{country}})로 채우므로 여기
 // 섞지 않고, 2번은 "촬영 국가"라는 다른 필드라 이 라벨을 쓰지 않는다(카테고리별 소스가 다르다).
 const COUNTRY_ITEM_CATEGORIES = new Set([3, 4])
-const COUNTRY_ITEM_LABEL: { ko: string; ja: string } = { ko: '광고 국가', ja: '広告国' }
+export const COUNTRY_ITEM_LABEL: { ko: string; ja: string } = { ko: '광고 국가', ja: '広告国' }
+// 1번(tier) 항목 라벨. 로케일과 무관하게 이 한국어로 저장된다 — 마이페이지는 보여 줄 때만 번역한다(mypage/localize-items.ts)
+export const TIER_ITEM_LABELS = { tier: '등급', platform: '플랫폼' } as const
 
 type Messages = typeof koMessages
 
@@ -52,9 +54,9 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
     const tiers = asStringArray(sel.tiers)
     const platforms = asStringArray(sel.platforms)
     const items: ContractItem[] = []
-    if (tiers.length > 0) items.push({ label: '등급', value: tiers.map(labelForKey).join(', ') })
+    if (tiers.length > 0) items.push({ label: TIER_ITEM_LABELS.tier, value: tiers.map(labelForKey).join(', ') })
     if (platforms.length > 0) {
-      items.push({ label: '플랫폼', value: platforms.map((p) => PLATFORM_LABELS[p]?.[locale] ?? p).join(', ') })
+      items.push({ label: TIER_ITEM_LABELS.platform, value: platforms.map((p) => PLATFORM_LABELS[p]?.[locale] ?? p).join(', ') })
     }
     return items
   }

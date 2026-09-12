@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { isAdminRole } from '@/lib/roles'
@@ -16,6 +17,7 @@ type Labels = {
   keepLogin: string
   findPassword: string
   findPasswordSoon: string
+  findPasswordChat: string
 }
 
 /**
@@ -33,6 +35,7 @@ export function LoginForm({ locale, next, labels }: { locale: string; next?: str
   const [keep, setKeep] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [findOpen, setFindOpen] = useState(false)
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -81,11 +84,16 @@ export function LoginForm({ locale, next, labels }: { locale: string; next?: str
           <span className={s.box} aria-hidden />
           {labels.keepLogin}
         </label>
-        {/* 비밀번호 재설정 메일(큐 Q28)이 아직 없다. 죽은 링크 대신 비활성 버튼 + 안내 title */}
-        <button type="button" className={s.findPw} disabled title={labels.findPasswordSoon}>
+        {/* 비밀번호 재설정 메일(큐 Q28)이 아직 없다. 터치 기기에는 title 툴팁이 안 보이므로 누르면 안내 문구를 펼친다 */}
+        <button type="button" className={s.findPw} aria-expanded={findOpen} aria-controls="login-findpw-note" onClick={() => setFindOpen((v) => !v)}>
           {labels.findPassword}
         </button>
       </div>
+      {findOpen ? (
+        <p id="login-findpw-note" role="status" className={s.findPwNote}>
+          {labels.findPasswordSoon} <Link href={`/${locale}/chat`}>{labels.findPasswordChat}</Link>
+        </p>
+      ) : null}
       {error ? (
         <p role="alert" className={s.banner}>
           <img src="/ui/alert.svg" alt="" width={18} height={18} />

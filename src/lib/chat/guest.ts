@@ -1,5 +1,6 @@
 import { createHash, createHmac, randomBytes } from 'node:crypto'
 import { z } from 'zod'
+import { isValidPhone } from '../phone'
 
 /**
  * 비회원 1:1 채팅의 순수 규칙(2026-09-12 사용자 결정 "비회원도 채팅 가능").
@@ -33,13 +34,8 @@ export const GuestStartSchema = z
   .object({
     name: z.string().trim().min(1).max(100),
     email: z.string().trim().email().max(200),
-    // 숫자가 최소 6개는 있어야 연락처로 본다(+·-·공백·괄호는 허용)
-    phone: z
-      .string()
-      .trim()
-      .max(40)
-      .regex(/^[\d+\-() ]+$/)
-      .refine((v) => v.replace(/\D/g, '').length >= 6),
+    // 숫자가 최소 6개는 있어야 연락처로 본다(+·-·공백·괄호는 허용) — 마이페이지 회원정보와 같은 규칙(lib/phone)
+    phone: z.string().trim().refine(isValidPhone),
     consent: z.literal(true),
     locale: z.enum(['ko', 'ja']),
   })

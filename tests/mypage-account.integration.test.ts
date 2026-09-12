@@ -44,6 +44,67 @@ describe('비밀번호 변경 규칙(Q34)', () => {
   })
 })
 
+describe('비밀번호 변경 — 같은 비밀번호', () => {
+  it('새 비밀번호가 현재와 같으면 400 same_password 이고 기존 비밀번호로 계속 로그인된다', async () => {
+    const res = await post('/api/me/password', { currentPassword: PW, newPassword: PW })
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toBe('same_password')
+    expect((await login(email, PW)).status).toBe(200)
+  })
+})
+
+describe('회원정보 수정 — 연락처 형식', () => {
+  it.each(['abc', '010-abcd-5678', '12345'])('%s 이면 400 invalid_phone 이고 저장되지 않는다', async (phone) => {
+    const payload = await localPayload()
+    const res = await post('/api/me/profile', { ...profile, phone })
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toBe('invalid_phone')
+    expect((await payload.findByID({ collection: 'users', id: userId, overrideAccess: true })).phone).toBe(profile.phone)
+  })
+})
+
+describe('주문 상세 — 보는 언어로 표시', () => {
+  it('한국어로 저장된 1번 주문을 /ja 에서 열면 라벨·플랫폼 값이 일본어다', async () => {
+    const payload = await localPayload()
+    const o = await payload.create({
+      collection: 'orders',
+      overrideAccess: true,
+      data: {
+        orderNumber: `AY-ACCT-${RUN}`,
+        paymentId: `pay-acct-${RUN}`,
+        status: 'paid',
+        currency: 'KRW',
+        amount: 100_000,
+        locale: 'ko',
+        category: 1,
+        customer: userId,
+        items: [{ code: 'standard', label: '스탠다드', unitAmount: 100_000, quantity: 1 }],
+        contractItems: [
+          { label: '등급', value: '스탠다드' },
+          { label: '플랫폼', value: '인스타그램, 유튜브, 틱톡, LINE' },
+        ],
+        orderer: { name: '주문자', phone: profile.phone, email, postcode: '12345', address1: '서울' },
+        signature: '주문자',
+        contractText: '테스트용 계약서 전문',
+      } as never,
+    })
+    try {
+      const ja = await (await api(`/ja/mypage/orders/${o.orderNumber}`, { headers: { Authorization: `JWT ${token}` } })).text()
+      expect(ja).toContain('グレード')
+      expect(ja).toContain('プラットフォーム')
+      expect(ja).toContain('Instagram, YouTube, TikTok, LINE')
+      expect(ja).not.toContain('인스타그램')
+      expect(ja).not.toContain('>등급<')
+      // 한국어 화면은 저장된 그대로
+      const ko = await (await api(`/ko/mypage/orders/${o.orderNumber}`, { headers: { Authorization: `JWT ${token}` } })).text()
+      expect(ko).toContain('인스타그램, 유튜브, 틱톡, LINE')
+      expect(ko).toContain('>등급<')
+    } finally {
+      await payload.delete({ collection: 'orders', id: o.id, overrideAccess: true }).catch(() => {})
+    }
+  })
+})
+
 describe('회원정보 수정 — 사업자등록번호', () => {
   it('저장하고, 비우면 지운다', async () => {
     const payload = await localPayload()

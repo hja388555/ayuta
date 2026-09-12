@@ -44,6 +44,12 @@
 .startDesc { margin: 0 0 4px; font-size: 14px; line-height: 1.6; color: #767b85; }
 .startSubmit { height: 52px; border-radius: 12px; font-size: 16px; }
 .startHint { margin: 0; text-align: center; font-size: 14px; color: #767b85; }
+/* 칸별 오류(한 번에 모두 표시) */
+.startForm input[aria-invalid='true']:not([type='checkbox']) { border: 1.6px solid #c62828; }
+.fieldError { margin: 6px 0 0; font-size: 13px; line-height: 1.5; color: #c62828; }
+/* 비회원 대화방: 이 브라우저에서 나가기(공용 PC) */
+.leave { align-self: flex-end; min-height: 44px; padding: 0 4px; border: 0; background: none; font: inherit; font-size: 13px; color: #767b85; text-decoration: underline; cursor: pointer; }
+.leave:disabled { opacity: 0.5; cursor: not-allowed; }
 .startHint a { color: #3d4046; text-decoration: none; font-weight: 700; }
 
 @media (max-width: 767px) {

@@ -66,6 +66,8 @@ export function SiteHeader({
 
   async function logout() {
     await fetch('/api/users/logout', { method: 'POST' }).catch(() => {})
+    // 공용 PC: 로그인 전에 쓰던 비회원 채팅 쿠키도 함께 지운다
+    await fetch('/api/chat/guest', { method: 'DELETE' }).catch(() => {})
     router.push(home)
     router.refresh()
   }

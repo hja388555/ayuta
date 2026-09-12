@@ -50,6 +50,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
               keepLogin: t('keepLogin'),
               findPassword: t('findPassword'),
               findPasswordSoon: t('findPasswordSoon'),
+              findPasswordChat: t('findPasswordChat'),
             }}
           />
           <div className={s.divider}>{t('or')}</div>
