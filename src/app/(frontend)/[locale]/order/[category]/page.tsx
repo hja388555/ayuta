@@ -9,6 +9,7 @@ import { getSessionUser } from '@/lib/dal'
 import { ImageBand } from '@/components/ImageBand'
 import { TierForm } from '@/components/TierForm'
 import { GroupForm } from '@/components/GroupForm'
+import { VideoPairsForm } from '@/components/VideoPairsForm'
 import type { TierRow } from '@/components/TierForm'
 import styles from '@/components/OrderForms.module.css'
 import { categoryBySlug } from '@/lib/categories'
@@ -109,6 +110,29 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   totalLabel: t('totalLabel'),
                   payButton: t('payButton'),
                   notice: tPage('notice'),
+                }}
+              />
+            ) : def.model.kind === 'videoPairs' && groupFormDef ? (
+              <VideoPairsForm
+                form={groupFormDef}
+                model={model}
+                book={book}
+                locale={locale}
+                categorySlug={def.slug}
+                country={country}
+                purpose={purpose}
+                labels={{
+                  groupTitles: tGroup.raw('groupTitles'),
+                  groupHints: tGroup.raw('groupHints'),
+                  itemLabels: tGroup.raw('itemLabels'),
+                  // {n}·{type} 자리는 화면이 채우므로 서식 처리 없이 원문을 넘긴다
+                  pairTitle: tGroup.raw('pairTitle') as string,
+                  pairsEmpty: tGroup('pairsEmpty'),
+                  totalLabel: tGroup('totalLabel'),
+                  payButton: tGroup('payButton'),
+                  notice: tPage('notice'),
+                  basicIncludedItems: tGroup.raw('basicIncludedItems') as string[],
+                  shortVideoNote: tGroup('shortVideoNote'),
                 }}
               />
             ) : groupFormDef ? (

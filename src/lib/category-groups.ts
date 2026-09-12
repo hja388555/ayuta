@@ -43,9 +43,11 @@ const category2: CategoryForm = {
     // 촬영 국가는 원본에 "(각 금액칸)" 표기가 없다 — 금액칸은 영상 종류·영상 길이에만 있다.
     // 그래서 국가는 중복 선택이지만 금액에 관여하지 않는 선택지로 둔다.
     { key: 'country', multi: true, items: [unpriced('country-kr'), unpriced('country-jp')] },
+    // 2026-09-12: 영상 종류는 중복 선택, 길이는 고른 종류마다 하나씩(VideoPairsForm · videoPairs 계산기).
+    // 두 묶음의 키는 그대로 단가 시드·관리자 단가 화면에 쓰인다
     {
       key: 'videoType',
-      multi: false,
+      multi: true,
       items: [
         priced('video-type-company'),
         priced('video-type-product'),

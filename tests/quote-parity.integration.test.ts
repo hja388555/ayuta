@@ -7,6 +7,7 @@ import { localPayload } from './helpers/localApi'
 import { loadPriceBook } from '../src/lib/price-book'
 import { previewTotal } from '../src/components/TierForm'
 import { previewGroupTotal } from '../src/components/GroupForm'
+import { previewPairsTotal } from '../src/components/VideoPairsForm'
 import { CATEGORIES } from '../src/lib/categories'
 import { loadCategoryModel } from '../src/lib/pricing-model'
 
@@ -62,17 +63,23 @@ describe('견적 정합성 — 미리보기와 서버가 카테고리 1~4에서 
     expect(preview).toBe(1_400_000)
   })
 
-  it('2번(sum): 항목 두 개를 고르면 미리보기와 서버가 같다', async () => {
+  it('2번(videoPairs): 영상 두 편을 고르면 미리보기와 서버가 같다', async () => {
     const def = CATEGORIES.find((c) => c.no === 2)!
     const book = await loadPriceBook(2, 'KRW')
-    const items = [k('video-a'), k('video-b')]
+    // 이 테스트가 심은 임시 키를 종류·길이로 쓰도록 모델 키 목록만 바꾼다(계산 규칙은 그대로)
+    const model = { kind: 'videoPairs' as const, category: 2 as const, types: [k('video-a'), k('video-b')], lengths: [k('video-b')] }
+    const pairs = [
+      { type: k('video-a'), length: k('video-b') },
+      { type: k('video-b'), length: k('video-b') },
+    ]
+    expect(def.model.kind).toBe('videoPairs')
 
-    const preview = previewGroupTotal(book, def.model, items)
-    const server = calculate(def.model, book, { items })
+    const preview = previewPairsTotal(book, model, pairs)
+    const server = calculate(model, book, { pairs })
 
     expect(server.ok).toBe(true)
     expect(server.ok && server.total).toBe(preview)
-    expect(preview).toBe(700_000)
+    expect(preview).toBe(700_000 + 800_000)
   })
 
   it('3번(sum): 항목 두 개를 고르면 미리보기와 서버가 같다', async () => {

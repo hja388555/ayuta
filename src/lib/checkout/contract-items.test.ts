@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import type { PriceBook } from '@ayuta/pricing'
+import { minor, type PriceBook } from '@ayuta/pricing'
 import { buildContractItems, countryFactValue } from './contract-items'
 import { CATEGORIES } from '../categories'
 
@@ -58,5 +58,41 @@ describe('buildContractItems — 2번은 촬영 국가라는 별개 필드다 (�
   it('2번은 country 셀렉션이 있어도 "광고 국가" 라벨을 만들지 않는다', () => {
     const items = buildContractItems(def2, emptyBook, { items: [], country: ['jp'] }, 'ko')
     expect(items.some((i) => i.label === '광고 국가')).toBe(false)
+  })
+})
+
+describe('buildContractItems — 2번 영상별 줄', () => {
+  const def2 = CATEGORIES.find((c) => c.no === 2)!
+
+  it('촬영 국가 한 줄 뒤에 영상마다 한 줄씩 싣고, 금액은 섞지 않는다', () => {
+    const items = buildContractItems(
+      def2,
+      emptyBook,
+      {
+        items: ['country-kr'],
+        pairs: [
+          { type: 'video-type-company', length: 'video-length-10m' },
+          { type: 'video-type-product', length: 'video-length-10m' },
+        ],
+      },
+      'ko',
+    )
+    expect(items).toEqual([
+      { label: '촬영 국가', value: '한국 현지 촬영' },
+      { label: '영상 1', value: 'video-type-company · video-length-10m' },
+      { label: '영상 2', value: 'video-type-product · video-length-10m' },
+    ])
+  })
+
+  it('단가 묶음의 라벨을 쓰고, 일본어 계약서에는 일본어 줄 이름을 쓴다', () => {
+    const book: PriceBook = {
+      currency: 'JPY',
+      entries: {
+        'video-type-event': { key: 'video-type-event', label: 'イベント', amount: minor(1) },
+        'video-length-60m': { key: 'video-length-60m', label: '60分', amount: minor(1) },
+      },
+    }
+    const items = buildContractItems(def2, book, { pairs: [{ type: 'video-type-event', length: 'video-length-60m' }] }, 'ja')
+    expect(items).toEqual([{ label: '映像 1', value: 'イベント · 60分' }])
   })
 })
