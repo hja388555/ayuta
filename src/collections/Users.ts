@@ -1,4 +1,5 @@
 import type { CollectionConfig } from 'payload'
+import { activeSessions } from '../lib/login-session'
 import { canManageRoles, isAdminRole, isSuperRole, ROLES } from '../lib/roles'
 
 export const Users: CollectionConfig = {
@@ -7,7 +8,9 @@ export const Users: CollectionConfig = {
     // Payload 내장 시도 제한. 직접 만들지 않는다
     maxLoginAttempts: 5,
     lockTime: 10 * 60 * 1000, // 10분
-    tokenExpiration: 2 * 60 * 60, // 2시간(초)
+    // 기본 2시간(초). /api/users/login·refresh·Local API 로그인(비밀번호 변경 확인)은 모두 이 길이다.
+    // "로그인 상태 유지"는 POST /api/auth/login 이 로그인 직후 그 세션과 토큰만 늘린다(src/lib/login-session.ts)
+    tokenExpiration: 2 * 60 * 60,
     useSessions: true,
   },
   admin: { useAsTitle: 'email' },
@@ -42,6 +45,15 @@ export const Users: CollectionConfig = {
     admin: ({ req }) => isAdminRole(req.user?.role),
   },
   hooks: {
+    // Payload JWT 전략은 토큰 sid 의 세션이 목록에 "있는지"만 보고 expiresAt 은 보지 않는다. 인증 때 사용자를
+    // findByID 로 읽으므로 여기서 만료 세션을 빼면, 세션이 끝난 토큰은 인증되지 않는다(서버 강제 만료).
+    // 저장값은 건드리지 않는다 — Payload 가 다음 로그인 때 만료 세션을 지운다
+    afterRead: [
+      ({ doc }) => {
+        if (Array.isArray(doc?.sessions)) doc.sessions = activeSessions(doc.sessions)
+        return doc
+      },
+    ],
     // 관리자 계정 로그인 시각·IP 기록(요구사항 1-16 규칙 5). 고객 로그인은 남기지 않는다.
     // 기록 실패가 로그인을 막으면 안 되므로 예외를 삼키고 서버 로그로만 남긴다
     afterLogin: [
