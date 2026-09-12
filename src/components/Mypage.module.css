@@ -5,7 +5,7 @@
 
 .user { display: flex; flex-direction: column; gap: 4px; padding: 16px 18px; border-radius: var(--radius-lg); background: var(--surface); line-height: 1.5; overflow-wrap: anywhere; }
 .userName { font-size: 18px; font-weight: 700; color: var(--ink-900); }
-.userEmail { font-size: 14px; color: var(--ink-500); }
+.userEmail { font-size: 14px; color: var(--ink-500); min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
 
 .nav { display: flex; flex-direction: column; gap: 6px; }
 .navItem { display: flex; align-items: center; height: 48px; padding: 0 16px; border: 0; border-radius: var(--radius); background: #fff; color: var(--ink-700); font: inherit; font-size: 15px; line-height: 1.5; text-align: left; text-decoration: none; cursor: pointer; }

@@ -35,7 +35,7 @@ export default async function MypageLayout({ children, params }: { children: Rea
           <aside className={s.side}>
             <div className={s.user}>
               <span className={s.userName}>{t('greeting', { name: (me.name as string) ?? '' })}</span>
-              <span className={s.userEmail}>{me.email as string}</span>
+              <span className={s.userEmail} title={me.email as string}>{me.email as string}</span>
             </div>
             <MypageNav
               locale={locale}
