@@ -1,18 +1,33 @@
 'use client'
 
 import { useRef, useState, type DragEvent } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
+import { bandObjectPosition } from '@/lib/band-images'
 import { Badge } from '@/components/ui'
 import { AdminConfirm, NoPermission } from './AdminConfirm'
 import s from './admin-v2.module.css'
 
 /**
- * A6 서비스 카드 하나 — 미리보기(끌어다 놓기·클릭 업로드) + [교체]/[이미지 올리기] + [삭제].
+ * A6 서비스 카드 하나 — 미리보기(끌어다 놓기·클릭 업로드) + [교체]/[이미지 올리기] + [위치 조정] + [삭제].
  * 삭제는 A11 ④ 확인 → ⑤ DELETE 입력 후 완전 삭제(파일까지 지워 되돌릴 수 없다).
+ * 위치 조정은 A6-B 화면(/manage/images/[slot]/position)으로 간다 — 중간관리자도 볼 수는 있다.
  * 형식·크기·권한 판정은 서버(/api/admin/images/[slot])가 한다.
  */
-export function BandImageCard({ slot, title, version, canEdit }: { slot: string; title: string; version: string | null; canEdit: boolean }) {
+export function BandImageCard({
+  slot,
+  title,
+  version,
+  focusY,
+  canEdit,
+}: {
+  slot: string
+  title: string
+  version: string | null
+  focusY: number | null
+  canEdit: boolean
+}) {
   const router = useRouter()
   const input = useRef<HTMLInputElement>(null)
   const [busy, setBusy] = useState(false)
@@ -100,7 +115,7 @@ export function BandImageCard({ slot, title, version, canEdit }: { slot: string;
         aria-label={registered ? `${title} 이미지 교체` : `${title} 이미지 올리기`}
       >
         {registered ? (
-          <img className={s.bandThumb} src={`/api/band-image/${slot}?v=${encodeURIComponent(version)}`} alt="현재 이미지" />
+          <img className={s.bandThumb} src={`/api/band-image/${slot}?v=${encodeURIComponent(version)}`} alt="현재 이미지" style={{ objectPosition: bandObjectPosition(focusY) }} />
         ) : (
           <>
             <img src="/ui/admin-upload.svg" alt="" width={26} height={26} className={s.bandIcon} />
@@ -114,6 +129,11 @@ export function BandImageCard({ slot, title, version, canEdit }: { slot: string;
         <button type="button" className={`btn btn-secondary ${s.bigBtn} ${s.bandMain}`} onClick={openPicker} disabled={busy}>
           {busy ? '처리 중…' : registered ? '교체' : '이미지 올리기'}
         </button>
+        {registered ? (
+          <Link href={`/manage/images/${slot}/position`} className={`btn btn-outline ${s.bigBtn} ${s.bandAdjust}`} aria-disabled={busy} onClick={(e) => busy && e.preventDefault()}>
+            위치 조정
+          </Link>
+        ) : null}
         {registered ? (
           <button type="button" className={`btn btn-outline ${s.bigBtn} ${s.bandDelete}`} onClick={() => guard() && setStep('confirm')} disabled={busy}>
             <img src="/ui/admin-trash.svg" alt="" width={18} height={18} />

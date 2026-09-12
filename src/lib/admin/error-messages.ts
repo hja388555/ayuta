@@ -30,6 +30,7 @@ const MESSAGES: Record<string, string> = {
   invalid_image: '투명 배경 PNG 파일만 올릴 수 있습니다(2MB 이하). 흰 배경 이미지나 JPG 는 받지 않습니다.',
   invalid_band_image: 'JPG · PNG · WEBP 이미지만 올릴 수 있습니다. 파일이 손상되지 않았는지 확인해 주세요.',
   band_image_too_large: '이미지는 5MB 이하만 올릴 수 있습니다.',
+  invalid_band_focus: '표시 위치는 0~100 사이 정수여야 합니다.',
   band_image_failed: '이미지를 처리하지 못했습니다. 잠시 후 다시 시도해 주세요.',
   band_image_not_found: '이미 삭제되었거나 없는 이미지입니다. 화면을 새로고침해 주세요.',
   account_failed: '계정을 처리하지 못했습니다. 이미 있는 이메일이 아닌지 확인해 주세요.',
