@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { pairsFromQuery, selectionsFromItems, type RestoreSelection } from '../lib/order-restore'
+import { useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel, type VideoPair } from '@ayuta/pricing'
 import type { CategoryForm } from '@/lib/category-groups'
@@ -116,9 +117,13 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
     return entry ? <span className={s.price}>{formatAmount(entry.amount, book.currency)}</span> : null
   }
 
+  // 고른 내용을 주소에 옮겨 적는다 — 새로고침·언어 전환 뒤에도 restore 로 되살아난다.
+  // 길이를 아직 안 고른 종류는 쿼리 모양(종류:길이)에 담을 수 없어 빠진다
+  const query = buildPairsQuery(completedPairs(pairs), countryItems, country, purpose)
+  useMirrorQuery(query)
+
   function goToPayment() {
     if (!canPay) return
-    const query = buildPairsQuery(completedPairs(pairs), countryItems, country, purpose)
     router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 

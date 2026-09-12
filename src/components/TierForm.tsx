@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import type { RestoreSelection } from '../lib/order-restore'
+import { useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import { ChoiceCard, ChoiceGrid, StepTitle, TotalBar } from './ui'
@@ -100,9 +101,12 @@ export function TierForm({ book, model, locale, categorySlug, country, purpose, 
   const canPay = tiers.length > 0
   const selectedNames = tierOptions.filter((e) => tiers.includes(e.key)).map((e) => e.label)
 
+  // 고른 내용을 주소에 옮겨 적는다 — 새로고침·언어 전환 뒤에도 restore 로 되살아난다
+  const query = buildPaymentQuery(tiers, platforms, country, purpose)
+  useMirrorQuery(query)
+
   function goToPayment() {
     if (!canPay) return
-    const query = buildPaymentQuery(tiers, platforms, country, purpose)
     router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
