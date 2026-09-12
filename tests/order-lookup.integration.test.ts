@@ -45,6 +45,12 @@ describe('findOwnedOrder', () => {
     expect(found?.orderNumber).toBe(order.orderNumber)
   })
 
+  it('연락처를 하이픈 없이 적어도 열린다 — 숫자만 비교한다', async () => {
+    const order = await makeOrder()
+    const found = await findOwnedOrder(order.orderNumber, { kind: 'guest', email: validOrderer.email.toUpperCase(), phone: '01099990000' })
+    expect(found?.orderNumber).toBe(order.orderNumber)
+  })
+
   it('이메일만 틀려도 남의 주문을 못 연다', async () => {
     const order = await makeOrder()
     const found = await findOwnedOrder(order.orderNumber, { kind: 'guest', email: 'someone-else@example.com', phone: validOrderer.phone })
