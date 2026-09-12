@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatOrderSchedule, guestOwnershipMatches } from './order-lookup'
+import { formatOrderSchedule, guestOwnershipMatches, phoneDigits } from './order-lookup'
 
 // 실제 DB 조회(findOwnedOrder)는 tests/order-lookup.integration.test.ts가 다룬다.
 // 여기는 소유권 판정 로직만 DB 없이 떼어내 본다 — 특히 orderer가 없는 방어적 분기(Minor)는
@@ -16,6 +16,23 @@ describe('guestOwnershipMatches', () => {
 
   it('이메일 대소문자·공백은 무시한다', () => {
     expect(guestOwnershipMatches(order, { email: '  HONG@EXAMPLE.COM  ', phone: '010-1234-5678' })).toBe(true)
+  })
+
+  it('연락처는 숫자만 비교한다 — 하이픈·공백 유무가 달라도 같은 번호다', () => {
+    expect(guestOwnershipMatches(order, { email: 'hong@example.com', phone: '01012345678' })).toBe(true)
+    expect(guestOwnershipMatches(order, { email: 'hong@example.com', phone: ' 010 1234 5678 ' })).toBe(true)
+    const noHyphen = { customer: null, orderer: { email: 'hong@example.com', phone: '01012345678' } }
+    expect(guestOwnershipMatches(noHyphen, { email: 'hong@example.com', phone: '010-1234-5678' })).toBe(true)
+  })
+
+  it('숫자가 없는 연락처로는 열리지 않는다', () => {
+    const blank = { customer: null, orderer: { email: 'hong@example.com', phone: '' } }
+    expect(guestOwnershipMatches(blank, { email: 'hong@example.com', phone: '---' })).toBe(false)
+  })
+
+  it('phoneDigits 는 숫자 외 문자를 모두 뗀다', () => {
+    expect(phoneDigits('+81 90-1234-5678')).toBe('819012345678')
+    expect(phoneDigits(undefined)).toBe('')
   })
 
   it('이메일만 맞고 연락처가 틀리면 거짓이다', () => {

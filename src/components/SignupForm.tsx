@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { passwordIssue, PASSWORD_MAX, PASSWORD_MIN } from '@/lib/password-policy'
+import { focusFirstInvalid } from '@/lib/ui/focus-invalid'
 import { AddressSearch } from './AddressSearch'
 import { LegalConsentModal, type LegalKind } from './LegalConsentModal'
 import s from './Auth.module.css'
@@ -42,6 +43,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
   const [busy, setBusy] = useState(false)
   const [viewing, setViewing] = useState<LegalKind | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const formRef = useRef<HTMLFormElement>(null)
   const msg = (code: string) => labels.errors[code] ?? labels.errors.generic ?? ''
   const allOn = c.age && c.terms && c.privacy && c.marketing
 
@@ -50,8 +52,15 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
     if (busy) return
     const fe = validate(f)
     setFieldErr(fe)
-    if (Object.keys(fe).length) return setError(null)
-    if (!c.age || !c.terms || !c.privacy) return setError(msg('consent_required'))
+    if (Object.keys(fe).length) {
+      focusFirstInvalid(formRef.current)
+      return setError(null)
+    }
+    if (!c.age || !c.terms || !c.privacy) {
+      // 빠진 필수 동의 체크박스로 이동한다
+      focusFirstInvalid(formRef.current, [!c.age && '#su-agree-age', !c.terms && '#su-agree-terms', !c.privacy && '#su-agree-privacy'].filter(Boolean).join(', '))
+      return setError(msg('consent_required'))
+    }
     setBusy(true)
     setError(null)
     try {
@@ -63,10 +72,13 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok || !body?.ok) {
-        if (body?.error === 'weak_password') return setFieldErr({ password: 'weak_password' })
+        if (body?.error === 'weak_password') {
+          focusFirstInvalid(formRef.current)
+          return setFieldErr({ password: 'weak_password' })
+        }
         return setError(msg(body?.error ?? 'generic'))
       }
-      const login = await fetch('/api/users/login', {
+      const login = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: f.email.trim(), password: f.password }),
@@ -132,7 +144,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
   const consent = (key: keyof Consents, text: string, href?: string) => (
     <div className={`choice ${s.consent}`}>
       <label className={s.consentText} style={{ display: 'flex', alignItems: 'center', gap: 12, cursor: 'pointer' }}>
-        <input type="checkbox" checked={c[key]} onChange={(e) => setC({ ...c, [key]: e.target.checked })} disabled={busy} />
+        <input id={`su-agree-${key}`} type="checkbox" checked={c[key]} onChange={(e) => setC({ ...c, [key]: e.target.checked })} disabled={busy} />
         <span className="choice-box" aria-hidden />
         <span>{text}</span>
       </label>
@@ -156,7 +168,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
   )
 
   return (
-    <form onSubmit={submit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <form ref={formRef} onSubmit={submit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
       <section className={s.card} aria-labelledby="su-account">
         <h2 id="su-account" className={s.cardTitle}>
           {labels.accountTitle}

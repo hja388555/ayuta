@@ -39,7 +39,7 @@ export function calculate(model: PricingModel, book: PriceBook, sel: unknown): Q
     case 'sumMultiplier': {
       const o = asObject(sel)
       if (!o || !isStringArray(o.items) || typeof o.period !== 'string') return badShape('items')
-      return calculateSumMultiplier(book, model.multipliers, { items: o.items, period: o.period })
+      return calculateSumMultiplier(book, model.multipliers, { items: o.items, period: o.period }, model.periodLabels)
     }
     case 'videoPairs': {
       const o = asObject(sel)

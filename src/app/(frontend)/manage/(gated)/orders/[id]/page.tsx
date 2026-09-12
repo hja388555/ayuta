@@ -1,10 +1,12 @@
+import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { isSuperRole } from '@/lib/roles'
 import { findOrderForAdmin, findOrderNotes, findOrderTransitions } from '@/lib/admin/orders-data'
 import { formatAmount, formatDateTime, formatDay, toDateInputValue } from '@/lib/admin/format'
+import { orderListBackHref } from '@/lib/admin/order-list-query'
 import { adminStatusTone, categoryLabel } from '@/lib/admin/order-display'
-import { availableTransitions, statusLabel } from '@/lib/orders/transitions'
+import { availableTransitions, requiresTransitionConfirm, statusLabel } from '@/lib/orders/transitions'
 import { AdminContractButton } from '@/components/admin/AdminContractButton'
 import { OpenChatButton } from '@/components/admin/OpenChatButton'
 import { OrderNoteForm } from '@/components/admin/OrderNoteForm'
@@ -17,7 +19,7 @@ import ko from '../../../../../../../messages/ko.json'
 import type { User } from '@/payload-types'
 import { sealDataUri } from '@/lib/seal'
 
-type Props = { params: Promise<{ id: string }> }
+type Props = { params: Promise<{ id: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }
 
 /** 관계 필드는 depth 에 따라 id 이거나 문서다. 사람이 읽을 이름만 뽑는다 */
 function actorName(value: number | User | null | undefined): string {
@@ -34,7 +36,7 @@ const Row = ({ label, children }: { label: string; children: React.ReactNode }) 
 )
 
 /** 주문 상세(Figma [v2] A4 229:2 PC · 229:179 Mobile). 바깥 셸은 (gated) 레이아웃이 그린다 */
-export default async function OrderDetailPage({ params }: Props) {
+export default async function OrderDetailPage({ params, searchParams }: Props) {
   let user
   try {
     user = await requireAdmin()
@@ -46,6 +48,8 @@ export default async function OrderDetailPage({ params }: Props) {
   // URL 세그먼트는 사용자 입력이다. 숫자가 아니면 조회를 시도하지 않는다 —
   // findByID 에 문자열을 넘기면 드라이버 예외가 나고 그게 500 으로 새 나간다
   const { id } = await params
+  // 목록에서 넘겨준 필터·페이지(?from=). 주문 목록 경로가 아니면 기본 목록으로
+  const backHref = orderListBackHref((await searchParams).from)
   const orderId = Number(id)
   if (!Number.isInteger(orderId) || orderId <= 0) notFound()
 
@@ -62,6 +66,7 @@ export default async function OrderDetailPage({ params }: Props) {
   const options = availableTransitions(order.status, { isSuper }).map((value) => ({
     value,
     label: statusLabel(value),
+    irreversible: requiresTransitionConfirm(value),
   }))
   const o = order.orderer
   const address = [o?.postcode ? `(${o.postcode})` : null, o?.address1, o?.address2].filter(Boolean).join(' ') || '—'
@@ -70,6 +75,9 @@ export default async function OrderDetailPage({ params }: Props) {
 
   return (
     <div className={s.page}>
+      <Link href={backHref} className={s.backLink}>
+        ‹ 목록으로
+      </Link>
       <div className={s.head}>
         <h1 className={s.title}>주문 상세</h1>
         <Badge tone={adminStatusTone(order.status)}>{statusLabel(order.status)}</Badge>

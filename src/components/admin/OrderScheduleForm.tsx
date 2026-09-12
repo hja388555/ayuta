@@ -33,6 +33,14 @@ export function OrderScheduleForm({ orderId, initial, extraAction }: Props) {
 
   async function submit() {
     if (busy) return
+    // 광고 진행일은 계약기간 안(양 끝 포함)이어야 한다. 'YYYY-MM-DD' 는 문자열 비교가 곧 날짜 비교다.
+    // 서버(adDateOutsidePeriod)가 같은 규칙으로 최종 판정한다 — 여기는 저장 버튼을 누르기 전 안내다
+    const { contractStart: cs, contractEnd: ce, adStartDate: ad } = form
+    if (ad && ((cs && ad < cs) || (ce && ad > ce))) {
+      setMessage(null)
+      setError(adminErrorMessage('ad_date_outside_period'))
+      return
+    }
     setBusy(true)
     setError(null)
     setMessage(null)

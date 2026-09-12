@@ -1,6 +1,7 @@
 'use client'
 
 import { Fragment, useCallback, useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { bubbleText, MAX_BODY, type ChatLocale } from '@/lib/chat/rules'
 import { ChatFrame } from './ChatFrame'
 import s from './Chat.module.css'
@@ -180,7 +181,9 @@ export function useVisiblePolling(fn: () => void, ms: number, enabled: boolean) 
 }
 
 /** 고객 1:1 채팅(Figma [v2] 12). 4초마다 새 메시지를 가져오고, 열 때·새 답장이 올 때 읽음 처리 */
-export function ChatRoom({ locale, labels }: { locale: ChatLocale; labels: Labels }) {
+export function ChatRoom({ locale, labels, guest }: { locale: ChatLocale; labels: Labels; guest?: { leave: string; leaveConfirm: string } }) {
+  const router = useRouter()
+  const [leaving, setLeaving] = useState(false)
   const [messages, setMessages] = useState<ChatMessageView[]>([])
   const [status, setStatus] = useState<'open' | 'closed'>('open')
   const [loaded, setLoaded] = useState(false)
@@ -226,14 +229,27 @@ export function ChatRoom({ locale, labels }: { locale: ChatLocale; labels: Label
   }, [lastId])
   useVisiblePolling(poll, POLL_MS, loaded)
 
+  // 보낼 때의 창 스크롤 위치. 새 말풍선이 붙어도 스크롤은 대화 목록 안에서만 움직이고 페이지는 그대로 둔다(모바일)
+  const keepPageY = useRef<number | null>(null)
   useEffect(() => {
     const el = listRef.current
     if (el) el.scrollTop = el.scrollHeight
+    if (keepPageY.current !== null && Math.abs(window.scrollY - keepPageY.current) > 1) window.scrollTo({ top: keepPageY.current })
+    keepPageY.current = null
   }, [messages.length])
+
+  async function leave() {
+    if (!guest || leaving || !window.confirm(guest.leaveConfirm)) return
+    setLeaving(true)
+    await fetch('/api/chat/guest', { method: 'DELETE' }).catch(() => {})
+    // 쿠키가 없어졌으니 같은 주소가 시작 폼으로 다시 그려진다
+    router.refresh()
+  }
 
   async function send() {
     const body = text.trim()
     if (!body || sending) return
+    keepPageY.current = window.scrollY
     setSending(true)
     setError(null)
     try {
@@ -268,7 +284,11 @@ export function ChatRoom({ locale, labels }: { locale: ChatLocale; labels: Label
         </p>
       ) : null}
       <Composer value={text} onChange={setText} onSend={send} sending={sending || !loaded} placeholder={labels.placeholder} sendLabel={labels.send} attachLabel={labels.attach} />
-
+      {guest ? (
+        <button type="button" className={s.leave} onClick={leave} disabled={leaving}>
+          {guest.leave}
+        </button>
+      ) : null}
     </ChatFrame>
   )
 }

@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
+import { quoteIssueProblem } from '@/lib/quotes/lines'
 import { TotalBar } from '@/components/ui'
 import s from '@/app/(frontend)/manage/(gated)/inquiries/inquiries.module.css'
 
@@ -86,8 +87,15 @@ export function QuoteIssueForm({
     if (busy) return
     setNotice(null)
     const lines = rows.map((r) => ({ label: r.label.trim(), quantity: toInt(r.quantity), unitAmount: toInt(r.unitAmount) }))
-    if (lines.some((l) => !l.label || !Number.isFinite(l.quantity) || l.quantity < 1 || !Number.isFinite(l.unitAmount)) || preview <= 0) {
-      setError(adminErrorMessage('invalid_quote_lines'))
+    const noLabel = lines.findIndex((l) => !l.label)
+    if (noLabel >= 0) {
+      setError(`${noLabel + 1}번 항목: 항목명을 입력해 주세요.`)
+      return
+    }
+    // 수량 1~999 · 금액 0~10억 · 합계 100억 이하. 서버(/api/admin/quotes)도 같은 함수로 다시 본다
+    const problem = quoteIssueProblem(lines)
+    if (problem) {
+      setError(problem)
       return
     }
     if (hasLive && !window.confirm('이미 발행된 견적 링크가 있습니다. 새로 발행하면 이전 링크는 바로 쓸 수 없게 됩니다. 계속할까요?')) return
@@ -101,7 +109,7 @@ export function QuoteIssueForm({
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok || !body?.ok) {
-        setError(adminErrorMessage(body?.error))
+        setError(body?.error === 'quote_too_large' && typeof body?.detail === 'string' ? body.detail : adminErrorMessage(body?.error))
         return
       }
       const url = `${window.location.origin}${body.path}`

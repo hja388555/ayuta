@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { buildOrderWhere, parseOrderListParams } from '@/lib/admin/order-list-query'
-import { findOrdersForExport } from '@/lib/admin/orders-data'
+import { findOrdersForExport, resolvePhoneOrderIds } from '@/lib/admin/orders-data'
 import { buildOrdersCsv } from '@/lib/admin/orders-csv'
 
 /**
@@ -27,7 +27,7 @@ export async function GET(req: Request): Promise<Response> {
 
   const url = new URL(req.url)
   const params = parseOrderListParams(Object.fromEntries(url.searchParams.entries()))
-  const orders = await findOrdersForExport(buildOrderWhere(params))
+  const orders = await findOrdersForExport(buildOrderWhere(params, { phoneOrderIds: await resolvePhoneOrderIds(params.q) }))
   const stamp = new Date().toISOString().slice(0, 10).replace(/-/g, '')
 
   return new Response(buildOrdersCsv(orders), {

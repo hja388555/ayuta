@@ -16,6 +16,25 @@ export const QuoteLineSchema = z.object({
 })
 export type QuoteLine = z.infer<typeof QuoteLineSchema>
 
+/**
+ * 새로 발행할 때만 거는 상한. 위 스키마 상한(100억)은 이미 발행된 견적을 읽고 결제할 때도 쓰이므로
+ * 낮추면 기존 링크가 깨진다 — 발행 경로(/api/admin/quotes)와 발행 화면만 이 값을 본다.
+ */
+export const ISSUE_MAX_UNIT_AMOUNT = 1_000_000_000 // 10억
+export const ISSUE_MAX_TOTAL = 10_000_000_000 // 100억
+
+/** 발행 상한 검사. 문제가 없으면 null, 있으면 화면에 그대로 보여 줄 문구 */
+export function quoteIssueProblem(lines: Array<{ quantity: number; unitAmount: number }>): string | null {
+  for (const [i, l] of lines.entries()) {
+    if (!Number.isInteger(l.quantity) || l.quantity < 1 || l.quantity > MAX_QUANTITY) return `${i + 1}번 항목: 수량은 1~${MAX_QUANTITY} 사이 정수로 입력해 주세요.`
+    if (!Number.isInteger(l.unitAmount) || l.unitAmount < 0 || l.unitAmount > ISSUE_MAX_UNIT_AMOUNT) return `${i + 1}번 항목: 금액은 0~10억 사이 정수로 입력해 주세요.`
+  }
+  const total = lines.reduce((sum, l) => sum + l.quantity * l.unitAmount, 0)
+  if (total <= 0) return '합계가 0원보다 커야 합니다.'
+  if (total > ISSUE_MAX_TOTAL) return '합계는 100억 이하여야 합니다. 수량·금액을 확인해 주세요.'
+  return null
+}
+
 export const QuoteLinesSchema = z.array(QuoteLineSchema).min(1).max(MAX_LINES)
 
 export function quoteTotal(lines: QuoteLine[]): number {

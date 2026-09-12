@@ -11,6 +11,8 @@ export function calculateSumMultiplier(
   book: PriceBook,
   multipliers: Record<string, number>,
   sel: SumMultiplierSelection,
+  /** 기간 키 → 줄 이름(화면 언어). 금액에는 관여하지 않는다 */
+  periodLabels?: Record<string, string>,
 ): QuoteResult {
   const base = calculateSum(book, { items: sel.items })
   if (!base.ok) return base
@@ -30,6 +32,8 @@ export function calculateSumMultiplier(
   // 정수끼리 곱한 뒤 나눈다. base * 1.15 처럼 부동소수를 곱하면 100 * 1.15 = 114.999… 가 되어
   // 내림에서 1원이 사라진다. 소수가 나오면 내림한다 — 올림하면 고객이 안 고른 1원을 낸다
   const total = minor(Math.floor((base.total * hundredths) / 100))
-  const lines = [...base.lines, { key: `period:${sel.period}`, label: `기간 ${sel.period}`, amount: minor(0) }]
+  // 줄 이름은 호출자가 넘긴 화면 언어 문구를 쓴다. 없으면(테스트·옛 호출) 예전 표기로 떨어진다
+  const label = periodLabels?.[sel.period] ?? `기간 ${sel.period}`
+  const lines = [...base.lines, { key: `period:${sel.period}`, label, amount: minor(0) }]
   return { ok: true, lines, total, currency: book.currency }
 }

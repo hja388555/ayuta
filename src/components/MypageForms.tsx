@@ -1,12 +1,14 @@
 'use client'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { ChoiceCard, Modal, Toast } from '@/components/ui'
 import { AddressSearch } from '@/components/AddressSearch'
 import { passwordIssue } from '@/lib/password-policy'
 import { isProfileDirty } from '@/lib/mypage/profile-dirty'
+import { isValidPhone } from '@/lib/phone'
+import { focusFirstInvalid } from '@/lib/ui/focus-invalid'
 import s from './Account.module.css'
 
 /**
@@ -60,6 +62,9 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null)
   const missing = (k: keyof ProfileValues) => attempted && REQUIRED.includes(k) && !v[k].trim()
+  // 연락처 형식은 비회원 채팅 시작과 같은 규칙(lib/phone). 서버도 같은 규칙으로 다시 본다
+  const badPhone = attempted && v.phone.trim() !== '' && !isValidPhone(v.phone)
+  const formRef = useRef<HTMLFormElement>(null)
   const tm = useTranslations('modal')
   // 저장 확인 팝업(Figma [v2] 팝업 A ⑥ 227:168) — 고친 채로 다른 화면으로 가려 하면 붙잡는다
   const [saved, setSaved] = useState(initial)
@@ -90,7 +95,10 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
   async function persist(): Promise<boolean> {
     if (busy) return false
     setAttempted(true)
-    if (REQUIRED.some((k) => !v[k].trim())) return false
+    if (REQUIRED.some((k) => !v[k].trim()) || !isValidPhone(v.phone)) {
+      focusFirstInvalid(formRef.current)
+      return false
+    }
     setBusy(true)
     try {
       const r = await postJson('/api/me/profile', v)
@@ -121,7 +129,7 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
 
   const input = (k: keyof ProfileValues, opts: { required?: boolean; autoComplete?: string; addon?: ReactNode; max?: number } = {}) => {
     const id = `pf-${k}`
-    const err = missing(k) ? tx(labels, 'errRequired') : undefined
+    const err = missing(k) ? tx(labels, 'errRequired') : k === 'phone' && badPhone ? tx(labels, 'errPhone') : undefined
     return (
       <Field id={id} label={tx(labels, k)} required={opts.required} error={err} addon={opts.addon}>
         <input
@@ -142,7 +150,7 @@ export function ProfileForm({ email = '', initial: init, labels, errors }: { ema
   }
 
   return (
-    <form onSubmit={save} className={s.stack} noValidate>
+    <form ref={formRef} onSubmit={save} className={s.stack} noValidate>
       <section className={s.card}>
         <h2 className={s.cardTitle}>{tx(labels, 'accountCard')}</h2>
         <div className={s.field}>
@@ -250,15 +258,16 @@ export function PasswordForm({ locale = 'ko', labels, errors }: { locale?: strin
 
   const errs = {
     current: attempted && !current ? tx(labels, 'errRequired') : undefined,
-    next: attempted ? (!next ? tx(labels, 'errRequired') : passwordIssue(next) ? tx(labels, 'errWeak') : undefined) : undefined,
+    next: attempted ? (!next ? tx(labels, 'errRequired') : passwordIssue(next) ? tx(labels, 'errWeak') : next === current ? tx(labels, 'errSame') : undefined) : undefined,
     confirm: attempted ? (!confirm ? tx(labels, 'errRequired') : confirm !== next ? tx(labels, 'errMismatch') : undefined) : undefined,
   }
+  const formRef = useRef<HTMLFormElement>(null)
 
   async function save(e: React.FormEvent) {
     e.preventDefault()
     if (busy || done) return
     setAttempted(true)
-    if (!current || !next || passwordIssue(next) || confirm !== next) return
+    if (!current || !next || passwordIssue(next) || next === current || confirm !== next) return focusFirstInvalid(formRef.current)
     setBusy(true)
     try {
       const r = await postJson('/api/me/password', { currentPassword: current, newPassword: next })
@@ -269,6 +278,8 @@ export function PasswordForm({ locale = 'ko', labels, errors }: { locale?: strin
       setDone(true)
       setToast({ ok: true, text: tx(labels, 'done') })
       await fetch('/api/users/logout', { method: 'POST' }).catch(() => {})
+      // 로그아웃과 같이 비회원 채팅 쿠키도 지운다(공용 PC)
+      await fetch('/api/chat/guest', { method: 'DELETE' }).catch(() => {})
       setTimeout(() => {
         router.replace(`/${locale}/login?next=${encodeURIComponent(`/${locale}/mypage`)}`)
         router.refresh()
@@ -300,7 +311,7 @@ export function PasswordForm({ locale = 'ko', labels, errors }: { locale?: strin
   )
 
   return (
-    <form onSubmit={save} className={s.stack} noValidate>
+    <form ref={formRef} onSubmit={save} className={s.stack} noValidate>
       <section className={s.card}>
         {pw('pw-current', 'current', current, setCurrent, 'current-password')}
         {pw('pw-next', 'next', next, setNext, 'new-password')}

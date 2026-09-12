@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage, GENERIC_ERROR } from '@/lib/admin/error-messages'
+import { AdminConfirm } from './AdminConfirm'
 import { errorBox, okBox } from './styles'
 import s from './AdminOrders.module.css'
 
@@ -10,7 +11,8 @@ type Props = {
   orderId: number
   currentLabel: string
   /** 서버가 ALLOWED 전이표로 이미 걸러낸 후보. 화면은 이 목록만 보여준다 */
-  options: { value: string; label: string }[]
+  /** irreversible: 도착하면 더 바꿀 수 없는 상태(requiresTransitionConfirm) — 저장 전에 한 번 더 묻는다 */
+  options: { value: string; label: string; irreversible?: boolean }[]
 }
 
 /**
@@ -27,6 +29,15 @@ export function OrderStatusForm({ orderId, currentLabel, options }: Props) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [done, setDone] = useState(false)
+  const [asking, setAsking] = useState(false)
+  const target = options.find((o) => o.value === to)
+
+  // 되돌릴 수 없는 전이는 바로 보내지 않고 확인 팝업을 먼저 띄운다
+  function requestSubmit() {
+    if (!to || busy) return
+    if (target?.irreversible) return setAsking(true)
+    void submit()
+  }
 
   async function submit() {
     if (!to || busy) return
@@ -52,6 +63,8 @@ export function OrderStatusForm({ orderId, currentLabel, options }: Props) {
       // 네트워크 자체가 끊긴 경우. 서버가 준 코드가 없으므로 별도 문구를 쓴다
       setError(adminErrorMessage('network'))
     } finally {
+      // 실패해도 팝업을 닫아 아래 에러 문구가 보이게 한다
+      setAsking(false)
       setBusy(false)
     }
   }
@@ -87,13 +100,23 @@ export function OrderStatusForm({ orderId, currentLabel, options }: Props) {
             onChange={(e) => setReason(e.target.value)}
             disabled={busy}
           />
-          <button type="button" className={`btn btn-primary btn-block ${s.bigBtn}`} onClick={submit} disabled={!to || busy}>
+          <button type="button" className={`btn btn-primary btn-block ${s.bigBtn}`} onClick={requestSubmit} disabled={!to || busy}>
             {busy ? '변경 중…' : '상태 저장'}
           </button>
         </>
       )}
       {error ? <p style={errorBox}>{error || GENERIC_ERROR}</p> : null}
       {done ? <p style={okBox}>상태를 변경했습니다.</p> : null}
+      <AdminConfirm
+        open={asking}
+        onClose={() => setAsking(false)}
+        onConfirm={() => void submit()}
+        tone="danger"
+        busy={busy}
+        confirmLabel="상태 변경"
+        title={`${currentLabel} → ${target?.label ?? ''}(으)로 바꿀까요?`}
+        description={'이 상태로 바꾸면 되돌릴 수 없습니다.\n다시 다른 상태로 바꿀 수 없으니 한 번 더 확인해 주세요.'}
+      />
     </>
   )
 }

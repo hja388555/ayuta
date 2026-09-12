@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import s from './AdminShell.module.css'
 
 type NavItem = {
@@ -60,12 +60,44 @@ export function AdminNav({ isSuper }: { isSuper: boolean }) {
   )
 }
 
+/**
+ * 뒤로가기 캐시(bfcache)에서 되살아난 관리자 화면은 서버를 거치지 않아 로그아웃 뒤에도 고객 정보가 보인다.
+ * 복원(persisted)되면 새로고침해 게이트(requireAdmin)를 다시 태운다 — 세션이 없으면 404 가 된다.
+ */
+export function AdminBfcacheGuard() {
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => {
+      if (e.persisted) window.location.reload()
+    }
+    window.addEventListener('pageshow', onShow)
+    // HTTP 캐시에서 되살린 뒤로/앞으로 이동도 서버를 안 거친다(dev 는 Next 가 no-cache 로 덮어써 특히 그렇다).
+    // 그때는 화면을 가린 채 세션을 다시 묻고, 관리자 세션이 없으면 로그인 화면으로 바꾼다
+    const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
+    if (nav?.type === 'back_forward') {
+      const root = document.documentElement
+      root.style.visibility = 'hidden'
+      fetch('/api/users/me', { cache: 'no-store', credentials: 'include' })
+        .then((res) => (res.ok ? res.json() : null))
+        .then((json: { user?: { role?: string } | null } | null) => {
+          const role = json?.user?.role
+          if (role === 'super' || role === 'manager') root.style.visibility = ''
+          else window.location.replace('/ko/login?next=%2Fmanage')
+        })
+        .catch(() => window.location.reload())
+    }
+    return () => window.removeEventListener('pageshow', onShow)
+  }, [])
+  return null
+}
+
 export function AdminLogoutButton() {
   const [busy, setBusy] = useState(false)
   const logout = async () => {
     setBusy(true)
     try {
       await fetch('/api/users/logout', { method: 'POST', credentials: 'include' })
+      // 공용 PC: 같은 브라우저에 남은 비회원 채팅 쿠키도 함께 지운다
+      await fetch('/api/chat/guest', { method: 'DELETE', credentials: 'include' }).catch(() => {})
     } finally {
       window.location.href = '/ko/login'
     }

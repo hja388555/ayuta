@@ -4,7 +4,7 @@ import config from '@payload-config'
 import { z } from 'zod'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { currencyForLocale } from '@/lib/payments/channel'
-import { parseQuoteLines } from '@/lib/quotes/lines'
+import { parseQuoteLines, quoteIssueProblem } from '@/lib/quotes/lines'
 import { generateQuoteToken, hashQuoteToken, newQuoteNumber } from '@/lib/quotes/token'
 
 /**
@@ -44,6 +44,9 @@ export async function POST(req: Request): Promise<Response> {
   if (!body.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
   const lines = parseQuoteLines(body.data.lines)
   if (!lines.ok) return NextResponse.json({ error: 'invalid_quote_lines' }, { status: 400 })
+  // 발행 상한(단가 10억 · 수량 999 · 합계 100억). 999 × 100억 같은 오타 견적이 고객에게 나가지 않게
+  const limit = quoteIssueProblem(lines.lines)
+  if (limit) return NextResponse.json({ error: 'quote_too_large', detail: limit }, { status: 400 })
 
   const payload = await getPayload({ config })
   let inquiry

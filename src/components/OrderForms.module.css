@@ -93,6 +93,9 @@
   .table th:first-child, .table td:first-child { padding-left: 10px; }
   .priceRow td { font-size: 12px; }
   .tierPick { gap: 4px; }
+  /* 등급 이름이 글자 중간에서 꺾이지 않게 한다("プレミア/ム"). 좁은 칸에서는 체크 상자를 이름 위로 올려 폭을 확보한다 */
+  .table thead th { word-break: keep-all; overflow-wrap: normal; }
+  :global(:lang(ja)) .tierPick { flex-direction: column; }
   .total :global(.total-bar) { padding: 22px 20px; }
   .total :global(.total-bar-amount) { font-size: 26px; }
   .payBtn { height: 60px; font-size: 17px; }

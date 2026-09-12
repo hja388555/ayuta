@@ -15,7 +15,7 @@ import { nextOrderNumber } from '../order-counter'
 import { loadCompanyContractFields } from '../company-settings'
 import { OrdererSchema, buyerContractFields, type Orderer } from './orderer'
 import { allRequiredChecked, type ConsentDef } from './consents'
-import { buildContractItems, countryFactValue, type ContractItem } from './contract-items'
+import { buildContractItems, categoryContractFacts, type ContractItem } from './contract-items'
 import { filterPricedSelection } from './selection-from-query'
 import { sanitizeCountries, sanitizePurpose, type CountryCode, type PurposeCode } from '../cover-selection'
 
@@ -207,7 +207,7 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
       const book = await loadPriceBook(def.no, currency)
       const form = formFor(def.no)
       // 4번 기간 배수 등 관리자가 DB 에서 고치는 값을 채운 모델 — 견적 화면과 같은 로더를 쓴다
-      const model = await loadCategoryModel(def)
+      const model = await loadCategoryModel(def, input.locale)
       const pricedSelection = filterPricedSelection(model, form, input.selection)
       const quote = calculate(model, book, pricedSelection)
       if (!quote.ok) return { ok: false, reason: 'pricing_failed', detail: quote.errors }
@@ -217,24 +217,15 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
       // 돈은 {{amount}}(총 계약금액/계약금액) 줄에만 나온다
       const contractItems = buildContractItems(def, book, input.selection, input.locale)
 
-      // 1번 계약서 제1조의 "선택 상품 / 선택 채널"은 {{items}}가 아니라 각자의 자리(productName/
-      // channels)로 채운다 — 원문(§B)이 광고 국가·계약기간과 함께 줄마다 따로 라벨을 붙여 두기
-      // 때문이다. contractItems는 tier 모델에서 "등급"/"플랫폼" 라벨로 쌓이므로(contract-items.ts)
-      // 그 값을 그대로 꺼낸다. 플랫폼은 필수 선택이 아니라서(TierForm) 비어 있을 수 있는데,
-      // 그 경우 undefined로 두면 missing 판정으로 카테고리 1 주문이 전부 막힌다 — 값을 모르는
-      // 갑측 항목에 쓰는 것과 같은 관례(buyerContractFields)대로 명시적 대시로 채운다
-      const productName = contractItems.find((item) => item.label === '등급')?.value ?? '-'
-      const channels = contractItems.find((item) => item.label === '플랫폼')?.value ?? '-'
-      // 표지에서 고른 나라 — 1번 계약서 제1조 "광고 국가" 줄({{country}})을 채운다.
-      // 다른 카테고리 템플릿에는 {{country}} 자리가 없으므로 값을 넘겨도 조용히 무시된다
-      // (fillContract는 템플릿에 없는 키를 치환하지 않는다).
-      const country = countryFactValue(input.selection, input.locale)
+      // 1번 계약서 제1조의 "선택 상품 / 선택 채널 / 광고 국가"는 {{items}}가 아니라 각자의 자리로
+      // 채운다 — 원문(§B)이 줄마다 따로 라벨을 붙여 두기 때문이다. 결제 화면 미리보기와 같은 함수를 쓴다
+      const contractFacts = categoryContractFacts(contractItems, input.selection, input.locale)
 
       return {
         amount: quote.total,
         items: quote.lines.map((line) => ({ code: line.key, label: line.label, unitAmount: line.amount, quantity: 1 })),
         contractItems,
-        contractFacts: { productName, channels, country },
+        contractFacts,
         // 표지의 나라·목적은 가격에 관여하지 않지만 "무엇을 파는지"를 설명하는 값이라
         // 카테고리와 무관하게 모든 주문에 저장한다(계약서 문구에 실릴지는 카테고리별
         // 소스 문서가 있는지에 달렸다 — contract-items.ts countryFactValue/buildContractItems 참고).

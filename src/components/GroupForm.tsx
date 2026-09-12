@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { selectionsFromItems, tabFromItems, type RestoreSelection } from '../lib/order-restore'
+import { useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import type { CategoryForm, GroupDef, ItemDef } from '@/lib/category-groups'
@@ -192,9 +193,12 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     return book.entries[key]?.label ?? labels.itemLabels[key] ?? key
   }
 
+  // 고른 내용을 주소에 옮겨 적는다 — 새로고침·언어 전환 뒤에도 restore 로 되살아난다
+  const query = buildGroupQuery(allSelected, period, size, form.freeText?.[0]?.maxLength ?? 0, country, purpose)
+  useMirrorQuery(query)
+
   function goToPayment() {
     if (!canPay) return
-    const query = buildGroupQuery(allSelected, period, size, form.freeText?.[0]?.maxLength ?? 0, country, purpose)
     router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 

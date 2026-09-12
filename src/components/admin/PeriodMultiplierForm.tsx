@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
+import { AdminConfirm } from './AdminConfirm'
 import { button, errorBox, input } from './styles'
 
 type Props = {
@@ -22,19 +23,29 @@ export function PeriodMultiplierForm({ periods, values, canEdit }: Props) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [saved, setSaved] = useState(false)
+  const [confirm, setConfirm] = useState<Record<string, number> | null>(null)
 
-  async function save() {
+  // 어느 기간이 틀렸는지 이름을 붙여 알려준다. 규칙은 전역 multiplierError 와 같다(0 초과 100 이하, 소수 둘째 자리) —
+  // 그 모듈은 payload 설정을 끌고 와 클라이언트에서 부르지 않는다. 최종 판정은 서버가 한다
+  function askSave() {
     if (busy) return
     const periodMultipliers: Record<string, number> = {}
     for (const p of periods) {
       const raw = (draft[p.key] ?? '').trim()
       const n = Number(raw)
-      if (raw === '' || !Number.isFinite(n)) {
-        setError(adminErrorMessage('invalid_multiplier'))
+      if (raw === '' || !Number.isFinite(n) || n <= 0 || n > 100 || Math.abs(n * 100 - Math.round(n * 100)) > 1e-6) {
+        setSaved(false)
+        setError(`${p.label}: ${adminErrorMessage('invalid_multiplier')}`)
         return
       }
       periodMultipliers[p.key] = n
     }
+    setError(null)
+    setConfirm(periodMultipliers)
+  }
+
+  async function save(periodMultipliers: Record<string, number>) {
+    if (busy) return
     setBusy(true)
     setError(null)
     setSaved(false)
@@ -56,6 +67,7 @@ export function PeriodMultiplierForm({ periods, values, canEdit }: Props) {
       setError(adminErrorMessage('network'))
     } finally {
       setBusy(false)
+      setConfirm(null)
     }
   }
 
@@ -80,12 +92,21 @@ export function PeriodMultiplierForm({ periods, values, canEdit }: Props) {
         합계 = 고른 항목 단가의 합 × 배수 (원·엔 단위 내림). 소수 둘째 자리까지 입력할 수 있습니다.
       </p>
       {canEdit ? (
-        <button type="button" style={{ ...button, marginTop: 8 }} onClick={save} disabled={busy}>
+        <button type="button" style={{ ...button, marginTop: 8 }} onClick={askSave} disabled={busy}>
           {busy ? '저장 중…' : '배수 저장'}
         </button>
       ) : null}
       {saved ? <span style={{ marginLeft: 8, fontSize: 12, color: '#2E7D32' }}>저장됨</span> : null}
       {error ? <p style={errorBox}>{error}</p> : null}
+      <AdminConfirm
+        open={confirm !== null}
+        onClose={() => setConfirm(null)}
+        onConfirm={() => confirm && void save(confirm)}
+        busy={busy}
+        confirmLabel="저장"
+        title="기간 배수를 저장할까요?"
+        description={`${periods.map((p) => `${p.label} ×${confirm?.[p.key] ?? ''}`).join(' · ')}\n고객 화면 금액이 즉시 바뀝니다. 이미 결제된 주문과 발행된 계약서는 그대로 유지됩니다.`}
+      />
     </div>
   )
 }

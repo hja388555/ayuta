@@ -8,6 +8,8 @@ import { getSessionUser } from '@/lib/dal'
 import { categoryByNo } from '@/lib/categories'
 import { findOwnedOrder, formatOrderSchedule } from '@/lib/order-lookup'
 import { sealDataUri } from '@/lib/seal'
+import { loadPriceBook } from '@/lib/price-book'
+import { contractItemDictionary, localizeContractItems } from '@/lib/mypage/localize-items'
 import { PROGRESS_STEPS, isSigned, progressCount, statusTone } from '@/lib/mypage/status'
 import s from '@/components/Mypage.module.css'
 
@@ -50,7 +52,15 @@ export default async function OrderDetailPage({ params }: Props) {
   const amount = new Intl.NumberFormat(order.currency === 'JPY' ? 'ja-JP' : 'ko-KR', { style: 'currency', currency: order.currency, maximumFractionDigits: 0 }).format(order.amount)
 
   // 3·4번은 contractItems 에 "광고 국가"가 이미 들어 있다. 없을 때만 주문의 국가 선택으로 채운다
-  const items = (order.contractItems ?? []).map((it) => ({ label: it.label, value: it.value }))
+  // 저장된 스냅샷은 주문 당시 언어(1번 라벨은 늘 한국어)라 보는 언어로 바꿔 보여 준다. 단가 이름은 두 통화의 단가표를 key 로 짝짓는다
+  const viewLocale = locale === 'ja' ? 'ja' : 'ko'
+  const orderLocale = order.locale === 'ja' ? 'ja' : 'ko'
+  const [fromBook, toBook] = await Promise.all([loadPriceBook(order.category, order.currency), loadPriceBook(order.category, viewLocale === 'ja' ? 'JPY' : 'KRW')]).catch(() => [undefined, undefined])
+  const dict = contractItemDictionary(orderLocale, viewLocale, { from: fromBook, to: toBook })
+  const items = localizeContractItems(
+    (order.contractItems ?? []).map((it) => ({ label: it.label, value: it.value })),
+    dict,
+  )
   const countryLabel = t('detail.country')
   const countries = ((order.country as string[] | null | undefined) ?? []).map((c) => t(`detail.countries.${c}` as 'detail.countries.kr'))
   const rows = [

@@ -39,6 +39,15 @@ export function availableTransitions(from: OrderStatus, opts: { isSuper: boolean
   return allowed.filter((to) => (to === 'cancelled' ? opts.isSuper : true))
 }
 
+/**
+ * 되돌릴 수 없는 전이인가 — 도착 상태에서 더 갈 곳이 없으면(완료·취소·결제실패·이상거래 의심)
+ * 한 번 누르면 끝이다. 관리자 화면은 이 경우 확인 팝업을 한 번 더 띄운다.
+ */
+export function requiresTransitionConfirm(to: OrderStatus): boolean {
+  const next = ALLOWED_TRANSITIONS[to]
+  return !next || next.length === 0
+}
+
 /** 관리자 화면 표기. 화면은 한국어 고정이다(next-intl [locale] 세그먼트 밖) */
 export const STATUS_LABELS: Record<OrderStatus, string> = {
   pending: '결제대기',

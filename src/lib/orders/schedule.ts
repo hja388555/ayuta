@@ -21,7 +21,7 @@ export type ScheduleDays = Record<ScheduleField, ScheduleDay>
 
 export type SetScheduleResult =
   | { ok: true; changed: ScheduleField[] }
-  | { ok: false; reason: 'not_found' | 'invalid_date' | 'reversed_period'; detail?: string }
+  | { ok: false; reason: 'not_found' | 'invalid_date' | 'reversed_period' | 'ad_outside_period'; detail?: string }
 
 const DAY_RE = /^\d{4}-\d{2}-\d{2}$/
 
@@ -65,7 +65,7 @@ export function seoulMidnight(day: string): Date {
 export function mergeScheduleDays(
   current: ScheduleDays,
   patch: SchedulePatch,
-): { ok: true; next: ScheduleDays; changed: ScheduleField[] } | { ok: false; reason: 'invalid_date' | 'reversed_period'; detail: string } {
+): { ok: true; next: ScheduleDays; changed: ScheduleField[] } | { ok: false; reason: 'invalid_date' | 'reversed_period' | 'ad_outside_period'; detail: string } {
   const next: ScheduleDays = { ...current }
   const changed: ScheduleField[] = []
 
@@ -84,7 +84,23 @@ export function mergeScheduleDays(
     return { ok: false, reason: 'reversed_period', detail: `${next.contractStart} > ${next.contractEnd}` }
   }
 
+  const outside = adDateOutsidePeriod(next)
+  if (outside) return { ok: false, reason: 'ad_outside_period', detail: outside }
+
   return { ok: true, next, changed }
+}
+
+/**
+ * 광고 진행일이 계약기간 밖인가(양 끝 포함 — 시작일·종료일 당일 진행은 허용).
+ * 정해진 쪽 경계만 본다: 시작일만 있으면 그 이후인지, 종료일만 있으면 그 이전인지.
+ * 밖이면 사유 문자열, 안이거나 판단할 수 없으면 null
+ */
+export function adDateOutsidePeriod(days: ScheduleDays): string | null {
+  const { contractStart, contractEnd, adStartDate } = days
+  if (!adStartDate) return null
+  if (contractStart && adStartDate < contractStart) return `${adStartDate} < ${contractStart}`
+  if (contractEnd && adStartDate > contractEnd) return `${adStartDate} > ${contractEnd}`
+  return null
 }
 
 /**

@@ -11,7 +11,7 @@ export type ContractItem = { label: string; value: string }
 // 골랐는지"가 남아야 하므로 고정 표기를 둔다. messages/*.json 에는 이 라벨이 없다
 // (TierForm 은 화면에 원문 키를 그대로 찍는다) — 계약서는 고객이 서명하는 문서라 사람이
 // 읽을 이름으로 바꿔 넣는다.
-const PLATFORM_LABELS: Record<string, { ko: string; ja: string }> = {
+export const PLATFORM_LABELS: Record<string, { ko: string; ja: string }> = {
   instagram: { ko: '인스타그램', ja: 'Instagram' },
   youtube: { ko: '유튜브', ja: 'YouTube' },
   tiktok: { ko: '틱톡', ja: 'TikTok' },
@@ -22,7 +22,9 @@ const PLATFORM_LABELS: Record<string, { ko: string; ja: string }> = {
 // 명시돼 있다(docs/법무문서-확정본.md H절 · G절). 1번은 별도 자리({{country}})로 채우므로 여기
 // 섞지 않고, 2번은 "촬영 국가"라는 다른 필드라 이 라벨을 쓰지 않는다(카테고리별 소스가 다르다).
 const COUNTRY_ITEM_CATEGORIES = new Set([3, 4])
-const COUNTRY_ITEM_LABEL: { ko: string; ja: string } = { ko: '광고 국가', ja: '広告国' }
+export const COUNTRY_ITEM_LABEL: { ko: string; ja: string } = { ko: '광고 국가', ja: '広告国' }
+// 1번(tier) 항목 라벨. 로케일과 무관하게 이 한국어로 저장된다 — 마이페이지는 보여 줄 때만 번역한다(mypage/localize-items.ts)
+export const TIER_ITEM_LABELS = { tier: '등급', platform: '플랫폼' } as const
 
 type Messages = typeof koMessages
 
@@ -52,9 +54,9 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
     const tiers = asStringArray(sel.tiers)
     const platforms = asStringArray(sel.platforms)
     const items: ContractItem[] = []
-    if (tiers.length > 0) items.push({ label: '등급', value: tiers.map(labelForKey).join(', ') })
+    if (tiers.length > 0) items.push({ label: TIER_ITEM_LABELS.tier, value: tiers.map(labelForKey).join(', ') })
     if (platforms.length > 0) {
-      items.push({ label: '플랫폼', value: platforms.map((p) => PLATFORM_LABELS[p]?.[locale] ?? p).join(', ') })
+      items.push({ label: TIER_ITEM_LABELS.platform, value: platforms.map((p) => PLATFORM_LABELS[p]?.[locale] ?? p).join(', ') })
     }
     return items
   }
@@ -115,6 +117,38 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
 }
 
 /**
+ * 결제 화면 "주문 내역 확인"에 금액 없이 보여 줄 선택 — 1번 플랫폼, 2번 촬영 국가, 4번 사이즈.
+ * 금액 줄(quote.lines)에는 금액칸이 있는 항목만 있어서, 이 값들은 따로 채워야 고객이 고른 게 보인다.
+ */
+export function unpricedReviewRows(def: CategoryDef, rawSelection: unknown, locale: 'ko' | 'ja'): ContractItem[] {
+  const messages = messagesFor(locale)
+  const sel = typeof rawSelection === 'object' && rawSelection !== null ? (rawSelection as Record<string, unknown>) : {}
+  const rows: ContractItem[] = []
+
+  if (def.model.kind === 'tier') {
+    const names: Record<string, string> = messages.tierForm.platforms
+    const platforms = asStringArray(sel.platforms)
+    if (platforms.length > 0) rows.push({ label: messages.tierForm.platformTitle, value: platforms.map((p) => names[p] ?? p).join(', ') })
+  }
+
+  if (def.model.kind === 'videoPairs') {
+    const itemLabels: Record<string, string> = messages.groupForm.itemLabels
+    const chosen = new Set(asStringArray(sel.items))
+    const countries = formFor(2)?.groups.find((g) => g.key === 'country')?.items.filter((i) => chosen.has(i.key)) ?? []
+    if (countries.length > 0) {
+      rows.push({ label: messages.groupForm.groupTitles.country, value: countries.map((i) => itemLabels[i.key] ?? i.key).join(', ') })
+    }
+  }
+
+  if (def.model.kind === 'sumMultiplier') {
+    const size = typeof sel.size === 'string' ? sel.size.trim() : ''
+    if (size) rows.push({ label: messages.groupForm.sizeLabel, value: size })
+  }
+
+  return rows
+}
+
+/**
  * 1번 계약서 제1조 "광고 국가" 줄({{country}})에 채울 값. 표지에서 고른 나라를
  * 원본 표기 순서(한국, 일본)로 렌더링한다. 나라를 하나도 못 고른 채 여기까지 온다면
  * (정상 흐름에서는 표지 가드가 막지만) 방어적으로 명시적 대시를 채운다 — undefined로
@@ -125,4 +159,24 @@ export function countryFactValue(rawSelection: unknown, locale: 'ko' | 'ja'): st
   const countries = asStringArray(sel.country)
   const formatted = formatCountries(countries, locale)
   return formatted || '-'
+}
+
+/**
+ * 계약서 자리표시자 중 카테고리 선택에서 채우는 칸(1번 제1조 "선택 상품 / 선택 채널 / 광고 국가").
+ * 결제 화면 미리보기와 주문 생성(createOrder)이 같은 값을 쓰도록 한 곳에 둔다.
+ * 다른 카테고리 템플릿에는 자리가 없으므로 값을 넘겨도 fillContract 가 조용히 무시한다.
+ */
+export function categoryContractFacts(
+  contractItems: readonly ContractItem[],
+  rawSelection: unknown,
+  locale: 'ko' | 'ja',
+): { productName: string; channels: string; country: string } {
+  // contractItems 는 tier 모델에서 "등급"/"플랫폼" 라벨로 쌓인다(위 buildContractItems).
+  // 플랫폼은 필수 선택이 아니라 비어 있을 수 있다 — undefined 로 두면 missing 판정으로
+  // 1번 주문이 전부 막히므로 명시적 대시로 채운다(buyerContractFields 와 같은 관례)
+  return {
+    productName: contractItems.find((item) => item.label === '등급')?.value ?? '-',
+    channels: contractItems.find((item) => item.label === '플랫폼')?.value ?? '-',
+    country: countryFactValue(rawSelection, locale),
+  }
 }

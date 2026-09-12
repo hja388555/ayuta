@@ -9,6 +9,7 @@ import { CheckoutForm } from '@/components/CheckoutForm'
 import { loadCompany, loadCompanyContractFields } from '@/lib/company-settings'
 import { CHECKOUT_LABEL_KEYS, type CheckoutLabels } from '@/lib/checkout/labels'
 import type { ConsentDef } from '@/lib/checkout/consents'
+import { BUYER_PLACEHOLDERS_PENDING } from '@/lib/checkout/contract-preview'
 import { loadActiveContractTemplate } from '@/lib/checkout/create-order'
 import { QUOTE_CATEGORY, loadQuoteByToken } from '@/lib/quotes/create-quote-order'
 import { parseQuoteLines } from '@/lib/quotes/lines'
@@ -105,7 +106,7 @@ export default async function QuotePage({ params }: Props) {
   const currency = quote.currency as Currency
 
   // 계약서 미리보기 — 주문 생성(persistOrder)이 저장할 것과 같은 항목·금액으로 빈칸을 채운다.
-  // 주문자 이름·서명은 아직 입력 전이라 비워 둔다(카테고리 결제 화면과 같다). 템플릿이 없으면 결제를 열지 않는다
+  // 주문자 칸은 자리표시자로 남기고 화면(CheckoutForm)이 입력 중인 값으로 채운다(카테고리 결제 화면과 같다). 템플릿이 없으면 결제를 열지 않는다
   const template = await loadActiveContractTemplate(payload, QUOTE_CATEGORY, contractLocale)
   const orderLines = quoteOrderLines(
     { quoteNumber: quote.quoteNumber, lines: parsedLines.lines, total: parsedLines.total },
@@ -117,8 +118,7 @@ export default async function QuotePage({ params }: Props) {
         amount: orderLines.amount,
         currency,
         contractDate: new Intl.DateTimeFormat('ko-KR', { timeZone: 'Asia/Seoul', year: 'numeric', month: 'long', day: 'numeric' }).format(new Date()),
-        buyerName: '',
-        signature: '',
+        ...BUYER_PLACEHOLDERS_PENDING,
         items: orderLines.contractItems,
         ...orderLines.contractFacts,
         ...(await loadCompanyContractFields(contractLocale)),
@@ -194,6 +194,7 @@ export default async function QuotePage({ params }: Props) {
             endpoint="/api/quote/order"
             // 금액·라인은 보내지 않는다 — 서버가 토큰으로 찾은 견적에서만 가져온다
             requestBody={{ token }}
+            draftScope="quote"
             amount={orderLines.amount}
             currency={currency}
             template={{

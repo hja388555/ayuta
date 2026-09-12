@@ -28,11 +28,18 @@ type OwnershipRow = {
   orderer: { email: string; phone: string } | null | undefined
 }
 
+/** 연락처 비교용 — 숫자만 남긴다. 주문 때 "010-1234-5678", 조회 때 "01012345678"로 적어도 같은 번호다 */
+export function phoneDigits(phone: string | null | undefined): string {
+  return (phone ?? '').replace(/\D/g, '')
+}
+
 export function guestOwnershipMatches(order: OwnershipRow, check: { email: string; phone: string }): boolean {
   if (order.customer) return false
   if (!order.orderer) return false
   const emailMatches = order.orderer.email?.trim().toLowerCase() === check.email.trim().toLowerCase()
-  const phoneMatches = order.orderer.phone?.trim() === check.phone.trim()
+  // 숫자가 하나도 없으면 빈 문자열끼리 같아지므로 막는다
+  const digits = phoneDigits(check.phone)
+  const phoneMatches = digits.length > 0 && phoneDigits(order.orderer.phone) === digits
   return Boolean(emailMatches && phoneMatches)
 }
 

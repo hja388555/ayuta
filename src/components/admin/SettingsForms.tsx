@@ -15,11 +15,13 @@ function MsgLine({ msg }: { msg: Msg }) {
   return <p className={msg.ok ? s.ok : s.err}>{msg.text}</p>
 }
 
-async function postJson(url: string, body: unknown): Promise<Msg | true> {
+async function postJson(url: string, body: unknown, fieldLabel?: (field: string) => string | undefined): Promise<Msg | true> {
   try {
     const res = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
     const json = await res.json().catch(() => ({}))
-    if (!res.ok || !json?.ok) return { ok: false, text: adminErrorMessage(json?.error) }
+    // 서버가 틀린 칸(field)을 알려주면 그 칸 이름을 앞에 붙인다
+    const label = typeof json?.field === 'string' ? fieldLabel?.(json.field) : undefined
+    if (!res.ok || !json?.ok) return { ok: false, text: label ? `${label}: ${adminErrorMessage(json?.error)}` : adminErrorMessage(json?.error) }
     return true
   } catch {
     return { ok: false, text: adminErrorMessage('network') }
@@ -72,7 +74,7 @@ export function CompanyForm({ initial, canEdit }: { initial: Company; canEdit: b
     if (busy) return
     setBusy(true)
     setMsg(null)
-    const r = await postJson('/api/admin/settings', v)
+    const r = await postJson('/api/admin/settings', v, (field) => LAYOUT.flat().find((f) => f.key === field)?.label)
     setBusy(false)
     if (r !== true) return setMsg(r)
     setMsg({ ok: true, text: '저장했습니다. 이미 체결된 계약서는 바뀌지 않습니다.' })
@@ -393,6 +395,7 @@ export function AdminPasswordForm() {
     if (busy) return
     if (!v.current || !v.next || !v.confirm) return setMsg({ ok: false, text: '세 칸을 모두 입력해 주세요.' })
     if (passwordIssue(v.next)) return setMsg({ ok: false, text: adminErrorMessage('weak_password') })
+    if (v.next === v.current) return setMsg({ ok: false, text: adminErrorMessage('same_password') })
     if (v.next !== v.confirm) return setMsg({ ok: false, text: '새 비밀번호와 확인이 다릅니다.' })
     setBusy(true)
     setMsg(null)

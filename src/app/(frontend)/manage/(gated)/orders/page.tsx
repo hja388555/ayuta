@@ -1,11 +1,12 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { AuthError, requireAdmin } from '@/lib/dal'
-import { countOrdersByStatus, findOrdersForAdmin } from '@/lib/admin/orders-data'
+import { countOrdersByStatus, findOrdersForAdmin, resolvePhoneOrderIds } from '@/lib/admin/orders-data'
 import {
   buildOrderListQuery,
   buildOrderWhere,
   ORDER_PERIODS,
+  orderDetailHref,
   orderExportHref,
   orderListHref,
   orderStatusHref,
@@ -39,11 +40,23 @@ export default async function OrdersPage({ searchParams }: Props) {
 
   const params = parseOrderListParams(await searchParams)
   const now = new Date()
+  const phoneOrderIds = await resolvePhoneOrderIds(params.q)
   const [result, counts] = await Promise.all([
-    findOrdersForAdmin(buildOrderListQuery(params, now)),
-    countOrdersByStatus(buildOrderWhere(params, { includeStatus: false, now }), ORDER_STATUSES),
+    findOrdersForAdmin(buildOrderListQuery(params, now, phoneOrderIds)),
+    countOrdersByStatus(buildOrderWhere(params, { includeStatus: false, now, phoneOrderIds }), ORDER_STATUSES),
   ])
   const totalPages = Math.max(1, result.totalPages)
+  // ?page=999 처럼 마지막 페이지를 넘긴 주소 — 빈 표 대신 마지막 페이지로 가는 길을 준다
+  const pastLast = result.docs.length === 0 && result.totalDocs > 0 && params.page > totalPages
+  // 상세의 "목록으로"가 지금 필터·페이지로 돌아오게 한다
+  const listHref = orderListHref(params, params.page)
+  const emptyText = pastLast ? (
+    <>
+      {params.page}페이지에는 주문이 없습니다. <Link href={orderListHref(params, totalPages)}>마지막 페이지로</Link>
+    </>
+  ) : (
+    '조건에 맞는 주문이 없습니다.'
+  )
 
   const chip = (key: string, label: string, count: number, active: boolean, href: string) => (
     <li key={key}>
@@ -98,7 +111,7 @@ export default async function OrdersPage({ searchParams }: Props) {
       </form>
 
       <section className={s.card} aria-label={`주문 ${result.totalDocs}건`}>
-        <div className={s.tableWrap}>
+        <div className={`${s.tableWrap} ${s.listTable}`}>
           <table className={s.table}>
             <thead>
               <tr>
@@ -117,7 +130,7 @@ export default async function OrdersPage({ searchParams }: Props) {
               {result.docs.length === 0 ? (
                 <tr>
                   <td colSpan={7} className={s.empty}>
-                    조건에 맞는 주문이 없습니다.
+                    {emptyText}
                   </td>
                 </tr>
               ) : (
@@ -132,7 +145,7 @@ export default async function OrdersPage({ searchParams }: Props) {
                       <Badge tone={adminStatusTone(order.status)}>{statusLabel(order.status)}</Badge>
                     </td>
                     <td>
-                      <Link href={`/manage/orders/${order.id}`} className={s.detailLink} aria-label={`${order.orderNumber} 상세`}>
+                      <Link href={orderDetailHref(order.id, listHref)} className={s.detailLink} aria-label={`${order.orderNumber} 상세`}>
                         상세
                       </Link>
                     </td>
@@ -142,6 +155,30 @@ export default async function OrdersPage({ searchParams }: Props) {
             </tbody>
           </table>
         </div>
+        {/* 모바일(767px 이하)은 넓은 표 대신 카드 목록 — 가로 스크롤 없이 한눈에 본다 */}
+        <ul className={s.mobileList}>
+          {result.docs.length === 0 ? (
+            <li className={s.empty}>{emptyText}</li>
+          ) : (
+            result.docs.map((order) => (
+              <li key={order.id}>
+                <Link href={orderDetailHref(order.id, listHref)} className={s.mItem} aria-label={`${order.orderNumber} 상세`}>
+                  <span className={s.mTop}>
+                    <span className={s.orderNo}>{order.orderNumber}</span>
+                    <Badge tone={adminStatusTone(order.status)}>{statusLabel(order.status)}</Badge>
+                  </span>
+                  <span className={s.mMeta}>
+                    {order.orderer?.name ?? '—'} · {formatMonthDay(order.createdAt)} · {categoryLabel(order.category)}
+                  </span>
+                  <span className={s.mBottom}>
+                    <strong>{formatAmount(order.amount, order.currency)}</strong>
+                    <span className={s.detailLink}>상세 ›</span>
+                  </span>
+                </Link>
+              </li>
+            ))
+          )}
+        </ul>
       </section>
 
       <nav className={s.pagination} aria-label="페이지">
@@ -174,6 +211,9 @@ export default async function OrdersPage({ searchParams }: Props) {
           </span>
         )}
       </nav>
+      <p className={s.pageInfo} aria-live="polite">
+        {Math.min(params.page, totalPages)} / {totalPages} 페이지 · 총 {result.totalDocs}건
+      </p>
     </div>
   )
 }

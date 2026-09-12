@@ -5,6 +5,7 @@ import { SiteHeader } from '@/components/SiteHeader'
 import { SiteFooter } from '@/components/SiteFooter'
 import { InstallBanner } from '@/components/InstallBanner'
 import { ContactBox } from '@/components/ContactBox'
+import { ContactBoxSlot } from '@/components/ContactBoxSlot'
 import { MobileTabBar } from '@/components/MobileTabBar'
 import { Shell } from '@/components/Shell'
 import { loadFooterInfo } from '@/lib/company-settings'
@@ -69,12 +70,14 @@ export default async function LocaleLayout({
         labels={{ home: t('home'), inquiry: t('inquiry'), login: t('login'), signup: t('signup'), mypage: t('mypage'), logout: t('logout'), admin: t('admin') }}
       />
       {children}
-      {/* 본문 하단 문의 박스 — 모든 고객 화면 공통(큐 Q32, Figma [v2] 205:102) */}
-      <Shell as="section">
-        <div style={{ padding: '0 0 64px' }}>
-          <ContactBox phone={footerInfo.phone} locale={locale} labels={{ title: tContact('title'), hours: tContact('hours'), chat: tContact('chat') }} />
-        </div>
-      </Shell>
+      {/* 본문 하단 문의 박스 — 고객 화면 공통(큐 Q32, Figma [v2] 205:102). 채팅 화면 자체에서는 숨긴다 */}
+      <ContactBoxSlot>
+        <Shell as="section">
+          <div style={{ padding: '0 0 64px' }}>
+            <ContactBox phone={footerInfo.phone} locale={locale} labels={{ title: tContact('title'), hours: tContact('hours'), chat: tContact('chat') }} />
+          </div>
+        </Shell>
+      </ContactBoxSlot>
       <InstallBanner labels={{ title: tInstall('title'), install: tInstall('install'), close: tInstall('close'), iosHint: tInstall('iosHint') }} />
       <SiteFooter
         info={footerInfo}

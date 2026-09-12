@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook } from '@ayuta/pricing'
-import { buildContractItems, countryFactValue } from './contract-items'
+import { buildContractItems, countryFactValue, unpricedReviewRows } from './contract-items'
 import { CATEGORIES } from '../categories'
 
 const emptyBook: PriceBook = { currency: 'KRW', entries: {} }
@@ -94,5 +94,27 @@ describe('buildContractItems — 2번 영상별 줄', () => {
     }
     const items = buildContractItems(def2, book, { pairs: [{ type: 'video-type-event', length: 'video-length-60m' }] }, 'ja')
     expect(items).toEqual([{ label: '映像 1', value: 'イベント · 60分' }])
+  })
+})
+
+describe('unpricedReviewRows — 주문 내역 확인의 금액 없는 줄', () => {
+  const def = (no: number) => CATEGORIES.find((c) => c.no === no)!
+
+  it('1번은 고른 플랫폼을 화면 언어로 보여 준다', () => {
+    const rows = unpricedReviewRows(def(1), { tiers: ['basic'], platforms: ['youtube', 'line'] }, 'ja')
+    expect(rows).toEqual([{ label: 'プラットフォーム', value: 'YouTube、ショート, LINE（画像、メッセージコンテンツ）' }])
+    expect(unpricedReviewRows(def(1), { tiers: ['basic'], platforms: [] }, 'ko')).toEqual([])
+  })
+
+  it('2번은 촬영 국가, 4번은 사이즈를 보여 준다', () => {
+    expect(unpricedReviewRows(def(2), { items: ['country-kr', 'country-jp'], pairs: [] }, 'ko')).toEqual([
+      { label: '촬영 국가', value: '한국 현지 촬영, 일본 현지 촬영' },
+    ])
+    expect(unpricedReviewRows(def(4), { items: [], period: '2w', size: ' 1200x800 ' }, 'ko')).toEqual([{ label: '사이즈', value: '1200x800' }])
+    expect(unpricedReviewRows(def(4), { items: [], period: '2w', size: '' }, 'ko')).toEqual([])
+  })
+
+  it('3번은 금액 없는 줄이 없다', () => {
+    expect(unpricedReviewRows(def(3), { items: ['x'] }, 'ko')).toEqual([])
   })
 })
