@@ -9,6 +9,7 @@ import { getSessionUser } from '@/lib/dal'
 import { ImageBand } from '@/components/ImageBand'
 import { TierForm } from '@/components/TierForm'
 import { GroupForm } from '@/components/GroupForm'
+import { restoreFromQuery } from '@/lib/order-restore'
 import { VideoPairsForm } from '@/components/VideoPairsForm'
 import type { TierRow } from '@/components/TierForm'
 import styles from '@/components/OrderForms.module.css'
@@ -42,6 +43,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
   // 표지에서 넘어온 나라·목적. 여기서는 다시 고르게 하지 않고 결제 화면까지 그대로 들고 간다
   const country = Array.isArray(sp.country) ? sp.country : sp.country ? [sp.country] : []
   const purpose = typeof sp.purpose === 'string' ? sp.purpose : undefined
+  // 결제 화면 "선택 내용 수정하기"로 돌아오면 같은 쿼리가 실려 온다 — 폼이 고른 내용을 되살린다
+  const restore = restoreFromQuery(sp)
 
   const def = categoryBySlug(category)
   // 없는 슬러그는 404. 500 이 나면 어떤 슬러그가 존재하는지 알려주는 신호가 된다
@@ -97,6 +100,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 categorySlug={def.slug}
                 country={country}
                 purpose={purpose}
+                restore={restore}
                 labels={{
                   platformTitle: t('platformTitle'),
                   platformHint: t('platformHint'),
@@ -121,6 +125,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 categorySlug={def.slug}
                 country={country}
                 purpose={purpose}
+                restore={restore}
                 labels={{
                   groupTitles: tGroup.raw('groupTitles'),
                   groupHints: tGroup.raw('groupHints'),
@@ -144,6 +149,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 categorySlug={def.slug}
                 country={country}
                 purpose={purpose}
+                restore={restore}
                 labels={{
                   groupTitles: tGroup.raw('groupTitles'),
                   groupHints: tGroup.raw('groupHints'),

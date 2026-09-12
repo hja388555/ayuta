@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import type { RestoreSelection } from '../lib/order-restore'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import { ChoiceCard, ChoiceGrid, StepTitle, TotalBar } from './ui'
@@ -67,6 +68,7 @@ type Props = {
   // 표지에서 이미 고른 나라·목적. 여기서는 그대로 들고만 간다
   country: readonly string[]
   purpose?: string
+  restore?: RestoreSelection
   labels: {
     platformTitle: string
     platformHint: string
@@ -84,10 +86,11 @@ type Props = {
   }
 }
 
-export function TierForm({ book, model, locale, categorySlug, country, purpose, labels }: Props) {
+export function TierForm({ book, model, locale, categorySlug, country, purpose, restore, labels }: Props) {
   const router = useRouter()
-  const [tiers, setTiers] = useState<string[]>([])
-  const [platforms, setPlatforms] = useState<string[]>([])
+  // 결제 화면에서 돌아왔으면 고른 등급·플랫폼을 되살린다 — 단가표·플랫폼 목록에 있는 값만
+  const [tiers, setTiers] = useState<string[]>(() => [...new Set(restore?.tiers ?? [])].filter((k) => Boolean(book.entries[k])))
+  const [platforms, setPlatforms] = useState<string[]>(() => [...new Set(restore?.platforms ?? [])].filter((p) => (PLATFORMS as readonly string[]).includes(p)))
 
   // 등급 목록은 단가표(book)에서 뽑는다 — model.tiers 는 카테고리 표의 자리표시자일 뿐,
   // 실제로 무엇을 고를 수 있는지는 DB 에 등록된 단가가 결정한다

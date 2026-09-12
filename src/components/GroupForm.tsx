@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { selectionsFromItems, tabFromItems, type RestoreSelection } from '../lib/order-restore'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import type { CategoryForm, GroupDef, ItemDef } from '@/lib/category-groups'
@@ -137,22 +138,30 @@ type Props = {
   // 표지에서 이미 고른 나라·목적. 여기서는 그대로 들고만 간다
   country: readonly string[]
   purpose?: string
+  restore?: RestoreSelection
   labels: Labels
 }
 
-export function GroupForm({ form, model, book, locale, categorySlug, country, purpose, labels }: Props) {
+export function GroupForm({ form, model, book, locale, categorySlug, country, purpose, restore, labels }: Props) {
   const router = useRouter()
-  // 표지 1단계의 광고 국가를 그대로 적용한다(2026-09-12 사용자 요청)
-  const [selections, setSelections] = useState<Record<string, string[]>>(() => initialSelections(form, country))
-  const [period, setPeriod] = useState<string | undefined>(undefined)
-  const [size, setSize] = useState('')
+  // 표지 1단계의 광고 국가를 그대로 적용한다(2026-09-12 사용자 요청).
+  // 결제 화면 "선택 내용 수정하기"로 돌아왔으면 고른 항목·기간·사이즈를 되살린다
+  const [selections, setSelections] = useState<Record<string, string[]>>(() => {
+    const restored = selectionsFromItems(form, restore?.items ?? [])
+    return Object.keys(restored).length > 0 ? { ...initialSelections(form, country), ...restored } : initialSelections(form, country)
+  })
+  const [period, setPeriod] = useState<string | undefined>(() => (restore?.period && form.periods?.includes(restore.period) ? restore.period : undefined))
+  const [size, setSize] = useState(() => (restore?.size ?? '').slice(0, form.freeText?.[0]?.maxLength ?? 0))
   // 첫 탭은 표지에서 고른 나라를 따른다. 없으면 화면 언어로 정한다
   const tabs = countryTabsFor(country)
   // 한국·일본을 둘 다 골랐으면 탭을 오가도 고른 것을 유지한다 — 두 나라 항목을 함께 주문할 수 있다
   const keepAcrossTabs = coverCountries(country).length === 2
-  const [tab, setTab] = useState<CountryTab>(() =>
-    tabs.length === 1 ? tabs[0]! : coverCountries(country)[0] ?? (locale === 'ja' ? 'jp' : 'kr'),
-  )
+  const [tab, setTab] = useState<CountryTab>(() => {
+    if (tabs.length === 1) return tabs[0]!
+    // 되살린 항목이 한 나라 것이면 그 탭을 연다(두 나라 모두 고른 경우엔 탭을 오가도 유지된다)
+    const restoredTab = tabFromItems(form, restore?.items ?? [])
+    return restoredTab ?? coverCountries(country)[0] ?? (locale === 'ja' ? 'jp' : 'kr')
+  })
   const activeTab = form.countryTabs ? tab : null
 
   const priced = useMemo(() => pricedKeys(form, selections), [form, selections])
