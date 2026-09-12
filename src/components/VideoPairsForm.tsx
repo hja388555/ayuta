@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { pairsFromQuery, selectionsFromItems, type RestoreSelection } from '../lib/order-restore'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel, type VideoPair } from '@ayuta/pricing'
 import type { CategoryForm } from '@/lib/category-groups'
@@ -83,6 +84,7 @@ type Props = {
   categorySlug: string
   country: readonly string[]
   purpose?: string
+  restore?: RestoreSelection
   labels: Labels
 }
 
@@ -91,15 +93,19 @@ type Props = {
  * 영상 종류는 중복 선택이고, 고른 종류마다 아래 "영상별 완성 길이"에서 길이를 하나씩 정한다.
  * 그룹 하나에 선택 목록 하나인 GroupForm 모양과 맞지 않아 따로 둔다.
  */
-export function VideoPairsForm({ form, model, book, locale, categorySlug, country, purpose, labels }: Props) {
+export function VideoPairsForm({ form, model, book, locale, categorySlug, country, purpose, restore, labels }: Props) {
   const router = useRouter()
   const countryGroup = form.groups.find((g) => g.key === 'country')
   const typeGroup = form.groups.find((g) => g.key === 'videoType')
   const lengthGroup = form.groups.find((g) => g.key === 'videoLength')
 
   // 촬영 국가는 표지에서 고른 나라를 미리 체크한다(GroupForm 과 같은 규칙)
-  const [countryItems, setCountryItems] = useState<string[]>(() => initialSelections(form, country).country ?? [])
-  const [pairs, setPairs] = useState<DraftPair[]>([])
+  // 결제 화면에서 돌아왔으면 그때 고른 촬영 국가·영상 쌍을 되살린다
+  const [countryItems, setCountryItems] = useState<string[]>(() => {
+    const restored = selectionsFromItems(form, restore?.items ?? []).country
+    return restored && restored.length > 0 ? restored : (initialSelections(form, country).country ?? [])
+  })
+  const [pairs, setPairs] = useState<DraftPair[]>(() => pairsFromQuery(form, restore?.pairs ?? []))
 
   const total = useMemo(() => previewPairsTotal(book, model, pairs), [book, model, pairs])
   const canPay = canPayPairs(pairs)
