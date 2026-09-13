@@ -1,11 +1,7 @@
 /* 주문 폼 01~04 (Figma v2 208:2 · 218:2 · 218:367 · 219:2, 모바일 208:196 · 218:178 · 218:536 · 219:212) */
 
-.band { padding: 44px var(--side); background: var(--brand-50); }
-.bandBadge { display: inline-flex; padding: 6px 12px; border-radius: 999px; background: var(--brand-100); color: var(--brand-900); font-size: 13px; font-weight: 700; line-height: 1.5; }
-.bandTitle { margin: 8px 0 0; font-size: 38px; font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; color: var(--ink-900); }
-.bandDesc { margin: 8px 0 0; font-size: 17px; line-height: 1.5; color: var(--ink-700); }
-
-.body { display: flex; flex-direction: column; gap: 56px; padding: 56px var(--side); }
+.body { display: flex; flex-direction: column; gap: 32px; max-width: 960px; margin-inline: auto; padding: 28px var(--side) 48px; }
+.title { margin: 0; font-size: 28px; font-weight: 800; line-height: 1.35; color: var(--brown-900); }
 .step > :global(.step-title) { margin-bottom: 20px; }
 
 /* 한국/일본 탭 */
@@ -54,15 +50,13 @@
 .tierPick input:checked + .tierBox { border-color: #fff; background: #fff url('/ui/check-sm.svg') center / 12px 12px no-repeat; }
 .tierPick:has(input:focus-visible) { outline: 2px solid currentColor; outline-offset: 2px; }
 
-/* 총액 · 결제 */
-.total :global(.total-bar) { padding: 28px 32px; border-radius: 16px; }
-.total :global(.total-bar-label) { font-size: 17px; color: #a9b0bc; }
-.total :global(.total-bar) > div:first-child > div:last-child { font-size: 15px !important; color: #8b93a1; }
-.total :global(.total-bar-amount) { font-size: 38px; }
-.pay { display: flex; flex-direction: column; gap: 10px; }
-.payBtn { height: 72px; border-radius: 14px; font-size: 20px; gap: 10px; }
-.payBtn img { display: block; width: 22px; height: 22px; flex: none; }
-.notice { margin: 0; font-size: 14px; line-height: 1.5; color: var(--ink-500); }
+/* 상품 내용 · 총액 · 결제 */
+.pay { display: flex; flex-direction: column; gap: 8px; }
+.items { padding: 12px 16px; border: 1px solid var(--line-warm); border-radius: var(--radius); background: var(--cream-50); }
+.itemsLabel { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: var(--brown-600); }
+.items ul { margin: 0; padding: 0; list-style: none; font-size: 17px; font-weight: 700; line-height: 1.6; color: var(--brown-900); }
+.payBtn { height: 60px; font-size: 20px; }
+.payBtn img { display: block; width: 18px; height: 18px; flex: none; }
 
 /* 2번 영상별 완성 길이 — 고른 영상마다 한 덩어리(Figma 218:2 PC 4열 · 218:178 Mobile 세로 목록) */
 .pairs { display: flex; flex-direction: column; gap: 20px; }
@@ -77,10 +71,8 @@
   .pairTitle { font-size: 15px; }
   .pairGrid :global(.choice) { min-height: 56px; font-size: 15px; }
   .empty { font-size: 13px; }
-  .band { padding-block: 28px; }
-  .bandTitle { font-size: 26px; }
-  .bandDesc { font-size: 15px; }
-  .body { gap: 40px; padding-block: 32px; }
+  .body { gap: 24px; padding: 20px 16px 32px; }
+  .title { font-size: 20px; }
   .rows { gap: 10px; }
   .rows :global(.choice), .grid :global(.choice) { min-height: 56px; padding: 0 16px; font-size: 15px; }
   .tab { padding: 12px 0; font-size: 15px; }
@@ -96,8 +88,5 @@
   /* 등급 이름이 글자 중간에서 꺾이지 않게 한다("プレミア/ム"). 좁은 칸에서는 체크 상자를 이름 위로 올려 폭을 확보한다 */
   .table thead th { word-break: keep-all; overflow-wrap: normal; }
   :global(:lang(ja)) .tierPick { flex-direction: column; }
-  .total :global(.total-bar) { padding: 22px 20px; }
-  .total :global(.total-bar-amount) { font-size: 26px; }
-  .payBtn { height: 60px; font-size: 17px; }
-  .notice { font-size: 13px; }
+  .payBtn { height: 52px; font-size: 17px; }
 }

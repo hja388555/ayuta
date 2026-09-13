@@ -18,6 +18,7 @@ import { formFor } from '@/lib/category-groups'
 import { loadPriceBook } from '@/lib/price-book'
 import { loadCategoryModel } from '@/lib/pricing-model'
 import { currencyForLocale } from '@/lib/payments/channel'
+import { sanitizePurposes } from '@/lib/cover-selection'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,7 +43,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
   // 표지에서 넘어온 나라·목적. 여기서는 다시 고르게 하지 않고 결제 화면까지 그대로 들고 간다
   const country = Array.isArray(sp.country) ? sp.country : sp.country ? [sp.country] : []
-  const purposes = Array.isArray(sp.purpose) ? sp.purpose : sp.purpose ? [sp.purpose] : []
+  const purposes = sanitizePurposes(Array.isArray(sp.purpose) ? sp.purpose : sp.purpose ? [sp.purpose] : [])
   // 결제 화면 "선택 내용 수정하기"로 돌아오면 같은 쿼리가 실려 온다 — 폼이 고른 내용을 되살린다
   const restore = restoreFromQuery(sp)
 
@@ -85,13 +86,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
       {def.no !== 5 ? (
         <>
-          {/* 머리 띠 — Figma v2: 광고 서비스 N 배지 · 제목 · 설명 */}
-          <section className={styles.band}>
-            <span className={styles.bandBadge}>{tPage('badge', { n: def.no })}</span>
-            <h1 className={styles.bandTitle}>{tPage(`titles.${def.slug}`)}</h1>
-            <p className={styles.bandDesc}>{tPage(`descriptions.${def.slug}`)}</p>
-          </section>
           <div className={styles.body}>
+            <h1 className={styles.title}>{tPage(`titles.${def.slug}`)}</h1>
             {def.model.kind === 'tier' ? (
               <TierForm
                 book={book}
@@ -110,10 +106,9 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   contentHead: t('contentHead'),
                   rows: t.raw('rows') as TierRow[],
                   priceRow: t('priceRow'),
-                  selected: t.raw('selected') as string,
                   totalLabel: t('totalLabel'),
+                  itemsLabel: tPage('itemsLabel'),
                   payButton: t('payButton'),
-                  notice: tPage('notice'),
                 }}
               />
             ) : def.model.kind === 'videoPairs' && groupFormDef ? (
@@ -134,8 +129,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   pairTitle: tGroup.raw('pairTitle') as string,
                   pairsEmpty: tGroup('pairsEmpty'),
                   totalLabel: tGroup('totalLabel'),
+                  itemsLabel: tPage('itemsLabel'),
                   payButton: tGroup('payButton'),
-                  notice: tPage('notice'),
                   basicIncludedItems: tGroup.raw('basicIncludedItems') as string[],
                   shortVideoNote: tGroup('shortVideoNote'),
                 }}
@@ -159,8 +154,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   sizeLabel: tGroup('sizeLabel'),
                   sizePlaceholder: tGroup('sizePlaceholder'),
                   totalLabel: tGroup('totalLabel'),
+                  itemsLabel: tPage('itemsLabel'),
                   payButton: tGroup('payButton'),
-                  notice: tPage('notice'),
                   // 기본 포함 칩 · SNS 영상 안내는 2번(현지 영상 제작)에만 있다 — 선택지가 아니라 안내다
                   basicIncludedItems: def.no === 2 ? (tGroup.raw('basicIncludedItems') as string[]) : undefined,
                   shortVideoNote: def.no === 2 ? tGroup('shortVideoNote') : undefined,
@@ -171,14 +166,9 @@ export default async function OrderPage({ params, searchParams }: Props) {
         </>
       ) : (
         <>
-          {/* 머리 띠 — 1~4번과 같은 v2 띠(광고 서비스 5 배지 · 제목 · 설명). 5번은 금액 없이 문의를 받아
-              관리자가 견적을 발행한다(Q14 · Q14-B) */}
-          <section className={styles.band}>
-            <span className={styles.bandBadge}>{tPage('badge', { n: def.no })}</span>
-            <h1 className={styles.bandTitle}>{tPage(`titles.${def.slug}`)}</h1>
-            <p className={styles.bandDesc}>{tPage(`descriptions.${def.slug}`)}</p>
-          </section>
+          {/* 5번은 금액 없이 문의를 받아 관리자가 견적을 발행한다(Q14 · Q14-B) */}
           <div className={styles.body}>
+            <h1 className={styles.title}>{tPage(`titles.${def.slug}`)}</h1>
             <InquiryForm
               locale={locale}
               initialType={initialType}

@@ -79,11 +79,9 @@ type Props = {
     contentHead: string
     rows: TierRow[]
     priceRow: string
-    /** "{names} 선택" — names 자리에 고른 등급 이름이 들어간다 */
-    selected: string
     totalLabel: string
+    itemsLabel: string
     payButton: string
-    notice: string
   }
 }
 
@@ -100,6 +98,8 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
 
   const canPay = tiers.length > 0
   const selectedNames = tierOptions.filter((e) => tiers.includes(e.key)).map((e) => e.label)
+  const platformNames = platforms.map((p) => labels.platforms[p] ?? p)
+  const items = platformNames.length > 0 ? [platformNames.join(' / '), ...selectedNames] : selectedNames
 
   // 고른 내용을 주소에 옮겨 적는다 — 새로고침·언어 전환 뒤에도 restore 로 되살아난다
   const query = buildPaymentQuery(tiers, platforms, country, purposes)
@@ -185,10 +185,10 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
 
       <PaySection
         totalLabel={labels.totalLabel}
-        sub={selectedNames.length ? labels.selected.replace('{names}', selectedNames.join(' · ')) : undefined}
+        itemsLabel={labels.itemsLabel}
+        items={items}
         amount={formatAmount(total, book.currency)}
         payButton={labels.payButton}
-        notice={labels.notice}
         disabled={!canPay}
         onPay={goToPayment}
       />
@@ -196,41 +196,41 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
   )
 }
 
-/** 검정 총액 바 + 파란 결제 버튼 + 안내문. 01~04 가 같은 모양이다 */
+/** 상품 내용 목록 + 총액 바 + 결제 버튼. 01~04 가 같은 모양이다 */
 export function PaySection({
   totalLabel,
-  sub,
+  itemsLabel,
+  items,
   amount,
   payButton,
-  notice,
   disabled,
   onPay,
 }: {
   totalLabel: string
-  sub?: string
+  itemsLabel: string
+  items: string[]
   amount: string
   payButton: string
-  notice: string
   disabled: boolean
   onPay: () => void
 }) {
   return (
-    <>
-      <div className={s.total} aria-live="polite">
-        <TotalBar label={totalLabel} sub={sub} amount={amount} />
-      </div>
-      <div className={s.pay}>
-        <button
-          type="button"
-          className={`btn btn-primary btn-lg btn-block ${s.payBtn}`}
-          disabled={disabled}
-          onClick={onPay}
-        >
-          {payButton}
-          <img src="/ui/chevron-white.svg" alt="" width={22} height={22} />
-        </button>
-        <p className={s.notice}>{notice}</p>
-      </div>
-    </>
+    <div className={s.pay}>
+      {items.length > 0 ? (
+        <div className={s.items} aria-live="polite">
+          <p className={s.itemsLabel}>{itemsLabel}</p>
+          <ul>
+            {items.map((it) => (
+              <li key={it}>{it}</li>
+            ))}
+          </ul>
+        </div>
+      ) : null}
+      <TotalBar label={totalLabel} amount={amount} />
+      <button type="button" className={`btn btn-primary btn-block ${s.payBtn}`} disabled={disabled} onClick={onPay}>
+        {payButton}
+        <img src="/ui/chevron.svg" alt="" width={18} height={18} />
+      </button>
+    </div>
   )
 }

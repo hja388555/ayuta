@@ -71,8 +71,8 @@ type Labels = {
   pairTitle: string
   pairsEmpty: string
   totalLabel: string
+  itemsLabel: string
   payButton: string
-  notice: string
   basicIncludedItems: string[]
   shortVideoNote: string
 }
@@ -226,10 +226,10 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
 
       <PaySection
         totalLabel={labels.totalLabel}
-        sub={summary.length ? summary.join(' · ') : undefined}
+        itemsLabel={labels.itemsLabel}
+        items={summary}
         amount={formatAmount(total, book.currency)}
         payButton={labels.payButton}
-        notice={labels.notice}
         disabled={!canPay}
         onPay={goToPayment}
       />

@@ -123,8 +123,8 @@ type Labels = {
   sizeLabel: string
   sizePlaceholder: string
   totalLabel: string
+  itemsLabel: string
   payButton: string
-  notice: string
   /** 2번 기본 포함 칩 — 선택지가 아니라 안내다 */
   basicIncludedItems?: string[]
   shortVideoNote?: string
@@ -328,10 +328,10 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
 
       <PaySection
         totalLabel={labels.totalLabel}
-        sub={allSelected.length ? summary.join(' · ') : undefined}
+        itemsLabel={labels.itemsLabel}
+        items={summary}
         amount={formatAmount(total, book.currency)}
         payButton={labels.payButton}
-        notice={labels.notice}
         disabled={!canPay}
         onPay={goToPayment}
       />
