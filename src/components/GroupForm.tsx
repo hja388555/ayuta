@@ -56,7 +56,7 @@ export function buildGroupQuery(
   size: string | undefined,
   sizeMaxLength: number,
   country: readonly string[] = [],
-  purpose?: string,
+  purposes: readonly string[] = [],
 ): string {
   const qs = new URLSearchParams()
   for (const k of allSelectedKeys) qs.append('item', k)
@@ -65,7 +65,7 @@ export function buildGroupQuery(
   if (trimmed) qs.set('size', trimmed.slice(0, sizeMaxLength))
   // 표지에서 고른 나라·목적을 그대로 실어 보낸다 — 이 화면에서 다시 고르게 하지 않는다
   for (const c of country) qs.append('country', c)
-  if (purpose) qs.set('purpose', purpose)
+  for (const p of purposes) qs.append('purpose', p)
   return qs.toString()
 }
 
@@ -138,12 +138,12 @@ type Props = {
   categorySlug: string
   // 표지에서 이미 고른 나라·목적. 여기서는 그대로 들고만 간다
   country: readonly string[]
-  purpose?: string
+  purposes: readonly string[]
   restore?: RestoreSelection
   labels: Labels
 }
 
-export function GroupForm({ form, model, book, locale, categorySlug, country, purpose, restore, labels }: Props) {
+export function GroupForm({ form, model, book, locale, categorySlug, country, purposes, restore, labels }: Props) {
   const router = useRouter()
   // 표지 1단계의 광고 국가를 그대로 적용한다(2026-09-12 사용자 요청).
   // 결제 화면 "선택 내용 수정하기"로 돌아왔으면 고른 항목·기간·사이즈를 되살린다
@@ -194,7 +194,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
   }
 
   // 고른 내용을 주소에 옮겨 적는다 — 새로고침·언어 전환 뒤에도 restore 로 되살아난다
-  const query = buildGroupQuery(allSelected, period, size, form.freeText?.[0]?.maxLength ?? 0, country, purpose)
+  const query = buildGroupQuery(allSelected, period, size, form.freeText?.[0]?.maxLength ?? 0, country, purposes)
   useMirrorQuery(query)
 
   function goToPayment() {

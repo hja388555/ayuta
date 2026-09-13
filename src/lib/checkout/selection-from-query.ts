@@ -1,5 +1,6 @@
 import type { CategoryForm } from '../category-groups'
 import type { PricingModel } from '@ayuta/pricing'
+import { sanitizePurposes } from '../cover-selection'
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -20,7 +21,7 @@ export function selectionFromQuery(model: PricingModel, sp: SearchParams): unkno
   // (filterPricedSelection이 아니라 registry.calculate 자체가 쓰지 않는 키를 무시한다)
   // 걸러지고, 계약서·주문 저장에는 그대로 남는다.
   const country = asArray(sp.country)
-  const purpose = typeof sp.purpose === 'string' ? sp.purpose : undefined
+  const purpose = sanitizePurposes(asArray(sp.purpose))
   switch (model.kind) {
     case 'tier':
       return { tiers: asArray(sp.tier), platforms: asArray(sp.platform), country, purpose }

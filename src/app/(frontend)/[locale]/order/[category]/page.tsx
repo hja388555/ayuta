@@ -42,7 +42,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
   // 표지에서 넘어온 나라·목적. 여기서는 다시 고르게 하지 않고 결제 화면까지 그대로 들고 간다
   const country = Array.isArray(sp.country) ? sp.country : sp.country ? [sp.country] : []
-  const purpose = typeof sp.purpose === 'string' ? sp.purpose : undefined
+  const purposes = Array.isArray(sp.purpose) ? sp.purpose : sp.purpose ? [sp.purpose] : []
   // 결제 화면 "선택 내용 수정하기"로 돌아오면 같은 쿼리가 실려 온다 — 폼이 고른 내용을 되살린다
   const restore = restoreFromQuery(sp)
 
@@ -99,7 +99,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 locale={locale}
                 categorySlug={def.slug}
                 country={country}
-                purpose={purpose}
+                purposes={purposes}
                 restore={restore}
                 labels={{
                   platformTitle: t('platformTitle'),
@@ -124,7 +124,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 locale={locale}
                 categorySlug={def.slug}
                 country={country}
-                purpose={purpose}
+                purposes={purposes}
                 restore={restore}
                 labels={{
                   groupTitles: tGroup.raw('groupTitles'),
@@ -148,7 +148,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 locale={locale}
                 categorySlug={def.slug}
                 country={country}
-                purpose={purpose}
+                purposes={purposes}
                 restore={restore}
                 labels={{
                   groupTitles: tGroup.raw('groupTitles'),

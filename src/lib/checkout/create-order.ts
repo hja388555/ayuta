@@ -17,7 +17,7 @@ import { OrdererSchema, buyerContractFields, normalizeOrdererPhone, type Orderer
 import { allRequiredChecked, type ConsentDef } from './consents'
 import { buildContractItems, categoryContractFacts, type ContractItem } from './contract-items'
 import { filterPricedSelection } from './selection-from-query'
-import { sanitizeCountries, sanitizePurpose, type CountryCode, type PurposeCode } from '../cover-selection'
+import { sanitizeCountries, sanitizePurposes, type CountryCode, type PurposeCode } from '../cover-selection'
 
 // 1. 입력 모양 검증. 금액 필드는 여기 아예 없다 — 클라이언트가 뭘 보내든 서버가 쓸 값은
 // selection(선택 항목 키)뿐이고, 금액은 서버가 스스로 재계산한다
@@ -50,9 +50,6 @@ function selectionField(selection: unknown, key: string): unknown {
 }
 function asStringArray(v: unknown): string[] {
   return Array.isArray(v) ? v.filter((x): x is string => typeof x === 'string') : []
-}
-function asOptionalString(v: unknown): string | undefined {
-  return typeof v === 'string' && v.length > 0 ? v : undefined
 }
 
 // idempotencyKey 유니크 인덱스 위반인지 본다. db-postgres 어댑터(handleUpsertError)가
@@ -96,7 +93,7 @@ export type OrderLines = {
   /** 계약서 자리표시자 중 카테고리마다 따로 채우는 칸. 템플릿에 자리가 없으면 조용히 무시된다 */
   contractFacts: { productName?: string; channels?: string; country?: string }
   country: CountryCode[]
-  purpose?: PurposeCode
+  purpose: PurposeCode[]
 }
 
 type PersistOrderArgs = {
@@ -230,7 +227,7 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
         // 카테고리와 무관하게 모든 주문에 저장한다(계약서 문구에 실릴지는 카테고리별
         // 소스 문서가 있는지에 달렸다 — contract-items.ts countryFactValue/buildContractItems 참고).
         country: sanitized,
-        purpose: sanitizePurpose(asOptionalString(selectionField(input.selection, 'purpose'))),
+        purpose: sanitizePurposes(asStringArray(selectionField(input.selection, 'purpose'))),
       }
     },
   })

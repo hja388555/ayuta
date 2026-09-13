@@ -55,13 +55,13 @@ describe('영상 종류·길이 쌍 고르기', () => {
       { type: 'video-type-company', length: 'video-length-10m' },
       { type: 'video-type-product', length: 'video-length-30m' },
     ]
-    const qs = buildPairsQuery(pairs, ['country-jp'], ['jp'], 'brand')
+    const qs = buildPairsQuery(pairs, ['country-jp'], ['jp'], ['brand'])
     expect(qs).not.toMatch(/amount|price|total/)
     const sp: Record<string, string | string[]> = {}
     for (const [k, v] of new URLSearchParams(qs)) {
       const prev = sp[k]
       sp[k] = prev === undefined ? v : Array.isArray(prev) ? [...prev, v] : [prev, v]
     }
-    expect(selectionFromQuery(model, sp)).toEqual({ items: ['country-jp'], pairs, country: ['jp'], purpose: 'brand' })
+    expect(selectionFromQuery(model, sp)).toEqual({ items: ['country-jp'], pairs, country: ['jp'], purpose: ['brand'] })
   })
 })

@@ -35,16 +35,16 @@ describe('selectionFromQuery — 표지 나라·목적은 카테고리와 무관
     const model: PricingModel = { kind: 'tier', category: 1, tiers: [], platforms: [] }
     const sel = selectionFromQuery(model, { tier: ['standard'], country: ['jp', 'kr'], purpose: 'brand' }) as {
       country: string[]
-      purpose?: string
+      purpose: string[]
     }
     expect(sel.country).toEqual(['jp', 'kr'])
-    expect(sel.purpose).toBe('brand')
+    expect(sel.purpose).toEqual(['brand'])
   })
 
-  it('목적을 아예 안 골랐으면 undefined다 — 목적은 선택이다', () => {
+  it('목적을 아예 안 골랐으면 빈 배열이다 — 목적은 선택이다', () => {
     const model: PricingModel = { kind: 'tier', category: 1, tiers: [], platforms: [] }
-    const sel = selectionFromQuery(model, { tier: ['standard'], country: ['jp'] }) as { purpose?: string }
-    expect(sel.purpose).toBeUndefined()
+    const sel = selectionFromQuery(model, { tier: ['standard'], country: ['jp'] }) as { purpose: string[] }
+    expect(sel.purpose).toEqual([])
   })
 
   it('country·purpose가 섞여 들어가도 calculate()는 깨지지 않는다 — 필요한 키만 본다', () => {
@@ -89,7 +89,7 @@ describe('selectionFromQuery — 2번 videoPairs', () => {
         { type: 'video-type-product', length: 'video-length-10m' },
       ],
       country: ['kr'],
-      purpose: undefined,
+      purpose: [],
     })
   })
 

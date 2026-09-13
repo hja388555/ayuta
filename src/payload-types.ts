@@ -238,7 +238,7 @@ export interface Order {
     id?: string | null;
   }[];
   country?: ('kr' | 'jp')[] | null;
-  purpose?: ('brand' | 'product' | 'store' | 'medical' | 'event' | 'etc') | null;
+  purpose?: ('brand' | 'product' | 'store' | 'medical' | 'event' | 'etc')[] | null;
   customer?: (number | null) | User;
   orderer: {
     name: string;

@@ -102,7 +102,7 @@ export function CoverSteps({ locale, categories, labels }: Props) {
               key={c.slug}
               role="listitem"
               className="row-link"
-              href={`/${locale}/order/${c.slug}?${buildCoverQuery(countries, purpose)}`}
+              href={`/${locale}/order/${c.slug}?${buildCoverQuery(countries, purpose ? [purpose] : [])}`}
               onClick={handleServiceClick}
             >
               {`${i + 1}. ${labels.categories[c.slug]}`}

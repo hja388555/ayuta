@@ -110,7 +110,7 @@ describe('결제 쿼리', () => {
   })
 
   it('허락된 선택 키만 담는다 — item, period, size, country, purpose만 들어간다', () => {
-    const qs = buildGroupQuery(['subway-city-seoul'], '1w', '10cm', 10, ['kr', 'jp'], 'store')
+    const qs = buildGroupQuery(['subway-city-seoul'], '1w', '10cm', 10, ['kr', 'jp'], ['store'])
     const params = new URLSearchParams(qs)
     const allKeys = new Set(params.keys())
     // 허락된 키는 정확히 이것들만이다
@@ -134,10 +134,10 @@ describe('결제 쿼리', () => {
   })
 
   it('표지에서 고른 나라·목적을 그대로 실어 보낸다', () => {
-    const qs = buildGroupQuery(['subway-city-seoul'], '1w', undefined, 10, ['jp', 'kr'], 'store')
+    const qs = buildGroupQuery(['subway-city-seoul'], '1w', undefined, 10, ['jp', 'kr'], ['store'])
     const params = new URLSearchParams(qs)
     expect(params.getAll('country')).toEqual(['jp', 'kr'])
-    expect(params.get('purpose')).toBe('store')
+    expect(params.getAll('purpose')).toEqual(['store'])
   })
 })
 

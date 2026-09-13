@@ -30,9 +30,9 @@ function isPurposeCode(v: string): v is PurposeCode {
   return (PURPOSE_CODES as readonly string[]).includes(v)
 }
 
-/** 신뢰할 수 없는 입력에서 유효한 목적 코드만 남긴다. 목적이 선택이라 없거나 알 수 없으면 undefined */
-export function sanitizePurpose(value: string | undefined): PurposeCode | undefined {
-  return value !== undefined && isPurposeCode(value) ? value : undefined
+/** 신뢰할 수 없는 입력에서 유효한 목적 코드만, 처음 나온 순서대로 중복 없이 */
+export function sanitizePurposes(values: readonly string[]): PurposeCode[] {
+  return [...new Set(values.filter(isPurposeCode))]
 }
 
 /**
@@ -47,10 +47,10 @@ export function canProceedToService(countries: readonly string[]): boolean {
  * 표지에서 카테고리 화면으로 넘길 쿼리스트링. 금액은 절대 담지 않는다 — 나라·목적 모두
  * 가격에 관여하지 않는 선택이라 애초에 금액이 될 수 없는 값들이다.
  */
-export function buildCoverQuery(countries: readonly string[], purpose: string | undefined): string {
+export function buildCoverQuery(countries: readonly string[], purposes: readonly string[]): string {
   const qs = new URLSearchParams()
   for (const c of sanitizeCountries(countries)) qs.append('country', c)
-  if (purpose) qs.set('purpose', purpose)
+  for (const p of sanitizePurposes(purposes)) qs.append('purpose', p)
   return qs.toString()
 }
 

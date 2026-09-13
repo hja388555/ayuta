@@ -40,13 +40,13 @@ export function buildPaymentQuery(
   tiers: readonly string[],
   platforms: readonly string[],
   country: readonly string[] = [],
-  purpose?: string,
+  purposes: readonly string[] = [],
 ): string {
   const qs = new URLSearchParams()
   for (const t of tiers) qs.append('tier', t)
   for (const p of platforms) qs.append('platform', p)
   for (const c of country) qs.append('country', c)
-  if (purpose) qs.set('purpose', purpose)
+  for (const p of purposes) qs.append('purpose', p)
   return qs.toString()
 }
 
@@ -68,7 +68,7 @@ type Props = {
   categorySlug: string
   // 표지에서 이미 고른 나라·목적. 여기서는 그대로 들고만 간다
   country: readonly string[]
-  purpose?: string
+  purposes: readonly string[]
   restore?: RestoreSelection
   labels: {
     platformTitle: string
@@ -87,7 +87,7 @@ type Props = {
   }
 }
 
-export function TierForm({ book, model, locale, categorySlug, country, purpose, restore, labels }: Props) {
+export function TierForm({ book, model, locale, categorySlug, country, purposes, restore, labels }: Props) {
   const router = useRouter()
   // 결제 화면에서 돌아왔으면 고른 등급·플랫폼을 되살린다 — 단가표·플랫폼 목록에 있는 값만
   const [tiers, setTiers] = useState<string[]>(() => [...new Set(restore?.tiers ?? [])].filter((k) => Boolean(book.entries[k])))
@@ -102,7 +102,7 @@ export function TierForm({ book, model, locale, categorySlug, country, purpose, 
   const selectedNames = tierOptions.filter((e) => tiers.includes(e.key)).map((e) => e.label)
 
   // 고른 내용을 주소에 옮겨 적는다 — 새로고침·언어 전환 뒤에도 restore 로 되살아난다
-  const query = buildPaymentQuery(tiers, platforms, country, purpose)
+  const query = buildPaymentQuery(tiers, platforms, country, purposes)
   useMirrorQuery(query)
 
   function goToPayment() {

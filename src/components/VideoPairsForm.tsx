@@ -53,13 +53,13 @@ export function buildPairsQuery(
   pairs: readonly VideoPair[],
   countryItems: readonly string[],
   country: readonly string[] = [],
-  purpose?: string,
+  purposes: readonly string[] = [],
 ): string {
   const qs = new URLSearchParams()
   for (const k of countryItems) qs.append('item', k)
   for (const p of pairs) qs.append('pair', `${p.type}:${p.length}`)
   for (const c of country) qs.append('country', c)
-  if (purpose) qs.set('purpose', purpose)
+  for (const p of purposes) qs.append('purpose', p)
   return qs.toString()
 }
 
@@ -84,7 +84,7 @@ type Props = {
   locale: string
   categorySlug: string
   country: readonly string[]
-  purpose?: string
+  purposes: readonly string[]
   restore?: RestoreSelection
   labels: Labels
 }
@@ -94,7 +94,7 @@ type Props = {
  * 영상 종류는 중복 선택이고, 고른 종류마다 아래 "영상별 완성 길이"에서 길이를 하나씩 정한다.
  * 그룹 하나에 선택 목록 하나인 GroupForm 모양과 맞지 않아 따로 둔다.
  */
-export function VideoPairsForm({ form, model, book, locale, categorySlug, country, purpose, restore, labels }: Props) {
+export function VideoPairsForm({ form, model, book, locale, categorySlug, country, purposes, restore, labels }: Props) {
   const router = useRouter()
   const countryGroup = form.groups.find((g) => g.key === 'country')
   const typeGroup = form.groups.find((g) => g.key === 'videoType')
@@ -119,7 +119,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
 
   // 고른 내용을 주소에 옮겨 적는다 — 새로고침·언어 전환 뒤에도 restore 로 되살아난다.
   // 길이를 아직 안 고른 종류는 쿼리 모양(종류:길이)에 담을 수 없어 빠진다
-  const query = buildPairsQuery(completedPairs(pairs), countryItems, country, purpose)
+  const query = buildPairsQuery(completedPairs(pairs), countryItems, country, purposes)
   useMirrorQuery(query)
 
   function goToPayment() {
