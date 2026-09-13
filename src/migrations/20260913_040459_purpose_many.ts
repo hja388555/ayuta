@@ -13,22 +13,15 @@ export async function up({ db, payload, req }: MigrateUpArgs): Promise<void> {
   CREATE INDEX "orders_purpose_order_idx" ON "orders_purpose" USING btree ("order");
   CREATE INDEX "orders_purpose_parent_idx" ON "orders_purpose" USING btree ("parent_id");
 
-  -- 기존 단일 값(orders.purpose)을 새 hasMany 테이블로 이관 — 컬럼을 지우기 전에 반드시 옮긴다
+  -- 기존 단일 값(orders.purpose)을 새 hasMany 테이블로 이관
   INSERT INTO "orders_purpose" ("order", "parent_id", "value")
   SELECT 1, "id", "purpose" FROM "orders" WHERE "purpose" IS NOT NULL;
 
-  ALTER TABLE "orders" DROP COLUMN "purpose";`)
+  -- orders.purpose 컬럼은 이번 배포에서 지우지 않는다 — 배포 창(migrate 후 next build 전)
+  -- 동안 구버전 코드가 여전히 이 컬럼을 참조하므로, 컬럼 삭제는 다음 배포로 미룬다.`)
 }
 
 export async function down({ db, payload, req }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
-   ALTER TABLE "orders" ADD COLUMN "purpose" "enum_orders_purpose";
-
-  -- 되돌릴 때는 각 주문의 첫 값(order=1)만 단일 컬럼으로 되돌린다 — 여러 개를 하나로 압축하는
-  -- 손실 있는 역방향이라 up 과 대칭이 아니다(관리자가 굳이 내려가야 할 때만 쓰는 비상 경로)
-  UPDATE "orders" SET "purpose" = "orders_purpose"."value"
-  FROM "orders_purpose"
-  WHERE "orders_purpose"."parent_id" = "orders"."id" AND "orders_purpose"."order" = 1;
-
-  DROP TABLE "orders_purpose" CASCADE;`)
+   DROP TABLE "orders_purpose" CASCADE;`)
 }
