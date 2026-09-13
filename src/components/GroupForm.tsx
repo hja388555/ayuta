@@ -116,6 +116,26 @@ export function toggleCountry(
   return { countries: (['kr', 'jp'] as const).filter((x) => x === c || countries.includes(x)), selections: copy }
 }
 
+/**
+ * 되살린 선택 중, 체크된 나라에 없는 항목을 뺀다.
+ * URL의 country= 와 item= 은 각자 따로 신뢰할 수 없다 — 손으로 고친 주소가
+ * country=kr 만 실어도 item= 에는 일본 항목이 남아 있을 수 있고, 그대로 두면
+ * 화면엔 안 보이는데 금액엔 몰래 합산된다(toggleCountry가 나라를 끌 때 지키는 것과 같은 규칙).
+ */
+export function dropOtherCountries(
+  form: CategoryForm,
+  selections: Readonly<Record<string, readonly string[]>>,
+  countries: readonly CountryTab[],
+): Record<string, string[]> {
+  if (!form.countryTabs) return { ...selections } as Record<string, string[]>
+  const allowed = new Set(
+    form.groups.flatMap((g) => g.items.filter((i) => !i.country || countries.includes(i.country)).map((i) => i.key)),
+  )
+  const out: Record<string, string[]> = {}
+  for (const [k, v] of Object.entries(selections)) out[k] = v.filter((key) => allowed.has(key))
+  return out
+}
+
 /** 묶음의 항목을 고른 나라마다 열로 나눈다. 나라 없는 묶음은 열 하나 */
 export function countryColumns(
   group: GroupDef,
@@ -178,16 +198,19 @@ type Props = {
 export function GroupForm({ form, model, book, locale, categorySlug, country, purposes, restore, labels }: Props) {
   const router = useRouter()
   const { pending, goToCheckout } = useCheckoutGuard()
+  // 3·4번 한국/일본 체크. 쿼리(표지에서 온 값이 새로고침·언어전환·뒤로가기로 되돌아온 값)를 그대로 첫 상태로 쓴다
+  const initialCountriesValue = initialCountries(country)
+  const [countries, setCountries] = useState<CountryTab[]>(initialCountriesValue)
   // 표지 1단계의 광고 국가를 그대로 적용한다(2026-09-12 사용자 요청).
-  // 결제 화면 "선택 내용 수정하기"로 돌아왔으면 고른 항목·기간·사이즈를 되살린다
+  // 결제 화면 "선택 내용 수정하기"로 돌아왔으면 고른 항목·기간·사이즈를 되살린다.
+  // URL을 손으로 고쳐 country= 는 한 나라만, item= 은 다른 나라 것까지 들고 온 경우
+  // 화면엔 안 보이는 항목이 몰래 합산되면 안 된다 — 첫 상태에서부터 체크된 나라 것만 남긴다(toggleCountry와 같은 규칙)
   const [selections, setSelections] = useState<Record<string, string[]>>(() => {
-    const restored = selectionsFromItems(form, restore?.items ?? [])
+    const restored = dropOtherCountries(form, selectionsFromItems(form, restore?.items ?? []), initialCountriesValue)
     return Object.keys(restored).length > 0 ? { ...initialSelections(form, country), ...restored } : initialSelections(form, country)
   })
   const [period, setPeriod] = useState<string | undefined>(() => (restore?.period && form.periods?.includes(restore.period) ? restore.period : undefined))
   const [size, setSize] = useState(() => (restore?.size ?? '').slice(0, form.freeText?.[0]?.maxLength ?? 0))
-  // 3·4번 한국/일본 체크. 쿼리(표지에서 온 값이 새로고침·언어전환·뒤로가기로 되돌아온 값)를 그대로 첫 상태로 쓴다
-  const [countries, setCountries] = useState<CountryTab[]>(() => initialCountries(country))
 
   const priced = useMemo(() => pricedKeys(form, selections), [form, selections])
   const total = useMemo(() => previewGroupTotal(book, model, priced, period), [book, model, priced, period])
@@ -349,12 +372,12 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
         )
       })}
 
-      {(form.periods || form.freeText) && (
-        <section className={`${s.step} ${s.grid} ${s.periods}`}>
-          <StepTitle id="group-period" title={labels.groupTitles.sizePeriod ?? labels.groupTitles.period ?? ''} />
-          {form.freeText?.map((t) => (
+      {form.freeText && (
+        <section className={`${s.step} ${s.grid}`}>
+          <StepTitle id="group-size" title={labels.groupTitles.sizePeriod ?? labels.sizeLabel} />
+          {form.freeText.map((t) => (
             <div key={t.key} className={s.field}>
-              <label htmlFor={`free-${t.key}`}>{labels.sizeLabel}</label>
+              <label htmlFor={`free-${t.key}`} className={s.srOnly}>{labels.sizeLabel}</label>
               <input
                 id={`free-${t.key}`}
                 type="text"
@@ -365,15 +388,19 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
               />
             </div>
           ))}
-          {form.periods && (
-            <ChoiceGrid cols={form.periods.length} labelledBy="group-period">
-              {form.periods.map((p) => (
-                <ChoiceCard key={p} type="radio" name="period" checked={period === p} onChange={() => setPeriod(p)}>
-                  {labels.periods[p] ?? p}
-                </ChoiceCard>
-              ))}
-            </ChoiceGrid>
-          )}
+        </section>
+      )}
+
+      {form.periods && (
+        <section className={`${s.step} ${s.grid} ${s.periods}`}>
+          <StepTitle id="group-period" title={labels.groupTitles.period ?? ''} />
+          <ChoiceGrid cols={form.periods.length} labelledBy="group-period">
+            {form.periods.map((p) => (
+              <ChoiceCard key={p} type="radio" name="period" checked={period === p} onChange={() => setPeriod(p)}>
+                {labels.periods[p] ?? p}
+              </ChoiceCard>
+            ))}
+          </ChoiceGrid>
         </section>
       )}
 

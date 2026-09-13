@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { buildGroupQuery, countryColumns, initialCountries, initialSelections, nextSelection, pricedKeys, previewGroupTotal, toggleCountry } from './GroupForm'
+import { buildGroupQuery, countryColumns, dropOtherCountries, initialCountries, initialSelections, nextSelection, pricedKeys, previewGroupTotal, toggleCountry } from './GroupForm'
 import { formFor } from '../lib/category-groups'
 import type { CategoryForm } from '@/lib/category-groups'
 
@@ -198,5 +198,15 @@ describe('한국/일본 체크와 나라 열 (2026-09-13)', () => {
   it('나라 없는 묶음(4번 광고 위치)은 열 하나', () => {
     const spot = formFor(4)!.groups.find((g) => g.key === 'subwaySpot')!
     expect(countryColumns(spot, ['kr'])).toEqual([{ country: null, items: spot.items }])
+  })
+  it('되살릴 때 체크 안 된 나라의 항목은 뺀다 — 손으로 고친 country=kr 에 item=일본 항목이 섞여도 몰래 합산되지 않는다', () => {
+    const restored = { national: ['national-kr-donga', 'national-jp-yomiuri'], blog: ['blog-note'] }
+    expect(dropOtherCountries(form, restored, ['kr'])).toEqual({ national: ['national-kr-donga'], blog: [] })
+    expect(dropOtherCountries(form, restored, ['kr', 'jp'])).toEqual(restored)
+  })
+  it('나라 체크가 없는 폼(2번)은 그대로 둔다', () => {
+    const f = formFor(2)!
+    const sel = { country: ['country-kr'] }
+    expect(dropOtherCountries(f, sel, ['kr'])).toEqual(sel)
   })
 })
