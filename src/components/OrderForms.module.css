@@ -90,7 +90,7 @@
   .priceRow td { font-size: 12px; }
   .tierPick { gap: 4px; }
   /* 등급 이름이 글자 중간에서 꺾이지 않게 한다("プレミア/ム"). 좁은 칸에서는 체크 상자를 이름 위로 올려 폭을 확보한다 */
-  .table thead th { word-break: keep-all; overflow-wrap: normal; }
+  .table thead th, .table td:first-child { word-break: keep-all; overflow-wrap: normal; }
   :global(:lang(ja)) .tierPick { flex-direction: column; }
   .payBtn { height: 52px; font-size: 17px; }
 }
