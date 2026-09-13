@@ -191,6 +191,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
               labels={{
                 lead: tForm('lead'),
                 countries: tForm.raw('countries'),
+                countryAria: tForm('countryAria'),
                 bodyLabel: tForm('bodyLabel'),
                 bodyPlaceholder: tForm('bodyPlaceholder'),
                 regionLabel: tForm('regionLabel'),

@@ -10,6 +10,7 @@ import s from './InquiryQuote.module.css'
 type Labels = {
   lead: string
   countries: { kr: string; jp: string }
+  countryAria: string
   bodyLabel: string
   bodyPlaceholder: string
   regionLabel: string
@@ -212,7 +213,7 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
 
       <section className={s.section}>
         <div id="inq-country-grid">
-          <ChoiceGrid cols={2}>
+          <ChoiceGrid cols={2} ariaLabel={labels.countryAria}>
             {COUNTRIES.map((c) => (
               <ChoiceCard key={c} type="checkbox" name="country" checked={country.includes(c)} onChange={() => toggle(c)}>
                 {labels.countries[c]}
