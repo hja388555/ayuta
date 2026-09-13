@@ -8,4 +8,11 @@ describe('주문 내역 확인 요약 (v3)', () => {
       lines: [{ text: '유튜브, 쇼츠', strong: false }, { text: '프리미엄', strong: true }],
     })
   })
+
+  it('일본어 타이틀의 전각 괄호（…）도 뗀다', () => {
+    expect(buildReviewSummary('1.デジタル広告 / SNSコミュニティ（複数選択可）', [], [{ label: 'プレミアム' }])).toEqual({
+      title: '1. デジタル広告 / SNSコミュニティ',
+      lines: [{ text: 'プレミアム', strong: true }],
+    })
+  })
 })
