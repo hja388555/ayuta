@@ -17,6 +17,21 @@ export function categoryLabel(no: number): string {
   return name ? `${no}. ${name}` : `${no}번`
 }
 
+const PURPOSE_LABELS: Record<string, string> = {
+  brand: '브랜드 회사 홍보',
+  product: '제품 상품 홍보',
+  store: '매장 음식점 홍보',
+  medical: '병원·의료 홍보',
+  event: '행사 이벤트 홍보',
+  etc: '기타 원하시는 광고',
+}
+
+/** 표지에서 고른 광고 목적(복수 선택) — 관리자 표기용으로 쉼표로 이어붙인다 */
+export function purposeLabel(purposes: readonly string[] | null | undefined): string {
+  if (!purposes || purposes.length === 0) return '—'
+  return purposes.map((p) => PURPOSE_LABELS[p] ?? p).join(', ')
+}
+
 const TONES: Record<string, BadgeTone> = {
   pending: 'neutral',
   paid: 'success',
