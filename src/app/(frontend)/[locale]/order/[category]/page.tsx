@@ -160,7 +160,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   groupHints: tGroup.raw('groupHints'),
                   itemLabels: tGroup.raw('itemLabels'),
                   periods: tGroup.raw('periods'),
-                  countryTabs: tGroup.raw('countryTabs'),
+                  countries: tGroup.raw('countries'),
                   sizeLabel: tGroup('sizeLabel'),
                   sizePlaceholder: tGroup('sizePlaceholder'),
                   totalLabel: tGroup('totalLabel'),
@@ -169,6 +169,10 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   // 기본 포함 칩 · SNS 영상 안내는 2번(현지 영상 제작)에만 있다 — 선택지가 아니라 안내다
                   basicIncludedItems: def.no === 2 ? (tGroup.raw('basicIncludedItems') as string[]) : undefined,
                   shortVideoNote: def.no === 2 ? tGroup('shortVideoNote') : undefined,
+                  // 3번 블로그 설명·지역 커뮤니티 괄호 문구는 groupForm 쪽에서만 쓰인다
+                  itemDescriptions: def.no === 3 ? (tGroup.raw('itemDescriptions') as Record<string, string>) : undefined,
+                  // 포스터 사이즈 안내는 4번에만 있다
+                  posterNote: def.no === 4 ? tGroup('posterNote') : undefined,
                 }}
               />
             ) : null}

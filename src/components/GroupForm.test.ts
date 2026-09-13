@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { buildGroupQuery, countryTabsFor, initialSelections, nextSelection, pricedKeys, previewGroupTotal, visibleItems } from './GroupForm'
+import { buildGroupQuery, countryColumns, initialCountries, initialSelections, nextSelection, pricedKeys, previewGroupTotal, toggleCountry } from './GroupForm'
 import { formFor } from '../lib/category-groups'
 import type { CategoryForm } from '@/lib/category-groups'
 
@@ -141,26 +141,6 @@ describe('결제 쿼리', () => {
   })
 })
 
-describe('한국/일본 탭', () => {
-  const group = {
-    key: 'subwayCity',
-    multi: false,
-    items: [
-      { key: 'subway-city-seoul', priced: true, country: 'kr' as const },
-      { key: 'subway-city-tokyo', priced: true, country: 'jp' as const },
-      { key: 'shared', priced: true },
-    ],
-  }
-
-  it('선택한 나라의 항목과 나라 구분 없는 항목만 보인다', () => {
-    expect(visibleItems(group, 'kr').map((i) => i.key)).toEqual(['subway-city-seoul', 'shared'])
-    expect(visibleItems(group, 'jp').map((i) => i.key)).toEqual(['subway-city-tokyo', 'shared'])
-  })
-
-  it('탭이 없는 폼이면 전부 보인다', () => {
-    expect(visibleItems(group, null)).toHaveLength(3)
-  })
-})
 
 describe('중복 선택과 혼자만 고르는 항목(2026-09-12)', () => {
   const poster = { key: 'posterBillboard', multi: true, items: [{ key: 'a', priced: true }, { key: 'skip', priced: true, exclusive: true as const }, { key: 'b', priced: true }] }
@@ -184,15 +164,39 @@ describe('중복 선택과 혼자만 고르는 항목(2026-09-12)', () => {
 })
 
 describe('표지 광고 국가 적용(2026-09-12)', () => {
-  it('한 나라만 골랐으면 그 탭만, 둘 다·없음이면 두 탭', () => {
-    expect(countryTabsFor(['jp'])).toEqual(['jp'])
-    expect(countryTabsFor(['jp', 'kr'])).toEqual(['kr', 'jp'])
-    expect(countryTabsFor([])).toEqual(['kr', 'jp'])
-  })
   it('2번 촬영 국가 묶음을 표지 선택으로 미리 체크한다', () => {
     const f = formFor(2)!
     expect(initialSelections(f, ['jp'])).toEqual({ country: ['country-jp'] })
     expect(initialSelections(f, ['kr', 'jp'])).toEqual({ country: ['country-kr', 'country-jp'] })
     expect(initialSelections(f, [])).toEqual({})
+  })
+})
+
+describe('한국/일본 체크와 나라 열 (2026-09-13)', () => {
+  const form = formFor(3)!
+  it('표지에서 고른 나라로 시작하고, 없으면 둘 다', () => {
+    expect(initialCountries(['jp'])).toEqual(['jp'])
+    expect(initialCountries(['jp', 'kr'])).toEqual(['kr', 'jp'])
+    expect(initialCountries([])).toEqual(['kr', 'jp'])
+  })
+  it('나라를 끄면 그 나라 항목이 선택에서 빠진다', () => {
+    const r = toggleCountry(['kr', 'jp'], 'jp', form, { national: ['national-kr-donga', 'national-jp-yomiuri'], blog: ['blog-note'] })
+    expect(r.countries).toEqual(['kr'])
+    expect(r.selections).toEqual({ national: ['national-kr-donga'], blog: [] })
+  })
+  it('마지막 남은 나라는 끌 수 없다', () => {
+    const r = toggleCountry(['kr'], 'kr', form, {})
+    expect(r.countries).toEqual(['kr'])
+  })
+  it('나라 항목 묶음은 고른 나라마다 열, 블로그(일본만)는 일본을 고르면 한 열', () => {
+    const national = form.groups.find((g) => g.key === 'national')!
+    expect(countryColumns(national, ['kr', 'jp']).map((c) => c.country)).toEqual(['kr', 'jp'])
+    expect(countryColumns(national, ['jp'])[0]!.items.every((i) => i.country === 'jp')).toBe(true)
+    const blog = form.groups.find((g) => g.key === 'blog')!
+    expect(countryColumns(blog, ['kr'])).toEqual([])
+  })
+  it('나라 없는 묶음(4번 광고 위치)은 열 하나', () => {
+    const spot = formFor(4)!.groups.find((g) => g.key === 'subwaySpot')!
+    expect(countryColumns(spot, ['kr'])).toEqual([{ country: null, items: spot.items }])
   })
 })

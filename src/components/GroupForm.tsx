@@ -1,7 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { selectionsFromItems, tabFromItems, type RestoreSelection } from '../lib/order-restore'
+import { selectionsFromItems, type RestoreSelection } from '../lib/order-restore'
 import { useCheckoutGuard, useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
@@ -88,10 +88,43 @@ export function coverCountries(country: readonly string[]): CountryTab[] {
   return (['kr', 'jp'] as const).filter((c) => country.includes(c))
 }
 
-/** 화면에 둘 나라 탭. 표지에서 한 나라만 골랐으면 그 탭만, 둘 다 골랐거나 안 골랐으면 두 탭 */
-export function countryTabsFor(country: readonly string[]): CountryTab[] {
-  const picked = coverCountries(country)
-  return picked.length === 1 ? picked : ['kr', 'jp']
+/** 3·4번 첫 체크 상태. 표지에서 고른 나라(한국 → 일본 순), 없으면 둘 다 체크한다 */
+export function initialCountries(cover: readonly string[]): CountryTab[] {
+  const picked = coverCountries(cover)
+  return picked.length > 0 ? picked : ['kr', 'jp']
+}
+
+/**
+ * 나라 체크박스를 눌렀을 때의 다음 상태. 끄면 그 나라 항목을 선택에서 뺀다.
+ * 마지막 남은 나라는 끌 수 없다 — 최소 한 나라는 항상 켜져 있어야 한다
+ */
+export function toggleCountry(
+  countries: readonly CountryTab[],
+  c: CountryTab,
+  form: CategoryForm,
+  selections: Readonly<Record<string, readonly string[]>>,
+): { countries: CountryTab[]; selections: Record<string, string[]> } {
+  const copy: Record<string, string[]> = {}
+  for (const [k, v] of Object.entries(selections)) copy[k] = [...v]
+  if (countries.includes(c)) {
+    if (countries.length === 1) return { countries: [...countries], selections: copy }
+    const drop = new Set(form.groups.flatMap((g) => g.items.filter((i) => i.country === c).map((i) => i.key)))
+    const next: Record<string, string[]> = {}
+    for (const [k, v] of Object.entries(copy)) next[k] = v.filter((key) => !drop.has(key))
+    return { countries: countries.filter((x) => x !== c), selections: next }
+  }
+  return { countries: (['kr', 'jp'] as const).filter((x) => x === c || countries.includes(x)), selections: copy }
+}
+
+/** 묶음의 항목을 고른 나라마다 열로 나눈다. 나라 없는 묶음은 열 하나 */
+export function countryColumns(
+  group: GroupDef,
+  countries: readonly CountryTab[],
+): { country: CountryTab | null; items: ItemDef[] }[] {
+  if (!group.items.some((i) => i.country)) return [{ country: null, items: group.items }]
+  return countries
+    .map((c) => ({ country: c, items: group.items.filter((i) => i.country === c) }))
+    .filter((col) => col.items.length > 0)
 }
 
 /** 첫 선택 상태. 2번의 "촬영 국가" 묶음은 표지에서 고른 나라를 미리 체크해 둔다 */
@@ -105,21 +138,17 @@ export function initialSelections(form: CategoryForm, country: readonly string[]
   return out
 }
 
-/** 한국/일본 탭에 보일 항목만 남긴다. country 가 없는 항목(위치·포스터 등)은 두 탭 모두에 보인다 */
-export function visibleItems(group: GroupDef, tab: CountryTab | null): ItemDef[] {
-  if (!tab) return group.items
-  return group.items.filter((i) => !i.country || i.country === tab)
-}
-
 // 도시처럼 금액칸 없이 카드로 고르는 그룹(Figma v2: 3열 카드). 나머지는 금액이 붙는 행 목록
-const CARD_GROUPS = new Set(['country', 'subwayCity', 'busCity'])
+const CARD_GROUPS = new Set(['country'])
+// 도시 묶음은 priced:true 지만 화면에 금액을 보이지 않는다(계산은 그대로, 표시만 보류 — 클라이언트 확답 대기)
+const CITY_GROUPS = new Set(['subwayCity', 'busCity'])
 
 type Labels = {
   groupTitles: Record<string, string>
   groupHints: Record<string, string>
   itemLabels: Record<string, string>
   periods: Record<string, string>
-  countryTabs: Record<CountryTab, string>
+  countries: Record<CountryTab, string>
   sizeLabel: string
   sizePlaceholder: string
   totalLabel: string
@@ -128,6 +157,9 @@ type Labels = {
   /** 2번 기본 포함 칩 — 선택지가 아니라 안내다 */
   basicIncludedItems?: string[]
   shortVideoNote?: string
+  /** 항목 이름 아래 한 줄 설명(3번 블로그 소개, 지역 커뮤니티 괄호 문구 등) */
+  itemDescriptions?: Record<string, string>
+  posterNote?: string
 }
 
 type Props = {
@@ -154,17 +186,8 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
   })
   const [period, setPeriod] = useState<string | undefined>(() => (restore?.period && form.periods?.includes(restore.period) ? restore.period : undefined))
   const [size, setSize] = useState(() => (restore?.size ?? '').slice(0, form.freeText?.[0]?.maxLength ?? 0))
-  // 첫 탭은 표지에서 고른 나라를 따른다. 없으면 화면 언어로 정한다
-  const tabs = countryTabsFor(country)
-  // 한국·일본을 둘 다 골랐으면 탭을 오가도 고른 것을 유지한다 — 두 나라 항목을 함께 주문할 수 있다
-  const keepAcrossTabs = coverCountries(country).length === 2
-  const [tab, setTab] = useState<CountryTab>(() => {
-    if (tabs.length === 1) return tabs[0]!
-    // 되살린 항목이 한 나라 것이면 그 탭을 연다(두 나라 모두 고른 경우엔 탭을 오가도 유지된다)
-    const restoredTab = tabFromItems(form, restore?.items ?? [])
-    return restoredTab ?? coverCountries(country)[0] ?? (locale === 'ja' ? 'jp' : 'kr')
-  })
-  const activeTab = form.countryTabs ? tab : null
+  // 3·4번 한국/일본 체크. 쿼리(표지에서 온 값이 새로고침·언어전환·뒤로가기로 되돌아온 값)를 그대로 첫 상태로 쓴다
+  const [countries, setCountries] = useState<CountryTab[]>(() => initialCountries(country))
 
   const priced = useMemo(() => pricedKeys(form, selections), [form, selections])
   const total = useMemo(() => previewGroupTotal(book, model, priced, period), [book, model, priced, period])
@@ -180,12 +203,10 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     })
   }
 
-  // 탭을 바꾸면 고른 것을 비운다 — 안 보이는 다른 나라 항목이 몰래 합산되면 안 된다.
-  // 단, 표지에서 두 나라를 모두 골랐으면 둘 다 주문하려는 것이라 유지한다(아래 요약에 전부 보인다)
-  function switchTab(next: CountryTab) {
-    if (next === tab) return
-    setTab(next)
-    if (!keepAcrossTabs) setSelections(initialSelections(form, country))
+  function onToggleCountry(c: CountryTab) {
+    const r = toggleCountry(countries, c, form, selections)
+    setCountries(r.countries)
+    setSelections(r.selections)
   }
 
   function labelForItem(key: string): string {
@@ -194,8 +215,9 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     return book.entries[key]?.label ?? labels.itemLabels[key] ?? key
   }
 
-  // 고른 내용을 주소에 옮겨 적는다 — 새로고침·언어 전환 뒤에도 restore 로 되살아난다
-  const query = buildGroupQuery(allSelected, period, size, form.freeText?.[0]?.maxLength ?? 0, country, purposes)
+  // 이 화면에서 고른 나라가 country= 로 나간다 — 표지 값 대신 실제 선택을 계약서·주문에 싣는다
+  const queryCountries = form.countryTabs ? countries : country
+  const query = buildGroupQuery(allSelected, period, size, form.freeText?.[0]?.maxLength ?? 0, queryCountries, purposes)
   useMirrorQuery(query)
 
   function goToPayment() {
@@ -203,49 +225,96 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     goToCheckout(router, `/${locale}/order/${categorySlug}`, query, `/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
-  const groups = form.groups
-    .map((g) => ({ group: g, items: visibleItems(g, activeTab) }))
-    .filter((g) => g.items.length > 0)
+  function priceText(item: ItemDef, groupKey: string): string | undefined {
+    if (!item.priced || CITY_GROUPS.has(groupKey)) return undefined
+    const entry = book.entries[item.key]
+    return entry ? formatAmount(entry.amount, book.currency) : undefined
+  }
 
-  const summary = [
-    ...(activeTab && !keepAcrossTabs ? [labels.countryTabs[activeTab]] : []),
-    ...allSelected.map(labelForItem),
-    ...(period ? [labels.periods[period] ?? period] : []),
-  ]
+  const summary = [...allSelected.map(labelForItem), ...(period ? [labels.periods[period] ?? period] : [])]
 
   return (
     <>
       {form.countryTabs && (
-        <div className={s.tabs} role="tablist">
-          {tabs.map((c) => (
-            <button
-              key={c}
-              type="button"
-              role="tab"
-              aria-selected={tab === c}
-              className={s.tab}
-              onClick={() => switchTab(c)}
-            >
-              {labels.countryTabs[c]}
-            </button>
+        <ChoiceGrid cols={2}>
+          {(['kr', 'jp'] as const).map((c) => (
+            <ChoiceCard key={c} type="checkbox" checked={countries.includes(c)} onChange={() => onToggleCountry(c)}>
+              {labels.countries[c]}
+            </ChoiceCard>
           ))}
-        </div>
+        </ChoiceGrid>
       )}
 
-      {groups.map(({ group, items }) => {
+      {form.groups.map((group) => {
         const id = `group-${group.key}`
         const chosen = selections[group.key] ?? []
+
+        // 3·4번(한국/일본 체크)만 나라 열 레이아웃을 쓴다 — 2번은 기존 레이아웃 그대로
+        if (form.countryTabs) {
+          const cols = countryColumns(group, countries)
+          if (cols.length === 0) return null
+          const card = (item: ItemDef) => {
+            const desc = labels.itemDescriptions?.[item.key]
+            const price = priceText(item, group.key)
+            const sub = desc || price ? (
+              <>
+                {desc ? <span className={s.desc}>{desc}</span> : null}
+                {price ? <span className={s.price}>{price}</span> : null}
+              </>
+            ) : undefined
+            return (
+              <ChoiceCard
+                key={item.key}
+                type={group.multi ? 'checkbox' : 'radio'}
+                name={group.multi ? undefined : id}
+                checked={chosen.includes(item.key)}
+                onClick={() => pick(group, item.key)}
+                sub={sub}
+              >
+                {labelForItem(item.key)}
+              </ChoiceCard>
+            )
+          }
+          // 두 열의 항목 수가 같으면(3번 전국·지역신문·커뮤니티, 4번 도시) 한 줄에 나라별로 번갈아 넣어
+          // ChoiceGrid 의 같은-줄 높이 맞춤을 그대로 쓴다. 수가 다르면 열을 나눠 각자 세로로 쌓는다
+          const sameLength = cols.length > 1 && cols.every((col) => col.items.length === cols[0]!.items.length)
+          const interleaved = sameLength
+            ? cols[0]!.items.flatMap((_, i) => cols.map((col) => col.items[i]!))
+            : null
+          return (
+            <section key={group.key} className={s.step}>
+              <StepTitle id={id} title={labels.groupTitles[group.key] ?? group.key} hint={labels.groupHints[group.key]} />
+              {interleaved ? (
+                <ChoiceGrid cols={cols.length} labelledBy={id}>
+                  {interleaved.map(card)}
+                </ChoiceGrid>
+              ) : cols.length > 1 ? (
+                <div className={s.countryCols} role="group" aria-labelledby={id}>
+                  {cols.map((col) => (
+                    <div key={col.country} className={s.countryCol}>
+                      {col.items.map(card)}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className={group.key === 'blog' ? s.oneCol : undefined}>
+                  <ChoiceGrid cols={2} labelledBy={id}>
+                    {cols[0]!.items.map(card)}
+                  </ChoiceGrid>
+                </div>
+              )}
+              {group.key === 'posterBillboard' && labels.posterNote ? <p className={s.posterNote}>{labels.posterNote}</p> : null}
+            </section>
+          )
+        }
+
         const cards = CARD_GROUPS.has(group.key)
         return (
           <section key={group.key} className={`${s.step} ${cards ? s.grid : ''}`}>
-            <StepTitle
-              id={id}
-              title={labels.groupTitles[group.key] ?? group.key}
-              hint={labels.groupHints[group.key]}
-            />
+            <StepTitle id={id} title={labels.groupTitles[group.key] ?? group.key} hint={labels.groupHints[group.key]} />
             {cards ? (
               <ChoiceGrid cols={group.key === 'country' ? 2 : 3} labelledBy={id}>
-                {items.map((item) => (
+                {group.items.map((item) => (
                   <ChoiceCard
                     key={item.key}
                     type={group.multi ? 'checkbox' : 'radio'}
@@ -259,7 +328,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
               </ChoiceGrid>
             ) : (
               <div className={s.rows} role="group" aria-labelledby={id}>
-                {items.map((item) => {
+                {group.items.map((item) => {
                   const entry = book.entries[item.key]
                   return (
                     <ChoiceCard
@@ -281,7 +350,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
       })}
 
       {(form.periods || form.freeText) && (
-        <section className={`${s.step} ${s.grid}`}>
+        <section className={`${s.step} ${s.grid} ${s.periods}`}>
           <StepTitle id="group-period" title={labels.groupTitles.sizePeriod ?? labels.groupTitles.period ?? ''} />
           {form.freeText?.map((t) => (
             <div key={t.key} className={s.field}>

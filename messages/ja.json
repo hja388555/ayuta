@@ -110,13 +110,13 @@
       "local": "地方紙",
       "community": "地域コミュニティ",
       "blog": "ブログ",
-      "subwayCity": "地下鉄 — 都市",
-      "subwaySpot": "地下鉄広告位置",
-      "posterBillboard": "ポスター・電光掲示板制作",
-      "busCity": "バス広告 — 都市",
-      "busSpot": "バス広告位置",
-      "period": "広告期間",
-      "sizePeriod": "サイズ · 広告期間",
+      "subwayCity": "地下鉄",
+      "subwaySpot": "広告位置選択（地下鉄）",
+      "posterBillboard": "ポスター / 電光掲示板制作",
+      "busCity": "バス広告",
+      "busSpot": "バス広告位置選択",
+      "period": "広告期間 :",
+      "sizePeriod": "サイズ :",
       "basicIncluded": "標準で含まれるもの"
     },
     "contractTitles": {
@@ -155,12 +155,18 @@
     "sizePlaceholder": "例）横 1200 × 縦 800",
     "totalLabel": "合計金額",
     "payButton": "お支払いへ進む",
-    "groupHints": {
-      "posterBillboard": "サイズによって金額が変わる場合があります"
-    },
-    "countryTabs": {
+    "groupHints": {},
+    "countries": {
       "kr": "韓国",
       "jp": "日本"
+    },
+    "posterNote": "*サイズによって金額が変わる場合があります。",
+    "itemDescriptions": {
+      "blog-note": "現在日本で最も人気のあるコンテンツプラットフォーム。文章・写真・音声・動画すべてに対応\n主なターゲット：クリエイター、企業、一般ユーザー\n（記事を有料化できる収益化機能が非常に充実しています）",
+      "blog-ameba": "日本最大級、SNSに近い雰囲気のブログ\n主なターゲット：女性、芸能人、ライフスタイル\n（広告・アフィリエイトは制限あり）",
+      "blog-hatena": "執筆・コミュニティ中心。IT、ビジネス、専門知識系コンテンツに強い\n主なターゲット：男性、エンジニア、専門ブロガー\n（SEOに強く、アフィリエイト可能）",
+      "blog-livedoor": "歴史ある無料ブログ。シンプルで使いやすい\n主なターゲット：一般ユーザー、趣味ブログ\n（アフィリエイト可能）",
+      "blog-fc2": "カスタマイズ自由度が高く、容量も大きい\n主なターゲット：アフィリエイト、商用利用\n（アフィリエイト・商用ブログ向け）"
     },
     "basicIncludedItems": [
       "映像企画構成",

@@ -5,10 +5,17 @@
 .titleParen { white-space: nowrap; }
 .step > :global(.step-title) { margin-bottom: 20px; }
 
-/* 한국/일본 탭 */
-.tabs { display: flex; gap: 8px; }
-.tab { flex: 1; padding: 16px 0; border: 0; border-radius: var(--radius-md); background: var(--surface); color: var(--ink-500); font: inherit; font-size: 17px; font-weight: 700; line-height: 1.5; cursor: pointer; }
-.tab[aria-selected='true'] { background: var(--brand-600); color: #fff; }
+/* 한국/일본 나라 열(3·4번) */
+.countryCols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.countryCol { display: grid; gap: 8px; align-content: start; }
+.oneCol :global(.choice-grid) { grid-template-columns: 1fr 1fr; }
+.desc { display: block; margin: 2px 0 4px; white-space: pre-line; font-size: 13px; font-weight: 500; color: var(--brown-600); }
+.posterNote { margin: 8px 0 0; font-size: 13px; color: var(--ink-500); }
+
+/* 광고 기간(4번) — 모바일에서도 4칸, 체크박스 없이 글자만 가운데 정렬 */
+.periods :global(.choice-grid) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.periods :global(.choice) { justify-content: center; text-align: center; }
+.periods :global(.choice-box) { display: none; }
 
 /* 금액이 붙는 행 — 오른쪽 끝에 금액 */
 .rows { display: flex; flex-direction: column; gap: 12px; }
@@ -69,7 +76,7 @@
   .title { font-size: 20px; }
   .rows { gap: 10px; }
   .rows :global(.choice), .grid :global(.choice) { min-height: 56px; padding: 0 16px; font-size: 15px; }
-  .tab { padding: 12px 0; font-size: 15px; }
+  .oneCol :global(.choice-grid) { grid-template-columns: 1fr; }
   .chip { font-size: 13px; padding: 8px 12px; }
   .note { font-size: 13px; }
   .table { font-size: 12px; }
