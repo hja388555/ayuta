@@ -29,9 +29,9 @@ export default async function ImagesPage() {
   return (
     <div className={s.page}>
       <h1 className={s.title}>이미지 관리</h1>
-      <p className={s.lead}>각 광고 서비스 페이지 상단에 들어가는 띠 이미지입니다. PC · 모바일 모두 표시되며, 띠에 보일 부분을 위아래로 조정할 수 있습니다.</p>
-      <p className={s.info}>권장 크기 2400 × 250 이상 · JPG · PNG · WEBP · 5MB 이하</p>
-      {canEdit ? null : <p className={s.note}>중간관리자는 조회만 할 수 있습니다. 교체 · 삭제 · 위치 저장은 최고관리자만 할 수 있습니다.</p>}
+      <p className={s.lead}>각 광고 서비스 페이지 상단에 들어가는 이미지입니다. PC · 모바일 모두 표시됩니다.</p>
+      <p className={s.info}>권장 가로 1200px 이상 · JPG · PNG · WEBP · 5MB 이하</p>
+      {canEdit ? null : <p className={s.note}>중간관리자는 조회만 할 수 있습니다. 교체 · 삭제는 최고관리자만 할 수 있습니다.</p>}
       <div className={s.bandGrid}>
         {BAND_SLOTS.map((slot) => {
           const doc = docs.find((d) => d.slot === slot)
@@ -41,7 +41,6 @@ export default async function ImagesPage() {
               slot={slot}
               title={BAND_TITLES[slot]}
               version={doc ? String(doc.updatedAt) : null}
-              focusY={doc?.focusY ?? null}
               canEdit={canEdit}
             />
           )

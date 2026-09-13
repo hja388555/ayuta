@@ -100,7 +100,6 @@
 .bandMain { flex: 2; min-width: 0; color: var(--ink-900); }
 .bandDelete { flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-color: var(--line-strong); color: #d92d20; font-size: 15px; }
 .bandDelete img { display: block; width: 18px; height: 18px; }
-.bandAdjust { flex: 1.4; min-width: 0; display: inline-flex; align-items: center; justify-content: center; border-color: var(--line-strong); color: var(--ink-900); font-size: 15px; text-decoration: none; white-space: nowrap; }
 
 /* A6-B 띠 이미지 위치 조정 — Figma [v2] 294:2 PC / 295:2 Mobile */
 .crumb { margin: 0 0 -12px; font-size: 14px; line-height: 1.5; color: var(--ink-500); }
@@ -145,7 +144,7 @@
   .bandIcon { width: 22px; height: 22px; }
   .bandHint { font-size: 12px; }
   .bandBtns .bigBtn { height: 46px; font-size: 14px; }
-  .bandBtns .bandDelete, .bandBtns .bandAdjust { font-size: 13px; }
+  .bandBtns .bandDelete { font-size: 13px; }
   .bandBtns .bandMain { flex: 1.2; }
   .crumb { font-size: 13px; margin-bottom: -8px; }
   .focusCard { gap: 16px; padding: 16px; }
