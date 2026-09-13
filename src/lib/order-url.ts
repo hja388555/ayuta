@@ -64,6 +64,24 @@ export function useCheckoutGuard(): {
 } {
   const firedRef = useRef(false)
   const [pending, setPending] = useState(false)
+
+  // 결제 화면으로 넘어간 뒤 이 폼으로 되돌아오는 경우 — 뒤로가기(popstate)든, bfcache 복원이든,
+  // 라우터가 이 컴포넌트를 그대로 재사용하는 소프트 리스토어든 — 이 폼이 다시 화면에 보이면
+  // 결제 버튼은 다시 눌러야 한다. 그래서 이 화면으로 돌아왔다는 신호(popstate, pageshow —
+  // bfcache 복원은 pageshow 만 뜨고 popstate 은 안 뜰 수 있어 둘 다 듣는다)가 오면 가드를 푼다.
+  useEffect(() => {
+    const reset = () => {
+      firedRef.current = false
+      setPending(false)
+    }
+    window.addEventListener('pageshow', reset)
+    window.addEventListener('popstate', reset)
+    return () => {
+      window.removeEventListener('pageshow', reset)
+      window.removeEventListener('popstate', reset)
+    }
+  }, [])
+
   const goToCheckout = (router: ReturnType<typeof useRouter>, pathname: string, query: string, checkoutHref: string) => {
     if (firedRef.current) return
     firedRef.current = true
