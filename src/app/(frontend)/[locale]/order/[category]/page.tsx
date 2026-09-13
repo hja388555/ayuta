@@ -138,9 +138,6 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   groupTitles: tGroup.raw('groupTitles'),
                   groupHints: tGroup.raw('groupHints'),
                   itemLabels: tGroup.raw('itemLabels'),
-                  // {n}·{type} 자리는 화면이 채우므로 서식 처리 없이 원문을 넘긴다
-                  pairTitle: tGroup.raw('pairTitle') as string,
-                  pairsEmpty: tGroup('pairsEmpty'),
                   totalLabel: tGroup('totalLabel'),
                   itemsLabel: tPage('itemsLabel'),
                   payButton: tGroup('payButton'),
