@@ -233,8 +233,8 @@ export function PaySection({
         <div className={s.items} aria-live="polite">
           <p className={s.itemsLabel}>{itemsLabel}</p>
           <ul>
-            {items.map((it) => (
-              <li key={it}>{it}</li>
+            {items.map((it, i) => (
+              <li key={`${i}-${it}`}>{it}</li>
             ))}
           </ul>
         </div>

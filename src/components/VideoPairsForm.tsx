@@ -175,8 +175,8 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
       <section className={s.step}>
         <StepTitle title={labels.groupTitles.basicIncluded ?? ''} />
         <ul className={s.chips2}>
-          {labels.basicIncludedItems.map((c) => (
-            <li key={c} className={s.chip2}>
+          {labels.basicIncludedItems.map((c, i) => (
+            <li key={`${i}-${c}`} className={s.chip2}>
               <img src="/ui/check-chip.svg" alt="" width={16} height={16} />
               {c}
             </li>

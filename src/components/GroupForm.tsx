@@ -413,8 +413,8 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
             hint={labels.groupHints.basicIncluded}
           />
           <ul className={s.chips} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {labels.basicIncludedItems.map((c) => (
-              <li key={c} className={s.chip}>
+            {labels.basicIncludedItems.map((c, i) => (
+              <li key={`${i}-${c}`} className={s.chip}>
                 <img src="/ui/check-chip.svg" alt="" width={16} height={16} />
                 {c}
               </li>

@@ -351,8 +351,8 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
           <StepTitle id="co-review" title={labels.reviewTitle} />
           <div className={s.summary}>
             <p className={s.summaryTitle}>{reviewSummary.title}</p>
-            {reviewSummary.lines.map((l) => (
-              <p key={l.text} className={l.strong ? s.summaryStrong : s.summaryLine}>
+            {reviewSummary.lines.map((l, i) => (
+              <p key={`${i}-${l.text}`} className={l.strong ? s.summaryStrong : s.summaryLine}>
                 {l.text}
               </p>
             ))}
