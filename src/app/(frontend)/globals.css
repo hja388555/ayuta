@@ -119,6 +119,16 @@ body {
 .choice:has(input:checked) .choice-box { border-color: var(--orange-500); background: var(--orange-500) url('/ui/check.svg') center / 14px 14px no-repeat; }
 .choice:has(input:focus-visible) { outline: 2px solid var(--orange-500); outline-offset: 2px; }
 .choice-sub { display: block; margin-top: 2px; font-size: 15px; font-weight: 800; color: var(--brown-600); }
+.cover-steps .choice-sub { font-size: 14px; font-weight: 500; }
+
+/* 표지 손스케치 히어로 — 주황 타원 로고 + 헤드라인 + 태그라인(v3) */
+.cover-brand { display: flex; align-items: center; gap: 16px; padding-top: 32px; }
+.cover-logo { display: inline-flex; align-items: center; justify-content: center; width: 146px; height: 90px; border-radius: 50%; background: var(--orange-500); color: #fff; font-size: 34px; font-weight: 800; }
+.cover-headline { margin: 0; font-size: 32px; font-weight: 800; color: var(--brown-900); }
+.cover-tagline { margin: 20px 0 0; font-size: 20px; font-weight: 700; color: var(--brown-900); }
+
+/* PC 본문 폭 960 — 메인·주문·결제 공통 */
+.v3-body { max-width: 960px; margin-inline: auto; }
 
 /* 한 줄 이동 행(표지 서비스 목록) — 누르면 바로 다음 화면 */
 .row-link { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 0 24px; border: 1.5px solid var(--brown-900); border-radius: var(--radius); background: #fff; color: var(--brown-900); font-size: 18px; font-weight: 700; line-height: 1.5; text-decoration: none; }
@@ -158,8 +168,7 @@ body {
 
 /* 사이트 헤더 — PC: 로고·메뉴 / 전화·로그인·회원가입·언어. Mobile: 로고 / 로그인·회원가입·언어 */
 .site-header { display: flex; align-items: center; min-height: 132px; padding: 16px var(--side); background: #fff; border-bottom: 1px solid var(--line-warm); }
-.site-logo { display: block; flex: none; width: 84px; height: 56px; }
-.site-logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.site-logo { display: flex; flex: none; align-items: center; justify-content: center; width: 84px; height: 52px; border-radius: 50%; background: var(--orange-500); color: #fff; font-size: 18px; font-weight: 800; text-decoration: none; }
 .site-nav { display: flex; align-items: center; gap: 32px; padding-left: 44px; font-size: 16px; line-height: 1.5; }
 .site-nav a { color: var(--brown-600); text-decoration: none; }
 .site-nav a[aria-current='page'] { color: var(--brown-900); font-weight: 700; }
@@ -190,7 +199,10 @@ body {
   :root { --tabbar-offset: var(--tabbar-h); }
   body { padding-bottom: var(--tabbar-h); }
   .site-header { min-height: 124px; padding: 12px var(--side); }
-  .site-logo { width: 60px; height: 40px; }
+  .site-logo { width: 60px; height: 38px; font-size: 14px; }
+  .cover-logo { width: 112px; height: 68px; font-size: 26px; }
+  .cover-headline { font-size: 24px; }
+  .cover-tagline { font-size: 16px; }
   .site-nav, .site-phone { display: none; }
   .site-header-right { gap: 8px; }
   .site-auth .btn { height: 34px; min-width: 62px; padding: 0 12px; border-radius: var(--radius-sm); font-size: 13px; }

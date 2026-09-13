@@ -20,39 +20,36 @@ export default async function CoverPage({ params }: Props) {
   const { locale } = await params
   setRequestLocale(locale)
   const t = await getTranslations('cover')
-  const tCat = await getTranslations('categories')
 
   return (
     <main>
-      {/* 히어로 — 연파랑 배경과 글자만. 이미지는 넣지 않는다 (대표님 확정) */}
-      <Shell as="section" bleed background="var(--surface-brand)">
-        <div style={{ padding: '64px 0' }}>
-          <span className="badge badge-brand" style={{ background: 'var(--brand-100)', color: 'var(--brand-900)' }}>
-            {t('badge')}
-          </span>
-          <h1 style={{ fontSize: 'var(--fs-hero)', lineHeight: 1.3, margin: '14px 0 0', color: 'var(--ink-900)', maxWidth: '12em' }}>{t('title')}</h1>
-          <p style={{ fontSize: 'var(--fs-body)', color: 'var(--ink-700)', margin: '16px 0 0' }}>{t('subtitle')}</p>
+      <Shell as="section">
+        <div className="cover-brand">
+          <span className="cover-logo" aria-hidden>{t('logo')}</span>
+          <h1 className="cover-headline">{t('headline')}</h1>
         </div>
+        <p className="cover-tagline">{t('tagline')}</p>
       </Shell>
 
       <Shell as="section">
-        <div style={{ padding: '64px 0 56px' }}>
+        <div className="v3-body" style={{ padding: '48px 0 56px' }}>
           <CoverSteps
             locale={locale}
             categories={CATEGORIES}
             labels={{
               stepCountry: t('stepCountry'),
-              stepCountryHint: t('stepCountryHint'),
               stepPurpose: t('stepPurpose'),
               stepService: t('stepService'),
-              stepServiceHint: t('stepServiceHint'),
               countryRequired: t('countryRequired'),
               countries: Object.fromEntries(COUNTRY_CODES.map((c) => [c, t(`countries.${c}`)])) as Record<
                 (typeof COUNTRY_CODES)[number],
                 string
               >,
+              countryNotes: Object.fromEntries(
+                COUNTRY_CODES.filter((c) => t.has(`countryNotes.${c}`)).map((c) => [c, t(`countryNotes.${c}`)]),
+              ),
               purposes: Object.fromEntries(PURPOSE_CODES.map((p) => [p, t(`purposes.${p}`)])),
-              categories: Object.fromEntries(CATEGORIES.map((c) => [c.slug, tCat(c.slug)])),
+              services: Object.fromEntries(CATEGORIES.map((c) => [c.slug, t(`services.${c.slug}`)])),
             }}
           />
         </div>
