@@ -15,6 +15,7 @@ import { currencyForLocale } from '@/lib/payments/channel'
 import { selectionFromQuery, filterPricedSelection } from '@/lib/checkout/selection-from-query'
 import { buildContractItems, categoryContractFacts, unpricedReviewRows } from '@/lib/checkout/contract-items'
 import { buildReviewSummary } from '@/lib/checkout/review-summary'
+import { withBaseConsents } from '@/lib/checkout/consents'
 import { BUYER_PLACEHOLDERS_PENDING } from '@/lib/checkout/contract-preview'
 import { loadCompanyContractFields } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
@@ -143,7 +144,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
             template={{
               title: template.title as string,
               body: preview.text,
-              consents: (template.consents as { key: string; label: string; required: boolean }[]) ?? [],
+              consents: withBaseConsents((template.consents as { key: string; label: string; required: boolean }[]) ?? [], contractLocale),
             }}
             initialOrderer={
               payloadUser

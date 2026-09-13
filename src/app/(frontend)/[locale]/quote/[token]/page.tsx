@@ -8,7 +8,7 @@ import { TotalBar } from '@/components/ui'
 import { CheckoutForm } from '@/components/CheckoutForm'
 import { loadCompany, loadCompanyContractFields } from '@/lib/company-settings'
 import { CHECKOUT_LABEL_KEYS, type CheckoutLabels } from '@/lib/checkout/labels'
-import type { ConsentDef } from '@/lib/checkout/consents'
+import { withBaseConsents, type ConsentDef } from '@/lib/checkout/consents'
 import { BUYER_PLACEHOLDERS_PENDING } from '@/lib/checkout/contract-preview'
 import { loadActiveContractTemplate } from '@/lib/checkout/create-order'
 import { QUOTE_CATEGORY, loadQuoteByToken } from '@/lib/quotes/create-quote-order'
@@ -200,7 +200,7 @@ export default async function QuotePage({ params }: Props) {
             template={{
               title: template.title as string,
               body: preview.text,
-              consents: (template.consents as ConsentDef[] | undefined) ?? [],
+              consents: withBaseConsents((template.consents as ConsentDef[] | undefined) ?? [], contractLocale),
             }}
             initialOrderer={{
               name: (inquiry?.name as string) ?? '',

@@ -20,7 +20,8 @@ const baseInput = () => ({
   categorySlug: 'digital-sns',
   locale: 'ko' as const,
   selection: { tiers: ['standard'], platforms: [], country: ['kr'] },
-  consents: { agree: true },
+  // 이용약관·개인정보는 템플릿 동의(agree)와 별개로 항상 필수다(withBaseConsents)
+  consents: { terms: true, privacy: true, agree: true },
   orderer: { ...validOrderer },
   signature: validOrderer.name,
 })
@@ -63,6 +64,11 @@ describe('createOrder', () => {
     expect(result).toEqual({ ok: false, reason: 'consent_required' })
   })
 
+  it('이용약관(terms) 동의가 빠지면 템플릿 동의를 다 채워도 거부한다', async () => {
+    const result = await createOrder({ ...baseInput(), consents: { privacy: true, agree: true } })
+    expect(result).toEqual({ ok: false, reason: 'consent_required' })
+  })
+
   it('정의에 없는 동의 키를 보내도 통과하지 않는다', async () => {
     // 'agree'가 아니라 클라이언트가 지어낸 키를 체크했다 — 실제 필수 키가 안 채워졌으므로 거부
     const result = await createOrder({ ...baseInput(), consents: { madeUpKey: true } })
@@ -88,7 +94,9 @@ describe('createOrder', () => {
         categorySlug: 'press-blog',
         locale: 'ko' as const,
         selection: { items: ['blog-note'], country: ['kr'] },
-        consents: {},
+        // 이용약관·개인정보는 템플릿 유무와 무관하게 항상 검사되므로 이 시나리오(계약서만
+        // 없는 경우)를 확인하려면 이 둘은 채워서 no_contract 검사까지 내려가야 한다
+        consents: { terms: true, privacy: true },
         orderer: { ...validOrderer },
         signature: validOrderer.name,
       })

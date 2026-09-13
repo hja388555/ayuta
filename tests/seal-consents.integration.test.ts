@@ -71,7 +71,7 @@ describe('계약서 서명·날인', () => {
       categorySlug: 'digital-sns',
       locale: 'ko',
       selection: { tiers: ['standard'], platforms: [], country: ['kr'] },
-      consents: { agree: true },
+      consents: { terms: true, privacy: true, agree: true },
       orderer: { name: `도장고객${RUN}`, phone: '010-1234-5678', email: `sc-order+${RUN}@example.com`, postalCode: '12345', address1: '서울' },
       signature: `도장고객${RUN}`,
     })

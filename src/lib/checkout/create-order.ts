@@ -14,7 +14,7 @@ import { loadCategoryModel } from '../pricing-model'
 import { nextOrderNumber } from '../order-counter'
 import { loadCompanyContractFields } from '../company-settings'
 import { OrdererSchema, buyerContractFields, normalizeOrdererPhone, type Orderer } from './orderer'
-import { allRequiredChecked, type ConsentDef } from './consents'
+import { allRequiredChecked, withBaseConsents, type ConsentDef } from './consents'
 import { buildContractItems, categoryContractFacts, type ContractItem } from './contract-items'
 import { filterPricedSelection } from './selection-from-query'
 import { sanitizeCountries, sanitizePurposes, type CountryCode, type PurposeCode } from '../cover-selection'
@@ -252,13 +252,18 @@ export async function persistOrder(args: PersistOrderArgs): Promise<CreateOrderR
   // 템플릿이 없는 카테고리는 여기서 null 이 되고, 동의 항목이 없어 3번 검사는
   // 통과할 수 있지만 5번 검사(no_contract)에서 반드시 막힌다
   const template = await loadActiveContractTemplate(payload, args.category, args.locale)
-  const consentDefs: ConsentDef[] = (template?.consents as ConsentDef[] | undefined) ?? []
+  const templateConsents: ConsentDef[] = (template?.consents as ConsentDef[] | undefined) ?? []
 
   // 템플릿은 있는데 동의 항목이 하나도 정의돼 있지 않으면(관리자 설정 실수) 동의 없이
   // 결제가 통과해 버린다 — allRequiredChecked([], ...)는 빈 배열에 대해 항상 참이다
   // (정의 자체가 없는 카테고리에서는 정상 동작이라 그건 그대로 둔다. 템플릿이
-  // '있는데' consents가 빈 경우만 막는다)
-  if (template && consentDefs.length === 0) return { ok: false, reason: 'contract_incomplete', detail: ['consents'] }
+  // '있는데' consents가 빈 경우만 막는다). 이용약관·개인정보는 템플릿과 무관하게 항상
+  // 붙으므로 이 판정은 기본 동의를 더하기 전(templateConsents) 값으로 본다
+  if (template && templateConsents.length === 0) return { ok: false, reason: 'contract_incomplete', detail: ['consents'] }
+
+  // 이용약관·개인정보 동의는 계약서 템플릿 유무와 상관없이 모든 결제(카테고리·견적)에
+  // 항상 필수다(클라이언트 요청) — 템플릿 동의 앞에 붙인다
+  const consentDefs: ConsentDef[] = withBaseConsents(templateConsents, args.locale)
 
   // 3. 동의 확인 — 필수 항목이 전부 체크됐는지 서버가 다시 본다.
   // allRequiredChecked 는 defs 에 정의된 키만 보므로 클라이언트가 보낸 임의의 키는 무시된다

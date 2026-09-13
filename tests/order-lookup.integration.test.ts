@@ -30,7 +30,7 @@ describe('findOwnedOrder', () => {
       categorySlug: 'digital-sns',
       locale: 'ko',
       selection: { tiers: ['standard'], platforms: [], country: ['kr'] },
-      consents: { agree: true },
+      consents: { terms: true, privacy: true, agree: true },
       orderer: { ...validOrderer },
       signature: validOrderer.name,
     })
