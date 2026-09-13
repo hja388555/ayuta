@@ -5,7 +5,7 @@
 .muted { margin: 0; font-size: 14px; color: #767b85; }
 
 .thread { display: flex; flex-direction: column; gap: 6px; width: 100%; padding: 14px 16px; border: 1px solid #eceef1; border-radius: 12px; background: #fff; font: inherit; text-align: left; color: #3d4046; cursor: pointer; }
-.threadActive { border-color: #005afa; background: #eff5ff; }
+.threadActive { border-color: var(--brand-600); background: var(--brand-50); }
 .threadHead { display: flex; align-items: center; gap: 8px; }
 .threadName { flex: 1; min-width: 0; font-size: 16px; font-weight: 700; color: #0b0b0c; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .unread { min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; background: #e5484d; color: #fff; font-size: 12px; font-weight: 700; line-height: 22px; text-align: center; }

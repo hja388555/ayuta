@@ -86,7 +86,7 @@
 .radioOn { border-color: var(--brand-600); background: var(--brand-50); color: var(--brand-600); font-weight: 700; }
 
 /* A6 이미지 관리 — Figma [v2] 229:650 PC / 229:798 Mobile */
-.info { margin: 0; padding: 14px 16px; border-radius: 12px; background: var(--brand-50); color: #002e80; font-size: 15px; line-height: 1.5; }
+.info { margin: 0; padding: 14px 16px; border-radius: 12px; background: var(--brand-50); color: var(--brand-900); font-size: 15px; line-height: 1.5; }
 .bandGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 420px), 560px)); gap: 16px; }
 .bandCard { display: flex; flex-direction: column; gap: 12px; min-width: 0; padding: 18px; border: 1px solid var(--line); border-radius: 14px; background: #fff; }
 .bandTitle { flex: 1; min-width: 0; margin: 0; font-size: 17px; line-height: 1.5; color: var(--ink-900); }

@@ -2,7 +2,7 @@
 .page { display: flex; flex-direction: column; gap: 20px; padding-block: 32px; }
 .head { display: flex; align-items: center; gap: 12px; }
 .title { flex: 1; min-width: 0; margin: 0; font-size: 32px; font-weight: 700; line-height: 1.25; letter-spacing: -0.02em; color: #0b0b0c; }
-.badge { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 1px solid #eceef1; border-radius: 999px; background: #fff; font-size: 14px; font-weight: 700; line-height: 1.5; color: #005afa; white-space: nowrap; }
+.badge { display: inline-flex; align-items: center; gap: 8px; padding: 9px 14px; border: 1px solid #eceef1; border-radius: 999px; background: #fff; font-size: 14px; font-weight: 700; line-height: 1.5; color: var(--brand-600); white-space: nowrap; }
 .badge img { width: 16px; height: 16px; flex: none; display: block; }
 
 .card { display: flex; flex-direction: column; gap: 16px; padding: 24px; border: 1px solid #eceef1; border-radius: 16px; background: #fff; min-height: 240px; max-height: min(64vh, 720px); overflow-y: auto; }
@@ -17,7 +17,7 @@
 .primary { margin: 0; font-size: 16px; line-height: 1.5; color: #0b0b0c; white-space: pre-wrap; overflow-wrap: anywhere; }
 .rule { display: block; height: 1px; background: #eceef1; }
 .secondary { margin: 0; font-size: 14px; line-height: 1.5; color: #767b85; white-space: pre-wrap; overflow-wrap: anywhere; }
-.bubbleMine { background: #005afa; }
+.bubbleMine { background: var(--brand-600); }
 .bubbleMine .primary { color: #fff; }
 .bubbleMine .rule { background: #3d7bff; }
 .bubbleMine .secondary { color: #c7d8ff; }
@@ -30,7 +30,7 @@
 .attach img { width: 18px; height: 18px; display: block; }
 .input { flex: 1; min-width: 0; height: 44px; padding: 10px 16px; border: 0; border-radius: 12px; background: #f7f8fa; font: inherit; font-size: 16px; line-height: 1.5; color: #0b0b0c; resize: none; }
 .input::placeholder { color: #a3a8b0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.send { height: 44px; padding: 0 18px; flex: none; border: 0; border-radius: 12px; background: #005afa; font: inherit; font-size: 15px; font-weight: 700; color: #fff; cursor: pointer; }
+.send { height: 44px; padding: 0 18px; flex: none; border: 0; border-radius: 12px; background: var(--brand-600); font: inherit; font-size: 15px; font-weight: 700; color: #fff; cursor: pointer; }
 .send:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .notice { display: flex; flex-direction: column; gap: 4px; padding: 14px 16px; border-radius: 12px; background: #fff; font-size: 14px; line-height: 1.5; color: #767b85; }

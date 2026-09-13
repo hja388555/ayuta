@@ -38,8 +38,8 @@ export const input: CSSProperties = {
 
 export const button: CSSProperties = {
   padding: '6px 14px',
-  border: '1px solid #005AFA',
-  background: '#005AFA',
+  border: '1px solid var(--brand-600)',
+  background: 'var(--brand-600)',
   color: '#fff',
   borderRadius: 4,
   fontSize: 13,
