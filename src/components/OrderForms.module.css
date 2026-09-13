@@ -2,6 +2,7 @@
 
 .body { display: flex; flex-direction: column; gap: 32px; max-width: 960px; margin-inline: auto; padding: 28px var(--side) 48px; }
 .title { margin: 0; font-size: 28px; font-weight: 800; line-height: 1.35; color: var(--brown-900); }
+.titleParen { white-space: nowrap; }
 .step > :global(.step-title) { margin-bottom: 20px; }
 
 /* 한국/일본 탭 */

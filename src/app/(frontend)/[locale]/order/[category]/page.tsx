@@ -22,6 +22,22 @@ import { sanitizePurposes } from '@/lib/cover-selection'
 
 export const dynamic = 'force-dynamic'
 
+/**
+ * 제목 끝의 괄호 문구가 모바일에서 줄 중간에 꺾이지 않게 한다("...선택\n가능)" 같은 고아 방지).
+ * " (" 앞에서만 나눠 앞 문구<wbr/>괄호 문구로 렌더링한다 — 괄호가 없는 제목은 그대로 보여준다
+ */
+function OrderTitle({ title, className }: { title: string; className?: string }) {
+  const i = title.indexOf(' (')
+  if (i === -1) return <h1 className={className}>{title}</h1>
+  return (
+    <h1 className={className}>
+      {title.slice(0, i)}
+      <wbr />
+      <span className={styles.titleParen}>{title.slice(i + 1)}</span>
+    </h1>
+  )
+}
+
 type Props = {
   params: Promise<{ locale: string; category: string }>
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -87,7 +103,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
       {def.no !== 5 ? (
         <>
           <div className={styles.body}>
-            <h1 className={styles.title}>{tPage(`titles.${def.slug}`)}</h1>
+            <OrderTitle className={styles.title} title={tPage(`titles.${def.slug}`) as string} />
             {def.model.kind === 'tier' ? (
               <TierForm
                 book={book}
@@ -168,7 +184,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
         <>
           {/* 5번은 금액 없이 문의를 받아 관리자가 견적을 발행한다(Q14 · Q14-B) */}
           <div className={styles.body}>
-            <h1 className={styles.title}>{tPage(`titles.${def.slug}`)}</h1>
+            <OrderTitle className={styles.title} title={tPage(`titles.${def.slug}`) as string} />
             <InquiryForm
               locale={locale}
               initialType={initialType}
