@@ -14,6 +14,7 @@ import { loadCategoryModel } from '@/lib/pricing-model'
 import { currencyForLocale } from '@/lib/payments/channel'
 import { selectionFromQuery, filterPricedSelection } from '@/lib/checkout/selection-from-query'
 import { buildContractItems, categoryContractFacts, unpricedReviewRows } from '@/lib/checkout/contract-items'
+import { buildReviewSummary } from '@/lib/checkout/review-summary'
 import { BUYER_PLACEHOLDERS_PENDING } from '@/lib/checkout/contract-preview'
 import { loadCompanyContractFields } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
@@ -39,6 +40,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   if (!def) notFound()
 
   const t = await getTranslations('checkout')
+  const tPage = await getTranslations('orderPage')
   const currency = currencyForLocale(locale)
   const book = await loadPriceBook(def.no, currency)
 
@@ -112,14 +114,8 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
     ...(await loadCompanyContractFields(contractLocale)),
   })
 
-  const tCat = await getTranslations('categories')
-  const money = new Intl.NumberFormat(currency === 'KRW' ? 'ko-KR' : 'ja-JP', { style: 'currency', currency, maximumFractionDigits: 0 })
-  const reviewRows = [
-    { label: t('serviceLabel'), value: `${def.no}. ${tCat(def.slug)}` },
-    ...quote.lines.map((l) => ({ label: l.label, value: money.format(l.amount) })),
-    // 금액이 없는 선택(1번 플랫폼 · 2번 촬영 국가 · 4번 사이즈)도 고른 대로 보여 준다
-    ...unpricedReviewRows(def, rawSelection, contractLocale),
-  ]
+  // v3 결제 화면 "주문 내역 확인" — 카테고리 제목 → 고른 채널 → 진한 상품명 순(줄별 금액은 표시하지 않는다)
+  const reviewSummary = buildReviewSummary(tPage(`titles.${def.slug}`), unpricedReviewRows(def, rawSelection, contractLocale), quote.lines)
   // 선택 내용 수정하기 — 같은 쿼리를 그대로 실어 폼으로 돌려보낸다
   const editQuery = new URLSearchParams()
   for (const [k, v] of Object.entries(sp)) {
@@ -141,7 +137,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
             requestBody={{ categorySlug: def.slug, selection: rawSelection }}
             amount={quote.total}
             currency={currency}
-            reviewRows={reviewRows}
+            reviewSummary={reviewSummary}
             editHref={editHref}
             draftScope={def.slug}
             template={{

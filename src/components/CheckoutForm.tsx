@@ -113,8 +113,8 @@ type Props = {
   requestBody: Record<string, unknown>
   amount: number
   currency: PriceBook['currency']
-  /** 주문 내역 표 — 서버가 금액까지 서식을 맞춰 넘긴다. 견적처럼 내역을 폼 밖에서 보여주면 생략한다 */
-  reviewRows?: { label: string; value: string }[]
+  /** 주문 내역 확인 카드 — 카테고리 제목·고른 채널·상품명을 서버가 순서대로 넘긴다. 견적처럼 내역을 폼 밖에서 보여주면 생략한다 */
+  reviewSummary?: { title: string; lines: { text: string; strong: boolean }[] }
   /** 같은 선택값을 실은 폼 주소(선택 내용 수정하기). 고칠 수 없는 견적은 생략한다 */
   editHref?: string
   /** 주문자 입력을 sessionStorage 에 임시 저장할 구분값(카테고리 슬러그 등). 없으면 저장하지 않는다 */
@@ -131,7 +131,7 @@ type Props = {
 // 약관·개인정보는 약관 동의 모달(v2 13-A)로, 그 밖의 동의(계약 내용 등)는 계약서 미리보기 팝업으로
 const PUBLIC_DOC_KEYS = new Set(['terms', 'privacy'])
 
-export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, reviewRows, editHref, draftScope, template, initialOrderer, coverCountries = [], labels, errorMessages }: Props) {
+export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, reviewSummary, editHref, draftScope, template, initialOrderer, coverCountries = [], labels, errorMessages }: Props) {
   const router = useRouter()
   const phoneErrorText = usePhoneErrorText()
   const [orderer, setOrderer] = useState<OrdererFormState>(() => initialOrdererState(initialOrderer, coverCountries, locale))
@@ -310,7 +310,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
       </ol>
 
       <section className={s.card} aria-labelledby="co-orderer">
-        <StepTitle id="co-orderer" title={labels.ordererTitle} hint={labels.ordererHint} />
+        <StepTitle id="co-orderer" title={labels.ordererTitle} />
         <div className={s.row} style={{ ['--cols' as string]: 3 }}>
           {field('name', { required: true, autoComplete: 'name' })}
           {field('phone', { required: true })}
@@ -346,28 +346,28 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         ) : null}
       </section>
 
-      {reviewRows ? (
+      {reviewSummary ? (
         <section className={s.card} aria-labelledby="co-review">
-          <StepTitle id="co-review" title={labels.reviewTitle} hint={labels.reviewHint} />
-          <dl className={s.table}>
-            {reviewRows.map((row) => (
-              <div key={row.label} className={s.tableRow}>
-                <dt>{row.label}</dt>
-                <dd>{row.value}</dd>
-              </div>
+          <StepTitle id="co-review" title={labels.reviewTitle} />
+          <div className={s.summary}>
+            <p className={s.summaryTitle}>{reviewSummary.title}</p>
+            {reviewSummary.lines.map((l) => (
+              <p key={l.text} className={l.strong ? s.summaryStrong : s.summaryLine}>
+                {l.text}
+              </p>
             ))}
-          </dl>
+          </div>
+          <TotalBar label={labels.totalLabel} amount={formatAmount(amount, currency)} />
           {editHref ? (
-            <a href={editHref} className={`btn btn-outline btn-block ${s.editLink}`}>
-              {labels.editSelection}
+            <a href={editHref} className={s.editLink}>
+              ‹ {labels.editSelection}
             </a>
           ) : null}
-          <TotalBar label={labels.totalLabel} amount={formatAmount(amount, currency)} />
         </section>
       ) : null}
 
       <section className={s.card} aria-labelledby="co-contract">
-        <StepTitle id="co-contract" title={labels.contractTitle} hint={labels.contractHint} />
+        <StepTitle id="co-contract" title={labels.contractTitle} />
         {template.consents.map((c) => (
           <div key={c.key} className={`choice ${s.consent}`}>
             <label className={s.consentLabel}>
