@@ -8,6 +8,7 @@ import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import type { CategoryForm, GroupDef, ItemDef } from '@/lib/category-groups'
 import { ChoiceCard, ChoiceGrid, StepTitle } from './ui'
 import { formatAmount, PaySection } from './TierForm'
+import { keepTrailingWordTogether } from '../lib/label-wrap'
 import s from './OrderForms.module.css'
 
 /**
@@ -235,7 +236,8 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
   function labelForItem(key: string): string {
     // 금액칸이 있는 항목은 loadPriceBook 이 이미 통화에 맞는 언어로 라벨을 골라 뒀다.
     // 금액이 없는 항목(국가)과 단가가 아직 없는 항목은 messages 쪽 라벨로 보충한다.
-    return book.entries[key]?.label ?? labels.itemLabels[key] ?? key
+    // keepTrailingWordTogether 는 화면 표시만 바꾼다 — 계약서·contractItems 는 원본 메시지를 그대로 쓴다
+    return keepTrailingWordTogether(book.entries[key]?.label ?? labels.itemLabels[key] ?? key)
   }
 
   // 이 화면에서 고른 나라가 country= 로 나간다 — 표지 값 대신 실제 선택을 계약서·주문에 싣는다
