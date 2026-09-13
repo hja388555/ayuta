@@ -39,7 +39,7 @@ export function ChoiceCard({
   children: ReactNode
 }) {
   return (
-    <label className="choice">
+    <label className="choice" data-no-sub={sub ? undefined : 'true'}>
       <input type={type} name={name} checked={checked} onChange={onChange ?? (() => {})} onClick={onClick} />
       <span className="choice-box" aria-hidden />
       <span>
