@@ -214,6 +214,7 @@ export default async function QuotePage({ params }: Props) {
               quote_expired: t('errExpired'),
               quote_revoked: t('errRevoked'),
               invalid_quote: t('invalidTitle'),
+              consent_required: labels.errConsentRequired,
             }}
           />
         ) : (

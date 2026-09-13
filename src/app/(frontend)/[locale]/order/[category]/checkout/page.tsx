@@ -161,6 +161,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
             }
             coverCountries={Array.isArray(sp.country) ? sp.country : sp.country ? [sp.country] : []}
             labels={labels}
+            errorMessages={{ consent_required: labels.errConsentRequired }}
           />
         </div>
       </Shell>

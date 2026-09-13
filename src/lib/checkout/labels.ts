@@ -43,6 +43,7 @@ export const CHECKOUT_LABEL_KEYS = [
   'errPhone',
   'errSummary',
   'errConsents',
+  'errConsentRequired',
   'contractNeedsOrderer',
 ] as const
 
