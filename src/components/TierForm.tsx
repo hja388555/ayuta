@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import type { RestoreSelection } from '../lib/order-restore'
-import { useMirrorQuery } from '../lib/order-url'
+import { goToCheckout, useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import { ChoiceCard, ChoiceGrid, TotalBar } from './ui'
@@ -121,7 +121,7 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
 
   function goToPayment() {
     if (!canPay) return
-    router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
+    goToCheckout(router, `/${locale}/order/${categorySlug}`, query, `/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
   const on = (key: string) => (tiers.includes(key) ? s.on : undefined)

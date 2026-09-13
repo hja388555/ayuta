@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { selectionsFromItems, tabFromItems, type RestoreSelection } from '../lib/order-restore'
-import { useMirrorQuery } from '../lib/order-url'
+import { goToCheckout, useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import type { CategoryForm, GroupDef, ItemDef } from '@/lib/category-groups'
@@ -199,7 +199,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
 
   function goToPayment() {
     if (!canPay) return
-    router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
+    goToCheckout(router, `/${locale}/order/${categorySlug}`, query, `/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
   const groups = form.groups

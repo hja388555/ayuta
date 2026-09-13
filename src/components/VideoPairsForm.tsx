@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { pairsFromQuery, selectionsFromItems, type RestoreSelection } from '../lib/order-restore'
-import { useMirrorQuery } from '../lib/order-url'
+import { goToCheckout, useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel, type VideoPair } from '@ayuta/pricing'
 import type { CategoryForm } from '@/lib/category-groups'
@@ -124,7 +124,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
 
   function goToPayment() {
     if (!canPay) return
-    router.push(`/${locale}/order/${categorySlug}/checkout?${query}`)
+    goToCheckout(router, `/${locale}/order/${categorySlug}`, query, `/${locale}/order/${categorySlug}/checkout?${query}`)
   }
 
   const summary = [
