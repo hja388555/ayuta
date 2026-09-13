@@ -115,10 +115,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 restore={restore}
                 labels={{
                   platformTitle: t('platformTitle'),
-                  platformHint: t('platformHint'),
                   platforms: t.raw('platforms'),
-                  tierTitle: t('tierTitle'),
-                  tierHint: t('tierHint'),
                   contentHead: t('contentHead'),
                   rows: t.raw('rows') as TierRow[],
                   priceRow: t('priceRow'),

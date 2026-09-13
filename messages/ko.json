@@ -38,15 +38,11 @@
     "other": "기타"
   },
   "tierForm": {
-    "platformHint": "중복 선택하실 수 있습니다. 금액에는 영향이 없습니다",
     "totalLabel": "총 금액",
     "payButton": "결제하러 가기",
     "platformTitle": "플랫폼",
-    "tierTitle": "등급 선택",
-    "tierHint": "여러 개를 고르시면 금액이 합산됩니다",
     "contentHead": "제공 콘텐츠",
     "priceRow": "금액",
-    "selected": "{names} 선택",
     "platforms": {
       "instagram": "인스타그램 (피드, 캐러셀, 릴스)",
       "youtube": "유튜브, 쇼츠",

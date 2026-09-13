@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { buildPaymentQuery, previewTotal, toggleValue } from './TierForm'
+import { buildPaymentQuery, orderTiers, previewTotal, tierSummaryItems, toggleValue } from './TierForm'
 
 const book: PriceBook = {
   currency: 'KRW',
@@ -10,6 +10,35 @@ const book: PriceBook = {
   },
 }
 const model: PricingModel = { kind: 'tier', category: 1, tiers: ['basic', 'standard'], platforms: [] }
+
+describe('상품 내용 목록 (1번)', () => {
+  it('플랫폼은 한 줄로 잇고 등급은 한 줄씩', () => {
+    expect(tierSummaryItems(['유튜브, 쇼츠', '틱톡 (숏폼영상)'], ['프리미엄'])).toEqual(['유튜브, 쇼츠 / 틱톡 (숏폼영상)', '프리미엄'])
+  })
+  it('아무것도 안 고르면 빈 목록', () => {
+    expect(tierSummaryItems([], [])).toEqual([])
+  })
+})
+
+describe('등급 열 순서', () => {
+  it('베이직 → 스탠다드 → 프리미엄 순으로 정렬한다', () => {
+    const entries = [
+      { key: 'premium', label: '프리미엄', amount: minor(0) },
+      { key: 'standard', label: '스탠다드', amount: minor(0) },
+      { key: 'basic', label: '베이직', amount: minor(0) },
+    ]
+    expect(orderTiers(entries).map((e) => e.key)).toEqual(['basic', 'standard', 'premium'])
+  })
+
+  it('알 수 없는 키는 뒤로 보낸다', () => {
+    const entries = [
+      { key: 'mystery', label: '?', amount: minor(0) },
+      { key: 'premium', label: '프리미엄', amount: minor(0) },
+      { key: 'basic', label: '베이직', amount: minor(0) },
+    ]
+    expect(orderTiers(entries).map((e) => e.key)).toEqual(['basic', 'premium', 'mystery'])
+  })
+})
 
 describe('선택 토글', () => {
   it('없으면 넣고 있으면 뺀다', () => {

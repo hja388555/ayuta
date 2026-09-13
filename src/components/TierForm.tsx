@@ -5,7 +5,7 @@ import type { RestoreSelection } from '../lib/order-restore'
 import { useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { ChoiceCard, ChoiceGrid, StepTitle, TotalBar } from './ui'
+import { ChoiceCard, ChoiceGrid, TotalBar } from './ui'
 import s from './OrderForms.module.css'
 
 const PLATFORMS = ['instagram', 'youtube', 'tiktok', 'line'] as const
@@ -58,6 +58,22 @@ export function formatAmount(amount: number, currency: PriceBook['currency']): s
   }).format(amount)
 }
 
+/** 상품 내용 목록. 플랫폼은 쉼표로 이은 한 줄, 등급은 한 줄씩 */
+export function tierSummaryItems(platformLabels: readonly string[], tierLabels: readonly string[]): string[] {
+  return [...(platformLabels.length ? [platformLabels.join(' / ')] : []), ...tierLabels]
+}
+
+const TIER_ORDER = ['basic', 'standard', 'premium']
+
+/** 표 열 순서: 베이직 → 스탠다드 → 프리미엄, 모르는 키는 뒤로 */
+export function orderTiers<T extends { key: string }>(entries: readonly T[]): T[] {
+  const rank = (key: string) => {
+    const i = TIER_ORDER.indexOf(key)
+    return i === -1 ? TIER_ORDER.length : i
+  }
+  return [...entries].sort((a, b) => rank(a.key) - rank(b.key))
+}
+
 /** 비교표의 한 행. 등급 키(basic/standard/premium) → 칸 문구 */
 export type TierRow = { label: string } & Record<string, string>
 
@@ -72,10 +88,7 @@ type Props = {
   restore?: RestoreSelection
   labels: {
     platformTitle: string
-    platformHint: string
     platforms: Record<string, string>
-    tierTitle: string
-    tierHint: string
     contentHead: string
     rows: TierRow[]
     priceRow: string
@@ -93,13 +106,14 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
 
   // 등급 목록은 단가표(book)에서 뽑는다 — model.tiers 는 카테고리 표의 자리표시자일 뿐,
   // 실제로 무엇을 고를 수 있는지는 DB 에 등록된 단가가 결정한다
-  const tierOptions = useMemo(() => Object.values(book.entries), [book])
+  // 표 열 순서는 베이직 → 스탠다드 → 프리미엄(Figma). book.entries 는 DB 순서라 그대로 쓰면 뒤집힌다
+  const tierOptions = useMemo(() => orderTiers(Object.values(book.entries)), [book])
   const total = useMemo(() => previewTotal(book, model, tiers, platforms), [book, model, tiers, platforms])
 
   const canPay = tiers.length > 0
   const selectedNames = tierOptions.filter((e) => tiers.includes(e.key)).map((e) => e.label)
   const platformNames = platforms.map((p) => labels.platforms[p] ?? p)
-  const items = platformNames.length > 0 ? [platformNames.join(' / '), ...selectedNames] : selectedNames
+  const items = tierSummaryItems(platformNames, selectedNames)
 
   // 고른 내용을 주소에 옮겨 적는다 — 새로고침·언어 전환 뒤에도 restore 로 되살아난다
   const query = buildPaymentQuery(tiers, platforms, country, purposes)
@@ -115,9 +129,8 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
   return (
     <>
       <section className={`${s.step} ${s.grid} ${s.platforms}`}>
-        <StepTitle id="tier-platform" title={labels.platformTitle} hint={labels.platformHint} />
-        {/* 플랫폼 선택은 금액에 영향이 없다 — 제목 아래에 그대로 안내한다 (G3) */}
-        <ChoiceGrid cols={2} labelledBy="tier-platform">
+        {/* v3: 제목·안내문 없이 카드만 보여준다. 스크린리더용 레이블은 aria-label 로 남긴다 */}
+        <ChoiceGrid cols={2} ariaLabel={labels.platformTitle}>
           {PLATFORMS.map((p) => (
             <ChoiceCard
               key={p}
@@ -132,9 +145,8 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
       </section>
 
       <section className={s.step}>
-        <StepTitle id="tier-grade" title={labels.tierTitle} hint={labels.tierHint} />
         <div className={s.tableWrap}>
-          <table className={s.table} aria-labelledby="tier-grade">
+          <table className={s.table} aria-label={labels.contentHead}>
             <colgroup>
               <col />
               {tierOptions.map((e) => (

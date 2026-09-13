@@ -50,9 +50,19 @@ export function ChoiceCard({
   )
 }
 
-export function ChoiceGrid({ cols = 2, children, labelledBy }: { cols?: number; children: ReactNode; labelledBy?: string }) {
+export function ChoiceGrid({
+  cols = 2,
+  children,
+  labelledBy,
+  ariaLabel,
+}: {
+  cols?: number
+  children: ReactNode
+  labelledBy?: string
+  ariaLabel?: string
+}) {
   return (
-    <div className="choice-grid" role="group" aria-labelledby={labelledBy} style={{ ['--cols' as string]: cols }}>
+    <div className="choice-grid" role="group" aria-labelledby={labelledBy} aria-label={ariaLabel} style={{ ['--cols' as string]: cols }}>
       {children}
     </div>
   )

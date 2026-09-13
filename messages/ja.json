@@ -39,15 +39,11 @@
     "other": "その他"
   },
   "tierForm": {
-    "platformHint": "複数選択できます。金額には影響しません",
     "totalLabel": "合計金額",
     "payButton": "お支払いへ進む",
     "platformTitle": "プラットフォーム",
-    "tierTitle": "グレード選択",
-    "tierHint": "複数選ぶと金額が合算されます",
     "contentHead": "提供コンテンツ",
     "priceRow": "金額",
-    "selected": "{names} を選択",
     "platforms": {
       "instagram": "Instagram（フィード、カルーセル、リール）",
       "youtube": "YouTube、ショート",
