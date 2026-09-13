@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import type { RestoreSelection } from '../lib/order-restore'
-import { goToCheckout, useMirrorQuery } from '../lib/order-url'
+import { useCheckoutGuard, useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import { ChoiceCard, ChoiceGrid, TotalBar } from './ui'
@@ -100,6 +100,7 @@ type Props = {
 
 export function TierForm({ book, model, locale, categorySlug, country, purposes, restore, labels }: Props) {
   const router = useRouter()
+  const { pending, goToCheckout } = useCheckoutGuard()
   // 결제 화면에서 돌아왔으면 고른 등급·플랫폼을 되살린다 — 단가표·플랫폼 목록에 있는 값만
   const [tiers, setTiers] = useState<string[]>(() => [...new Set(restore?.tiers ?? [])].filter((k) => Boolean(book.entries[k])))
   const [platforms, setPlatforms] = useState<string[]>(() => [...new Set(restore?.platforms ?? [])].filter((p) => (PLATFORMS as readonly string[]).includes(p)))
@@ -201,7 +202,7 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
         items={items}
         amount={formatAmount(total, book.currency)}
         payButton={labels.payButton}
-        disabled={!canPay}
+        disabled={!canPay || pending}
         onPay={goToPayment}
       />
     </>

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { selectionsFromItems, tabFromItems, type RestoreSelection } from '../lib/order-restore'
-import { goToCheckout, useMirrorQuery } from '../lib/order-url'
+import { useCheckoutGuard, useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import type { CategoryForm, GroupDef, ItemDef } from '@/lib/category-groups'
@@ -145,6 +145,7 @@ type Props = {
 
 export function GroupForm({ form, model, book, locale, categorySlug, country, purposes, restore, labels }: Props) {
   const router = useRouter()
+  const { pending, goToCheckout } = useCheckoutGuard()
   // 표지 1단계의 광고 국가를 그대로 적용한다(2026-09-12 사용자 요청).
   // 결제 화면 "선택 내용 수정하기"로 돌아왔으면 고른 항목·기간·사이즈를 되살린다
   const [selections, setSelections] = useState<Record<string, string[]>>(() => {
@@ -332,7 +333,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
         items={summary}
         amount={formatAmount(total, book.currency)}
         payButton={labels.payButton}
-        disabled={!canPay}
+        disabled={!canPay || pending}
         onPay={goToPayment}
       />
     </>
