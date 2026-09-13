@@ -124,6 +124,24 @@
       "basicIncluded": "標準で含まれるもの",
       "videoPairs": "映像ごとの完成尺"
     },
+    "contractTitles": {
+      "country": "撮影国",
+      "videoType": "映像の種類",
+      "videoLength": "完成映像の長さ",
+      "national": "全国紙",
+      "local": "地方紙",
+      "community": "地域コミュニティ",
+      "blog": "ブログ",
+      "subwayCity": "地下鉄 — 都市",
+      "subwaySpot": "地下鉄広告位置",
+      "posterBillboard": "ポスター・電光掲示板制作",
+      "busCity": "バス広告 — 都市",
+      "busSpot": "バス広告位置",
+      "period": "広告期間",
+      "sizePeriod": "サイズ · 広告期間",
+      "basicIncluded": "標準で含まれるもの",
+      "videoPairs": "映像ごとの完成尺"
+    },
     "itemLabels": {
       "country-kr": "韓国現地撮影",
       "country-jp": "日本現地撮影",
