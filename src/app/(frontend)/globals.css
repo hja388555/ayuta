@@ -130,6 +130,10 @@ body {
 /* PC 본문 폭 960 — 메인·주문·결제 공통 */
 .v3-body { max-width: 960px; margin-inline: auto; }
 
+/* 표지 단계 사이 간격 — PC 32px, 모바일 24px */
+.cover-body { padding: 32px 0 56px; }
+.cover-steps { display: grid; gap: 32px; }
+
 /* 한 줄 이동 행(표지 서비스 목록) — 누르면 바로 다음 화면 */
 .row-link { display: flex; align-items: center; gap: 14px; min-height: 56px; padding: 0 24px; border: 1.5px solid var(--brown-900); border-radius: var(--radius); background: #fff; color: var(--brown-900); font-size: 18px; font-weight: 700; line-height: 1.5; text-decoration: none; }
 .row-link::after { content: ''; flex: none; width: 22px; height: 22px; margin-left: auto; background: url('/ui/chevron.svg') center / 22px 22px no-repeat; }
@@ -203,6 +207,8 @@ body {
   .cover-logo { width: 112px; height: 68px; font-size: 26px; }
   .cover-headline { font-size: 24px; }
   .cover-tagline { font-size: 16px; }
+  .cover-body { padding: 24px 0 40px; }
+  .cover-steps { gap: 24px; }
   .site-nav, .site-phone { display: none; }
   .site-header-right { gap: 8px; }
   .site-auth .btn { height: 34px; min-width: 62px; padding: 0 12px; border-radius: var(--radius-sm); font-size: 13px; }

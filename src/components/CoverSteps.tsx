@@ -46,7 +46,7 @@ export function CoverSteps({ locale, categories, labels }: Props) {
   }
 
   return (
-    <div className="cover-steps" style={{ display: 'grid', gap: 56 }}>
+    <div className="cover-steps">
       <section>
         <StepTitle id="cover-country" title={labels.stepCountry} />
         <ChoiceGrid cols={2} labelledBy="cover-country">

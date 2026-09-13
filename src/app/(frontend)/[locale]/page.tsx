@@ -24,15 +24,17 @@ export default async function CoverPage({ params }: Props) {
   return (
     <main>
       <Shell as="section">
-        <div className="cover-brand">
-          <span className="cover-logo" aria-hidden>{t('logo')}</span>
-          <h1 className="cover-headline">{t('headline')}</h1>
+        <div className="v3-body">
+          <div className="cover-brand">
+            <span className="cover-logo" aria-hidden>{t('logo')}</span>
+            <h1 className="cover-headline">{t('headline')}</h1>
+          </div>
+          <p className="cover-tagline">{t('tagline')}</p>
         </div>
-        <p className="cover-tagline">{t('tagline')}</p>
       </Shell>
 
       <Shell as="section">
-        <div className="v3-body" style={{ padding: '48px 0 56px' }}>
+        <div className="v3-body cover-body">
           <CoverSteps
             locale={locale}
             categories={CATEGORIES}
