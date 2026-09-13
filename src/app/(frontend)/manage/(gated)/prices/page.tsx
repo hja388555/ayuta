@@ -141,7 +141,7 @@ function buildSections(category: number, rows: PriceRow[]): PriceSection[] {
     const tiers = take(TIER_KEYS).map((r) => ({ ...r, sub: counts[r.key] ? `총 콘텐츠 ${counts[r.key]}` : undefined }))
     if (tiers.length) sections.push({ title: '등급 단가', rows: tiers })
   } else {
-    const titles = koMessages.groupForm.groupTitles as Record<string, string>
+    const titles = koMessages.groupForm.contractTitles as Record<string, string>
     for (const g of formFor(category)?.groups ?? []) {
       const list = take(g.items.filter((i) => i.priced).map((i) => i.key))
       if (list.length) sections.push({ title: titles[g.key] ?? g.key, rows: list })
