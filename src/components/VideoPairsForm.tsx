@@ -136,7 +136,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
     <>
       {countryGroup && (
         <section className={`${s.step} ${s.grid}`}>
-          <StepTitle n={1} id="group-country" title={labels.groupTitles.country ?? ''} hint={labels.groupHints.country} />
+          <StepTitle id="group-country" title={labels.groupTitles.country ?? ''} hint={labels.groupHints.country} />
           <ChoiceGrid cols={2} labelledBy="group-country">
             {countryGroup.items.map((item) => (
               <ChoiceCard
@@ -154,7 +154,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
 
       {typeGroup && (
         <section className={s.step}>
-          <StepTitle n={2} id="group-videoType" title={labels.groupTitles.videoType ?? ''} hint={labels.groupHints.videoType} />
+          <StepTitle id="group-videoType" title={labels.groupTitles.videoType ?? ''} hint={labels.groupHints.videoType} />
           <div className={s.rows} role="group" aria-labelledby="group-videoType">
             {typeGroup.items.map((item) => (
               <ChoiceCard
@@ -173,7 +173,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
 
       {lengthGroup && (
         <section className={s.step}>
-          <StepTitle n={3} id="group-videoPairs" title={labels.groupTitles.videoPairs ?? ''} hint={labels.groupHints.videoPairs} />
+          <StepTitle id="group-videoPairs" title={labels.groupTitles.videoPairs ?? ''} hint={labels.groupHints.videoPairs} />
           {pairs.length === 0 ? (
             <p className={s.empty}>{labels.pairsEmpty}</p>
           ) : (
@@ -211,7 +211,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
 
       {/* 기본 포함 칩 — 선택지가 아니라 안내다 */}
       <section className={s.step}>
-        <StepTitle n={4} title={labels.groupTitles.basicIncluded ?? ''} hint={labels.groupHints.basicIncluded} />
+        <StepTitle title={labels.groupTitles.basicIncluded ?? ''} hint={labels.groupHints.basicIncluded} />
         <ul className={s.chips} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
           {labels.basicIncludedItems.map((c) => (
             <li key={c} className={s.chip}>

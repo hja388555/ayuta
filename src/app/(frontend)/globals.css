@@ -106,7 +106,6 @@ body {
 
 /* 섹션 제목 "• 제목" — 번호 원 없음(v3) */
 .step-title { display: flex; align-items: baseline; gap: 6px; margin: 0 0 12px; }
-.step-num { flex: none; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 999px; background: var(--brand-600); color: #fff; font-size: 15px; font-weight: 700; }
 .step-title h2 { margin: 0; font-size: 22px; font-weight: 800; line-height: 1.4; color: var(--brown-900); }
 .step-title h2::before { content: '• '; }
 .step-title p { margin: 2px 0 0; font-size: 15px; line-height: 1.5; color: var(--ink-500); }

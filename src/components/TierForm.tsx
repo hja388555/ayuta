@@ -115,7 +115,7 @@ export function TierForm({ book, model, locale, categorySlug, country, purpose, 
   return (
     <>
       <section className={`${s.step} ${s.grid} ${s.platforms}`}>
-        <StepTitle n={1} id="tier-platform" title={labels.platformTitle} hint={labels.platformHint} />
+        <StepTitle id="tier-platform" title={labels.platformTitle} hint={labels.platformHint} />
         {/* 플랫폼 선택은 금액에 영향이 없다 — 제목 아래에 그대로 안내한다 (G3) */}
         <ChoiceGrid cols={2} labelledBy="tier-platform">
           {PLATFORMS.map((p) => (
@@ -132,7 +132,7 @@ export function TierForm({ book, model, locale, categorySlug, country, purpose, 
       </section>
 
       <section className={s.step}>
-        <StepTitle n={2} id="tier-grade" title={labels.tierTitle} hint={labels.tierHint} />
+        <StepTitle id="tier-grade" title={labels.tierTitle} hint={labels.tierHint} />
         <div className={s.tableWrap}>
           <table className={s.table} aria-labelledby="tier-grade">
             <colgroup>

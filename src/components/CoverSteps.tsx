@@ -50,7 +50,7 @@ export function CoverSteps({ locale, categories, labels }: Props) {
   return (
     <div style={{ display: 'grid', gap: 56 }}>
       <section>
-        <StepTitle n={1} id="cover-country" title={labels.stepCountry} hint={labels.stepCountryHint} />
+        <StepTitle id="cover-country" title={labels.stepCountry} hint={labels.stepCountryHint} />
         <ChoiceGrid cols={2} labelledBy="cover-country">
           {COUNTRY_CODES.map((code) => (
             <ChoiceCard
@@ -69,7 +69,7 @@ export function CoverSteps({ locale, categories, labels }: Props) {
       </section>
 
       <section>
-        <StepTitle n={2} id="cover-purpose" title={labels.stepPurpose} />
+        <StepTitle id="cover-purpose" title={labels.stepPurpose} />
         <ChoiceGrid cols={3} labelledBy="cover-purpose">
           {PURPOSE_CODES.map((code) => (
             <ChoiceCard
@@ -86,7 +86,7 @@ export function CoverSteps({ locale, categories, labels }: Props) {
       </section>
 
       <section>
-        <StepTitle n={3} id="cover-service" title={labels.stepService} hint={labels.stepServiceHint} />
+        <StepTitle id="cover-service" title={labels.stepService} hint={labels.stepServiceHint} />
 
         {showCountryPrompt && (
           <p role="alert" style={{ color: 'var(--danger-600)', fontWeight: 700, margin: '0 0 12px' }}>

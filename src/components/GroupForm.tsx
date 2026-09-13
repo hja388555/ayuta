@@ -212,7 +212,6 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     ...(period ? [labels.periods[period] ?? period] : []),
   ]
 
-  let n = 0
   return (
     <>
       {form.countryTabs && (
@@ -233,14 +232,12 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
       )}
 
       {groups.map(({ group, items }) => {
-        n += 1
         const id = `group-${group.key}`
         const chosen = selections[group.key] ?? []
         const cards = CARD_GROUPS.has(group.key)
         return (
           <section key={group.key} className={`${s.step} ${cards ? s.grid : ''}`}>
             <StepTitle
-              n={n}
               id={id}
               title={labels.groupTitles[group.key] ?? group.key}
               hint={labels.groupHints[group.key]}
@@ -284,7 +281,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
 
       {(form.periods || form.freeText) && (
         <section className={`${s.step} ${s.grid}`}>
-          <StepTitle n={++n} id="group-period" title={labels.groupTitles.sizePeriod ?? labels.groupTitles.period ?? ''} />
+          <StepTitle id="group-period" title={labels.groupTitles.sizePeriod ?? labels.groupTitles.period ?? ''} />
           {form.freeText?.map((t) => (
             <div key={t.key} className={s.field}>
               <label htmlFor={`free-${t.key}`}>{labels.sizeLabel}</label>
@@ -313,7 +310,6 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
       {labels.basicIncludedItems && (
         <section className={s.step}>
           <StepTitle
-            n={++n}
             title={labels.groupTitles.basicIncluded ?? ''}
             hint={labels.groupHints.basicIncluded}
           />

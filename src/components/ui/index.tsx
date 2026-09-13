@@ -7,17 +7,12 @@ import { useEffect, useRef, type ReactNode } from 'react'
  * 기준: Figma [v2] 00 표지 205:33(번호 단계·카드 선택지) · 205:74(이동 행) · 상태 모음 233:140.
  */
 
-/** ①②③ 번호 단계 제목 */
-export function StepTitle({ n, title, hint, id }: { n: number; title: string; hint?: string; id?: string }) {
+/** "• 제목" 섹션 제목(v3). 번호 원은 없다 */
+export function StepTitle({ title, hint, id }: { title: string; hint?: string; id?: string }) {
   return (
     <div className="step-title">
-      <span className="step-num" aria-hidden>
-        {n}
-      </span>
-      <div>
-        <h2 id={id}>{title}</h2>
-        {hint ? <p>{hint}</p> : null}
-      </div>
+      <h2 id={id}>{title}</h2>
+      {hint ? <p>{hint}</p> : null}
     </div>
   )
 }
@@ -32,6 +27,7 @@ export function ChoiceCard({
   checked,
   onChange,
   onClick,
+  sub,
   children,
 }: {
   type: 'checkbox' | 'radio'
@@ -39,13 +35,17 @@ export function ChoiceCard({
   checked: boolean
   onChange?: () => void
   onClick?: () => void
+  sub?: ReactNode
   children: ReactNode
 }) {
   return (
     <label className="choice">
       <input type={type} name={name} checked={checked} onChange={onChange ?? (() => {})} onClick={onClick} />
       <span className="choice-box" aria-hidden />
-      <span>{children}</span>
+      <span>
+        {children}
+        {sub ? <span className="choice-sub">{sub}</span> : null}
+      </span>
     </label>
   )
 }

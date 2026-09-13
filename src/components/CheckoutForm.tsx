@@ -310,7 +310,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
       </ol>
 
       <section className={s.card} aria-labelledby="co-orderer">
-        <StepTitle n={1} id="co-orderer" title={labels.ordererTitle} hint={labels.ordererHint} />
+        <StepTitle id="co-orderer" title={labels.ordererTitle} hint={labels.ordererHint} />
         <div className={s.row} style={{ ['--cols' as string]: 3 }}>
           {field('name', { required: true, autoComplete: 'name' })}
           {field('phone', { required: true })}
@@ -348,7 +348,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
 
       {reviewRows ? (
         <section className={s.card} aria-labelledby="co-review">
-          <StepTitle n={2} id="co-review" title={labels.reviewTitle} hint={labels.reviewHint} />
+          <StepTitle id="co-review" title={labels.reviewTitle} hint={labels.reviewHint} />
           <dl className={s.table}>
             {reviewRows.map((row) => (
               <div key={row.label} className={s.tableRow}>
@@ -367,7 +367,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
       ) : null}
 
       <section className={s.card} aria-labelledby="co-contract">
-        <StepTitle n={3} id="co-contract" title={labels.contractTitle} hint={labels.contractHint} />
+        <StepTitle id="co-contract" title={labels.contractTitle} hint={labels.contractHint} />
         {template.consents.map((c) => (
           <div key={c.key} className={`choice ${s.consent}`}>
             <label className={s.consentLabel}>
@@ -434,7 +434,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
       <LegalConsentModal kind={viewDoc} locale={locale} onClose={() => setViewDoc(null)} onAgree={(k) => setChecked((prev) => ({ ...prev, [k]: true }))} />
 
       <section className={s.card} aria-labelledby="co-pay">
-        <StepTitle n={4} id="co-pay" title={labels.payTitle} />
+        <StepTitle id="co-pay" title={labels.payTitle} />
         {/* 결제수단은 지금 카드 하나뿐이다. PortOne 연동 전이라 선택값은 서버로 보내지 않는다 */}
         <div className={s.pay}>
           <ChoiceCard type="radio" name="payMethod" checked>

@@ -214,7 +214,7 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
   return (
     <form onSubmit={submit} className={s.form} noValidate>
       <section className={s.section}>
-        <StepTitle n={1} title={labels.countryTitle} id="inq-country" />
+        <StepTitle title={labels.countryTitle} id="inq-country" />
         <div id="inq-country-grid">
           <ChoiceGrid cols={2} labelledBy="inq-country">
             {COUNTRIES.map((c) => (
@@ -228,7 +228,7 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
       </section>
 
       <section className={s.section}>
-        <StepTitle n={2} title={labels.bodyTitle} />
+        <StepTitle title={labels.bodyTitle} />
         <label className={cls(s.field, 'body')}>
           <span className={s.label}>{labels.bodyLabel} *</span>
           <textarea id="inq-body" className={s.textarea} placeholder={labels.bodyPlaceholder} value={body} maxLength={5000} onChange={(e) => setBody(e.target.value)} disabled={busy} required {...invalid('body')} />
@@ -268,7 +268,7 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
       </section>
 
       <section className={s.section}>
-        <StepTitle n={3} title={labels.contactTitle} hint={labels.contactHint} />
+        <StepTitle title={labels.contactTitle} hint={labels.contactHint} />
         <div className={s.cols3}>
           <label className={cls(s.field, 'name')}>
             <span className={s.label}>{labels.name} *</span>
