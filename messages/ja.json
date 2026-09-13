@@ -197,11 +197,10 @@
   },
   "inquiryForm": {
     "intro": "その他の広告は、お問い合わせ内容を確認した担当者がお見積もりをお送りします。お見積もりをご確認のうえお支払いください。",
+    "lead": "ご希望の広告内容を自由にご記入ください",
     "bodyLabel": "ご希望の広告",
     "bodyPlaceholder": "自由にご記入ください",
     "regionLabel": "希望地域",
-    "filesHint": "画像（JPG・PNG・WEBP）・PDF、最大5件・合計4MB",
-    "contactTitle": "ご連絡先",
     "name": "ご担当者名",
     "phone": "連絡先",
     "email": "メールアドレス",
@@ -224,22 +223,18 @@
       "phone": "数字のみ入力してください（例: 09012345678）",
       "summary": "未入力または形式に誤りのある項目が{count}件あります。"
     },
-    "countryTitle": "国",
     "countries": {
       "kr": "韓国",
       "jp": "日本"
     },
-    "bodyTitle": "お問い合わせ内容",
     "regionPlaceholder": "例）ソウル江南区 / 東京渋谷",
-    "filesDrop": "参考資料をドラッグ＆ドロップするか、クリックして添付してください",
-    "filesButton": "ファイルを添付",
-    "contactHint": "ログイン中の場合は会員情報から自動で入力されます",
+    "filesTitle": "参考資料の添付",
+    "filesButton": "ファイル添付",
     "namePlaceholder": "山田太郎",
     "phonePlaceholder": "090-0000-0000",
     "emailPlaceholder": "name@email.com",
     "consent": "個人情報の収集・利用に同意します",
-    "consentView": "内容を見る",
-    "notice": "その他の広告は決済なしでお問い合わせのみ受け付けます。担当者が確認後、お見積もりを発行し決済リンクをお送りします。"
+    "consentView": "内容を見る"
   },
   "header": {
     "logo": "アユタ",

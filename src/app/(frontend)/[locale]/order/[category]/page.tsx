@@ -189,18 +189,14 @@ export default async function OrderPage({ params, searchParams }: Props) {
               initialContact={initialContact}
               initialCountry={country}
               labels={{
-                countryTitle: tForm('countryTitle'),
+                lead: tForm('lead'),
                 countries: tForm.raw('countries'),
-                bodyTitle: tForm('bodyTitle'),
                 bodyLabel: tForm('bodyLabel'),
                 bodyPlaceholder: tForm('bodyPlaceholder'),
                 regionLabel: tForm('regionLabel'),
                 regionPlaceholder: tForm('regionPlaceholder'),
-                filesDrop: tForm('filesDrop'),
+                filesTitle: tForm('filesTitle'),
                 filesButton: tForm('filesButton'),
-                filesHint: tForm('filesHint'),
-                contactTitle: tForm('contactTitle'),
-                contactHint: tForm('contactHint'),
                 name: tForm('name'),
                 namePlaceholder: tForm('namePlaceholder'),
                 phone: tForm('phone'),
@@ -209,7 +205,6 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 emailPlaceholder: tForm('emailPlaceholder'),
                 consent: tForm('consent'),
                 consentView: tForm('consentView'),
-                notice: tForm('notice'),
                 submit: tForm('submit'),
                 submitting: tForm('submitting'),
                 done: tForm('done'),

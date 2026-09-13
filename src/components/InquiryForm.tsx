@@ -1,25 +1,21 @@
 'use client'
 
 import { useState } from 'react'
-import { ChoiceCard, ChoiceGrid, StepTitle } from './ui'
+import { ChoiceCard, ChoiceGrid } from './ui'
 import { defaultPhoneCountry, initialPhoneInput, isValidPhone, type PhoneCountry } from '../lib/phone'
 import { LegalConsentModal } from './LegalConsentModal'
 import { PhoneInput, phoneForSubmit, usePhoneErrorText } from './PhoneInput'
 import s from './InquiryQuote.module.css'
 
 type Labels = {
-  countryTitle: string
+  lead: string
   countries: { kr: string; jp: string }
-  bodyTitle: string
   bodyLabel: string
   bodyPlaceholder: string
   regionLabel: string
   regionPlaceholder: string
-  filesDrop: string
+  filesTitle: string
   filesButton: string
-  filesHint: string
-  contactTitle: string
-  contactHint: string
   name: string
   namePlaceholder: string
   phone: string
@@ -28,7 +24,6 @@ type Labels = {
   emailPlaceholder: string
   consent: string
   consentView: string
-  notice: string
   submit: string
   submitting: string
   done: string
@@ -213,10 +208,11 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
 
   return (
     <form onSubmit={submit} className={s.form} noValidate>
+      <p className={s.lead}>{labels.lead}</p>
+
       <section className={s.section}>
-        <StepTitle title={labels.countryTitle} id="inq-country" />
         <div id="inq-country-grid">
-          <ChoiceGrid cols={2} labelledBy="inq-country">
+          <ChoiceGrid cols={2}>
             {COUNTRIES.map((c) => (
               <ChoiceCard key={c} type="checkbox" name="country" checked={country.includes(c)} onChange={() => toggle(c)}>
                 {labels.countries[c]}
@@ -228,7 +224,6 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
       </section>
 
       <section className={s.section}>
-        <StepTitle title={labels.bodyTitle} />
         <label className={cls(s.field, 'body')}>
           <span className={s.label}>{labels.bodyLabel} *</span>
           <textarea id="inq-body" className={s.textarea} placeholder={labels.bodyPlaceholder} value={body} maxLength={5000} onChange={(e) => setBody(e.target.value)} disabled={busy} required {...invalid('body')} />
@@ -238,23 +233,24 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
           <span className={s.label}>{labels.regionLabel}</span>
           <input className={s.input} placeholder={labels.regionPlaceholder} value={region} maxLength={200} onChange={(e) => setRegion(e.target.value)} disabled={busy} />
         </label>
-        <label
-          className={cls(dragging ? `${s.drop} ${s.dropActive}` : s.drop, 'files')}
-          onDragOver={(e) => {
-            e.preventDefault()
-            setDragging(true)
-          }}
-          onDragLeave={() => setDragging(false)}
-          onDrop={(e) => {
-            e.preventDefault()
-            setDragging(false)
-            if (!busy) pickFiles(e.dataTransfer.files)
-          }}
-        >
-          <img src="/ui/upload.svg" alt="" className={s.dropIcon} width={28} height={28} />
-          <span>{labels.filesDrop}</span>
-          <span className={s.dropBtn}>{labels.filesButton}</span>
-          <input id="inq-files" type="file" multiple accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(e) => pickFiles(e.target.files)} disabled={busy} {...invalid('files')} />
+        <div className={cls(s.field, 'files')}>
+          <span className={s.label}>{labels.filesTitle}</span>
+          <label
+            className={dragging ? `${s.drop} ${s.dropActive}` : s.drop}
+            onDragOver={(e) => {
+              e.preventDefault()
+              setDragging(true)
+            }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault()
+              setDragging(false)
+              if (!busy) pickFiles(e.dataTransfer.files)
+            }}
+          >
+            <span className={s.dropBtn}>{labels.filesButton}</span>
+            <input id="inq-files" type="file" multiple accept="image/jpeg,image/png,image/webp,application/pdf" onChange={(e) => pickFiles(e.target.files)} disabled={busy} {...invalid('files')} />
+          </label>
           {files.length ? (
             <ul className={s.fileList}>
               {files.map((f) => (
@@ -262,13 +258,11 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
               ))}
             </ul>
           ) : null}
-          <span className={s.hint}>{labels.filesHint}</span>
           {message('files')}
-        </label>
+        </div>
       </section>
 
       <section className={s.section}>
-        <StepTitle title={labels.contactTitle} hint={labels.contactHint} />
         <div className={s.cols3}>
           <label className={cls(s.field, 'name')}>
             <span className={s.label}>{labels.name} *</span>
@@ -322,7 +316,6 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
         <LegalConsentModal kind={viewPrivacy ? 'privacy' : null} locale={locale} onClose={() => setViewPrivacy(false)} onAgree={() => setConsent(true)} />
       </section>
 
-      <p className={s.notice}>{labels.notice}</p>
       {error ? (
         <p role="alert" className={s.error}>
           {error}
