@@ -93,7 +93,7 @@ describe('createOrder', () => {
       const result = await createOrder({
         categorySlug: 'press-blog',
         locale: 'ko' as const,
-        selection: { items: ['blog-note'], country: ['kr'] },
+        selection: { items: ['blog-note'], country: ['jp'] },
         // 이용약관·개인정보는 템플릿 유무와 무관하게 항상 검사되므로 이 시나리오(계약서만
         // 없는 경우)를 확인하려면 이 둘은 채워서 no_contract 검사까지 내려가야 한다
         consents: { terms: true, privacy: true },
