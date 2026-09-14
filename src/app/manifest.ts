@@ -6,7 +6,7 @@ import type { MetadataRoute } from 'next'
  * 아이콘은 scripts/generate-icons.mjs 가 로고 원본에서 만든다. 색은 로고 파란색과 맞춘다.
  * 시작 주소는 기본 로케일 표지. 일본어 사용자는 표지의 언어 전환으로 옮긴다.
  */
-export const BRAND_BLUE = '#0A1E42'
+export const BRAND_BLUE = '#132A4A'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {

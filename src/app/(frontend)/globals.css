@@ -3,18 +3,18 @@
   --content-max: 1440px;
   --side: max(16px, (100vw - var(--content-max)) / 2);
 
-  /* 색 — 시맨틱 토큰(단일 소스). 팔레트는 html[data-palette] 로 교체 */
-  --c-title: #0a1e42;
-  --c-text2: #1e3a6e;
-  --c-primary: #005afa;
-  --c-btn-bg: #005afa;
+  /* 색 — 시맨틱 토큰(단일 소스). 파랑 B안 확정값 */
+  --c-title: #132a4a;
+  --c-text2: #2b4a73;
+  --c-primary: #2f6fed;
+  --c-btn-bg: #2f6fed;
   --c-btn-text: #ffffff;
-  --c-sel-bg: #e8f0ff;
-  --c-sum-bg: #f4f8ff;
-  --c-line: #6e88b0;
+  --c-sel-bg: #eaf1fc;
+  --c-sum-bg: #f5f8fd;
+  --c-line: #7b93b8;
   --c-amount: #ffffff;
   --c-on-title: #ffffff;
-  --c-focus: #3b7bff;
+  --c-focus: #5b8df2;
 
   --brand-900: var(--c-title);
   --brand-700: var(--c-title);
@@ -29,34 +29,6 @@
   --line-strong: #d6d9de;
   --surface: #f7f8fa;
   --surface-brand: var(--c-sum-bg);
-}
-
-/* 팔레트 비교용 임시 오버라이드 (Option B / C). 기본(:root)은 Option A */
-html[data-palette='b'] {
-  --c-title: #132a4a;
-  --c-text2: #2b4a73;
-  --c-primary: #2f6fed;
-  --c-btn-bg: #2f6fed;
-  --c-btn-text: #ffffff;
-  --c-sel-bg: #eaf1fc;
-  --c-sum-bg: #f5f8fd;
-  --c-line: #7b93b8;
-  --c-amount: #ffffff;
-  --c-on-title: #ffffff;
-  --c-focus: #5b8df2;
-}
-html[data-palette='c'] {
-  --c-title: #0f2a4a;
-  --c-text2: #3a5677;
-  --c-primary: #005afa;
-  --c-btn-bg: #0f2a4a;
-  --c-btn-text: #ffffff;
-  --c-sel-bg: #e6f2fb;
-  --c-sum-bg: #f3f9fd;
-  --c-line: #6e88b0;
-  --c-amount: #8fd0ff;
-  --c-on-title: #ffffff;
-  --c-focus: #4fa8e8;
 }
 
 :root {
