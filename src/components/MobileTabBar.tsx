@@ -23,10 +23,10 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
   const mypage = `${home}/mypage`
   const isAt = (href: string, exact = false) => (exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`))
   // 아이콘 색은 currentColor 마스크로 그려 탭 색(비선택/선택)을 그대로 따라간다
-  const tabIcon = (name: string) => (
+  const tabIcon = (name: string, color?: string) => (
     <span
       className="icon-mask"
-      style={{ width: 28, height: 28, ['--icon-url' as string]: `url(/ui/tab-${name}.svg)` }}
+      style={{ width: 36, height: 36, color, ['--icon-url' as string]: `url(/ui/tab-${name}.svg)` }}
       aria-hidden
     />
   )
@@ -53,10 +53,10 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
         {tabIcon('home')}
       </Link>
       <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} aria-label={labels.call}>
-        {tabIcon('phone')}
+        {tabIcon('phone', '#16a34a')}
       </a>
-      <Link href={chat} aria-current={onChat ? 'page' : undefined} className="tabbar-chat" aria-label={labels.chat}>
-        <span className="tabbar-chat-circle">{labels.chat}</span>
+      <Link href={chat} aria-current={onChat ? 'page' : undefined} aria-label={labels.chat}>
+        {tabIcon('chat')}
       </Link>
       <Link
         href={mypage}
