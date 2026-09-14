@@ -26,7 +26,7 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
   const tabIcon = (name: string) => (
     <span
       className="icon-mask"
-      style={{ width: 24, height: 24, ['--icon-url' as string]: `url(/ui/tab-${name}.svg)` }}
+      style={{ width: 28, height: 28, ['--icon-url' as string]: `url(/ui/tab-${name}.svg)` }}
       aria-hidden
     />
   )
@@ -49,21 +49,19 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
   const onMypage = isAt(mypage)
   return (
     <nav className="tabbar" aria-label="Menu">
-      <Link href={home} aria-current={onHome ? 'page' : undefined}>
+      <Link href={home} aria-current={onHome ? 'page' : undefined} aria-label={labels.home}>
         {tabIcon('home')}
-        {labels.home}
       </Link>
-      <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>
+      <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} aria-label={labels.call}>
         {tabIcon('phone')}
-        {labels.call}
       </a>
-      <Link href={chat} aria-current={onChat ? 'page' : undefined}>
-        {tabIcon('chat')}
-        {labels.chat}
+      <Link href={chat} aria-current={onChat ? 'page' : undefined} className="tabbar-chat" aria-label={labels.chat}>
+        <span className="tabbar-chat-circle">{labels.chat}</span>
       </Link>
       <Link
         href={mypage}
         aria-current={onMypage ? 'page' : undefined}
+        aria-label={labels.mypage}
         onClick={(e) => {
           if (loggedIn) return
           e.preventDefault()
@@ -71,7 +69,6 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
         }}
       >
         {tabIcon('user')}
-        {labels.mypage}
       </Link>
       <LoginRequiredModal locale={locale} open={askLogin} onClose={() => setAskLogin(false)} />
     </nav>

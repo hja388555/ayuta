@@ -257,7 +257,11 @@ body {
   .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; height: var(--tabbar-h); background: #fff; border-top: 1.5px solid var(--c-title); }
   .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 0 12px; color: var(--c-title); font-size: 13px; font-weight: 700; line-height: 1.5; text-decoration: none; }
   .tabbar a[aria-current='page'] { color: var(--c-primary); font-weight: 700; }
-  .tabbar img { width: 24px; height: 24px; }
+  .tabbar img { width: 28px; height: 28px; }
+  /* 1:1 채팅 탭 — 아이콘 대신 원 안에 글자를 꽉 채운다 */
+  .tabbar-chat { padding: 6px 0 !important; }
+  .tabbar-chat-circle { display: flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 50%; background: var(--c-primary); color: #fff; font-size: 13px; font-weight: 800; line-height: 1; white-space: nowrap; text-align: center; }
+  .tabbar-chat[aria-current='page'] .tabbar-chat-circle { background: var(--c-title); }
   .arrowbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; height: var(--tabbar-h); background: #fff; border-top: 1.5px solid var(--c-title); }
   .arrowbar button { flex: 1; display: flex; align-items: center; justify-content: center; border: 0; background: none; color: var(--c-title); font-size: 15px; font-weight: 700; }
 }
