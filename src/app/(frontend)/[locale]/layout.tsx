@@ -63,7 +63,7 @@ export default async function LocaleLayout({
         locale={locale}
         loggedIn={Boolean(user)}
         isAdmin={Boolean(user && isAdminRole(user.role))}
-        labels={{ logo: t('logo'), login: t('login'), signup: t('signup'), logout: t('logout'), admin: t('admin') }}
+        labels={{ logo: t('logo'), login: t('login'), signup: t('signup'), mypage: t('mypage'), logout: t('logout'), admin: t('admin') }}
       />
       <FloatingContact locale={locale} phone={footerInfo.phone} />
       {children}

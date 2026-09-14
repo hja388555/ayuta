@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import { LoginRequiredModal } from './LoginRequiredModal'
 
-type Labels = { logo: string; login: string; signup: string; logout: string; admin: string }
+type Labels = { logo: string; login: string; signup: string; mypage: string; logout: string; admin: string }
 
 /** 언어만 바꾼 주소. 쿼리(주문 선택·나라·목적)는 그대로 둔다 — 떼면 결제 화면이 404 가 되고 폼 선택이 사라진다 */
 export function localeSwitchHref(pathname: string, search: string, target: string): string {
@@ -84,6 +84,9 @@ export function SiteHeader({
         <div className="site-auth">
           {loggedIn ? (
             <>
+              <Link href={`${home}/mypage`} className="btn btn-secondary site-auth-mypage">
+                {labels.mypage}
+              </Link>
               {isAdmin ? (
                 <Link href="/manage" className="btn btn-primary">
                   {`[${labels.admin}]`}

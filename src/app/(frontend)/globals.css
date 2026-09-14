@@ -219,6 +219,8 @@ body {
   .site-header-right { gap: 8px; }
   .site-auth .btn { height: 34px; min-width: 56px; padding: 0 10px; border-radius: var(--radius-sm); font-size: 13px; }
   .site-auth { gap: 6px; }
+  /* 모바일은 하단 탭바에 마이페이지가 이미 있다 */
+  .site-auth-mypage { display: none; }
   .seg { border-radius: var(--radius-sm); padding: 3px; }
   .seg a { width: 46px; height: 28px; border-radius: 6px; font-size: 12px; }
   .step-title h2 { font-size: 18px; }
