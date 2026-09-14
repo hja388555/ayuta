@@ -26,9 +26,9 @@ afterAll(async () => {
 
 describe('1:1 문의 → 채팅', () => {
   for (const locale of ['ko', 'ja'] as const) {
-    it(`${locale} PC 플로팅 버튼의 1:1 채팅이 /${locale}/chat 을 가리키고 문의 폼을 가리키지 않는다(4라운드부터 상단 메뉴는 없다)`, async () => {
+    it(`${locale} PC 상담 둥근 버튼의 1:1 채팅이 /${locale}/chat 을 가리키고 문의 폼을 가리키지 않는다(6라운드부터 헤더 로그인 옆 아이콘)`, async () => {
       const html = await (await api(`/${locale}`)).text()
-      const nav = html.slice(html.indexOf('class="floating-contact"'), html.indexOf('</div>', html.indexOf('class="floating-contact"')))
+      const nav = html.slice(html.indexOf('class="round-contact'), html.indexOf('</div>', html.indexOf('class="round-contact')))
       expect(nav).toContain(`href="/${locale}/chat"`)
       expect(nav).not.toContain(`/${locale}/order/other`)
     })
