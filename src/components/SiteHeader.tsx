@@ -74,29 +74,35 @@ export function SiteHeader({
 
   return (
     <header className="site-header">
-      <Link href={home} className="site-logo" aria-label="AYUTA">
-        {labels.logo}
-      </Link>
-      <nav className="site-nav">
-        <Link href={home} aria-current={pathname === home ? 'page' : undefined}>
-          {labels.home}
+      <div className="site-header-left">
+        <Link href={home} className="site-logo" aria-label="AYUTA">
+          {labels.logo}
         </Link>
-        <Link href={`${home}/chat`} aria-current={current(`${home}/chat`)}>
-          {labels.inquiry}
-        </Link>
-        <Link
-          href={`${home}/mypage`}
-          aria-current={current(`${home}/mypage`)}
-          onClick={(e) => {
-            if (loggedIn) return
-            e.preventDefault()
-            setAskLogin(true)
-          }}
-        >
-          {labels.mypage}
-        </Link>
-      </nav>
+        <nav className="site-nav">
+          <Link href={home} aria-current={pathname === home ? 'page' : undefined}>
+            {labels.home}
+          </Link>
+          <Link href={`${home}/chat`} aria-current={current(`${home}/chat`)}>
+            {labels.inquiry}
+          </Link>
+          <Link
+            href={`${home}/mypage`}
+            aria-current={current(`${home}/mypage`)}
+            onClick={(e) => {
+              if (loggedIn) return
+              e.preventDefault()
+              setAskLogin(true)
+            }}
+          >
+            {labels.mypage}
+          </Link>
+        </nav>
+      </div>
       <LoginRequiredModal locale={locale} open={askLogin} onClose={() => setAskLogin(false)} />
+      {/* 쿼리를 읽기 전(정적 렌더)에는 경로만 바꾼 링크를 보여 주고, 읽은 뒤 쿼리를 붙인다 */}
+      <Suspense fallback={<LanguageLinks locale={locale} pathname={pathname} search="" />}>
+        <LanguageLinksWithQuery locale={locale} pathname={pathname} />
+      </Suspense>
       <div className="site-header-right">
         <a className="site-phone" href={`tel:${phone.replace(/[^\d+]/g, '')}`}>
           <img src="/ui/phone.svg" alt="" width={18} height={18} />
@@ -125,10 +131,6 @@ export function SiteHeader({
             </>
           )}
         </div>
-        {/* 쿼리를 읽기 전(정적 렌더)에는 경로만 바꾼 링크를 보여 주고, 읽은 뒤 쿼리를 붙인다 */}
-        <Suspense fallback={<LanguageLinks locale={locale} pathname={pathname} search="" />}>
-          <LanguageLinksWithQuery locale={locale} pathname={pathname} />
-        </Suspense>
       </div>
     </header>
   )
