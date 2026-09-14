@@ -49,7 +49,7 @@ export function CoverSteps({ locale, categories, labels }: Props) {
     <div className="cover-steps">
       <section>
         <StepTitle id="cover-country" title={labels.stepCountry} />
-        <ChoiceGrid cols={2} labelledBy="cover-country">
+        <ChoiceGrid cols={2} labelledBy="cover-country" className="country-grid">
           {COUNTRY_CODES.map((code) => (
             <ChoiceCard
               key={code}

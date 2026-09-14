@@ -1,6 +1,10 @@
 /* 주문 폼 01~04 (Figma v2 208:2 · 218:2 · 218:367 · 219:2, 모바일 208:196 · 218:178 · 218:536 · 219:212) */
 
 .body { display: flex; flex-direction: column; gap: 32px; max-width: 960px; margin-inline: auto; padding: 28px var(--side) 48px; }
+.bodyWide { gap: 40px; }
+
+/* 3·4번 나라 체크 행 아래 구분선(2026-09-14 3라운드) */
+.countryDivider { margin: 20px 0; border: 0; border-top: 1px solid #DCCBA8; }
 .title { margin: 0; font-size: 28px; font-weight: 800; line-height: 1.35; color: var(--brown-900); }
 .titleParen { white-space: nowrap; }
 .step > :global(.step-title) { margin-bottom: 20px; }
@@ -28,6 +32,7 @@
 .rows :global(.choice):has(input:checked) .price { color: var(--brand-600); }
 
 .grid :global(.choice) { min-height: 60px; padding: 0 18px; font-size: 16px; }
+.grid :global(.choice-grid) { gap: 24px; }
 .platforms :global(.choice) { min-height: 64px; }
 
 /* 기본 포함 칩 (02) */
@@ -66,6 +71,7 @@
 .items { padding: 12px 16px; border: 1px solid var(--line-warm); border-radius: var(--radius); background: var(--cream-50); }
 .itemsLabel { margin: 0 0 4px; font-size: 14px; font-weight: 700; color: var(--brown-600); }
 .items ul { margin: 0; padding: 0; list-style: none; font-size: 17px; font-weight: 700; line-height: 1.6; color: var(--brown-900); }
+.termsLink { align-self: flex-start; padding: 0; border: 0; background: none; color: var(--brown-600); font-size: 15px; text-decoration: underline; cursor: pointer; }
 .payBtn { height: 60px; font-size: 20px; }
 .payBtn img { display: block; width: 18px; height: 18px; flex: none; }
 
@@ -76,10 +82,13 @@
 
 @media (max-width: 767px) {
   .body { gap: 24px; padding: 20px 16px 32px; }
+  .bodyWide { gap: 32px; }
+  .countryDivider { margin: 20px 0; }
   .title { font-size: 20px; }
   .rows { gap: 10px; }
   .rows :global(.choice), .grid :global(.choice) { min-height: 56px; padding: 0 16px; font-size: 15px; }
   .oneCol :global(.choice-grid) { grid-template-columns: 1fr; }
+  .grid :global(.choice-grid) { gap: 16px; }
   .chip { font-size: 13px; padding: 8px 12px; }
   .note { font-size: 13px; }
   .table { font-size: 12px; }

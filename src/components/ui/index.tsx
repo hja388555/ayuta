@@ -55,14 +55,22 @@ export function ChoiceGrid({
   children,
   labelledBy,
   ariaLabel,
+  className,
 }: {
   cols?: number
   children: ReactNode
   labelledBy?: string
   ariaLabel?: string
+  className?: string
 }) {
   return (
-    <div className="choice-grid" role="group" aria-labelledby={labelledBy} aria-label={ariaLabel} style={{ ['--cols' as string]: cols }}>
+    <div
+      className={className ? `choice-grid ${className}` : 'choice-grid'}
+      role="group"
+      aria-labelledby={labelledBy}
+      aria-label={ariaLabel}
+      style={{ ['--cols' as string]: cols }}
+    >
       {children}
     </div>
   )

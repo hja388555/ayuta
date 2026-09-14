@@ -175,6 +175,7 @@ type Labels = {
   totalLabel: string
   itemsLabel: string
   payButton: string
+  termsLink: string
   /** 2번 기본 포함 칩 — 선택지가 아니라 안내다 */
   basicIncludedItems?: string[]
   shortVideoNote?: string
@@ -269,6 +270,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
           ))}
         </ChoiceGrid>
       )}
+      {form.countryTabs && <hr className={s.countryDivider} />}
 
       {form.groups.map((group) => {
         const id = `group-${group.key}`
@@ -426,11 +428,13 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
       {labels.shortVideoNote && <p className={s.note}>{labels.shortVideoNote}</p>}
 
       <PaySection
+        locale={locale}
         totalLabel={labels.totalLabel}
         itemsLabel={labels.itemsLabel}
         items={summary}
         amount={formatAmount(total, book.currency)}
         payButton={labels.payButton}
+        termsLink={labels.termsLink}
         disabled={!canPay || pending}
         onPay={goToPayment}
       />
