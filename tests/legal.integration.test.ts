@@ -107,8 +107,6 @@ describe('약관 문서', () => {
     expect(docs[0]?.label).toBe('개인정보처리방침 (ja)')
   })
 
-  // 페이지 3개(약관·홈·가입)를 순서대로 렌더한다 — 이 파일만 단독 실행하면 dev 서버가
-  // 아직 컴파일 안 한 라우트를 콜드로 컴파일하느라 기본 5s를 넘길 수 있다(15s로 여유)
   it('이용약관 화면이 열리고 푸터·가입 화면이 약관을 가리킨다', async () => {
     expect((await api('/ko/terms')).status).toBe(200)
     const home = await (await api('/ko')).text()
@@ -116,7 +114,7 @@ describe('약관 문서', () => {
     expect(home).toContain('href="/ko/privacy"')
     const signup = await (await api('/ko/signup')).text()
     expect(signup).toContain('href="/ko/terms"')
-  }, 15000)
+  })
 
   it('환불 및 취소 정책 화면이 E절 원문을 보여주고 푸터·사이트맵이 가리킨다', async () => {
     const res = await api('/ko/refund')

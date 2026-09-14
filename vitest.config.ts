@@ -15,4 +15,9 @@ export default defineConfig({
       '@payload-config': path.resolve(dirname, 'src/payload.config.ts'),
     },
   },
+  test: {
+    // 통합 테스트는 실제 dev 서버를 때린다 — 그 라우트를 처음 때리는 테스트는
+    // Next 가 콜드로 컴파일하느라 기본 5s 를 넘길 수 있다(코드 문제가 아니다).
+    testTimeout: 15000,
+  },
 })
