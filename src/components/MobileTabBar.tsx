@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { LoginRequiredModal } from './LoginRequiredModal'
 
-type Labels = { home: string; call: string; chat: string; mypage: string }
+type Labels = { home: string; call: string; chat: string; mypage: string; back: string; next: string }
 
 /**
  * 모바일 하단 고정 탭바(큐 Q32, Figma [v2] 207:112). 768px 미만에서만 보인다(globals.css .tabbar).
@@ -13,6 +13,7 @@ type Labels = { home: string; call: string; chat: string; mypage: string }
  * 다른 탭의 선택 아이콘은 같은 SVG 의 선 색만 파랑으로 바꾼 사본(-active)을 쓴다.
  * 채팅 탭은 1:1 채팅(큐 Q37, /chat)을 연다. 비회원도 채팅할 수 있어(2026-09-12) 바로 이동한다.
  * 비회원이 마이페이지 탭을 누르면 이동하지 않고 로그인 유도 팝업(227:153)을 띄운다.
+ * 메인이 아닌 화면은 탭바 대신 이전/다음 화살표 바를 보여준다(2026-09-14 클라이언트 요청 3라운드).
  */
 export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: string; phone: string; loggedIn: boolean; labels: Labels }) {
   const [askLogin, setAskLogin] = useState(false)
@@ -23,21 +24,34 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
   const isAt = (href: string, exact = false) => (exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`))
   const icon = (name: string, active: boolean) => `/ui/tab-${name}${active ? '-active' : ''}.svg`
 
+  if (pathname !== home) {
+    return (
+      <nav className="arrowbar" aria-label="Navigation">
+        <button type="button" onClick={() => window.history.back()}>
+          {labels.back}
+        </button>
+        <button type="button" onClick={() => window.history.forward()}>
+          {labels.next}
+        </button>
+      </nav>
+    )
+  }
+
   const onHome = isAt(home, true)
   const onChat = isAt(chat)
   const onMypage = isAt(mypage)
   return (
     <nav className="tabbar" aria-label="Menu">
       <Link href={home} aria-current={onHome ? 'page' : undefined}>
-        <img src={icon('home', onHome)} alt="" width={22} height={22} />
+        <img src={icon('home', onHome)} alt="" width={24} height={24} />
         {labels.home}
       </Link>
       <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>
-        <img src={icon('phone', false)} alt="" width={22} height={22} />
+        <img src={icon('phone', false)} alt="" width={24} height={24} />
         {labels.call}
       </a>
       <Link href={chat} aria-current={onChat ? 'page' : undefined}>
-        <img src={icon('chat', onChat)} alt="" width={22} height={22} />
+        <img src={icon('chat', onChat)} alt="" width={24} height={24} />
         {labels.chat}
       </Link>
       <Link
@@ -49,7 +63,7 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
           setAskLogin(true)
         }}
       >
-        <img src={icon('user', onMypage)} alt="" width={22} height={22} />
+        <img src={icon('user', onMypage)} alt="" width={24} height={24} />
         {labels.mypage}
       </Link>
       <LoginRequiredModal locale={locale} open={askLogin} onClose={() => setAskLogin(false)} />

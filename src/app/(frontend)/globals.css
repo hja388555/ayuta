@@ -112,6 +112,7 @@ body {
 
 /* 카드형 선택지 — 선택되면 주황 테두리 + 크림 배경 + 체크 */
 .choice-grid { display: grid; gap: 8px; grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); align-items: stretch; }
+.country-grid { gap: 24px; }
 .choice { position: relative; display: flex; align-items: flex-start; gap: 10px; min-height: 52px; padding: 12px 14px; border: 1px solid var(--line-warm); border-radius: var(--radius); background: #fff; color: var(--brown-900); font-size: 18px; font-weight: 700; line-height: 1.5; cursor: pointer; }
 .choice[data-no-sub] { align-items: center; }
 .choice[data-no-sub] .choice-box { margin-top: 0; }
@@ -127,7 +128,7 @@ body {
 .cover-brand { display: flex; align-items: center; gap: 16px; padding-top: 32px; }
 .cover-logo { display: inline-flex; align-items: center; justify-content: center; width: 146px; height: 90px; border-radius: 50%; background: var(--orange-500); color: #fff; font-size: 34px; font-weight: 800; }
 .cover-headline { margin: 0; font-size: 32px; font-weight: 800; color: var(--brown-900); }
-.cover-tagline { margin: 20px 0 0; font-size: 20px; font-weight: 700; color: var(--brown-900); }
+.cover-tagline { margin: 20px 0 0; font-size: 24px; font-weight: 700; color: var(--brown-900); }
 
 /* PC 본문 폭 960 — 메인·주문·결제 공통 */
 .v3-body { max-width: 960px; margin-inline: auto; }
@@ -186,31 +187,23 @@ body {
 .site-auth { display: flex; align-items: center; gap: 8px; }
 .site-auth .btn { min-width: 88px; }
 
-/* 하단 문의 박스 */
-.contact-box { display: flex; align-items: center; gap: 24px; max-width: 960px; margin-inline: auto; padding: 28px 32px; border-radius: var(--radius-xl); background: var(--cream-100); }
-.contact-box-text { flex: 1; min-width: 0; }
-.contact-box-text h2 { margin: 0; font-size: 22px; line-height: 1.5; color: var(--brown-900); }
-.contact-box-text p { margin: 6px 0 0; font-size: 16px; line-height: 1.5; color: var(--brown-600); }
-.contact-box-actions { display: flex; gap: 10px; }
-.contact-box-actions .btn-outline { border: 0; }
-
 /* 사업자정보 푸터 */
 .site-footer { border-top: 1px solid var(--line); background: #fff; }
 .site-footer-inner { padding: 28px var(--side); font-size: 12px; line-height: 1.7; color: var(--ink-500); }
 .site-footer-inner p { margin: 0; }
 .site-footer-inner a { color: var(--ink-500); }
 
-/* 모바일 하단 고정 탭바(PC 에서는 숨김) */
-.tabbar { display: none; }
+/* 모바일 하단 고정 탭바 · 화살표 바(PC 에서는 숨김) */
+.tabbar, .arrowbar { display: none; }
 
 @media (max-width: 767px) {
   :root { --tabbar-offset: var(--tabbar-h); }
   body { padding-bottom: var(--tabbar-h); }
-  .site-header { min-height: 124px; padding: 12px var(--side); }
-  .site-logo { width: 60px; height: 38px; font-size: 14px; }
+  .site-header { min-height: 56px; padding: 8px var(--side); }
+  .site-logo { display: none; }
   .cover-logo { width: 112px; height: 68px; font-size: 26px; }
   .cover-headline { font-size: 24px; }
-  .cover-tagline { font-size: 16px; }
+  .cover-tagline { font-size: 20px; }
   .cover-body { padding: 24px 0 40px; }
   .cover-steps { gap: 24px; }
   .site-nav, .site-phone { display: none; }
@@ -222,17 +215,15 @@ body {
   .step-title h2 { font-size: 18px; }
   .step-title p { font-size: 13px; }
   .choice-grid { grid-template-columns: repeat(var(--cols, 2), minmax(0, 1fr)); gap: 8px; }
+  .country-grid { gap: 16px; }
   .choice { min-height: 44px; padding: 10px 12px; font-size: 17px; }
   .row-link { min-height: 52px; padding: 0 18px; font-size: 17px; }
-  .contact-box { flex-direction: column; align-items: stretch; gap: 16px; padding: 24px 20px; }
-  .contact-box-text h2 { font-size: 18px; }
-  .contact-box-text p { font-size: 13px; }
-  .contact-box-actions { flex-direction: column; }
-  .contact-box-actions .btn { width: 100%; }
   .site-footer-inner { padding: 24px var(--side); }
   .total-bar-amount { font-size: 22px; }
   .tabbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; height: var(--tabbar-h); background: #fff; border-top: 1.5px solid var(--brown-900); }
-  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 0 12px; color: var(--brown-900); font-size: 11px; font-weight: 700; line-height: 1.5; text-decoration: none; }
+  .tabbar a { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 10px 0 12px; color: var(--brown-900); font-size: 13px; font-weight: 700; line-height: 1.5; text-decoration: none; }
   .tabbar a[aria-current='page'] { color: var(--orange-500); font-weight: 700; }
-  .tabbar img { width: 22px; height: 22px; }
+  .tabbar img { width: 24px; height: 24px; }
+  .arrowbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; display: flex; height: var(--tabbar-h); background: #fff; border-top: 1.5px solid var(--brown-900); }
+  .arrowbar button { flex: 1; display: flex; align-items: center; justify-content: center; border: 0; background: none; color: var(--brown-900); font-size: 15px; font-weight: 700; }
 }

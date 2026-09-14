@@ -643,19 +643,17 @@
     "agreePrivacy": "개인정보 수집·이용에 동의합니다.",
     "agreeRefund": "취소·환불 조건을 확인하고 동의합니다."
   },
-  "contact": {
-    "title": "궁금한 점이 있으신가요?",
-    "hours": "평일 09:00 ~ 18:00 · 점심 12:00 ~ 13:00 · 주말 · 공휴일 휴무",
-    "chat": "1:1 채팅 문의"
-  },
   "tabs": {
     "home": "홈",
     "call": "상담전화",
     "chat": "1:1 채팅",
-    "mypage": "마이페이지"
+    "mypage": "마이페이지",
+    "back": "‹ 이전",
+    "next": "다음 ›"
   },
   "orderPage": {
     "itemsLabel": "상품 내용 :",
+    "termsLink": "[이용약관]",
     "titles": {
       "digital-sns": "1.디지털 광고 / SNS 커뮤니티 (중복선택 가능)",
       "local-video": "2. 현지 전문 영상 제작 및 촬영",

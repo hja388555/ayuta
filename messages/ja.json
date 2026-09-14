@@ -644,19 +644,17 @@
     "agreePrivacy": "個人情報の収集・利用に同意します。",
     "agreeRefund": "キャンセル・返金条件を確認し、同意します。"
   },
-  "contact": {
-    "title": "ご不明な点はございますか？",
-    "hours": "平日 09:00〜18:00 · 昼休み 12:00〜13:00 · 土日祝休み",
-    "chat": "1:1チャットで問い合わせ"
-  },
   "tabs": {
     "home": "ホーム",
     "call": "電話相談",
     "chat": "1:1チャット",
-    "mypage": "マイページ"
+    "mypage": "マイページ",
+    "back": "‹ 前へ",
+    "next": "次へ ›"
   },
   "orderPage": {
     "itemsLabel": "商品内容 :",
+    "termsLink": "［利用規約］",
     "titles": {
       "digital-sns": "1.デジタル広告 / SNSコミュニティ（複数選択可）",
       "local-video": "2. 現地専門映像制作・撮影",
