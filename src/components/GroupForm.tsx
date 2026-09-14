@@ -233,7 +233,8 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     return Object.keys(restored).length > 0 ? { ...initialSelections(form, country), ...restored } : initialSelections(form, country)
   })
   const [period, setPeriod] = useState<string | undefined>(() => (restore?.period && form.periods?.includes(restore.period) ? restore.period : undefined))
-  const [size, setSize] = useState(() => (restore?.size ?? '').slice(0, form.freeText?.[0]?.maxLength ?? 0))
+  // 사이즈 자유 입력칸은 없앴다(6라운드) — 관리자 규격(sizeSpec) 선택만 받는다. size 쿼리는 남아 있어도 서버가 무시한다
+  const size = ''
 
   const priced = useMemo(() => pricedKeys(form, selections), [form, selections])
   const total = useMemo(() => previewGroupTotal(book, model, priced, period), [book, model, priced, period])
@@ -396,25 +397,6 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
           </section>
         )
       })}
-
-      {form.freeText && (
-        <section className={`${s.step} ${s.grid}`}>
-          <StepTitle id="group-size" title={labels.groupTitles.sizePeriod ?? labels.sizeLabel} />
-          {form.freeText.map((t) => (
-            <div key={t.key} className={s.field}>
-              <label htmlFor={`free-${t.key}`} className={s.srOnly}>{labels.sizeLabel}</label>
-              <input
-                id={`free-${t.key}`}
-                type="text"
-                value={size}
-                maxLength={t.maxLength}
-                placeholder={labels.sizePlaceholder}
-                onChange={(e) => setSize(e.target.value)}
-              />
-            </div>
-          ))}
-        </section>
-      )}
 
       {(() => {
         const configured = configuredSizeSpecs(form, book)

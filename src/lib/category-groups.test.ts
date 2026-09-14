@@ -33,16 +33,9 @@ describe('카테고리 폼 정의', () => {
     expect(formFor(3)!.periods).toBeUndefined()
   })
 
-  it('4번의 사이즈는 자유 입력이고 금액이 붙지 않는다', () => {
+  it('4번은 자유 입력 사이즈칸이 없다(6라운드) — 관리자 규격(sizeSpec) 선택만 받는다', () => {
     const f = formFor(4)!
-    expect(f.freeText?.some((t) => t.key === 'size')).toBe(true)
-    // 자유 입력은 계산에 들어가지 않는다
-    const priced = f.groups.flatMap((g) => g.items).filter((i) => i.priced)
-    expect(priced.every((i) => i.key !== 'size')).toBe(true)
-  })
-
-  it('자유 입력에는 길이 상한이 있다', () => {
-    for (const t of formFor(4)!.freeText ?? []) expect(t.maxLength).toBeGreaterThan(0)
+    expect(f.freeText).toBeUndefined()
   })
 
   it('4번 포스터·전광판 제작은 금액이 붙는 항목이다 (Figma v2 — 별도문의 폐지)', () => {

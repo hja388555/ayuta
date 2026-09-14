@@ -202,9 +202,7 @@ const category4: CategoryForm = {
     },
   ],
   periods: ['1w', '2w', '1m', '3m'],
-  // 사이즈는 자유 입력이고 금액에 영향을 주지 않는다. 원문 그대로 화면에 그리지 않도록
-  // 상한을 둔다 — 서버에서도 이 길이로 자른다 (GroupForm/서버 액션 쪽 책임)
-  freeText: [{ key: 'size', maxLength: 200 }],
+  // 사이즈는 관리자가 등록한 규격(최대 5개) 선택으로만 받는다(6라운드) — 자유 입력칸은 없앴다
   sizeSpecs: SIZE_SPEC_KEYS.map((key) => ({ key })),
   countryTabs: true,
 }
