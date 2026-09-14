@@ -4,8 +4,8 @@
 .bodyWide { gap: 40px; }
 
 /* 3·4번 나라 체크 행 아래 구분선(2026-09-14 3라운드) */
-.countryDivider { margin: 20px 0; border: 0; border-top: 1px solid #DCCBA8; }
-.title { margin: 0; font-size: 30px; font-weight: 800; line-height: 1.35; color: var(--brown-900); }
+.countryDivider { margin: 20px 0; border: 0; border-top: 1px solid var(--c-line); }
+.title { margin: 0; font-size: 30px; font-weight: 800; line-height: 1.35; color: var(--c-title); }
 .titleParen { white-space: nowrap; }
 .step > :global(.step-title) { margin-bottom: 20px; }
 
@@ -13,7 +13,7 @@
 .countryCols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .countryCol { display: grid; gap: 8px; align-content: start; }
 .oneCol :global(.choice-grid) { grid-template-columns: 1fr 1fr; }
-.desc { display: block; margin: 2px 0 4px; white-space: pre-line; font-size: 13px; font-weight: 500; color: var(--brown-600); }
+.desc { display: block; margin: 2px 0 4px; white-space: pre-line; font-size: 13px; font-weight: 500; color: var(--c-text2); }
 .posterNote { margin: 8px 0 0; font-size: 13px; color: var(--ink-500); }
 
 /* 광고 기간(4번) — 모바일에서도 4칸, 체크박스 없이 글자만 가운데 정렬 */
@@ -48,40 +48,40 @@
 .field input::placeholder { color: var(--ink-400); }
 
 /* 등급 비교표 (01) */
-.tableWrap { overflow-x: auto; border: 1px solid var(--brown-900); border-radius: var(--radius); }
-.table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 17px; line-height: 1.5; color: var(--brown-900); font-weight: 700; }
+.tableWrap { overflow-x: auto; border: 1px solid var(--c-title); border-radius: var(--radius); }
+.table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 17px; line-height: 1.5; color: var(--c-title); font-weight: 700; }
 .table col:first-child { width: 40%; }
-.table th, .table td { padding: 16px; text-align: center; border-top: 1px solid var(--line-warm); }
-.table thead th { padding: 18px 16px; border-top: 0; background: var(--cream-50); color: var(--brown-900); font-size: 18px; }
+.table th, .table td { padding: 16px; text-align: center; border-top: 1px solid var(--c-line); }
+.table thead th { padding: 18px 16px; border-top: 0; background: var(--c-sum-bg); color: var(--c-title); font-size: 18px; }
 .table th:first-child, .table td:first-child { padding-left: 20px; text-align: left; }
-.table thead th:first-child { color: var(--brown-900); font-size: 17px; }
-.table .on { background: var(--cream-100); color: var(--brown-900); }
-.table thead th.on { background: var(--yellow-400); color: var(--brown-900); }
-.priceRow td { padding-block: 20px; color: var(--brown-900); font-size: 19px; font-weight: 700; }
+.table thead th:first-child { color: var(--c-title); font-size: 17px; }
+.table .on { background: var(--c-sel-bg); color: var(--c-title); }
+.table thead th.on { background: var(--c-amount); color: var(--c-title); }
+.priceRow td { padding-block: 20px; color: var(--c-title); font-size: 19px; font-weight: 700; }
 .priceRow td:first-child { font-size: 18px; }
-.priceRow td.on { color: var(--brown-900); }
+.priceRow td.on { color: var(--c-title); }
 .tierPick { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 .tierPick input { position: absolute; opacity: 0; pointer-events: none; }
-.tierBox { flex: none; width: 18px; height: 18px; border: 1.6px solid var(--brown-600); border-radius: 6px; background: #fff; }
-.tierPick input:checked + .tierBox { border-color: var(--orange-500); background: var(--orange-500) url('/ui/check.svg') center / 12px 12px no-repeat; }
+.tierBox { flex: none; width: 18px; height: 18px; border: 1.6px solid var(--c-text2); border-radius: 6px; background: #fff; }
+.tierPick input:checked + .tierBox { border-color: var(--c-primary); background: var(--c-primary) url('/ui/check.svg') center / 12px 12px no-repeat; }
 .tierPick:has(input:focus-visible) { outline: 2px solid currentColor; outline-offset: 2px; }
 
 /* 상품 내용 · 총액 · 결제 — 한 브라운 박스로 합쳤다(4라운드 E) */
 .pay { display: flex; flex-direction: column; gap: 8px; }
-.totalBox { display: flex; flex-direction: column; gap: 10px; padding: 16px 20px; border-radius: var(--radius); background: var(--brown-900); color: #fff; }
-.itemsLabel { margin: 0 0 4px; font-size: 16px; font-weight: 700; color: var(--cream-100); }
-.totalItems ul { margin: 0; padding: 0; list-style: none; font-size: 19px; font-weight: 700; line-height: 1.6; color: var(--cream-100); }
+.totalBox { display: flex; flex-direction: column; gap: 10px; padding: 16px 20px; border-radius: var(--radius); background: var(--c-title); color: #fff; }
+.itemsLabel { margin: 0 0 4px; font-size: 16px; font-weight: 700; color: var(--c-sel-bg); }
+.totalItems ul { margin: 0; padding: 0; list-style: none; font-size: 19px; font-weight: 700; line-height: 1.6; color: var(--c-sel-bg); }
 .totalRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.totalRowLabel { font-size: 17px; color: var(--cream-100); }
-.totalRowAmount { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; color: var(--yellow-400); }
-.termsLink { align-self: flex-start; padding: 0; border: 0; background: none; color: var(--brown-600); font-size: 15px; text-decoration: underline; cursor: pointer; }
+.totalRowLabel { font-size: 17px; color: var(--c-sel-bg); }
+.totalRowAmount { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; color: var(--c-amount); }
+.termsLink { align-self: flex-start; padding: 0; border: 0; background: none; color: var(--c-text2); font-size: 15px; text-decoration: underline; cursor: pointer; }
 .payBtn { height: 60px; font-size: 20px; }
 .payBtn img { display: block; width: 18px; height: 18px; flex: none; }
 
 /* 2번 기본 포함 · 안내 — Figma 303:188 Mobile · 303:60 PC */
 .chips2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
-.chip2 { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--cream-50); color: var(--brown-900); font-size: 16px; font-weight: 700; }
-.videoNote { padding: 12px 14px; border-radius: var(--radius); background: var(--cream-100); color: var(--brown-900); font-size: 14px; font-weight: 700; }
+.chip2 { display: flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: var(--radius-sm); background: var(--c-sum-bg); color: var(--c-title); font-size: 16px; font-weight: 700; }
+.videoNote { padding: 12px 14px; border-radius: var(--radius); background: var(--c-sel-bg); color: var(--c-title); font-size: 14px; font-weight: 700; }
 
 @media (max-width: 767px) {
   .body { gap: 24px; padding: 20px 16px 32px; }
