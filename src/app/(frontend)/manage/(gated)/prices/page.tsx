@@ -7,6 +7,8 @@ import { formFor } from '@/lib/category-groups'
 import { PERIOD_KEYS } from '@/globals/PricingSettings'
 import { PeriodMultiplierForm } from '@/components/admin/PeriodMultiplierForm'
 import { PriceBoard, type PriceRow, type PriceSection } from '@/components/admin/PriceBoard'
+import { SizeSpecBoard, type SizeSpecRow } from '@/components/admin/SizeSpecBoard'
+import { SIZE_SPEC_KEYS } from '@/lib/category-groups'
 import s from '@/components/admin/admin-v2.module.css'
 import koMessages from '../../../../../../messages/ko.json'
 
@@ -51,15 +53,33 @@ export default async function PricesPage({ searchParams }: Props) {
     user: payloadUser,
     overrideAccess: false,
   })
-  const rows: PriceRow[] = docs.map((d) => ({
-    id: d.id as number,
-    key: d.key as string,
-    labelKo: d.labelKo as string,
-    labelJa: d.labelJa as string,
-    priceKrw: d.priceKrw as number,
-    priceJpy: d.priceJpy as number,
-    active: Boolean(d.active),
-  }))
+  // 4번 사이즈 규격 5칸은 별도 편집판(SizeSpecBoard)이 맡는다 — 일반 목록·PriceBoard 에서는 뺀다
+  const isSizeSpec = (key: string) => (SIZE_SPEC_KEYS as readonly string[]).includes(key)
+  const rows: PriceRow[] = docs
+    .filter((d) => !isSizeSpec(d.key as string))
+    .map((d) => ({
+      id: d.id as number,
+      key: d.key as string,
+      labelKo: d.labelKo as string,
+      labelJa: d.labelJa as string,
+      priceKrw: d.priceKrw as number,
+      priceJpy: d.priceJpy as number,
+      active: Boolean(d.active),
+    }))
+  const sizeSpecRows: Record<string, SizeSpecRow | undefined> =
+    category === 4
+      ? Object.fromEntries(
+          SIZE_SPEC_KEYS.map((key) => {
+            const d = docs.find((doc) => doc.key === key)
+            return [
+              key,
+              d
+                ? { key, labelKo: d.labelKo as string, labelJa: d.labelJa as string, priceKrw: d.priceKrw as number, priceJpy: d.priceJpy as number, active: Boolean(d.active) }
+                : undefined,
+            ]
+          }),
+        )
+      : {}
 
   const settings =
     category === 4 ? await payload.findGlobal({ slug: 'pricing-settings', depth: 0, user: payloadUser, overrideAccess: false }) : null
@@ -106,6 +126,8 @@ export default async function PricesPage({ searchParams }: Props) {
           ))}
         </section>
       ) : null}
+
+      {category === 4 ? <SizeSpecBoard rows={sizeSpecRows} canEdit={canEdit} /> : null}
 
       {settings ? (
         <section className={s.card}>

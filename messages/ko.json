@@ -116,7 +116,8 @@
       "busSpot": "버스 광고위치 선택",
       "period": "광고 기간 :",
       "sizePeriod": "사이즈 :",
-      "basicIncluded": "기본 포함"
+      "basicIncluded": "기본 포함",
+      "sizeSpec": "사이즈 규격 :"
     },
     "contractTitles": {
       "country": "촬영 국가",
@@ -134,7 +135,8 @@
       "period": "광고 기간",
       "sizePeriod": "사이즈 · 광고 기간",
       "basicIncluded": "기본 포함",
-      "videoPairs": "영상별 완성 길이"
+      "videoPairs": "영상별 완성 길이",
+      "sizeSpec": "사이즈 규격"
     },
     "itemLabels": {
       "country-kr": "한국 현지 촬영",

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formFor } from './category-groups'
+import { formFor, SIZE_SPEC_KEYS } from './category-groups'
 
 describe('카테고리 폼 정의', () => {
   it('2·3·4번에 정의가 있고 1·5번에는 없다', () => {
@@ -70,5 +70,15 @@ describe('카테고리 폼 정의', () => {
       }
     }
     expect(formFor(3)!.groups.find((g) => g.key === 'blog')!.items.every((i) => i.country === 'jp')).toBe(true)
+  })
+
+  it('4번 사이즈 규격 5칸(size-spec)은 자유 입력 다음의 별도 묶음이고, form.groups 시드 대상에는 없다(4라운드 F)', () => {
+    const f = formFor(4)!
+    expect(f.sizeSpecs?.map((s) => s.key)).toEqual([...SIZE_SPEC_KEYS])
+    expect(SIZE_SPEC_KEYS.length).toBe(5)
+    // 시드 스크립트(scripts/seed-prices.ts)는 form.groups 의 priced 키만 읽는다 —
+    // sizeSpecs 가 groups 에 섞여 있으면 시드가 다섯 칸을 미리 채워 "비어 있어야 한다" 규칙이 깨진다
+    const groupKeys = new Set(f.groups.flatMap((g) => g.items.map((i) => i.key)))
+    for (const k of SIZE_SPEC_KEYS) expect(groupKeys.has(k)).toBe(false)
   })
 })

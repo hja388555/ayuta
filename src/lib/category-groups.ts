@@ -28,9 +28,17 @@ export type CategoryForm = {
   periods?: string[]
   /** 금액이 붙지 않는 자유 입력. 관리자 확인용 메모로만 쓴다 */
   freeText?: { key: string; maxLength: number }[]
+  /**
+   * 4번 사이즈 규격 5칸(관리자가 이름·단가를 정한다, 4라운드 F). 자유 입력 사이즈 다음에 보여 준다.
+   * 단가표에 이름이 없는 칸은 화면에 아예 안 보인다 — 다섯 칸 모두 없으면 이 묶음 자체가 안 보인다.
+   */
+  sizeSpecs?: { key: string }[]
   /** 한국/일본 탭으로 항목을 나눠 보여 주는지 (3·4번, Figma v2) */
   countryTabs?: boolean
 }
+
+/** 4번 사이즈 규격 5칸의 키. 시드 스크립트는 이 키들을 심지 않는다 — 비어 있어야 한다 */
+export const SIZE_SPEC_KEYS = ['size-spec-1', 'size-spec-2', 'size-spec-3', 'size-spec-4', 'size-spec-5'] as const
 
 const priced = (key: string): ItemDef => ({ key, priced: true })
 const unpriced = (key: string): ItemDef => ({ key, priced: false })
@@ -197,6 +205,7 @@ const category4: CategoryForm = {
   // 사이즈는 자유 입력이고 금액에 영향을 주지 않는다. 원문 그대로 화면에 그리지 않도록
   // 상한을 둔다 — 서버에서도 이 길이로 자른다 (GroupForm/서버 액션 쪽 책임)
   freeText: [{ key: 'size', maxLength: 200 }],
+  sizeSpecs: SIZE_SPEC_KEYS.map((key) => ({ key })),
   countryTabs: true,
 }
 

@@ -78,12 +78,16 @@ export function filterPricedSelection(model: PricingModel, form: CategoryForm | 
   const sel = selection as { items?: unknown; period?: unknown; country?: unknown }
   if (!Array.isArray(sel.items)) return selection
 
-  const pricedKeys = new Set(form.groups.flatMap((g) => g.items.filter((i) => i.priced).map((i) => i.key)))
+  // 4번 사이즈 규격 5칸(form.sizeSpecs)은 form.groups 밖에 있다 — 여기서 안 더하면
+  // 계산 직전에 통째로 걸러져 고른 규격이 조용히 0원 처리된다(GroupForm.pricedKeys 와 같은 필터).
+  const sizeSpecItems = (form.sizeSpecs ?? []).map((s) => ({ key: s.key, priced: true as const, country: undefined }))
+  const allGroupItems = [...form.groups.flatMap((g) => g.items), ...sizeSpecItems]
+  const pricedKeys = new Set(allGroupItems.filter((i) => i.priced).map((i) => i.key))
   // 클라이언트 dropOtherCountries(GroupForm.tsx)와 같은 규칙 — country= 와 item= 은
   // 각자 따로 신뢰할 수 없어, 나라가 정해진 항목인데 선택한 나라 밖이면 값에서도 뺀다.
   // 3·4번(sum/sumMultiplier)만 나라 열을 쓴다 — 나라 개념이 없는 항목은 그대로 둔다.
   const countries = Array.isArray(sel.country) ? sel.country.filter((c): c is string => typeof c === 'string') : []
-  const countryOf = new Map(form.groups.flatMap((g) => g.items.map((i) => [i.key, i.country] as const)))
+  const countryOf = new Map(allGroupItems.map((i) => [i.key, i.country] as const))
   const items = sel.items.filter((k): k is string => {
     if (typeof k !== 'string' || !pricedKeys.has(k)) return false
     const itemCountry = countryOf.get(k)

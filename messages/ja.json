@@ -117,7 +117,8 @@
       "busSpot": "バス広告位置選択",
       "period": "広告期間 :",
       "sizePeriod": "サイズ :",
-      "basicIncluded": "標準で含まれるもの"
+      "basicIncluded": "標準で含まれるもの",
+      "sizeSpec": "サイズ規格 :"
     },
     "contractTitles": {
       "country": "撮影国",
@@ -135,7 +136,8 @@
       "period": "広告期間",
       "sizePeriod": "サイズ · 広告期間",
       "basicIncluded": "標準で含まれるもの",
-      "videoPairs": "映像ごとの完成尺"
+      "videoPairs": "映像ごとの完成尺",
+      "sizeSpec": "サイズ規格"
     },
     "itemLabels": {
       "country-kr": "韓国現地撮影",
