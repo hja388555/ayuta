@@ -1,26 +1,34 @@
 {
   "cover": {
-    "title": "일본으로 진출을 도와드립니다",
-    "subtitle": "숏켓 마케팅 서비스 · 로그인 없이 바로 견적을 확인하고 결제하실 수 있습니다.",
-    "stepCountry": "광고하실 나라",
-    "stepCountryHint": "중복 선택하실 수 있습니다",
-    "stepPurpose": "광고 목적",
+    "logo": "아유타",
+    "headline": "글로벌 마케팅",
+    "tagline": "AYUTA 「한국 기업의 일본 진출을 함께합니다」",
+    "stepCountry": "광고 국가 선택 (중복 선택가능)",
+    "stepPurpose": "광고 목적 (중복선택가능)",
     "stepService": "광고 서비스",
     "countryRequired": "나라를 먼저 선택해주세요",
     "countries": {
       "jp": "일본",
       "kr": "한국"
     },
-    "purposes": {
-      "brand": "회사 브랜드",
-      "product": "제품 · 상품",
-      "store": "매장 · 음식점",
-      "medical": "병원 · 의료",
-      "event": "행사 · 이벤트",
-      "etc": "기타"
+    "countryNotes": {
+      "jp": "(일본 현지 광고)"
     },
-    "badge": "KJ 아유타 AYUTA",
-    "stepServiceHint": "한 가지만 선택하실 수 있습니다. 선택하시면 바로 다음 화면으로 이동합니다"
+    "purposes": {
+      "brand": "브랜드 회사 홍보",
+      "product": "제품 상품 홍보",
+      "store": "매장 음식점 홍보",
+      "medical": "병원·의료 홍보",
+      "event": "행사 이벤트 홍보",
+      "etc": "기타 원하시는 광고"
+    },
+    "services": {
+      "digital-sns": "1. 디지털/SNS광고",
+      "local-video": "2. 국내/현지 전문영상촬영",
+      "press-blog": "3. 종이신문/지역신문/블로그",
+      "transit": "4. 지하철. 버스광고",
+      "other": "5. 기타"
+    }
   },
   "categories": {
     "digital-sns": "디지털 / SNS 광고",
@@ -30,15 +38,11 @@
     "other": "기타"
   },
   "tierForm": {
-    "platformHint": "중복 선택하실 수 있습니다. 금액에는 영향이 없습니다",
     "totalLabel": "총 금액",
     "payButton": "결제하러 가기",
     "platformTitle": "플랫폼",
-    "tierTitle": "등급 선택",
-    "tierHint": "여러 개를 고르시면 금액이 합산됩니다",
     "contentHead": "제공 콘텐츠",
     "priceRow": "금액",
-    "selected": "{names} 선택",
     "platforms": {
       "instagram": "인스타그램 (피드, 캐러셀, 릴스)",
       "youtube": "유튜브, 쇼츠",
@@ -98,6 +102,23 @@
   },
   "groupForm": {
     "groupTitles": {
+      "country": "촬영 국가 선택해 주세요 (중복 선택 가능)",
+      "videoType": "영상 종류 선택",
+      "videoLength": "완성 영상 길이 선택",
+      "national": "전국 신문",
+      "local": "지역신문",
+      "community": "지역 커뮤니티",
+      "blog": "블로그",
+      "subwayCity": "지하철",
+      "subwaySpot": "광고 위치 선택 (지하철)",
+      "posterBillboard": "포스터 / 전광판 제작",
+      "busCity": "버스 광고",
+      "busSpot": "버스 광고위치 선택",
+      "period": "광고 기간 :",
+      "sizePeriod": "사이즈 :",
+      "basicIncluded": "기본 포함"
+    },
+    "contractTitles": {
       "country": "촬영 국가",
       "videoType": "영상 종류",
       "videoLength": "완성 영상 길이",
@@ -133,16 +154,20 @@
     "sizePlaceholder": "예) 가로 1200 × 세로 800",
     "totalLabel": "총 금액",
     "payButton": "결제하러 가기",
-    "groupHints": {
-      "country": "중복 선택하실 수 있습니다",
-      "posterBillboard": "사이즈에 따라 금액이 달라질 수 있습니다",
-      "basicIncluded": "아래 항목은 모든 상품에 포함됩니다",
-      "videoType": "중복 선택하실 수 있습니다. 고르신 영상마다 아래에서 길이를 정해 주세요",
-      "videoPairs": "고르신 영상 종류마다 길이를 하나씩 선택해 주세요"
-    },
-    "countryTabs": {
+    "groupHints": {},
+    "countries": {
       "kr": "한국",
       "jp": "일본"
+    },
+    "posterNote": "*사이즈에 따라 달라질 수 있습니다.",
+    "itemDescriptions": {
+      "blog-note": "현재 일본에서 가장 인기 있는 콘텐츠 플랫폼, 글, 사진, 음성, 영상 모두 가능\n주요타겟: 크리에이터, 기업, 일반인\n(글을 유료로 설정해 직접 수익화 기능이 매우 잘 되어 있습니다.)",
+      "blog-ameba": "일본 최대 규모, SNS 느낌이 강한 블로그\n주요타겟: 여성, 연예인, 라이프스타일\n(광고, 어필리에이트 제한적)",
+      "blog-hatena": "글쓰기, 커뮤니티 중심, IT, 비즈니스, 지식 콘텐츠에 강함\n주요타겟: 남성, 엔지니어, 전문 블로거\n(SEO 강하고 어필리에이트 가능)",
+      "blog-livedoor": "오래된 무료 블로그, 심플하고 접근성 좋음\n주요타겟: 일반인, 취미 블로그\n(어필리에이트 가능)",
+      "blog-fc2": "커스터마이즈 자유도 높고 용량큼\n주요타겟: 어필리에이트, 상업용\n(제휴 마케팅, 상업용 블로그)",
+      "community-jp-jimoty": "(한국의 당근마켓 같은 서비스)",
+      "community-jp-mercari": "(한국의 중고마켓 같은 서비스)"
     },
     "basicIncludedItems": [
       "영상 기획 구성",
@@ -155,8 +180,6 @@
       "완성 영상 제공"
     ],
     "shortVideoNote": "10분 미만의 릴스, 틱톡, 유튜브 쇼츠 등 SNS 영상은 1번 디지털 / SNS커뮤니티를 이용해주시면 감사하겠습니다.",
-    "pairTitle": "영상 {n} · {type}",
-    "pairsEmpty": "위에서 영상 종류를 먼저 선택해 주세요",
     "pairContractLabel": "영상 {n}"
   },
   "inquiry": {
@@ -173,11 +196,10 @@
   },
   "inquiryForm": {
     "intro": "기타 광고는 문의를 받은 뒤 담당자가 견적을 보내드립니다. 견적을 확인하고 결제하시면 됩니다.",
+    "lead": "원하시는 광고 내용을 자유롭게 작성해주세요",
     "bodyLabel": "원하시는 광고",
     "bodyPlaceholder": "자유롭게 작성해 주세요",
-    "regionLabel": "희망 지역",
-    "filesHint": "이미지(JPG·PNG·WEBP)·PDF, 최대 5개 · 합계 4MB",
-    "contactTitle": "연락받으실 정보",
+    "regionLabel": "희망지역",
     "name": "담당자명",
     "phone": "연락처",
     "email": "이메일",
@@ -200,24 +222,22 @@
       "phone": "숫자만 입력해 주세요 (예: 01012345678)",
       "summary": "입력하지 않았거나 형식이 틀린 항목이 {count}개 있습니다."
     },
-    "countryTitle": "국가",
     "countries": {
       "kr": "한국",
       "jp": "일본"
     },
-    "bodyTitle": "문의 내용",
+    "countryAria": "광고 국가",
     "regionPlaceholder": "예) 서울 강남구 / 도쿄 시부야",
-    "filesDrop": "참고자료를 끌어다 놓거나 클릭해서 첨부하세요",
-    "filesButton": "파일 첨부",
-    "contactHint": "로그인하신 경우 회원 정보에서 자동으로 입력됩니다",
+    "filesTitle": "참고자료 첨부",
+    "filesButton": "파일첨부",
     "namePlaceholder": "홍길동",
     "phonePlaceholder": "010-0000-0000",
     "emailPlaceholder": "name@email.com",
     "consent": "개인정보 수집 이용에 동의합니다",
-    "consentView": "내용보기",
-    "notice": "기타 광고는 결제 없이 문의만 접수됩니다. 담당자가 확인 후 견적을 발행해 결제 링크를 보내드립니다."
+    "consentView": "내용보기"
   },
   "header": {
+    "logo": "아유타",
     "home": "홈",
     "inquiry": "1:1 문의",
     "login": "로그인",
@@ -502,7 +522,6 @@
     "stepReview": "주문 내역 확인",
     "stepContract": "계약서 동의",
     "stepPay": "결제",
-    "ordererHint": "회원으로 로그인하시면 자동으로 입력됩니다. 비회원도 결제하실 수 있습니다",
     "namePh": "홍길동",
     "phonePh": "010-0000-0000",
     "emailPh": "name@email.com",
@@ -514,10 +533,7 @@
     "businessNoPh": "000-00-00000 (개인은 비워두세요)",
     "ordererNote": "· 위 정보는 계약서의 갑(고객) 항목에 그대로 기록됩니다.",
     "reviewTitle": "주문 내역 확인",
-    "reviewHint": "수정이 필요하시면 이전 화면으로 돌아가 주세요",
-    "serviceLabel": "광고 서비스",
     "editSelection": "선택 내용 수정하기",
-    "contractHint": "내용을 확인하신 뒤 동의해 주세요",
     "viewContent": "내용보기",
     "payTitle": "결제",
     "payCard": "신용카드 / 체크카드",
@@ -527,6 +543,7 @@
     "errPhone": "숫자만 입력해 주세요 (예: 01012345678)",
     "errSummary": "필수 항목 {count}개를 확인하셔야 결제하실 수 있습니다.",
     "errConsents": "필수 동의 항목에 모두 동의하셔야 결제하실 수 있습니다.",
+    "errConsentRequired": "필수 항목(이용약관·개인정보 수집·이용)에 모두 동의해 주세요. 항목이 보이지 않는다면 새로고침 후 다시 시도해 주세요.",
     "contractNeedsOrderer": "주문자 정보를 먼저 입력해 주세요. 입력한 정보로 계약서가 작성됩니다."
   },
   "orderComplete": {
@@ -638,21 +655,13 @@
     "mypage": "마이페이지"
   },
   "orderPage": {
-    "badge": "광고 서비스 {n}",
-    "notice": "다음 화면에서 주문자 정보와 주문 내역을 확인하시고 계약서에 동의하신 뒤 결제하시게 됩니다.",
+    "itemsLabel": "상품 내용 :",
     "titles": {
-      "digital-sns": "디지털광고 / SNS커뮤니티",
-      "local-video": "현지 전문 영상 촬영",
-      "press-blog": "대표신문 / 지역신문 / 블로그",
-      "transit": "지하철 · 버스 · 옥외광고",
-      "other": "기타 광고 문의"
-    },
-    "descriptions": {
-      "digital-sns": "플랫폼을 고르고 등급을 선택하시면 금액이 바로 계산됩니다.",
-      "local-video": "촬영 국가와 영상 종류, 길이를 고르시면 금액이 계산됩니다.",
-      "press-blog": "국가별 매체를 고르시면 금액이 계산됩니다.",
-      "transit": "도시와 광고 위치, 기간을 고르시면 금액이 계산됩니다.",
-      "other": "원하시는 내용을 남겨주시면 담당자가 견적을 발행해 드립니다."
+      "digital-sns": "1.디지털 광고 / SNS 커뮤니티 (중복선택 가능)",
+      "local-video": "2. 현지 전문 영상 제작 및 촬영",
+      "press-blog": "3. 종이신문 / 전국 신문 / 지역신문 / 블로그",
+      "transit": "4. 지하철 / 버스 / 옥외광고",
+      "other": "5. 기타 광고"
     }
   },
   "account": {

@@ -22,7 +22,7 @@ describe('폼 선택을 주소에 옮겨 적기', () => {
   })
 
   it('1번: 옮겨 적은 등급·플랫폼을 새로고침 때 그대로 되살린다', () => {
-    const href = selectionHref('/ko/order/digital-sns', buildPaymentQuery(['basic', 'premium'], ['youtube'], ['kr'], 'store'))
+    const href = selectionHref('/ko/order/digital-sns', buildPaymentQuery(['basic', 'premium'], ['youtube'], ['kr'], ['store']))
     const r = reread(href)
     expect(r.tiers).toEqual(['basic', 'premium'])
     expect(r.platforms).toEqual(['youtube'])

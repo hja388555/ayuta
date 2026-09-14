@@ -18,8 +18,25 @@ import { formFor } from '@/lib/category-groups'
 import { loadPriceBook } from '@/lib/price-book'
 import { loadCategoryModel } from '@/lib/pricing-model'
 import { currencyForLocale } from '@/lib/payments/channel'
+import { sanitizePurposes } from '@/lib/cover-selection'
 
 export const dynamic = 'force-dynamic'
+
+/**
+ * 제목 끝의 괄호 문구가 모바일에서 줄 중간에 꺾이지 않게 한다("...선택\n가능)" 같은 고아 방지).
+ * " (" 앞에서만 나눠 앞 문구<wbr/>괄호 문구로 렌더링한다 — 괄호가 없는 제목은 그대로 보여준다
+ */
+function OrderTitle({ title, className }: { title: string; className?: string }) {
+  const i = title.indexOf(' (')
+  if (i === -1) return <h1 className={className}>{title}</h1>
+  return (
+    <h1 className={className}>
+      {title.slice(0, i)}
+      <wbr />
+      <span className={styles.titleParen}>{title.slice(i + 1)}</span>
+    </h1>
+  )
+}
 
 type Props = {
   params: Promise<{ locale: string; category: string }>
@@ -42,7 +59,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
   // 표지에서 넘어온 나라·목적. 여기서는 다시 고르게 하지 않고 결제 화면까지 그대로 들고 간다
   const country = Array.isArray(sp.country) ? sp.country : sp.country ? [sp.country] : []
-  const purpose = typeof sp.purpose === 'string' ? sp.purpose : undefined
+  const purposes = sanitizePurposes(Array.isArray(sp.purpose) ? sp.purpose : sp.purpose ? [sp.purpose] : [])
   // 결제 화면 "선택 내용 수정하기"로 돌아오면 같은 쿼리가 실려 온다 — 폼이 고른 내용을 되살린다
   const restore = restoreFromQuery(sp)
 
@@ -81,17 +98,12 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
   return (
     <main>
-      <ImageBand slot={`category-${def.no}`} locale={locale} />
+      {def.no !== 5 ? <ImageBand slot={`category-${def.no}`} locale={locale} /> : null}
 
       {def.no !== 5 ? (
         <>
-          {/* 머리 띠 — Figma v2: 광고 서비스 N 배지 · 제목 · 설명 */}
-          <section className={styles.band}>
-            <span className={styles.bandBadge}>{tPage('badge', { n: def.no })}</span>
-            <h1 className={styles.bandTitle}>{tPage(`titles.${def.slug}`)}</h1>
-            <p className={styles.bandDesc}>{tPage(`descriptions.${def.slug}`)}</p>
-          </section>
           <div className={styles.body}>
+            <OrderTitle className={styles.title} title={tPage(`titles.${def.slug}`) as string} />
             {def.model.kind === 'tier' ? (
               <TierForm
                 book={book}
@@ -99,21 +111,17 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 locale={locale}
                 categorySlug={def.slug}
                 country={country}
-                purpose={purpose}
+                purposes={purposes}
                 restore={restore}
                 labels={{
                   platformTitle: t('platformTitle'),
-                  platformHint: t('platformHint'),
                   platforms: t.raw('platforms'),
-                  tierTitle: t('tierTitle'),
-                  tierHint: t('tierHint'),
                   contentHead: t('contentHead'),
                   rows: t.raw('rows') as TierRow[],
                   priceRow: t('priceRow'),
-                  selected: t.raw('selected') as string,
                   totalLabel: t('totalLabel'),
+                  itemsLabel: tPage('itemsLabel'),
                   payButton: t('payButton'),
-                  notice: tPage('notice'),
                 }}
               />
             ) : def.model.kind === 'videoPairs' && groupFormDef ? (
@@ -124,18 +132,15 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 locale={locale}
                 categorySlug={def.slug}
                 country={country}
-                purpose={purpose}
+                purposes={purposes}
                 restore={restore}
                 labels={{
                   groupTitles: tGroup.raw('groupTitles'),
                   groupHints: tGroup.raw('groupHints'),
                   itemLabels: tGroup.raw('itemLabels'),
-                  // {n}·{type} 자리는 화면이 채우므로 서식 처리 없이 원문을 넘긴다
-                  pairTitle: tGroup.raw('pairTitle') as string,
-                  pairsEmpty: tGroup('pairsEmpty'),
                   totalLabel: tGroup('totalLabel'),
+                  itemsLabel: tPage('itemsLabel'),
                   payButton: tGroup('payButton'),
-                  notice: tPage('notice'),
                   basicIncludedItems: tGroup.raw('basicIncludedItems') as string[],
                   shortVideoNote: tGroup('shortVideoNote'),
                 }}
@@ -148,22 +153,26 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 locale={locale}
                 categorySlug={def.slug}
                 country={country}
-                purpose={purpose}
+                purposes={purposes}
                 restore={restore}
                 labels={{
                   groupTitles: tGroup.raw('groupTitles'),
                   groupHints: tGroup.raw('groupHints'),
                   itemLabels: tGroup.raw('itemLabels'),
                   periods: tGroup.raw('periods'),
-                  countryTabs: tGroup.raw('countryTabs'),
+                  countries: tGroup.raw('countries'),
                   sizeLabel: tGroup('sizeLabel'),
                   sizePlaceholder: tGroup('sizePlaceholder'),
                   totalLabel: tGroup('totalLabel'),
+                  itemsLabel: tPage('itemsLabel'),
                   payButton: tGroup('payButton'),
-                  notice: tPage('notice'),
                   // 기본 포함 칩 · SNS 영상 안내는 2번(현지 영상 제작)에만 있다 — 선택지가 아니라 안내다
                   basicIncludedItems: def.no === 2 ? (tGroup.raw('basicIncludedItems') as string[]) : undefined,
                   shortVideoNote: def.no === 2 ? tGroup('shortVideoNote') : undefined,
+                  // 3번 블로그 설명·지역 커뮤니티 괄호 문구는 groupForm 쪽에서만 쓰인다
+                  itemDescriptions: def.no === 3 ? (tGroup.raw('itemDescriptions') as Record<string, string>) : undefined,
+                  // 포스터 사이즈 안내는 4번에만 있다
+                  posterNote: def.no === 4 ? tGroup('posterNote') : undefined,
                 }}
               />
             ) : null}
@@ -171,32 +180,24 @@ export default async function OrderPage({ params, searchParams }: Props) {
         </>
       ) : (
         <>
-          {/* 머리 띠 — 1~4번과 같은 v2 띠(광고 서비스 5 배지 · 제목 · 설명). 5번은 금액 없이 문의를 받아
-              관리자가 견적을 발행한다(Q14 · Q14-B) */}
-          <section className={styles.band}>
-            <span className={styles.bandBadge}>{tPage('badge', { n: def.no })}</span>
-            <h1 className={styles.bandTitle}>{tPage(`titles.${def.slug}`)}</h1>
-            <p className={styles.bandDesc}>{tPage(`descriptions.${def.slug}`)}</p>
-          </section>
+          {/* 5번은 금액 없이 문의를 받아 관리자가 견적을 발행한다(Q14 · Q14-B) */}
           <div className={styles.body}>
+            <OrderTitle className={styles.title} title={tPage(`titles.${def.slug}`) as string} />
             <InquiryForm
               locale={locale}
               initialType={initialType}
               initialContact={initialContact}
               initialCountry={country}
               labels={{
-                countryTitle: tForm('countryTitle'),
+                lead: tForm('lead'),
                 countries: tForm.raw('countries'),
-                bodyTitle: tForm('bodyTitle'),
+                countryAria: tForm('countryAria'),
                 bodyLabel: tForm('bodyLabel'),
                 bodyPlaceholder: tForm('bodyPlaceholder'),
                 regionLabel: tForm('regionLabel'),
                 regionPlaceholder: tForm('regionPlaceholder'),
-                filesDrop: tForm('filesDrop'),
+                filesTitle: tForm('filesTitle'),
                 filesButton: tForm('filesButton'),
-                filesHint: tForm('filesHint'),
-                contactTitle: tForm('contactTitle'),
-                contactHint: tForm('contactHint'),
                 name: tForm('name'),
                 namePlaceholder: tForm('namePlaceholder'),
                 phone: tForm('phone'),
@@ -205,7 +206,6 @@ export default async function OrderPage({ params, searchParams }: Props) {
                 emailPlaceholder: tForm('emailPlaceholder'),
                 consent: tForm('consent'),
                 consentView: tForm('consentView'),
-                notice: tForm('notice'),
                 submit: tForm('submit'),
                 submitting: tForm('submitting'),
                 done: tForm('done'),

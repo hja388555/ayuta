@@ -55,6 +55,8 @@ export function quoteOrderLines(
       country: formatCountries(countries, locale) || '-',
     },
     country: sanitizeCountries(countries),
+    // 견적 결제 흐름에는 표지(cover)가 없다 — 광고 목적을 고를 화면 자체가 없어 항상 빈 배열이다
+    purpose: [],
   }
 }
 

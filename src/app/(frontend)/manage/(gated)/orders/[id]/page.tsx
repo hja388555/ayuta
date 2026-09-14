@@ -5,7 +5,7 @@ import { isSuperRole } from '@/lib/roles'
 import { findOrderForAdmin, findOrderNotes, findOrderTransitions } from '@/lib/admin/orders-data'
 import { formatAmount, formatDateTime, formatDay, toDateInputValue } from '@/lib/admin/format'
 import { orderListBackHref } from '@/lib/admin/order-list-query'
-import { adminStatusTone, categoryLabel } from '@/lib/admin/order-display'
+import { adminStatusTone, categoryLabel, purposeLabel } from '@/lib/admin/order-display'
 import { availableTransitions, requiresTransitionConfirm, statusLabel } from '@/lib/orders/transitions'
 import { AdminContractButton } from '@/components/admin/AdminContractButton'
 import { OpenChatButton } from '@/components/admin/OpenChatButton'
@@ -108,6 +108,7 @@ export default async function OrderDetailPage({ params, searchParams }: Props) {
             <h2 className={s.cardTitle}>주문 내용</h2>
             <dl className={s.kv}>
               <Row label="광고 서비스">{categoryLabel(order.category)}</Row>
+              <Row label="광고 목적">{purposeLabel(order.purpose as string[] | null | undefined)}</Row>
               {order.contractItems.map((item, i) => (
                 <Row key={`${item.label}-${i}`} label={item.label}>
                   {item.value}

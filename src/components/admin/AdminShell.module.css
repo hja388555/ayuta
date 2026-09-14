@@ -91,8 +91,8 @@
 }
 .active,
 .active:hover {
-  background: #eff5ff;
-  color: #005afa;
+  background: var(--brand-50);
+  color: var(--brand-600);
   font-weight: 700;
 }
 .disabled,
@@ -179,7 +179,7 @@
   }
   .active,
   .active:hover {
-    background: #005afa;
+    background: var(--brand-600);
     color: #fff;
   }
   .active .icon {

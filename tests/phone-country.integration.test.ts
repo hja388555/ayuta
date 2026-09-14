@@ -77,7 +77,7 @@ describe('결제 주문자 연락처', () => {
     categorySlug: 'digital-sns',
     locale,
     selection: { tiers: ['standard'], platforms: [], country: ['kr'] },
-    consents: { agree: true },
+    consents: { terms: true, privacy: true, agree: true },
     orderer: { name: `연락처테스트${RUN}`, phone, email: `phone-order-${RUN}@example.com`, postalCode: '12345', address1: '서울특별시 동대문구 답십리동 323' },
     signature: `연락처테스트${RUN}`,
   })

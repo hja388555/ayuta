@@ -46,17 +46,6 @@ export function selectionsFromItems(form: CategoryForm, items: readonly string[]
   return out
 }
 
-/** 되살린 항목 중 나라가 정해진 첫 항목의 나라 — 한 나라만 보여 줄 때 그 탭을 연다 */
-export function tabFromItems(form: CategoryForm, items: readonly string[]): 'kr' | 'jp' | null {
-  for (const key of items) {
-    for (const g of form.groups) {
-      const it = g.items.find((i) => i.key === key)
-      if (it?.country) return it.country
-    }
-  }
-  return null
-}
-
 /** 2번 영상 쌍: "종류:길이" 중 폼에 있는 종류·길이만, 같은 종류는 처음 것만 */
 export function pairsFromQuery(form: CategoryForm, pairs: readonly string[]): { type: string; length: string }[] {
   const types = new Set(form.groups.find((g) => g.key === 'videoType')?.items.map((i) => i.key) ?? [])

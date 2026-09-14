@@ -43,7 +43,7 @@ export function contractItemDictionary(from: Locale, to: Locale, books: { from?:
   if (books.from && books.to) {
     for (const [key, entry] of Object.entries(books.from.entries)) add(entry.label, books.to.entries[key]?.label)
   }
-  pairRecord(f.groupTitles, t.groupTitles)
+  pairRecord(f.contractTitles, t.contractTitles)
   pairRecord(f.itemLabels, t.itemLabels)
   pairRecord(f.periods, t.periods)
   add(f.sizeLabel, t.sizeLabel)

@@ -22,6 +22,33 @@ export function consentsFor(category: number): ConsentDef[] {
   return CONSENTS[category] ?? []
 }
 
+// 클라이언트 요청("[이용약관]도 들어가야해요") — 계약서 템플릿과 무관하게 모든 결제 화면
+// (카테고리 1~4·견적)에 항상 붙는 두 줄. 템플릿 consents 는 계약별로 다르지만 이 둘은
+// 서비스 전체에 고정이라 템플릿이 아니라 코드에 둔다. 화면(CheckoutForm)의 PUBLIC_DOC_KEYS
+// 가 이 두 key 를 [내용보기] 로 그린다.
+const BASE_CONSENTS: Record<'ko' | 'ja', ConsentDef[]> = {
+  ko: [
+    { key: 'terms', label: '서비스 이용 약관에 동의 합니다.', required: true },
+    { key: 'privacy', label: '개인정보 수집 이용에 동의 합니다.', required: true },
+  ],
+  ja: [
+    { key: 'terms', label: '利用規約に同意します。', required: true },
+    { key: 'privacy', label: '個人情報の収集・利用に同意します。', required: true },
+  ],
+}
+
+/**
+ * 템플릿 동의 앞에 기본 동의(이용약관·개인정보)를 붙인다. 순서는 항상
+ * terms → privacy → 나머지 템플릿 동의다. 템플릿이 이미 같은 key 를 갖고 있으면
+ * 그 문구를 그대로 쓰고(중복 추가하지 않는다) 정해진 위치로만 옮긴다.
+ */
+export function withBaseConsents(templateConsents: readonly ConsentDef[], locale: 'ko' | 'ja'): ConsentDef[] {
+  const byKey = new Map(templateConsents.map((c) => [c.key, c]))
+  const base = BASE_CONSENTS[locale].map((b) => byKey.get(b.key) ?? b)
+  const rest = templateConsents.filter((c) => c.key !== 'terms' && c.key !== 'privacy')
+  return [...base, ...rest]
+}
+
 /**
  * 필수 동의가 전부 체크됐는지 본다.
  * `checked` 는 클라이언트가 보낸 임의의 키-불리언 맵일 수 있다 — 정의에 없는 키를

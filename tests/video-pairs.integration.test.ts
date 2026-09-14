@@ -21,7 +21,7 @@ const videoInput = (selection: unknown) => ({
   categorySlug: 'local-video',
   locale: 'ko' as const,
   selection,
-  consents: { agree: true },
+  consents: { terms: true, privacy: true, agree: true },
   orderer: { ...orderer },
   signature: orderer.name,
 })

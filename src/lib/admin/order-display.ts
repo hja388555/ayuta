@@ -1,4 +1,5 @@
 import type { BadgeTone } from '@/components/ui'
+import koMessages from '../../../messages/ko.json'
 
 /**
  * 관리자 주문 화면 표기(Figma [v2] A3 228:334 · A4 229:2). 관리자는 한국어 고정이라
@@ -15,6 +16,14 @@ const CATEGORY_LABELS: Record<number, string> = {
 export function categoryLabel(no: number): string {
   const name = CATEGORY_LABELS[no]
   return name ? `${no}. ${name}` : `${no}번`
+}
+
+const PURPOSE_LABELS: Record<string, string> = koMessages.cover.purposes
+
+/** 표지에서 고른 광고 목적(복수 선택) — 관리자 표기용으로 쉼표로 이어붙인다. 라벨은 표지와 같은 messages/ko.json cover.purposes 를 그대로 쓴다 */
+export function purposeLabel(purposes: readonly string[] | null | undefined): string {
+  if (!purposes || purposes.length === 0) return '—'
+  return purposes.map((p) => PURPOSE_LABELS[p] ?? p).join(', ')
 }
 
 const TONES: Record<string, BadgeTone> = {

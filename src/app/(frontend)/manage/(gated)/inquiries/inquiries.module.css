@@ -6,7 +6,7 @@
 
 .tabs { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .tab { display: inline-flex; gap: 6px; align-items: center; padding: 12px 18px; border-radius: 999px; border: 1px solid #eceef1; background: #fff; font-size: 15px; font-weight: 700; color: #3d4046; text-decoration: none; }
-.tabActive { background: #005afa; border-color: #005afa; color: #fff; }
+.tabActive { background: var(--brand-600); border-color: var(--brand-600); color: #fff; }
 .tabCount { font-weight: 400; }
 .tabDisabled { cursor: not-allowed; }
 .tabDisabled .tabCount { color: #a3a8b0; font-size: 13px; }
@@ -66,7 +66,7 @@
 .row2 { display: flex; gap: 8px; }
 .row2 > * { flex: 1; min-width: 0; }
 
-.issued { background: #eff5ff; border-radius: 12px; padding: 12px 14px; font-size: 13px; display: flex; flex-direction: column; gap: 8px; }
+.issued { background: var(--brand-50); border-radius: 12px; padding: 12px 14px; font-size: 13px; display: flex; flex-direction: column; gap: 8px; }
 .issued p { margin: 0; }
 .error { margin: 0; font-size: 13px; color: #c62828; }
 

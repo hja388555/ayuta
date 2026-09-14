@@ -43,7 +43,7 @@ const asStringArray = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x)
  */
 export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelection: unknown, locale: 'ko' | 'ja'): ContractItem[] {
   const messages = messagesFor(locale)
-  const groupTitles: Record<string, string> = messages.groupForm.groupTitles
+  const groupTitles: Record<string, string> = messages.groupForm.contractTitles
   const itemLabels: Record<string, string> = messages.groupForm.itemLabels
   const periods: Record<string, string> = messages.groupForm.periods
 
@@ -136,7 +136,7 @@ export function unpricedReviewRows(def: CategoryDef, rawSelection: unknown, loca
     const chosen = new Set(asStringArray(sel.items))
     const countries = formFor(2)?.groups.find((g) => g.key === 'country')?.items.filter((i) => chosen.has(i.key)) ?? []
     if (countries.length > 0) {
-      rows.push({ label: messages.groupForm.groupTitles.country, value: countries.map((i) => itemLabels[i.key] ?? i.key).join(', ') })
+      rows.push({ label: messages.groupForm.contractTitles.country, value: countries.map((i) => itemLabels[i.key] ?? i.key).join(', ') })
     }
   }
 

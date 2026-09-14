@@ -1,5 +1,6 @@
 import type { CategoryForm } from '../category-groups'
 import type { PricingModel } from '@ayuta/pricing'
+import { sanitizePurposes } from '../cover-selection'
 
 type SearchParams = Record<string, string | string[] | undefined>
 
@@ -20,7 +21,7 @@ export function selectionFromQuery(model: PricingModel, sp: SearchParams): unkno
   // (filterPricedSelection이 아니라 registry.calculate 자체가 쓰지 않는 키를 무시한다)
   // 걸러지고, 계약서·주문 저장에는 그대로 남는다.
   const country = asArray(sp.country)
-  const purpose = typeof sp.purpose === 'string' ? sp.purpose : undefined
+  const purpose = sanitizePurposes(asArray(sp.purpose))
   switch (model.kind) {
     case 'tier':
       return { tiers: asArray(sp.tier), platforms: asArray(sp.platform), country, purpose }
@@ -74,10 +75,20 @@ export function filterPricedSelection(model: PricingModel, form: CategoryForm | 
   }
   if (model.kind !== 'sum' && model.kind !== 'sumMultiplier') return selection
   if (!form || typeof selection !== 'object' || selection === null) return selection
-  const sel = selection as { items?: unknown; period?: unknown }
+  const sel = selection as { items?: unknown; period?: unknown; country?: unknown }
   if (!Array.isArray(sel.items)) return selection
 
   const pricedKeys = new Set(form.groups.flatMap((g) => g.items.filter((i) => i.priced).map((i) => i.key)))
-  const items = sel.items.filter((k): k is string => typeof k === 'string' && pricedKeys.has(k))
+  // 클라이언트 dropOtherCountries(GroupForm.tsx)와 같은 규칙 — country= 와 item= 은
+  // 각자 따로 신뢰할 수 없어, 나라가 정해진 항목인데 선택한 나라 밖이면 값에서도 뺀다.
+  // 3·4번(sum/sumMultiplier)만 나라 열을 쓴다 — 나라 개념이 없는 항목은 그대로 둔다.
+  const countries = Array.isArray(sel.country) ? sel.country.filter((c): c is string => typeof c === 'string') : []
+  const countryOf = new Map(form.groups.flatMap((g) => g.items.map((i) => [i.key, i.country] as const)))
+  const items = sel.items.filter((k): k is string => {
+    if (typeof k !== 'string' || !pricedKeys.has(k)) return false
+    const itemCountry = countryOf.get(k)
+    if (countries.length > 0 && itemCountry && !countries.includes(itemCountry)) return false
+    return true
+  })
   return model.kind === 'sumMultiplier' ? { items, period: sel.period } : { items }
 }

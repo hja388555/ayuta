@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import { LoginRequiredModal } from './LoginRequiredModal'
 
-type Labels = { home: string; inquiry: string; login: string; signup: string; mypage: string; logout: string; admin: string }
+type Labels = { logo: string; home: string; inquiry: string; login: string; signup: string; mypage: string; logout: string; admin: string }
 
 /** 언어만 바꾼 주소. 쿼리(주문 선택·나라·목적)는 그대로 둔다 — 떼면 결제 화면이 404 가 되고 폼 선택이 사라진다 */
 export function localeSwitchHref(pathname: string, search: string, target: string): string {
@@ -75,7 +75,7 @@ export function SiteHeader({
   return (
     <header className="site-header">
       <Link href={home} className="site-logo" aria-label="AYUTA">
-        <img src={locale === 'ja' ? '/ui/logo-ja.png' : '/ui/logo.png'} alt="" width={84} height={56} />
+        {labels.logo}
       </Link>
       <nav className="site-nav">
         <Link href={home} aria-current={pathname === home ? 'page' : undefined}>

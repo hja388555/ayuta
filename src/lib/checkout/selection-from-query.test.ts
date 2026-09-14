@@ -35,16 +35,16 @@ describe('selectionFromQuery — 표지 나라·목적은 카테고리와 무관
     const model: PricingModel = { kind: 'tier', category: 1, tiers: [], platforms: [] }
     const sel = selectionFromQuery(model, { tier: ['standard'], country: ['jp', 'kr'], purpose: 'brand' }) as {
       country: string[]
-      purpose?: string
+      purpose: string[]
     }
     expect(sel.country).toEqual(['jp', 'kr'])
-    expect(sel.purpose).toBe('brand')
+    expect(sel.purpose).toEqual(['brand'])
   })
 
-  it('목적을 아예 안 골랐으면 undefined다 — 목적은 선택이다', () => {
+  it('목적을 아예 안 골랐으면 빈 배열이다 — 목적은 선택이다', () => {
     const model: PricingModel = { kind: 'tier', category: 1, tiers: [], platforms: [] }
-    const sel = selectionFromQuery(model, { tier: ['standard'], country: ['jp'] }) as { purpose?: string }
-    expect(sel.purpose).toBeUndefined()
+    const sel = selectionFromQuery(model, { tier: ['standard'], country: ['jp'] }) as { purpose: string[] }
+    expect(sel.purpose).toEqual([])
   })
 
   it('country·purpose가 섞여 들어가도 calculate()는 깨지지 않는다 — 필요한 키만 본다', () => {
@@ -72,6 +72,35 @@ describe('filterPricedSelection — priced/unpriced 분리는 계산 직전에�
   })
 })
 
+describe('filterPricedSelection — 나라 밖 유료 항목은 계산에서도 뺀다(3·4번)', () => {
+  it('3번: country=kr인데 item에 jp 항목이 섞이면 jp 항목은 계산에서 빠진다', () => {
+    const model: PricingModel = { kind: 'sum', category: 3, groups: [] }
+    const form = formFor(3)
+    const raw = selectionFromQuery(model, { item: ['national-kr-donga', 'national-jp-asahi'], country: 'kr' })
+
+    const priced = filterPricedSelection(model, form, raw) as { items: string[] }
+    expect(priced.items).toEqual(['national-kr-donga'])
+
+    // 원본 selection(계약서용)에는 그대로 남는다
+    expect((raw as { items: string[] }).items).toContain('national-jp-asahi')
+  })
+
+  it('4번(sumMultiplier): country가 비어 있으면 나라와 무관하게 그대로 둔다', () => {
+    const model: PricingModel = { kind: 'sumMultiplier', category: 4, items: [], multipliers: { '1w': 1 } }
+    const form = formFor(4)
+    const raw = selectionFromQuery(model, { item: ['subway-city-seoul', 'subway-city-tokyo'], period: '1w' })
+
+    const priced = filterPricedSelection(model, form, raw) as { items: string[] }
+    expect(priced.items).toEqual(['subway-city-seoul', 'subway-city-tokyo'])
+  })
+
+  it('1·2번(tier/videoPairs)은 이 규칙의 영향을 받지 않는다', () => {
+    const tierModel: PricingModel = { kind: 'tier', category: 1, tiers: [], platforms: [] }
+    const tierSel = selectionFromQuery(tierModel, { tier: ['standard'], country: 'kr' })
+    expect(filterPricedSelection(tierModel, formFor(1), tierSel)).toBe(tierSel)
+  })
+})
+
 describe('selectionFromQuery — 2번 videoPairs', () => {
   const keysOf = (group: string) => formFor(2)!.groups.find((g) => g.key === group)!.items.map((i) => i.key)
   const model: PricingModel = { kind: 'videoPairs', category: 2, types: keysOf('videoType'), lengths: keysOf('videoLength') }
@@ -89,7 +118,7 @@ describe('selectionFromQuery — 2번 videoPairs', () => {
         { type: 'video-type-product', length: 'video-length-10m' },
       ],
       country: ['kr'],
-      purpose: undefined,
+      purpose: [],
     })
   })
 

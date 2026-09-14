@@ -14,7 +14,7 @@
 .facts { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 18px 20px; border-radius: 14px; background: var(--surface); }
 .fact { display: flex; align-items: center; gap: 12px; }
 .fact dt { flex: none; width: 140px; font-size: 14px; line-height: 1.7; color: var(--ink-500); }
-.fact dd { flex: 1; min-width: 0; display: flex; align-items: center; min-height: 42px; margin: 0; padding: 8px 14px; border-radius: 10px; background: var(--brand-50, #eff5ff); color: #002e80; font-size: 15px; font-weight: 700; line-height: 1.7; overflow-wrap: anywhere; }
+.fact dd { flex: 1; min-width: 0; display: flex; align-items: center; min-height: 42px; margin: 0; padding: 8px 14px; border-radius: 10px; background: var(--brand-50); color: var(--brand-900); font-size: 15px; font-weight: 700; line-height: 1.7; overflow-wrap: anywhere; }
 
 .notice { margin: 0; font-weight: 600; color: var(--ink-500); }
 
@@ -27,7 +27,7 @@
 .seal img { max-width: 160px; max-height: 100px; }
 
 .foot { display: flex; flex-direction: column; gap: 14px; padding: 24px 32px; border-top: 1px solid var(--line); background: #fff; }
-.check { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 0 18px; border-radius: 12px; background: var(--brand-50, #eff5ff); font-size: 16px; font-weight: 700; line-height: 1.7; color: var(--ink-900); cursor: pointer; }
+.check { position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 0 18px; border-radius: 12px; background: var(--brand-50); font-size: 16px; font-weight: 700; line-height: 1.7; color: var(--ink-900); cursor: pointer; }
 .check input { position: absolute; opacity: 0; pointer-events: none; }
 .checkBox { flex: none; width: 22px; height: 22px; border: 1.6px solid var(--brand-600); border-radius: 7px; background: #fff; }
 .check:has(input:checked) .checkBox { background: var(--brand-600) url('/ui/modal-check.svg') center / 14px 14px no-repeat; }

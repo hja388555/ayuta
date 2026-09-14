@@ -4,7 +4,7 @@
 :global(.modal):has(.confirm) :global(.modal-body) { padding: 32px 28px; }
 :global(.modal):has(.confirm) :global(.modal-foot) { padding: 20px 28px; }
 .confirm { display: flex; flex-direction: column; align-items: center; gap: 16px; text-align: center; }
-.icon { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 999px; background: var(--brand-50, #eff5ff); }
+.icon { display: flex; align-items: center; justify-content: center; width: 64px; height: 64px; border-radius: 999px; background: var(--brand-50); }
 .icon img { width: 30px; height: 30px; }
 .title { margin: 0; font-size: 22px; font-weight: 700; line-height: 1.4; color: var(--ink-900); }
 .text { margin: 0; font-size: 15px; line-height: 1.6; color: var(--ink-500); }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildCoverQuery, canProceedToService, formatCountries, sanitizeCountries } from './cover-selection'
+import { buildCoverQuery, canProceedToService, formatCountries, sanitizeCountries, sanitizePurposes } from './cover-selection'
 
 describe('표지 나라 선택', () => {
   it('나라가 없으면 서비스 카드로 이동할 수 없다', () => {
@@ -25,7 +25,7 @@ describe('sanitizeCountries', () => {
 
 describe('buildCoverQuery', () => {
   it('허락된 선택 키만 담는다 — country, purpose만 들어간다', () => {
-    const qs = buildCoverQuery(['jp', 'kr'], 'brand')
+    const qs = buildCoverQuery(['jp', 'kr'], ['brand'])
     const params = new URLSearchParams(qs)
     const allKeys = new Set(params.keys())
     // 허락된 키는 정확히 이것들만이다
@@ -33,15 +33,16 @@ describe('buildCoverQuery', () => {
     expect(allKeys).toEqual(permittedKeys)
   })
 
-  it('나라를 repeated param으로, 목적을 단일 값으로 담는다', () => {
-    const qs = new URLSearchParams(buildCoverQuery(['jp', 'kr'], 'brand'))
+  it('나라와 목적을 모두 반복 파라미터로 담는다', () => {
+    const qs = new URLSearchParams(buildCoverQuery(['jp', 'kr'], ['brand', 'store']))
     expect(qs.getAll('country')).toEqual(['jp', 'kr'])
-    expect(qs.get('purpose')).toBe('brand')
+    expect(qs.getAll('purpose')).toEqual(['brand', 'store'])
   })
-
-  it('목적이 없으면 purpose 키를 아예 안 담는다 — 목적은 선택이다', () => {
-    const qs = new URLSearchParams(buildCoverQuery(['jp'], undefined))
-    expect(qs.has('purpose')).toBe(false)
+  it('목적이 없으면 purpose 키를 아예 안 담는다', () => {
+    expect(new URLSearchParams(buildCoverQuery(['jp'], [])).has('purpose')).toBe(false)
+  })
+  it('sanitizePurposes 는 모르는 값·중복을 버린다', () => {
+    expect(sanitizePurposes(['brand', 'x', 'brand', 'etc'])).toEqual(['brand', 'etc'])
   })
 })
 

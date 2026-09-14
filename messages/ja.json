@@ -1,27 +1,35 @@
 {
   "_note": "일본어는 초벌 번역이며 대표님 검수 전입니다. 검수 후 이 노트를 지워주세요.",
   "cover": {
-    "title": "日本進出をサポートします",
-    "subtitle": "ショートカットマーケティングサービス · ログインなしですぐに見積もりを確認し、お支払いいただけます。",
-    "stepCountry": "広告する国",
-    "stepCountryHint": "複数選択できます",
-    "stepPurpose": "広告の目的",
+    "logo": "アユタ",
+    "headline": "グローバルマーケティング",
+    "tagline": "AYUTA「韓国企業の日本進出をサポートします」",
+    "stepCountry": "広告国を選択(複数選択可能)",
+    "stepPurpose": "広告の目的(複数選択可能)",
     "stepService": "広告サービス",
     "countryRequired": "先に国を選択してください",
     "countries": {
       "jp": "日本",
       "kr": "韓国"
     },
-    "purposes": {
-      "brand": "会社ブランド",
-      "product": "製品・商品",
-      "store": "店舗・飲食店",
-      "medical": "病院・医療",
-      "event": "イベント",
-      "etc": "その他"
+    "countryNotes": {
+      "jp": "(日本現地広告)"
     },
-    "badge": "KJ アユタ AYUTA",
-    "stepServiceHint": "1つだけ選択できます。選択するとすぐ次の画面へ移動します"
+    "purposes": {
+      "brand": "ブランド・会社PR",
+      "product": "製品・商品PR",
+      "store": "店舗・飲食店PR",
+      "medical": "病院・医療PR",
+      "event": "イベントPR",
+      "etc": "その他ご希望の広告"
+    },
+    "services": {
+      "digital-sns": "1. デジタル/SNS広告",
+      "local-video": "2. 国内/現地専門映像撮影",
+      "press-blog": "3. 新聞/地域新聞/ブログ",
+      "transit": "4. 地下鉄・バス広告",
+      "other": "5. その他"
+    }
   },
   "categories": {
     "digital-sns": "デジタル / SNS 広告",
@@ -31,15 +39,11 @@
     "other": "その他"
   },
   "tierForm": {
-    "platformHint": "複数選択できます。金額には影響しません",
     "totalLabel": "合計金額",
     "payButton": "お支払いへ進む",
     "platformTitle": "プラットフォーム",
-    "tierTitle": "グレード選択",
-    "tierHint": "複数選ぶと金額が合算されます",
     "contentHead": "提供コンテンツ",
     "priceRow": "金額",
-    "selected": "{names} を選択",
     "platforms": {
       "instagram": "Instagram（フィード、カルーセル、リール）",
       "youtube": "YouTube、ショート",
@@ -99,6 +103,23 @@
   },
   "groupForm": {
     "groupTitles": {
+      "country": "撮影国を選択してください（複数選択可）",
+      "videoType": "映像の種類を選択",
+      "videoLength": "完成映像の長さを選択",
+      "national": "全国紙",
+      "local": "地方紙",
+      "community": "地域コミュニティ",
+      "blog": "ブログ",
+      "subwayCity": "地下鉄",
+      "subwaySpot": "広告位置選択（地下鉄）",
+      "posterBillboard": "ポスター / 電光掲示板制作",
+      "busCity": "バス広告",
+      "busSpot": "バス広告位置選択",
+      "period": "広告期間 :",
+      "sizePeriod": "サイズ :",
+      "basicIncluded": "標準で含まれるもの"
+    },
+    "contractTitles": {
       "country": "撮影国",
       "videoType": "映像の種類",
       "videoLength": "完成映像の長さ",
@@ -134,16 +155,20 @@
     "sizePlaceholder": "例）横 1200 × 縦 800",
     "totalLabel": "合計金額",
     "payButton": "お支払いへ進む",
-    "groupHints": {
-      "country": "複数選択できます",
-      "posterBillboard": "サイズによって金額が変わる場合があります",
-      "basicIncluded": "以下の項目はすべての商品に含まれます",
-      "videoType": "複数選択できます。選んだ映像ごとに下で長さを決めてください",
-      "videoPairs": "選んだ映像の種類ごとに長さを1つずつ選択してください"
-    },
-    "countryTabs": {
+    "groupHints": {},
+    "countries": {
       "kr": "韓国",
       "jp": "日本"
+    },
+    "posterNote": "*サイズによって金額が変わる場合があります。",
+    "itemDescriptions": {
+      "community-jp-jimoty": "（韓国のタングンマーケットのようなサービス）",
+      "community-jp-mercari": "（韓国の中古マーケットのようなサービス）",
+      "blog-note": "現在日本で最も人気のあるコンテンツプラットフォーム。文章・写真・音声・動画すべてに対応\n主なターゲット：クリエイター、企業、一般ユーザー\n（記事を有料化できる収益化機能が非常に充実しています）",
+      "blog-ameba": "日本最大級、SNSに近い雰囲気のブログ\n主なターゲット：女性、芸能人、ライフスタイル\n（広告・アフィリエイトは制限あり）",
+      "blog-hatena": "執筆・コミュニティ中心。IT、ビジネス、専門知識系コンテンツに強い\n主なターゲット：男性、エンジニア、専門ブロガー\n（SEOに強く、アフィリエイト可能）",
+      "blog-livedoor": "歴史ある無料ブログ。シンプルで使いやすい\n主なターゲット：一般ユーザー、趣味ブログ\n（アフィリエイト可能）",
+      "blog-fc2": "カスタマイズ自由度が高く、容量も大きい\n主なターゲット：アフィリエイト、商用利用\n（アフィリエイト・商用ブログ向け）"
     },
     "basicIncludedItems": [
       "映像企画構成",
@@ -156,8 +181,6 @@
       "完成映像の提供"
     ],
     "shortVideoNote": "10分未満のリール、TikTok、YouTubeショートなどのSNS動画は、1番 デジタル / SNSコミュニティをご利用ください。",
-    "pairTitle": "映像 {n} · {type}",
-    "pairsEmpty": "先に上で映像の種類を選択してください",
     "pairContractLabel": "映像 {n}"
   },
   "inquiry": {
@@ -174,11 +197,10 @@
   },
   "inquiryForm": {
     "intro": "その他の広告は、お問い合わせ内容を確認した担当者がお見積もりをお送りします。お見積もりをご確認のうえお支払いください。",
+    "lead": "ご希望の広告内容を自由にご記入ください",
     "bodyLabel": "ご希望の広告",
     "bodyPlaceholder": "自由にご記入ください",
     "regionLabel": "希望地域",
-    "filesHint": "画像（JPG・PNG・WEBP）・PDF、最大5件・合計4MB",
-    "contactTitle": "ご連絡先",
     "name": "ご担当者名",
     "phone": "連絡先",
     "email": "メールアドレス",
@@ -201,24 +223,22 @@
       "phone": "数字のみ入力してください（例: 09012345678）",
       "summary": "未入力または形式に誤りのある項目が{count}件あります。"
     },
-    "countryTitle": "国",
     "countries": {
       "kr": "韓国",
       "jp": "日本"
     },
-    "bodyTitle": "お問い合わせ内容",
+    "countryAria": "広告対象国",
     "regionPlaceholder": "例）ソウル江南区 / 東京渋谷",
-    "filesDrop": "参考資料をドラッグ＆ドロップするか、クリックして添付してください",
-    "filesButton": "ファイルを添付",
-    "contactHint": "ログイン中の場合は会員情報から自動で入力されます",
+    "filesTitle": "参考資料の添付",
+    "filesButton": "ファイル添付",
     "namePlaceholder": "山田太郎",
     "phonePlaceholder": "090-0000-0000",
     "emailPlaceholder": "name@email.com",
     "consent": "個人情報の収集・利用に同意します",
-    "consentView": "内容を見る",
-    "notice": "その他の広告は決済なしでお問い合わせのみ受け付けます。担当者が確認後、お見積もりを発行し決済リンクをお送りします。"
+    "consentView": "内容を見る"
   },
   "header": {
+    "logo": "アユタ",
     "home": "ホーム",
     "inquiry": "お問い合わせ",
     "login": "ログイン",
@@ -503,7 +523,6 @@
     "stepReview": "注文内容の確認",
     "stepContract": "契約書への同意",
     "stepPay": "お支払い",
-    "ordererHint": "会員ログインすると自動入力されます。会員登録なしでもお支払いいただけます",
     "namePh": "山田太郎",
     "phonePh": "090-0000-0000",
     "emailPh": "name@email.com",
@@ -515,10 +534,7 @@
     "businessNoPh": "個人の方は空欄のままで結構です",
     "ordererNote": "· 上記の情報は契約書の甲（お客様）欄にそのまま記載されます。",
     "reviewTitle": "注文内容の確認",
-    "reviewHint": "修正が必要な場合は前の画面にお戻りください",
-    "serviceLabel": "広告サービス",
     "editSelection": "選択内容を修正する",
-    "contractHint": "内容をご確認のうえ同意してください",
     "viewContent": "内容を見る",
     "payTitle": "お支払い",
     "payCard": "クレジットカード / デビットカード",
@@ -528,6 +544,7 @@
     "errPhone": "数字のみ入力してください（例: 09012345678）",
     "errSummary": "必須項目{count}件をご確認いただくとお支払いいただけます。",
     "errConsents": "必須の同意項目にすべて同意するとお支払いいただけます。",
+    "errConsentRequired": "必須項目(利用規約・個人情報の収集・利用)にすべて同意してください。項目が表示されない場合はページを再読み込みしてから、もう一度お試しください。",
     "contractNeedsOrderer": "ご注文者情報を先にご入力ください。入力内容で契約書が作成されます。"
   },
   "orderComplete": {
@@ -639,21 +656,13 @@
     "mypage": "マイページ"
   },
   "orderPage": {
-    "badge": "広告サービス {n}",
-    "notice": "次の画面でご注文者情報とご注文内容をご確認のうえ、契約書に同意してお支払いいただきます。",
+    "itemsLabel": "商品内容 :",
     "titles": {
-      "digital-sns": "デジタル広告 / SNSコミュニティ",
-      "local-video": "現地専門映像撮影",
-      "press-blog": "全国紙 / 地域紙 / ブログ",
-      "transit": "地下鉄 · バス · 屋外広告",
-      "other": "その他の広告のお問い合わせ"
-    },
-    "descriptions": {
-      "digital-sns": "プラットフォームとグレードを選ぶと、金額がすぐに計算されます。",
-      "local-video": "撮影国と映像の種類・長さを選ぶと、金額が計算されます。",
-      "press-blog": "国別の媒体を選ぶと、金額が計算されます。",
-      "transit": "都市と広告位置・期間を選ぶと、金額が計算されます。",
-      "other": "ご希望の内容をお送りいただければ、担当者がお見積もりを発行いたします。"
+      "digital-sns": "1.デジタル広告 / SNSコミュニティ（複数選択可）",
+      "local-video": "2. 現地専門映像制作・撮影",
+      "press-blog": "3. 紙媒体新聞 / 全国紙 / 地方紙 / ブログ",
+      "transit": "4. 地下鉄 / バス / 屋外広告",
+      "other": "5. その他の広告"
     }
   },
   "account": {
