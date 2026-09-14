@@ -7,7 +7,9 @@ import { BASE, login } from './helpers/server.js'
 
 const RUN = Date.now()
 const PW = 'Ayuta!Test-2026'
-const SLOT = 'category-1'
+// 실제 슬롯(category-1~4)에는 운영에서 쓰는 이미지가 들어 있다 — 지웠다 살리는 왕복을
+// 흉내내지 않고, 카테고리가 4개뿐이라 비어 있는 category-5 로 테스트한다.
+const SLOT = 'category-5'
 const base = { name: '홍길동', phone: '010-0000-0000', postalCode: '00000', address1: '서울시' }
 const userIds: number[] = []
 const tokens: Record<string, string | undefined> = {}
