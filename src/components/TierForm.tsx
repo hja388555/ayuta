@@ -5,7 +5,7 @@ import type { RestoreSelection } from '../lib/order-restore'
 import { useCheckoutGuard, useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { ChoiceCard, ChoiceGrid, TotalBar } from './ui'
+import { ChoiceCard, ChoiceGrid } from './ui'
 import { LegalConsentModal } from './LegalConsentModal'
 import s from './OrderForms.module.css'
 
@@ -238,17 +238,23 @@ export function PaySection({
   const [showTerms, setShowTerms] = useState(false)
   return (
     <div className={s.pay}>
-      {items.length > 0 ? (
-        <div className={s.items} aria-live="polite">
-          <p className={s.itemsLabel}>{itemsLabel}</p>
-          <ul>
-            {items.map((it, i) => (
-              <li key={`${i}-${it}`}>{it}</li>
-            ))}
-          </ul>
+      {/* 상품 내용 + 총액을 브라운 박스 하나로 합쳤다(2026-09-14 4라운드) */}
+      <div className={s.totalBox} aria-live="polite">
+        {items.length > 0 ? (
+          <div className={s.totalItems}>
+            <p className={s.itemsLabel}>{itemsLabel}</p>
+            <ul>
+              {items.map((it, i) => (
+                <li key={`${i}-${it}`}>{it}</li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+        <div className={s.totalRow}>
+          <span className={s.totalRowLabel}>{totalLabel}</span>
+          <span className={s.totalRowAmount}>{amount}</span>
         </div>
-      ) : null}
-      <TotalBar label={totalLabel} amount={amount} />
+      </div>
       {/* 결제 전 이용약관을 미리 볼 수 있게 — 여기서는 보기만, 동의 체크는 없다(2026-09-14 3라운드) */}
       <button type="button" className={s.termsLink} onClick={() => setShowTerms(true)}>
         {termsLink}

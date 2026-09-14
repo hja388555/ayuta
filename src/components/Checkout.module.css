@@ -16,7 +16,7 @@
 /* 섹션 카드 */
 .card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--line-warm); border-radius: var(--radius-xl); background: #fff; }
 .card :global(.step-title) { margin: 0; }
-.card :global(.step-title h2) { font-size: 24px; }
+.card :global(.step-title h2) { font-size: 26px; }
 
 /* 입력 */
 .row { display: grid; gap: 14px; grid-template-columns: repeat(var(--cols, 1), minmax(0, 1fr)); }
@@ -39,9 +39,9 @@
 
 /* 주문 내역 확인 — v3 306:216: 카테고리 제목 → 고른 채널(연함) → 상품명(진함) */
 .summary { padding: 12px 16px; border: 1px solid var(--line-warm); border-radius: var(--radius); background: var(--cream-50); }
-.summaryTitle { margin: 0; font-size: 17px; font-weight: 800; color: var(--brown-900); }
-.summaryLine { margin: 2px 0 0; font-size: 16px; font-weight: 700; color: var(--brown-600); }
-.summaryStrong { margin: 4px 0 0; font-size: 22px; font-weight: 800; color: var(--brown-900); }
+.summaryTitle { margin: 0; font-size: 19px; font-weight: 800; color: var(--brown-900); }
+.summaryLine { margin: 2px 0 0; font-size: 18px; font-weight: 700; color: var(--brown-600); }
+.summaryStrong { margin: 4px 0 0; font-size: 24px; font-weight: 800; color: var(--brown-900); }
 .editLink { font-size: 16px; font-weight: 700; color: var(--brown-900); text-decoration: none; }
 
 /* 동의 행 — .choice 모양을 쓰되 오른쪽에 내용보기 버튼이 붙는다 */
@@ -87,4 +87,8 @@
   .sign { gap: 10px; padding: 12px 16px; font-size: 14px; }
   .signName { min-width: 0; height: 40px; padding: 0 12px; font-size: 16px; }
   .payBtn { height: 60px; font-size: 18px; }
+  .card :global(.step-title h2) { font-size: 24px; }
+  .summaryTitle { font-size: 17px; }
+  .summaryLine { font-size: 16px; }
+  .summaryStrong { font-size: 22px; }
 }
