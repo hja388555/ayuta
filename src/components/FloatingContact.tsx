@@ -1,23 +1,43 @@
+'use client'
+
 import Link from 'next/link'
-import { getTranslations } from 'next-intl/server'
+import { usePathname } from 'next/navigation'
+import { isHeaderHidden } from '../lib/header-visibility'
+
+type ContactLabels = { chat: string; call: string }
 
 /**
- * PC(≥768px) 전용 우측 하단 플로팅 버튼 두 개 — 1:1 채팅 · 전화(큐 클라이언트 4라운드 C).
- * 모바일은 하단 탭바(MobileTabBar)가 같은 기능을 이미 맡고 있어 여기서는 숨긴다(globals.css .floating-contact).
- * 주문 화면 결제 버튼을 가리지 않도록 body 하단 여백(--floating-contact-pad)을 PC 에서만 둔다.
+ * PC(≥768px) 전용 상담 둥근 버튼 두 개 — 1:1 채팅 · 전화(6라운드, 큐 클라이언트 4라운드 C 대체).
+ * 헤더가 있는 화면은 SiteHeader 가 로그인 옆에 바로 넣고(className 없이), 헤더가 없는 1~4번은
+ * `round-contact-fixed` 로 화면 오른쪽 위에 띄운다. 모바일은 하단 탭바가 같은 기능을 맡아
+ * globals.css 의 `.round-contact` 로 숨긴다.
  */
-export async function FloatingContact({ locale, phone }: { locale: string; phone: string }) {
-  const t = await getTranslations('tabs')
+export function RoundContactButtons({
+  locale,
+  phone,
+  labels,
+  className = '',
+}: {
+  locale: string
+  phone: string
+  labels: ContactLabels
+  className?: string
+}) {
   return (
-    <div className="floating-contact">
-      <Link href={`/${locale}/chat`} className="floating-contact-btn floating-contact-chat">
-        <span className="icon-mask" style={{ width: 20, height: 20, ['--icon-url' as string]: "url('/ui/tab-chat.svg')" }} aria-hidden />
-        {t('chat')}
+    <div className={`round-contact ${className}`.trim()}>
+      <Link href={`/${locale}/chat`} className="round-contact-btn round-contact-chat" aria-label={labels.chat}>
+        <span className="icon-mask" style={{ ['--icon-url' as string]: "url('/ui/tab-chat.svg')" }} aria-hidden />
       </Link>
-      <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} className="floating-contact-btn floating-contact-call">
-        <span className="icon-mask" style={{ width: 20, height: 20, ['--icon-url' as string]: "url('/ui/tab-phone.svg')" }} aria-hidden />
-        {phone}
+      <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} className="round-contact-btn round-contact-call" aria-label={labels.call}>
+        <span className="icon-mask" style={{ ['--icon-url' as string]: "url('/ui/tab-phone.svg')" }} aria-hidden />
       </a>
     </div>
   )
+}
+
+/** 헤더가 없는 화면(1~4번, PC)에서만 오른쪽 위에 고정 노출한다(경로 판정: header-visibility) */
+export function FloatingContact({ locale, phone, labels }: { locale: string; phone: string; labels: ContactLabels }) {
+  const pathname = usePathname() ?? `/${locale}`
+  if (!isHeaderHidden(pathname)) return null
+  return <RoundContactButtons locale={locale} phone={phone} labels={labels} className="round-contact-fixed" />
 }

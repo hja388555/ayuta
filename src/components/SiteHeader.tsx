@@ -4,8 +4,19 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import { LoginRequiredModal } from './LoginRequiredModal'
+import { RoundContactButtons } from './FloatingContact'
+import { isHeaderHidden } from '../lib/header-visibility'
 
-type Labels = { logo: string; login: string; signup: string; mypage: string; logout: string; admin: string }
+type Labels = {
+  logo: string
+  login: string
+  signup: string
+  mypage: string
+  logout: string
+  admin: string
+  chat: string
+  call: string
+}
 
 /** 언어만 바꾼 주소. 쿼리(주문 선택·나라·목적)는 그대로 둔다 — 떼면 결제 화면이 404 가 되고 폼 선택이 사라진다 */
 export function localeSwitchHref(pathname: string, search: string, target: string): string {
@@ -50,16 +61,21 @@ export function SiteHeader({
   loggedIn,
   isAdmin,
   labels,
+  phone,
 }: {
   locale: string
   loggedIn: boolean
   isAdmin: boolean
   labels: Labels
+  phone: string
 }) {
   const pathname = usePathname() ?? `/${locale}`
   const router = useRouter()
   const [askLogin, setAskLogin] = useState(false)
   const home = `/${locale}`
+
+  // 1~4번 주문 화면은 헤더 자체를 없앤다(6라운드) — 판정은 header-visibility.ts(단위 테스트 대상)
+  if (isHeaderHidden(pathname)) return null
 
   async function logout() {
     await fetch('/api/users/logout', { method: 'POST' }).catch(() => {})
@@ -81,6 +97,7 @@ export function SiteHeader({
         <LanguageLinksWithQuery locale={locale} pathname={pathname} />
       </Suspense>
       <div className="site-header-right">
+        <RoundContactButtons locale={locale} phone={phone} labels={{ chat: labels.chat, call: labels.call }} />
         <div className="site-auth">
           {loggedIn ? (
             <>

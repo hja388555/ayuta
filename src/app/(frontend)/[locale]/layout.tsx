@@ -63,9 +63,19 @@ export default async function LocaleLayout({
         locale={locale}
         loggedIn={Boolean(user)}
         isAdmin={Boolean(user && isAdminRole(user.role))}
-        labels={{ logo: t('logo'), login: t('login'), signup: t('signup'), mypage: t('mypage'), logout: t('logout'), admin: t('admin') }}
+        labels={{
+          logo: t('logo'),
+          login: t('login'),
+          signup: t('signup'),
+          mypage: t('mypage'),
+          logout: t('logout'),
+          admin: t('admin'),
+          chat: tTabs('chat'),
+          call: tTabs('call'),
+        }}
+        phone={footerInfo.phone}
       />
-      <FloatingContact locale={locale} phone={footerInfo.phone} />
+      <FloatingContact locale={locale} phone={footerInfo.phone} labels={{ chat: tTabs('chat'), call: tTabs('call') }} />
       {children}
       <InstallBanner labels={{ title: tInstall('title'), install: tInstall('install'), close: tInstall('close'), iosHint: tInstall('iosHint') }} />
       <FooterSlot
