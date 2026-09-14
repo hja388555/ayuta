@@ -122,7 +122,6 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   totalLabel: t('totalLabel'),
                   itemsLabel: tPage('itemsLabel'),
                   payButton: t('payButton'),
-                  termsLink: tPage('termsLink'),
                 }}
               />
             ) : def.model.kind === 'videoPairs' && groupFormDef ? (
@@ -142,7 +141,6 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   totalLabel: tGroup('totalLabel'),
                   itemsLabel: tPage('itemsLabel'),
                   payButton: tGroup('payButton'),
-                  termsLink: tPage('termsLink'),
                   basicIncludedItems: tGroup.raw('basicIncludedItems') as string[],
                   shortVideoNote: tGroup('shortVideoNote'),
                 }}
@@ -168,7 +166,6 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   totalLabel: tGroup('totalLabel'),
                   itemsLabel: tPage('itemsLabel'),
                   payButton: tGroup('payButton'),
-                  termsLink: tPage('termsLink'),
                   // 기본 포함 칩 · SNS 영상 안내는 2번(현지 영상 제작)에만 있다 — 선택지가 아니라 안내다
                   basicIncludedItems: def.no === 2 ? (tGroup.raw('basicIncludedItems') as string[]) : undefined,
                   shortVideoNote: def.no === 2 ? tGroup('shortVideoNote') : undefined,

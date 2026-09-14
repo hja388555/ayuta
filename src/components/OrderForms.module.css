@@ -69,12 +69,13 @@
 /* 상품 내용 · 총액 · 결제 — 한 브라운 박스로 합쳤다(4라운드 E) */
 .pay { display: flex; flex-direction: column; gap: 8px; }
 .totalBox { display: flex; flex-direction: column; gap: 10px; padding: 16px 20px; border-radius: var(--radius); background: var(--c-title); color: #fff; }
-.itemsLabel { margin: 0 0 4px; font-size: 16px; font-weight: 700; color: var(--c-sel-bg); }
-.totalItems ul { margin: 0; padding: 0; list-style: none; font-size: 19px; font-weight: 700; line-height: 1.6; color: var(--c-sel-bg); }
+/* 상품 내용 한 줄: 왼쪽 라벨 + 오른쪽 항목(2026-09-14 5라운드) */
+.itemsRow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.itemsLabel { flex: none; margin: 0; font-size: 16px; font-weight: 700; color: var(--c-sel-bg); }
+.itemsValue { margin: 0; font-size: 16px; font-weight: 600; text-align: right; color: var(--c-sel-bg); }
 .totalRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .totalRowLabel { font-size: 17px; color: var(--c-sel-bg); }
 .totalRowAmount { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; color: var(--c-amount); }
-.termsLink { align-self: flex-start; padding: 0; border: 0; background: none; color: var(--c-text2); font-size: 15px; text-decoration: underline; cursor: pointer; }
 .payBtn { height: 60px; font-size: 20px; }
 .payBtn img { display: block; width: 18px; height: 18px; flex: none; }
 
@@ -106,7 +107,7 @@
   :global(:lang(ja)) .tierPick { flex-direction: column; }
   .payBtn { height: 52px; font-size: 17px; }
   .itemsLabel { font-size: 14px; }
-  .totalItems ul { font-size: 17px; }
+  .itemsValue { font-size: 14px; }
   .totalRowLabel { font-size: 15px; }
   .totalRowAmount { font-size: 22px; }
 }
