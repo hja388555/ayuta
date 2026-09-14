@@ -20,7 +20,7 @@ function splitTagline(tagline: string) {
   const marker = tagline.includes('일본') ? '일본' : '日本'
   const idx = tagline.indexOf(marker)
   if (idx <= 0) return { head: tagline, tail: '' }
-  return { head: tagline.slice(0, idx).trimEnd(), tail: tagline.slice(idx) }
+  return { head: tagline.slice(0, idx), tail: tagline.slice(idx) }
 }
 
 // 표지는 상태가 없는 서버 컴포넌트다. v2 디자인(큐 Q32, Figma [v2] 205:2 / 207:2).
