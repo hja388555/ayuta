@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteHeader } from '@/components/SiteHeader'
+import { FloatingContact } from '@/components/FloatingContact'
 import { SiteFooter } from '@/components/SiteFooter'
 import { InstallBanner } from '@/components/InstallBanner'
 import { MobileTabBar } from '@/components/MobileTabBar'
@@ -62,9 +63,9 @@ export default async function LocaleLayout({
         locale={locale}
         loggedIn={Boolean(user)}
         isAdmin={Boolean(user && isAdminRole(user.role))}
-        phone={footerInfo.phone}
-        labels={{ logo: t('logo'), home: t('home'), inquiry: t('inquiry'), login: t('login'), signup: t('signup'), mypage: t('mypage'), logout: t('logout'), admin: t('admin') }}
+        labels={{ logo: t('logo'), login: t('login'), signup: t('signup'), logout: t('logout'), admin: t('admin') }}
       />
+      <FloatingContact locale={locale} phone={footerInfo.phone} />
       {children}
       <InstallBanner labels={{ title: tInstall('title'), install: tInstall('install'), close: tInstall('close'), iosHint: tInstall('iosHint') }} />
       <SiteFooter
