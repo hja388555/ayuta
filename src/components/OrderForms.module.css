@@ -4,13 +4,13 @@
 .bodyWide { gap: 40px; }
 
 /* 3·4번 나라 체크 행 아래 구분선(2026-09-14 3라운드) */
-.countryDivider { margin: 20px 0; border: 0; border-top: 1px solid var(--c-line); }
-.title { margin: 0; font-size: 30px; font-weight: 800; line-height: 1.35; color: var(--c-title); }
+.countryDivider { margin: 88px 0; border: 0; border-top: 1px solid var(--c-line); }
+.title { margin: 0; font-size: 48px; font-weight: 800; line-height: 1.3; color: var(--c-title); }
 .titleParen { white-space: nowrap; }
 .step > :global(.step-title) { margin-bottom: 20px; }
 
 /* 한국/일본 나라 열(3·4번) */
-.countryCols { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.countryCols { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
 .countryCol { display: grid; gap: 8px; align-content: start; }
 .oneCol :global(.choice-grid) { grid-template-columns: 1fr 1fr; }
 .desc { display: block; margin: 2px 0 4px; white-space: pre-line; font-size: 13px; font-weight: 500; color: var(--c-text2); }
@@ -26,12 +26,12 @@
 
 /* 금액이 붙는 행 — 오른쪽 끝에 금액 */
 .rows { display: flex; flex-direction: column; gap: 12px; }
-.rows :global(.choice) { min-height: 62px; padding: 0 18px; font-size: 18px; }
+.rows :global(.choice) { min-height: 62px; padding: 0 18px; font-size: 32px; }
 .rows :global(.choice) > span:last-child { flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 12px; min-width: 0; }
-.price { flex: none; color: var(--ink-500); font-weight: 700; white-space: nowrap; }
+.price { flex: none; font-size: 30px; color: var(--ink-500); font-weight: 700; white-space: nowrap; }
 .rows :global(.choice):has(input:checked) .price { color: var(--brand-600); }
 
-.grid :global(.choice) { min-height: 60px; padding: 0 18px; font-size: 18px; }
+.grid :global(.choice) { min-height: 60px; padding: 0 18px; font-size: 32px; }
 .grid :global(.choice-grid) { gap: 24px; }
 .platforms :global(.choice) { min-height: 64px; }
 
@@ -49,21 +49,21 @@
 
 /* 등급 비교표 (01) */
 .tableWrap { overflow-x: auto; border: 1px solid var(--c-title); border-radius: var(--radius); }
-.table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 17px; line-height: 1.5; color: var(--c-title); font-weight: 700; }
+.table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 26px; line-height: 1.4; color: var(--c-title); font-weight: 700; }
 .table col:first-child { width: 40%; }
 .table th, .table td { padding: 16px; text-align: center; border-top: 1px solid var(--c-line); }
-.table thead th { padding: 18px 16px; border-top: 0; background: var(--c-sum-bg); color: var(--c-title); font-size: 18px; }
+.table thead th { padding: 18px 16px; border-top: 0; background: var(--c-sum-bg); color: var(--c-title); font-size: 26px; }
 .table th:first-child, .table td:first-child { padding-left: 20px; text-align: left; }
-.table thead th:first-child { color: var(--c-title); font-size: 17px; }
-.table .on { background: var(--c-sel-bg); color: var(--c-title); }
+.table thead th:first-child { color: var(--c-title); font-size: 25px; }
+.table .on { background: var(--c-sel-bg); color: var(--c-title); box-shadow: inset 0 0 0 1.6px var(--c-title); }
 .table thead th.on { background: var(--c-amount); color: var(--c-title); }
-.priceRow td { padding-block: 20px; color: var(--c-title); font-size: 19px; font-weight: 700; }
-.priceRow td:first-child { font-size: 18px; }
+.priceRow td { padding-block: 20px; color: var(--c-title); font-size: 27px; font-weight: 700; }
+.priceRow td:first-child { font-size: 26px; }
 .priceRow td.on { color: var(--c-title); }
 .tierPick { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 .tierPick input { position: absolute; opacity: 0; pointer-events: none; }
-.tierBox { flex: none; width: 18px; height: 18px; border: 1.6px solid var(--c-text2); border-radius: 6px; background: #fff; }
-.tierPick input:checked + .tierBox { border-color: var(--c-primary); background: var(--c-primary) url('/ui/check.svg') center / 12px 12px no-repeat; }
+.tierBox { flex: none; width: 24px; height: 24px; border: 2px solid var(--c-text2); border-radius: 6px; background: #fff; }
+.tierPick input:checked + .tierBox { border-color: var(--c-primary); background: var(--c-primary) url('/ui/check.svg') center / 16px 16px no-repeat; }
 .tierPick:has(input:focus-visible) { outline: 2px solid currentColor; outline-offset: 2px; }
 
 /* 상품 내용 · 총액 · 결제 — 한 브라운 박스로 합쳤다(4라운드 E) */
@@ -77,7 +77,7 @@
 .totalRowLabel { font-size: 17px; color: var(--c-sel-bg); }
 .totalRowAmount { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; color: var(--c-amount); }
 .payBtn { height: 60px; font-size: 20px; }
-.payBtn img { display: block; width: 18px; height: 18px; flex: none; }
+.payBtn img { display: block; width: 24px; height: 24px; flex: none; }
 
 /* 2번 기본 포함 · 안내 — Figma 303:188 Mobile · 303:60 PC */
 .chips2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
@@ -87,10 +87,14 @@
 @media (max-width: 767px) {
   .body { gap: 24px; padding: 20px 16px 32px; }
   .bodyWide { gap: 32px; }
-  .countryDivider { margin: 20px 0; }
+  .countryDivider { margin: 48px 0; }
+  .countryCols { gap: 32px; }
   .title { font-size: 20px; }
   .rows { gap: 10px; }
-  .rows :global(.choice), .grid :global(.choice) { min-height: 56px; padding: 0 16px; font-size: 15px; }
+  .rows :global(.choice), .grid :global(.choice) { min-height: 56px; padding: 0 16px; font-size: 20px; font-weight: 800; }
+  /* 모바일은 이름 아래 금액(4번 항목 한 줄은 PC 전용) */
+  .rows :global(.choice) > span:last-child { display: block; }
+  .price { display: block; font-size: 17px; }
   .oneCol :global(.choice-grid) { grid-template-columns: 1fr; }
   .grid :global(.choice-grid) { gap: 16px; }
   .chip { font-size: 13px; padding: 8px 12px; }
