@@ -6,6 +6,7 @@ import { useCheckoutGuard, useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import { ChoiceCard, ChoiceGrid, TotalBar } from './ui'
+import { LegalConsentModal } from './LegalConsentModal'
 import s from './OrderForms.module.css'
 
 const PLATFORMS = ['instagram', 'youtube', 'tiktok', 'line'] as const
@@ -95,6 +96,7 @@ type Props = {
     totalLabel: string
     itemsLabel: string
     payButton: string
+    termsLink: string
   }
 }
 
@@ -197,11 +199,13 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
       </section>
 
       <PaySection
+        locale={locale}
         totalLabel={labels.totalLabel}
         itemsLabel={labels.itemsLabel}
         items={items}
         amount={formatAmount(total, book.currency)}
         payButton={labels.payButton}
+        termsLink={labels.termsLink}
         disabled={!canPay || pending}
         onPay={goToPayment}
       />
@@ -209,24 +213,29 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
   )
 }
 
-/** 상품 내용 목록 + 총액 바 + 결제 버튼. 01~04 가 같은 모양이다 */
+/** 상품 내용 목록 + 총액 바 + [이용약관] + 결제 버튼. 01~04 가 같은 모양이다 */
 export function PaySection({
+  locale,
   totalLabel,
   itemsLabel,
   items,
   amount,
   payButton,
+  termsLink,
   disabled,
   onPay,
 }: {
+  locale: string
   totalLabel: string
   itemsLabel: string
   items: string[]
   amount: string
   payButton: string
+  termsLink: string
   disabled: boolean
   onPay: () => void
 }) {
+  const [showTerms, setShowTerms] = useState(false)
   return (
     <div className={s.pay}>
       {items.length > 0 ? (
@@ -240,10 +249,15 @@ export function PaySection({
         </div>
       ) : null}
       <TotalBar label={totalLabel} amount={amount} />
+      {/* 결제 전 이용약관을 미리 볼 수 있게 — 여기서는 보기만, 동의 체크는 없다(2026-09-14 3라운드) */}
+      <button type="button" className={s.termsLink} onClick={() => setShowTerms(true)}>
+        {termsLink}
+      </button>
       <button type="button" className={`btn btn-primary btn-block ${s.payBtn}`} disabled={disabled} onClick={onPay}>
         {payButton}
         <img src="/ui/chevron.svg" alt="" width={18} height={18} />
       </button>
+      {showTerms ? <LegalConsentModal kind="terms" locale={locale} onClose={() => setShowTerms(false)} onAgree={() => {}} /> : null}
     </div>
   )
 }
