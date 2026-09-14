@@ -3,7 +3,7 @@ import { NextIntlClientProvider } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteHeader } from '@/components/SiteHeader'
 import { FloatingContact } from '@/components/FloatingContact'
-import { SiteFooter } from '@/components/SiteFooter'
+import { FooterSlot } from '@/components/FooterSlot'
 import { InstallBanner } from '@/components/InstallBanner'
 import { MobileTabBar } from '@/components/MobileTabBar'
 import { loadFooterInfo } from '@/lib/company-settings'
@@ -68,7 +68,8 @@ export default async function LocaleLayout({
       <FloatingContact locale={locale} phone={footerInfo.phone} />
       {children}
       <InstallBanner labels={{ title: tInstall('title'), install: tInstall('install'), close: tInstall('close'), iosHint: tInstall('iosHint') }} />
-      <SiteFooter
+      <FooterSlot
+        locale={locale}
         info={footerInfo}
         labels={{ businessNo: tFooter('businessNo'), phone: tFooter('phone'), ceo: tFooter('ceo'), contact: tFooter('contact'), mailOrder: tFooter('mailOrder') }}
         legal={{ terms: { href: `/${locale}/terms`, label: tFooter('terms') }, privacy: { href: `/${locale}/privacy`, label: tFooter('privacy') }, refund: { href: `/${locale}/refund`, label: tFooter('refund') } }}

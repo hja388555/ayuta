@@ -414,7 +414,6 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
           <span className={s.signText}>{labels.signatureLabel}</span>
           <span className={s.signName}>{signature || '—'}</span>
         </div>
-        <p className={s.caption}>{labels.signatureNote}</p>
       </section>
 
       {/* 빈칸이 채워진 상태를 그대로 보여준다 — createOrder가 실제로 저장할 것과 같은 텍스트다.
@@ -433,7 +432,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
       />
       <LegalConsentModal kind={viewDoc} locale={locale} onClose={() => setViewDoc(null)} onAgree={(k) => setChecked((prev) => ({ ...prev, [k]: true }))} />
 
-      <section className={s.card} aria-labelledby="co-pay">
+      <section className={`${s.card} ${s.payCard}`} aria-labelledby="co-pay">
         <StepTitle id="co-pay" title={labels.payTitle} />
         {/* 결제수단은 지금 카드 하나뿐이다. PortOne 연동 전이라 선택값은 서버로 보내지 않는다 */}
         <div className={s.pay}>
@@ -456,7 +455,6 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         >
           {submitting ? labels.submitting : labels.payButton.replace('{amount}', formatAmount(amount, currency))}
         </button>
-        {!canPay ? <p className={s.reason}>{errorCount > 0 ? summary : labels.errConsents}</p> : null}
         {error ? (
           <p className={s.serverError} role="alert">
             {error}

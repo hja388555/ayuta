@@ -60,14 +60,14 @@
 .signText { flex: 1; min-width: 0; }
 .signName { flex: none; display: flex; align-items: center; justify-content: center; min-width: 83px; height: 46px; padding: 0 18px; border-radius: var(--radius); background: var(--surface); color: var(--ink-400); font-size: 18px; font-weight: 700; }
 .signOn .signName { color: var(--c-title); }
-.caption { margin: -8px 0 0; font-size: 14px; line-height: 1.5; color: var(--ink-500); }
+/* 결제수단 카드를 계약서 동의 카드 바로 아래로 붙인다(2026-09-14 5라운드) */
+.payCard { margin-top: -24px; }
 
 /* 결제수단 — 시안은 원형 체크 */
 .pay :global(.choice-box) { border-radius: 999px; }
 .payOption { display: flex; align-items: center; gap: 12px; }
 .payOption img { width: 20px; height: 20px; }
 .payBtn { height: 60px; border-radius: var(--radius-lg); font-size: 20px; }
-.reason { margin: 12px 0 0; text-align: center; font-size: 14px; line-height: 1.5; color: var(--ink-500); }
 .serverError { margin: 12px 0 0; text-align: center; font-size: 15px; font-weight: 700; color: var(--danger-600); }
 .contractText { margin: 0; white-space: pre-wrap; font-family: inherit; font-size: 15px; line-height: 1.7; }
 
