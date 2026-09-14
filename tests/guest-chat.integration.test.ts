@@ -310,11 +310,11 @@ describe('회원 채팅 · 진입점', () => {
     await expect(payload.create({ collection: 'chat-threads', data: { locale: 'ko', status: 'open', unreadForAdmin: 0, unreadForCustomer: 0 }, overrideAccess: true })).rejects.toThrow()
   })
 
-  it('비회원 헤더·탭바의 채팅 버튼이 /chat 을 바로 가리킨다(로그인 팝업 없음)', async () => {
+  it('비회원 PC 플로팅 버튼·모바일 탭바의 채팅 버튼이 /chat 을 바로 가리킨다(로그인 팝업 없음, 4라운드부터 헤더 메뉴는 없다)', async () => {
     for (const locale of ['ko', 'ja'] as const) {
       const html = await (await api(`/${locale}`)).text()
-      const nav = html.slice(html.indexOf('class="site-nav"'), html.indexOf('</nav>', html.indexOf('class="site-nav"')))
-      expect(nav).toContain(`href="/${locale}/chat"`)
+      const floating = html.slice(html.indexOf('class="floating-contact"'))
+      expect(floating).toContain(`href="/${locale}/chat"`)
       const tabbar = html.slice(html.indexOf('class="tabbar"'))
       expect(tabbar).toContain(`href="/${locale}/chat"`)
     }
