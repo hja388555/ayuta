@@ -148,11 +148,13 @@ body {
 .choice-sub { display: block; margin-top: 2px; font-size: 15px; font-weight: 800; color: var(--c-text2); }
 .cover-steps .choice-sub { font-size: 14px; font-weight: 500; }
 
-/* 표지 손스케치 히어로 — 주황 타원 로고 + 헤드라인 + 태그라인(v3) */
-.cover-brand { display: flex; align-items: center; gap: 16px; padding-top: 32px; }
+/* 표지 손스케치 히어로 — 타원 로고 + 오른쪽 세로 정렬 문구(로고 높이 기준 가운데, 5차 피드백 #20) */
+.cover-brand { display: flex; align-items: center; gap: 16px; padding-top: 32px; padding-bottom: 24px; }
 .cover-logo { display: inline-flex; align-items: center; justify-content: center; width: 200px; height: 120px; border-radius: 50%; background: var(--c-primary); color: #fff; font-size: 44px; font-weight: 800; }
+.cover-text { display: flex; flex-direction: column; justify-content: center; gap: 8px; }
 .cover-headline { margin: 0; font-size: 44px; font-weight: 800; color: var(--c-title); }
-.cover-tagline { margin: 20px 0 0; font-size: 34px; font-weight: 700; color: var(--c-title); }
+.cover-tagline { margin: 0; font-size: 34px; font-weight: 700; color: var(--c-title); white-space: nowrap; }
+.cover-tagline-break { display: none; }
 
 /* PC 본문 폭 960 — 메인·주문·결제 공통 */
 .v3-body { max-width: 960px; margin-inline: auto; }
@@ -233,7 +235,8 @@ body {
   body { padding-bottom: var(--tabbar-h); }
   .cover-logo { width: 112px; height: 68px; font-size: 26px; }
   .cover-headline { font-size: 24px; }
-  .cover-tagline { font-size: 20px; }
+  .cover-tagline { font-size: 20px; white-space: normal; }
+  .cover-tagline-break { display: inline; }
   .cover-body { padding: 24px 0 40px; }
   .cover-steps { gap: 24px; }
   .site-header-right { gap: 8px; }
