@@ -261,7 +261,7 @@ export function PaySection({
       </button>
       <button type="button" className={`btn btn-primary btn-block ${s.payBtn}`} disabled={disabled} onClick={onPay}>
         {payButton}
-        <img src="/ui/chevron.svg" alt="" width={18} height={18} />
+        <span className="icon-mask" style={{ width: 18, height: 18, ['--icon-url' as string]: "url('/ui/chevron.svg')" }} aria-hidden />
       </button>
       {showTerms ? <LegalConsentModal kind="terms" locale={locale} onClose={() => setShowTerms(false)} onAgree={() => {}} /> : null}
     </div>

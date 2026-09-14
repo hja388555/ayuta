@@ -22,7 +22,14 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
   const chat = `${home}/chat`
   const mypage = `${home}/mypage`
   const isAt = (href: string, exact = false) => (exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`))
-  const icon = (name: string, active: boolean) => `/ui/tab-${name}${active ? '-active' : ''}.svg`
+  // 아이콘 색은 currentColor 마스크로 그려 탭 색(비선택/선택)을 그대로 따라간다
+  const tabIcon = (name: string) => (
+    <span
+      className="icon-mask"
+      style={{ width: 24, height: 24, ['--icon-url' as string]: `url(/ui/tab-${name}.svg)` }}
+      aria-hidden
+    />
+  )
 
   if (pathname !== home) {
     return (
@@ -43,15 +50,15 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
   return (
     <nav className="tabbar" aria-label="Menu">
       <Link href={home} aria-current={onHome ? 'page' : undefined}>
-        <img src={icon('home', onHome)} alt="" width={24} height={24} />
+        {tabIcon('home')}
         {labels.home}
       </Link>
       <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>
-        <img src={icon('phone', false)} alt="" width={24} height={24} />
+        {tabIcon('phone')}
         {labels.call}
       </a>
       <Link href={chat} aria-current={onChat ? 'page' : undefined}>
-        <img src={icon('chat', onChat)} alt="" width={24} height={24} />
+        {tabIcon('chat')}
         {labels.chat}
       </Link>
       <Link
@@ -63,7 +70,7 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
           setAskLogin(true)
         }}
       >
-        <img src={icon('user', onMypage)} alt="" width={24} height={24} />
+        {tabIcon('user')}
         {labels.mypage}
       </Link>
       <LoginRequiredModal locale={locale} open={askLogin} onClose={() => setAskLogin(false)} />

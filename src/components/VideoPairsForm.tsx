@@ -178,7 +178,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
         <ul className={s.chips2}>
           {labels.basicIncludedItems.map((c, i) => (
             <li key={`${i}-${c}`} className={s.chip2}>
-              <img src="/ui/check-chip.svg" alt="" width={16} height={16} />
+              <span className="icon-mask" style={{ width: 16, height: 16, ['--icon-url' as string]: "url('/ui/check-chip.svg')" }} aria-hidden />
               {c}
             </li>
           ))}

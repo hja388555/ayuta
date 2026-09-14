@@ -462,7 +462,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
           <ul className={s.chips} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {labels.basicIncludedItems.map((c, i) => (
               <li key={`${i}-${c}`} className={s.chip}>
-                <img src="/ui/check-chip.svg" alt="" width={16} height={16} />
+                <span className="icon-mask" style={{ width: 16, height: 16, ['--icon-url' as string]: "url('/ui/check-chip.svg')" }} aria-hidden />
                 {c}
               </li>
             ))}

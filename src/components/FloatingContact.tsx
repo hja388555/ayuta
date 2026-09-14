@@ -11,11 +11,11 @@ export async function FloatingContact({ locale, phone }: { locale: string; phone
   return (
     <div className="floating-contact">
       <Link href={`/${locale}/chat`} className="floating-contact-btn floating-contact-chat">
-        <img src="/ui/tab-chat.svg" alt="" width={20} height={20} />
+        <span className="icon-mask" style={{ width: 20, height: 20, ['--icon-url' as string]: "url('/ui/tab-chat.svg')" }} aria-hidden />
         {t('chat')}
       </Link>
       <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} className="floating-contact-btn floating-contact-call">
-        <img src="/ui/tab-phone.svg" alt="" width={20} height={20} />
+        <span className="icon-mask" style={{ width: 20, height: 20, ['--icon-url' as string]: "url('/ui/tab-phone.svg')" }} aria-hidden />
         {phone}
       </a>
     </div>
