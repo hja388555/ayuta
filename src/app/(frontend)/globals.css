@@ -359,3 +359,8 @@ body {
   .cover-steps { gap: 48px; }
   .cover-steps > section:first-child { margin-bottom: 0; }
 }
+@media (max-width: 767px) {
+  /* 두 줄짜리 칸에서도 체크박스를 칸 높이 가운데로(2026-09-16 사용자) */
+  .choice { align-items: center; }
+  .choice .choice-box { margin-top: 0; }
+}
