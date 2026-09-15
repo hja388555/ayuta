@@ -12,7 +12,8 @@
       "kr": "한국"
     },
     "countryNotes": {
-      "jp": "(일본 현지 광고)"
+      "jp": "(일본 현지 광고)",
+      "kr": "(한국 현지 촬영)"
     },
     "purposes": {
       "brand": "브랜드 회사 홍보",
@@ -116,7 +117,8 @@
       "busSpot": "버스 광고위치 선택",
       "period": "광고 기간 :",
       "sizePeriod": "사이즈 :",
-      "basicIncluded": "기본 포함"
+      "basicIncluded": "기본 포함",
+      "sizeSpec": "사이즈 규격 :"
     },
     "contractTitles": {
       "country": "촬영 국가",
@@ -134,7 +136,8 @@
       "period": "광고 기간",
       "sizePeriod": "사이즈 · 광고 기간",
       "basicIncluded": "기본 포함",
-      "videoPairs": "영상별 완성 길이"
+      "videoPairs": "영상별 완성 길이",
+      "sizeSpec": "사이즈 규격"
     },
     "itemLabels": {
       "country-kr": "한국 현지 촬영",
@@ -165,9 +168,7 @@
       "blog-ameba": "일본 최대 규모, SNS 느낌이 강한 블로그\n주요타겟: 여성, 연예인, 라이프스타일\n(광고, 어필리에이트 제한적)",
       "blog-hatena": "글쓰기, 커뮤니티 중심, IT, 비즈니스, 지식 콘텐츠에 강함\n주요타겟: 남성, 엔지니어, 전문 블로거\n(SEO 강하고 어필리에이트 가능)",
       "blog-livedoor": "오래된 무료 블로그, 심플하고 접근성 좋음\n주요타겟: 일반인, 취미 블로그\n(어필리에이트 가능)",
-      "blog-fc2": "커스터마이즈 자유도 높고 용량큼\n주요타겟: 어필리에이트, 상업용\n(제휴 마케팅, 상업용 블로그)",
-      "community-jp-jimoty": "(한국의 당근마켓 같은 서비스)",
-      "community-jp-mercari": "(한국의 중고마켓 같은 서비스)"
+      "blog-fc2": "커스터마이즈 자유도 높고 용량큼\n주요타겟: 어필리에이트, 상업용\n(제휴 마케팅, 상업용 블로그)"
     },
     "basicIncludedItems": [
       "영상 기획 구성",
@@ -238,8 +239,6 @@
   },
   "header": {
     "logo": "아유타",
-    "home": "홈",
-    "inquiry": "1:1 문의",
     "login": "로그인",
     "signup": "회원가입",
     "mypage": "마이페이지",
@@ -511,7 +510,6 @@
     "contractTitle": "계약서 동의",
     "viewContract": "계약서보기",
     "signatureLabel": "위 계약 내용에 동의하며 아래 이름으로 전자서명합니다.",
-    "signatureNote": "· 필수 항목에 모두 동의하시면 주문자명이 계약서 전자서명란에 자동으로 기입됩니다. 계약일은 결제하시는 날짜로 기록됩니다.",
     "payButton": "{amount} 결제하기",
     "submitting": "처리 중...",
     "errorGeneric": "주문을 만들지 못했습니다. 잠시 후 다시 시도해 주세요.",
@@ -542,7 +540,6 @@
     "errEmail": "올바른 이메일 주소를 입력해 주세요",
     "errPhone": "숫자만 입력해 주세요 (예: 01012345678)",
     "errSummary": "필수 항목 {count}개를 확인하셔야 결제하실 수 있습니다.",
-    "errConsents": "필수 동의 항목에 모두 동의하셔야 결제하실 수 있습니다.",
     "errConsentRequired": "필수 항목(이용약관·개인정보 수집·이용)에 모두 동의해 주세요. 항목이 보이지 않는다면 새로고침 후 다시 시도해 주세요.",
     "contractNeedsOrderer": "주문자 정보를 먼저 입력해 주세요. 입력한 정보로 계약서가 작성됩니다."
   },
@@ -643,16 +640,13 @@
     "agreePrivacy": "개인정보 수집·이용에 동의합니다.",
     "agreeRefund": "취소·환불 조건을 확인하고 동의합니다."
   },
-  "contact": {
-    "title": "궁금한 점이 있으신가요?",
-    "hours": "평일 09:00 ~ 18:00 · 점심 12:00 ~ 13:00 · 주말 · 공휴일 휴무",
-    "chat": "1:1 채팅 문의"
-  },
   "tabs": {
     "home": "홈",
     "call": "상담전화",
     "chat": "1:1 채팅",
-    "mypage": "마이페이지"
+    "mypage": "마이페이지",
+    "back": "‹ 이전",
+    "next": "다음 ›"
   },
   "orderPage": {
     "itemsLabel": "상품 내용 :",

@@ -10,7 +10,7 @@ export function ChatFrame({ title, badge, notices, children }: { title: string; 
       <div className={s.head}>
         <h1 className={s.title}>{title}</h1>
         <span className={s.badge}>
-          <img src="/ui/chat-globe.svg" alt="" width={16} height={16} />
+          <span className="icon-mask" style={{ width: 16, height: 16, ['--icon-url' as string]: "url('/ui/chat-globe.svg')" }} aria-hidden />
           {badge}
         </span>
       </div>

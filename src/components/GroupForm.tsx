@@ -16,9 +16,28 @@ import s from './OrderForms.module.css'
  * country 처럼 priced:false 인 항목은 계산기에 보내면 "단가 없음"으로
  * 통째로 거부된다 — 계산에 들어갈 항목과 주문 메모에만 실릴 항목을 여기서 갈라야 한다.
  */
+/** 4번 사이즈 규격 5칸을 위한 가짜 그룹키 — form.groups 밖에 있어 이 키로 selections 를 담는다 */
+export const SIZE_SPEC_GROUP_KEY = 'sizeSpec'
+
+function sizeSpecGroup(form: CategoryForm): GroupDef | null {
+  if (!form.sizeSpecs || form.sizeSpecs.length === 0) return null
+  return { key: SIZE_SPEC_GROUP_KEY, multi: true, items: form.sizeSpecs.map((s) => ({ key: s.key, priced: true })) }
+}
+
+/**
+ * 사이즈 규격 5칸 중 실제로 화면에 보일 칸 — 단가표에 있고(active) 그 언어 라벨이
+ * 빈 칸이 아닌 것만. 관리자가 아직 이름·단가를 안 정한 칸은 빈 섹션 제목 없이 아예 안 보인다.
+ */
+export function configuredSizeSpecs(form: CategoryForm, book: PriceBook): ItemDef[] {
+  const group = sizeSpecGroup(form)
+  if (!group) return []
+  return group.items.filter((item) => (book.entries[item.key]?.label ?? '').trim().length > 0)
+}
+
 export function pricedKeys(form: CategoryForm, selections: Readonly<Record<string, readonly string[]>>): string[] {
   const result: string[] = []
-  for (const group of form.groups) {
+  const groups = [...form.groups, ...(sizeSpecGroup(form) ? [sizeSpecGroup(form)!] : [])]
+  for (const group of groups) {
     const chosen = selections[group.key] ?? []
     for (const key of chosen) {
       const item = group.items.find((i) => i.key === key)
@@ -129,9 +148,12 @@ export function dropOtherCountries(
   countries: readonly CountryTab[],
 ): Record<string, string[]> {
   if (!form.countryTabs) return { ...selections } as Record<string, string[]>
-  const allowed = new Set(
-    form.groups.flatMap((g) => g.items.filter((i) => !i.country || countries.includes(i.country)).map((i) => i.key)),
-  )
+  // 사이즈 규격 5칸(sizeSpec)은 나라 개념이 없다 — 항상 남겨야 restore 때 사라지지 않는다
+  const sizeSpecKeys = (form.sizeSpecs ?? []).map((s) => s.key)
+  const allowed = new Set([
+    ...form.groups.flatMap((g) => g.items.filter((i) => !i.country || countries.includes(i.country)).map((i) => i.key)),
+    ...sizeSpecKeys,
+  ])
   const out: Record<string, string[]> = {}
   for (const [k, v] of Object.entries(selections)) out[k] = v.filter((key) => allowed.has(key))
   return out
@@ -211,7 +233,8 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
     return Object.keys(restored).length > 0 ? { ...initialSelections(form, country), ...restored } : initialSelections(form, country)
   })
   const [period, setPeriod] = useState<string | undefined>(() => (restore?.period && form.periods?.includes(restore.period) ? restore.period : undefined))
-  const [size, setSize] = useState(() => (restore?.size ?? '').slice(0, form.freeText?.[0]?.maxLength ?? 0))
+  // 사이즈 자유 입력칸은 없앴다(6라운드) — 관리자 규격(sizeSpec) 선택만 받는다. size 쿼리는 남아 있어도 서버가 무시한다
+  const size = ''
 
   const priced = useMemo(() => pricedKeys(form, selections), [form, selections])
   const total = useMemo(() => previewGroupTotal(book, model, priced, period), [book, model, priced, period])
@@ -225,6 +248,9 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
       const next = nextSelection(group, current, key)
       return { ...prev, [group.key]: next }
     })
+    // 나라 열은 항상 둘 다 보인다 — 체크 안 한 나라의 항목을 고르면 그 나라도 함께 체크한다(서버는 고른 나라 안의 항목만 계산)
+    const itemCountry = group.items.find((i) => i.key === key)?.country
+    if (form.countryTabs && itemCountry && !countries.includes(itemCountry)) setCountries((prev) => [...prev, itemCountry])
   }
 
   function onToggleCountry(c: CountryTab) {
@@ -269,6 +295,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
           ))}
         </ChoiceGrid>
       )}
+      {form.countryTabs && <hr className={s.countryDivider} />}
 
       {form.groups.map((group) => {
         const id = `group-${group.key}`
@@ -276,8 +303,14 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
 
         // 3·4번(한국/일본 체크)만 나라 열 레이아웃을 쓴다 — 2번은 기존 레이아웃 그대로
         if (form.countryTabs) {
-          const cols = countryColumns(group, countries)
+          const cols = countryColumns(group, ['kr', 'jp'])
           if (cols.length === 0) return null
+          const head = (col: (typeof cols)[number]) =>
+            col.country ? (
+              <p key={`head-${col.country}`} className={s.countryHead}>
+                {labels.countries[col.country]}
+              </p>
+            ) : null
           const card = (item: ItemDef) => {
             const desc = labels.itemDescriptions?.[item.key]
             const price = priceText(item, group.key)
@@ -307,16 +340,18 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
             ? cols[0]!.items.flatMap((_, i) => cols.map((col) => col.items[i]!))
             : null
           return (
-            <section key={group.key} className={s.step}>
+            <section key={group.key} className={s.step} data-group={group.key}>
               <StepTitle id={id} title={labels.groupTitles[group.key] ?? group.key} hint={labels.groupHints[group.key]} />
               {interleaved ? (
-                <ChoiceGrid cols={cols.length} labelledBy={id}>
+                <ChoiceGrid cols={cols.length} labelledBy={id} className={s.countrySplit}>
+                  {cols.map(head)}
                   {interleaved.map(card)}
                 </ChoiceGrid>
               ) : cols.length > 1 ? (
-                <div className={s.countryCols} role="group" aria-labelledby={id}>
+                <div className={`${s.countryCols} ${s.countrySplit}`} role="group" aria-labelledby={id}>
                   {cols.map((col) => (
                     <div key={col.country} className={s.countryCol}>
+                      {head(col)}
                       {col.items.map(card)}
                     </div>
                   ))}
@@ -335,7 +370,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
 
         const cards = CARD_GROUPS.has(group.key)
         return (
-          <section key={group.key} className={`${s.step} ${cards ? s.grid : ''}`}>
+          <section key={group.key} className={`${s.step} ${cards ? s.grid : ''}`} data-group={group.key}>
             <StepTitle id={id} title={labels.groupTitles[group.key] ?? group.key} hint={labels.groupHints[group.key]} />
             {cards ? (
               <ChoiceGrid cols={group.key === 'country' ? 2 : 3} labelledBy={id}>
@@ -374,24 +409,28 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
         )
       })}
 
-      {form.freeText && (
-        <section className={`${s.step} ${s.grid}`}>
-          <StepTitle id="group-size" title={labels.groupTitles.sizePeriod ?? labels.sizeLabel} />
-          {form.freeText.map((t) => (
-            <div key={t.key} className={s.field}>
-              <label htmlFor={`free-${t.key}`} className={s.srOnly}>{labels.sizeLabel}</label>
-              <input
-                id={`free-${t.key}`}
-                type="text"
-                value={size}
-                maxLength={t.maxLength}
-                placeholder={labels.sizePlaceholder}
-                onChange={(e) => setSize(e.target.value)}
-              />
+      {(() => {
+        const configured = configuredSizeSpecs(form, book)
+        if (configured.length === 0) return null
+        const group: GroupDef = { key: SIZE_SPEC_GROUP_KEY, multi: true, items: configured }
+        const chosen = selections[group.key] ?? []
+        return (
+          <section className={s.step} data-group="sizeSpec">
+            <StepTitle id="group-sizeSpec" title={labels.groupTitles.sizeSpec ?? ''} />
+            <div className={s.rows} role="group" aria-labelledby="group-sizeSpec">
+              {configured.map((item) => {
+                const entry = book.entries[item.key]!
+                return (
+                  <ChoiceCard key={item.key} type="checkbox" checked={chosen.includes(item.key)} onClick={() => pick(group, item.key)}>
+                    <span>{entry.label}</span>
+                    <span className={s.price}>{formatAmount(entry.amount, book.currency)}</span>
+                  </ChoiceCard>
+                )
+              })}
             </div>
-          ))}
-        </section>
-      )}
+          </section>
+        )
+      })()}
 
       {form.periods && (
         <section className={`${s.step} ${s.grid} ${s.periods}`}>
@@ -415,7 +454,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
           <ul className={s.chips} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
             {labels.basicIncludedItems.map((c, i) => (
               <li key={`${i}-${c}`} className={s.chip}>
-                <img src="/ui/check-chip.svg" alt="" width={16} height={16} />
+                <span className="icon-mask" style={{ width: 16, height: 16, ['--icon-url' as string]: "url('/ui/check-chip.svg')" }} aria-hidden />
                 {c}
               </li>
             ))}

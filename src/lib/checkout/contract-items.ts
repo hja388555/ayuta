@@ -93,7 +93,8 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
   const chosenKeys = new Set(asStringArray(sel.items))
 
   const items: ContractItem[] = []
-  for (const group of form.groups) {
+  const groupsWithSizeSpec = [...form.groups, ...(form.sizeSpecs ? [{ key: 'sizeSpec', items: form.sizeSpecs.map((s) => ({ key: s.key, priced: true as const })) }] : [])]
+  for (const group of groupsWithSizeSpec) {
     const selected = group.items.filter((i) => chosenKeys.has(i.key))
     if (selected.length === 0) continue
     items.push({ label: groupTitles[group.key] ?? group.key, value: selected.map((i) => labelForKey(i.key)).join(', ') })

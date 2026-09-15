@@ -102,7 +102,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
       {def.no !== 5 ? (
         <>
-          <div className={styles.body}>
+          <div className={def.no === 3 || def.no === 4 ? `${styles.body} ${styles.bodyWide}` : styles.body}>
             <OrderTitle className={styles.title} title={tPage(`titles.${def.slug}`) as string} />
             {def.model.kind === 'tier' ? (
               <TierForm

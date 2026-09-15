@@ -1,4 +1,4 @@
-import type { CategoryForm } from './category-groups'
+import type { CategoryForm, ItemDef } from './category-groups'
 
 /**
  * 결제 화면의 "선택 내용 수정하기"로 돌아왔을 때 폼에 되살릴 선택(2026-09-12 사용자 요청).
@@ -30,8 +30,12 @@ export function restoreFromQuery(sp: Record<string, string | string[] | undefine
 /** 묶음 폼(3·4번 등): 항목 키를 그 항목이 속한 묶음으로 나눈다. 단일 묶음은 첫 값만, 혼자만 고르는 항목은 혼자 남긴다 */
 export function selectionsFromItems(form: CategoryForm, items: readonly string[]): Record<string, string[]> {
   const out: Record<string, string[]> = {}
+  // 사이즈 규격 5칸(sizeSpec)은 form.groups 밖에 있다 — 가짜 그룹으로 취급해 같은 규칙으로 복원한다
+  const sizeSpec = form.sizeSpecs && form.sizeSpecs.length > 0
+    ? { key: 'sizeSpec', multi: true as const, items: form.sizeSpecs.map((s): ItemDef => ({ key: s.key, priced: true })) }
+    : null
   for (const key of new Set(items)) {
-    const group = form.groups.find((g) => g.items.some((i) => i.key === key))
+    const group = form.groups.find((g) => g.items.some((i) => i.key === key)) ?? (sizeSpec?.items.some((i) => i.key === key) ? sizeSpec : undefined)
     if (!group) continue
     const current = out[group.key] ?? []
     const item = group.items.find((i) => i.key === key)!

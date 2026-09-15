@@ -28,8 +28,8 @@ export function consentsFor(category: number): ConsentDef[] {
 // 가 이 두 key 를 [내용보기] 로 그린다.
 const BASE_CONSENTS: Record<'ko' | 'ja', ConsentDef[]> = {
   ko: [
-    { key: 'terms', label: '서비스 이용 약관에 동의 합니다.', required: true },
-    { key: 'privacy', label: '개인정보 수집 이용에 동의 합니다.', required: true },
+    { key: 'terms', label: '서비스 이용 약관에 동의합니다.', required: true },
+    { key: 'privacy', label: '개인정보 수집 이용에 동의합니다.', required: true },
   ],
   ja: [
     { key: 'terms', label: '利用規約に同意します。', required: true },

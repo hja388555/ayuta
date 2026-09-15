@@ -2,12 +2,10 @@ import type { Metadata } from 'next'
 import { NextIntlClientProvider } from 'next-intl'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { SiteHeader } from '@/components/SiteHeader'
-import { SiteFooter } from '@/components/SiteFooter'
+import { FloatingContact } from '@/components/FloatingContact'
+import { FooterSlot } from '@/components/FooterSlot'
 import { InstallBanner } from '@/components/InstallBanner'
-import { ContactBox } from '@/components/ContactBox'
-import { ContactBoxSlot } from '@/components/ContactBoxSlot'
 import { MobileTabBar } from '@/components/MobileTabBar'
-import { Shell } from '@/components/Shell'
 import { loadFooterInfo } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
 import { isAdminRole } from '@/lib/roles'
@@ -55,7 +53,6 @@ export default async function LocaleLayout({
   const t = await getTranslations('header')
   const tFooter = await getTranslations('footer')
   const tInstall = await getTranslations('install')
-  const tContact = await getTranslations('contact')
   const tTabs = await getTranslations('tabs')
   // 대표번호는 헤더·문의 박스·탭바·푸터가 같은 값을 쓴다 — 관리자 설정(company-settings) 하나가 출처
   const footerInfo = await loadFooterInfo(locale === 'ja' ? 'ja' : 'ko')
@@ -66,25 +63,33 @@ export default async function LocaleLayout({
         locale={locale}
         loggedIn={Boolean(user)}
         isAdmin={Boolean(user && isAdminRole(user.role))}
+        labels={{
+          logo: t('logo'),
+          login: t('login'),
+          signup: t('signup'),
+          mypage: t('mypage'),
+          logout: t('logout'),
+          admin: t('admin'),
+          chat: tTabs('chat'),
+          call: tTabs('call'),
+        }}
         phone={footerInfo.phone}
-        labels={{ logo: t('logo'), home: t('home'), inquiry: t('inquiry'), login: t('login'), signup: t('signup'), mypage: t('mypage'), logout: t('logout'), admin: t('admin') }}
       />
+      <FloatingContact locale={locale} phone={footerInfo.phone} labels={{ home: tTabs('home'), call: tTabs('call'), chat: tTabs('chat'), mypage: tTabs('mypage') }} />
       {children}
-      {/* 본문 하단 문의 박스 — 고객 화면 공통(큐 Q32, Figma [v2] 205:102). 채팅 화면 자체에서는 숨긴다 */}
-      <ContactBoxSlot>
-        <Shell as="section">
-          <div style={{ padding: '0 0 64px' }}>
-            <ContactBox phone={footerInfo.phone} locale={locale} labels={{ title: tContact('title'), hours: tContact('hours'), chat: tContact('chat') }} />
-          </div>
-        </Shell>
-      </ContactBoxSlot>
       <InstallBanner labels={{ title: tInstall('title'), install: tInstall('install'), close: tInstall('close'), iosHint: tInstall('iosHint') }} />
-      <SiteFooter
+      <FooterSlot
+        locale={locale}
         info={footerInfo}
         labels={{ businessNo: tFooter('businessNo'), phone: tFooter('phone'), ceo: tFooter('ceo'), contact: tFooter('contact'), mailOrder: tFooter('mailOrder') }}
         legal={{ terms: { href: `/${locale}/terms`, label: tFooter('terms') }, privacy: { href: `/${locale}/privacy`, label: tFooter('privacy') }, refund: { href: `/${locale}/refund`, label: tFooter('refund') } }}
       />
-      <MobileTabBar locale={locale} phone={footerInfo.phone} loggedIn={Boolean(user)} labels={{ home: tTabs('home'), call: tTabs('call'), chat: tTabs('chat'), mypage: tTabs('mypage') }} />
+      <MobileTabBar
+        locale={locale}
+        phone={footerInfo.phone}
+        loggedIn={Boolean(user)}
+        labels={{ home: tTabs('home'), call: tTabs('call'), chat: tTabs('chat'), mypage: tTabs('mypage'), back: tTabs('back'), next: tTabs('next') }}
+      />
     </NextIntlClientProvider>
   )
 }

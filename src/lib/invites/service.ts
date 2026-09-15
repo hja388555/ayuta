@@ -31,7 +31,7 @@ function inviteMail({ inviter, role, link, expiresAt }: { inviter: string; role:
   const html = `<div style="font-family:sans-serif;font-size:15px;line-height:1.6;color:#111">
 <p><strong>${escapeHtml(inviter)}</strong> 님이 AYUTA 관리자(<strong>${ROLE_LABEL[role]}</strong>)로 초대했습니다.</p>
 <p>아래 버튼을 눌러 이름·연락처·비밀번호를 정하면 계정이 만들어집니다.</p>
-<p><a href="${escapeHtml(link)}" style="display:inline-block;padding:12px 20px;background:#82542d;color:#fff;border-radius:8px;text-decoration:none">초대 수락하기</a></p>
+<p><a href="${escapeHtml(link)}" style="display:inline-block;padding:12px 20px;background:#005afa;color:#fff;border-radius:8px;text-decoration:none">초대 수락하기</a></p>
 <p style="color:#555">링크는 ${until}까지 한 번만 쓸 수 있습니다.<br>초대받은 적이 없다면 이 메일을 무시해 주세요.</p>
 </div>`
   return { subject: '[AYUTA] 관리자 계정 초대', text, html }

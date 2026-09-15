@@ -31,7 +31,6 @@ export const CHECKOUT_LABEL_KEYS = [
   'viewContent',
   'viewContract',
   'signatureLabel',
-  'signatureNote',
   'payTitle',
   'payCard',
   'payButton',
@@ -42,7 +41,6 @@ export const CHECKOUT_LABEL_KEYS = [
   'errEmail',
   'errPhone',
   'errSummary',
-  'errConsents',
   'errConsentRequired',
   'contractNeedsOrderer',
 ] as const

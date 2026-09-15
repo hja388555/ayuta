@@ -42,6 +42,12 @@ export const EMPTY_ORDERER: OrdererFormState = {
 export type OrdererField = Exclude<keyof OrdererFormState, 'phoneCountry'>
 export type FieldError = 'required' | 'email' | 'phone'
 
+/** 마지막 두 어절 사이 공백을 줄바꿈 없는 공백으로 — "합니다." 같은 끝말만 다음 줄로 떨어지지 않게 한다 */
+export function keepTail(text: string): string {
+  const i = text.trimEnd().lastIndexOf(' ')
+  return i > 0 ? `${text.slice(0, i)}\u00a0${text.slice(i + 1)}` : text
+}
+
 /** 시안(209:2)에서 * 가 붙은 칸 */
 export const REQUIRED_FIELDS: readonly OrdererField[] = ['name', 'phone', 'email', 'postalCode', 'address1', 'representative']
 
@@ -311,8 +317,11 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
 
       <section className={s.card} aria-labelledby="co-orderer">
         <StepTitle id="co-orderer" title={labels.ordererTitle} />
-        <div className={s.row} style={{ ['--cols' as string]: 3 }}>
+        <div className={s.row} style={{ ['--cols' as string]: 2 }}>
           {field('name', { required: true, autoComplete: 'name' })}
+          {field('representative', { required: true })}
+        </div>
+        <div className={s.row} style={{ ['--cols' as string]: 2 }}>
           {field('phone', { required: true })}
           {field('email', { required: true, type: 'email', autoComplete: 'email' })}
         </div>
@@ -333,11 +342,8 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
           {field('address1', { required: true, autoComplete: 'address-line1' })}
         </div>
         {field('address2', { autoComplete: 'address-line2' })}
-        <div className={s.row} style={{ ['--cols' as string]: 2 }}>
-          {field('representative', { required: true })}
-          {field('businessNo')}
-        </div>
-        <p className={s.note}>{labels.ordererNote}</p>
+        {field('businessNo')}
+        <p className={s.note}>{keepTail(labels.ordererNote)}</p>
         {attempted && errorCount > 0 ? (
           <p className={s.banner} role="alert">
             <img src="/ui/alert-field.svg" alt="" width={18} height={18} />
@@ -360,7 +366,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
           <TotalBar label={labels.totalLabel} amount={formatAmount(amount, currency)} />
           {editHref ? (
             <a href={editHref} className={s.editLink}>
-              ‹ {labels.editSelection}
+              <span className={s.editArrow} aria-hidden>‹</span> {labels.editSelection}
             </a>
           ) : null}
         </section>
@@ -381,7 +387,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
                 }}
               />
               <span className="choice-box" aria-hidden />
-              <span>{c.label}</span>
+              <span>{keepTail(c.label)}</span>
             </label>
             {PUBLIC_DOC_KEYS.has(c.key) ? (
               <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setViewDoc(c.key as LegalKind)}>
@@ -411,10 +417,9 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         {/* 입력칸을 직접 고치게 하지 않는다 — 필수 동의가 끝나면 주문자명이 자동 기입된다 */}
         <div className={signature ? `${s.sign} ${s.signOn}` : s.sign} aria-live="polite">
           <span className={s.signBox} aria-hidden />
-          <span className={s.signText}>{labels.signatureLabel}</span>
+          <span className={s.signText}>{keepTail(labels.signatureLabel)}</span>
           <span className={s.signName}>{signature || '—'}</span>
         </div>
-        <p className={s.caption}>{labels.signatureNote}</p>
       </section>
 
       {/* 빈칸이 채워진 상태를 그대로 보여준다 — createOrder가 실제로 저장할 것과 같은 텍스트다.
@@ -433,7 +438,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
       />
       <LegalConsentModal kind={viewDoc} locale={locale} onClose={() => setViewDoc(null)} onAgree={(k) => setChecked((prev) => ({ ...prev, [k]: true }))} />
 
-      <section className={s.card} aria-labelledby="co-pay">
+      <section className={`${s.card} ${s.payCard}`} aria-labelledby="co-pay">
         <StepTitle id="co-pay" title={labels.payTitle} />
         {/* 결제수단은 지금 카드 하나뿐이다. PortOne 연동 전이라 선택값은 서버로 보내지 않는다 */}
         <div className={s.pay}>
@@ -456,7 +461,6 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         >
           {submitting ? labels.submitting : labels.payButton.replace('{amount}', formatAmount(amount, currency))}
         </button>
-        {!canPay ? <p className={s.reason}>{errorCount > 0 ? summary : labels.errConsents}</p> : null}
         {error ? (
           <p className={s.serverError} role="alert">
             {error}

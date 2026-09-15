@@ -5,7 +5,7 @@ import type { RestoreSelection } from '../lib/order-restore'
 import { useCheckoutGuard, useMirrorQuery } from '../lib/order-url'
 import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { ChoiceCard, ChoiceGrid, TotalBar } from './ui'
+import { ChoiceCard, ChoiceGrid } from './ui'
 import s from './OrderForms.module.css'
 
 const PLATFORMS = ['instagram', 'youtube', 'tiktok', 'line'] as const
@@ -209,7 +209,7 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
   )
 }
 
-/** 상품 내용 목록 + 총액 바 + 결제 버튼. 01~04 가 같은 모양이다 */
+/** 상품 내용 한 줄 + 총액 바 + 결제 버튼. 01~04 가 같은 모양이다 */
 export function PaySection({
   totalLabel,
   itemsLabel,
@@ -229,20 +229,22 @@ export function PaySection({
 }) {
   return (
     <div className={s.pay}>
-      {items.length > 0 ? (
-        <div className={s.items} aria-live="polite">
-          <p className={s.itemsLabel}>{itemsLabel}</p>
-          <ul>
-            {items.map((it, i) => (
-              <li key={`${i}-${it}`}>{it}</li>
-            ))}
-          </ul>
+      {/* 상품 내용 + 총액을 브라운 박스 하나로 합쳤다(2026-09-14 4라운드). 상품 내용은 한 줄 오른쪽 정렬(2026-09-14 5라운드) */}
+      <div className={s.totalBox} aria-live="polite">
+        {items.length > 0 ? (
+          <div className={s.itemsRow}>
+            <span className={s.itemsLabel}>{itemsLabel}</span>
+            <span className={s.itemsValue}>{items.join(', ')}</span>
+          </div>
+        ) : null}
+        <div className={s.totalRow}>
+          <span className={s.totalRowLabel}>{totalLabel}</span>
+          <span className={s.totalRowAmount}>{amount}</span>
         </div>
-      ) : null}
-      <TotalBar label={totalLabel} amount={amount} />
+      </div>
       <button type="button" className={`btn btn-primary btn-block ${s.payBtn}`} disabled={disabled} onClick={onPay}>
         {payButton}
-        <img src="/ui/chevron.svg" alt="" width={18} height={18} />
+        <span className="icon-mask" style={{ width: 56, height: 56, ['--icon-url' as string]: "url('/ui/chevron.svg')" }} aria-hidden />
       </button>
     </div>
   )

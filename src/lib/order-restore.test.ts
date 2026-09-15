@@ -28,6 +28,14 @@ describe('결제 화면에서 돌아왔을 때 선택 되살리기', () => {
     expect(selectionsFromItems(f, ['poster-digital', 'poster-skip'])).toEqual({ posterBillboard: ['poster-skip'] })
   })
 
+  it('4번: 사이즈 규격(size-spec)은 form.groups 밖에 있지만 sizeSpec 묶음으로 되살아난다(4라운드 F)', () => {
+    const f = formFor(4)!
+    expect(selectionsFromItems(f, ['subway-city-seoul', 'size-spec-1', 'size-spec-3'])).toEqual({
+      subwayCity: ['subway-city-seoul'],
+      sizeSpec: ['size-spec-1', 'size-spec-3'],
+    })
+  })
+
   it('2번: 올바른 쌍만, 같은 종류는 처음 것만 되살린다', () => {
     const f = formFor(2)!
     expect(

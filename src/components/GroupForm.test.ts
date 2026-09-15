@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { buildGroupQuery, countryColumns, dropOtherCountries, initialCountries, initialSelections, nextSelection, pricedKeys, previewGroupTotal, toggleCountry } from './GroupForm'
+import { buildGroupQuery, configuredSizeSpecs, countryColumns, dropOtherCountries, initialCountries, initialSelections, nextSelection, pricedKeys, previewGroupTotal, toggleCountry } from './GroupForm'
 import { formFor } from '../lib/category-groups'
 import type { CategoryForm } from '@/lib/category-groups'
 
@@ -208,5 +208,54 @@ describe('한국/일본 체크와 나라 열 (2026-09-13)', () => {
     const f = formFor(2)!
     const sel = { country: ['country-kr'] }
     expect(dropOtherCountries(f, sel, ['kr'])).toEqual(sel)
+  })
+
+  it('4번 사이즈 규격(sizeSpec)은 나라 개념이 없어 restore 때 사라지지 않는다', () => {
+    const f = formFor(4)!
+    const restored = { sizeSpec: ['size-spec-1', 'size-spec-3'] }
+    expect(dropOtherCountries(f, restored, ['kr'])).toEqual(restored)
+  })
+})
+
+describe('4번 사이즈 규격(size-spec) — 4라운드 F', () => {
+  const form = formFor(4)!
+
+  it('금액 계산기(pricedKeys)는 form.groups 밖에 있는 sizeSpec 선택도 합산 대상에 넣는다', () => {
+    const selections = { sizeSpec: ['size-spec-1', 'size-spec-2'] }
+    expect(pricedKeys(form, selections)).toEqual(['size-spec-1', 'size-spec-2'])
+  })
+
+  it('sizeSpec 항목이 다른 4번 항목과 함께 합산·기간배수 대상이 된다', () => {
+    const book: PriceBook = {
+      currency: 'KRW',
+      entries: {
+        'subway-city-seoul': { key: 'subway-city-seoul', label: '서울', amount: minor(1_000_000) },
+        'size-spec-1': { key: 'size-spec-1', label: 'A형', amount: minor(200_000) },
+      },
+    }
+    const model: PricingModel = { kind: 'sumMultiplier', category: 4, items: [], multipliers: { '1w': 1 } }
+    const total = previewGroupTotal(book, model, ['subway-city-seoul', 'size-spec-1'], '1w')
+    expect(total).toBe(1_200_000)
+  })
+
+  it('단가표에 없는 칸은 화면에서 아예 빠진다(안 정한 칸)', () => {
+    const book: PriceBook = { currency: 'KRW', entries: {} }
+    expect(configuredSizeSpecs(form, book)).toEqual([])
+  })
+
+  it('단가표에 있어도 라벨이 빈 문자열이면 빠진다', () => {
+    const book: PriceBook = { currency: 'KRW', entries: { 'size-spec-1': { key: 'size-spec-1', label: '  ', amount: minor(1) } } }
+    expect(configuredSizeSpecs(form, book)).toEqual([])
+  })
+
+  it('라벨이 채워진 칸만 순서대로 보인다', () => {
+    const book: PriceBook = {
+      currency: 'KRW',
+      entries: {
+        'size-spec-1': { key: 'size-spec-1', label: 'A형', amount: minor(100_000) },
+        'size-spec-4': { key: 'size-spec-4', label: 'D형', amount: minor(300_000) },
+      },
+    }
+    expect(configuredSizeSpecs(form, book).map((i) => i.key)).toEqual(['size-spec-1', 'size-spec-4'])
   })
 })

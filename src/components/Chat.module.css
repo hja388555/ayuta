@@ -19,8 +19,8 @@
 .secondary { margin: 0; font-size: 14px; line-height: 1.5; color: #767b85; white-space: pre-wrap; overflow-wrap: anywhere; }
 .bubbleMine { background: var(--brand-600); }
 .bubbleMine .primary { color: #fff; }
-.bubbleMine .rule { background: var(--line-warm); }
-.bubbleMine .secondary { color: var(--cream-100); }
+.bubbleMine .rule { background: var(--c-line); }
+.bubbleMine .secondary { color: var(--c-sel-bg); }
 .time { font-size: 12px; line-height: 1.5; color: #a3a8b0; }
 /* 말풍선과 시각은 붙어 보여야 한다(시안은 말풍선·시각 사이 간격이 없다) */
 .row + .row { margin-top: -16px; }

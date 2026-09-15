@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation'
 import { useState } from 'react'
 import { LoginRequiredModal } from './LoginRequiredModal'
 
-type Labels = { home: string; call: string; chat: string; mypage: string }
+type Labels = { home: string; call: string; chat: string; mypage: string; back: string; next: string }
 
 /**
  * 모바일 하단 고정 탭바(큐 Q32, Figma [v2] 207:112). 768px 미만에서만 보인다(globals.css .tabbar).
@@ -13,6 +13,7 @@ type Labels = { home: string; call: string; chat: string; mypage: string }
  * 다른 탭의 선택 아이콘은 같은 SVG 의 선 색만 파랑으로 바꾼 사본(-active)을 쓴다.
  * 채팅 탭은 1:1 채팅(큐 Q37, /chat)을 연다. 비회원도 채팅할 수 있어(2026-09-12) 바로 이동한다.
  * 비회원이 마이페이지 탭을 누르면 이동하지 않고 로그인 유도 팝업(227:153)을 띄운다.
+ * 메인이 아닌 화면은 탭바 대신 이전/다음 화살표 바를 보여준다(2026-09-14 클라이언트 요청 3라운드).
  */
 export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: string; phone: string; loggedIn: boolean; labels: Labels }) {
   const [askLogin, setAskLogin] = useState(false)
@@ -21,36 +22,53 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
   const chat = `${home}/chat`
   const mypage = `${home}/mypage`
   const isAt = (href: string, exact = false) => (exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`))
-  const icon = (name: string, active: boolean) => `/ui/tab-${name}${active ? '-active' : ''}.svg`
+  // 아이콘 색은 currentColor 마스크로 그려 탭 색(비선택/선택)을 그대로 따라간다
+  const tabIcon = (name: string, color?: string) => (
+    <span
+      className="icon-mask"
+      style={{ width: 36, height: 36, color, ['--icon-url' as string]: `url(/ui/tab-${name}-fill.svg)` }}
+      aria-hidden
+    />
+  )
+
+  if (pathname !== home) {
+    return (
+      <nav className="arrowbar" aria-label="Navigation">
+        <button type="button" onClick={() => window.history.back()}>
+          <span className="arrowbar-arrow" aria-hidden>‹</span> {labels.back.replace(/[‹›]/g, "").trim()}
+        </button>
+        <button type="button" onClick={() => window.history.forward()}>
+          {labels.next.replace(/[‹›]/g, "").trim()} <span className="arrowbar-arrow" aria-hidden>›</span>
+        </button>
+      </nav>
+    )
+  }
 
   const onHome = isAt(home, true)
   const onChat = isAt(chat)
   const onMypage = isAt(mypage)
   return (
     <nav className="tabbar" aria-label="Menu">
-      <Link href={home} aria-current={onHome ? 'page' : undefined}>
-        <img src={icon('home', onHome)} alt="" width={22} height={22} />
-        {labels.home}
+      <Link href={home} aria-current={onHome ? 'page' : undefined} aria-label={labels.home}>
+        {tabIcon('home')}
       </Link>
-      <a href={`tel:${phone.replace(/[^\d+]/g, '')}`}>
-        <img src={icon('phone', false)} alt="" width={22} height={22} />
-        {labels.call}
+      <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} aria-label={labels.call}>
+        {tabIcon('phone', '#16a34a')}
       </a>
-      <Link href={chat} aria-current={onChat ? 'page' : undefined}>
-        <img src={icon('chat', onChat)} alt="" width={22} height={22} />
-        {labels.chat}
+      <Link href={chat} aria-current={onChat ? 'page' : undefined} className="tabbar-chat" aria-label={labels.chat}>
+        <span className="tabbar-chat-circle">{labels.chat}</span>
       </Link>
       <Link
         href={mypage}
         aria-current={onMypage ? 'page' : undefined}
+        aria-label={labels.mypage}
         onClick={(e) => {
           if (loggedIn) return
           e.preventDefault()
           setAskLogin(true)
         }}
       >
-        <img src={icon('user', onMypage)} alt="" width={22} height={22} />
-        {labels.mypage}
+        {tabIcon('user')}
       </Link>
       <LoginRequiredModal locale={locale} open={askLogin} onClose={() => setAskLogin(false)} />
     </nav>

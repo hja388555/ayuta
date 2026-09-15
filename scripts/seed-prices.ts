@@ -7,7 +7,7 @@
 // 이름을 심는다 (docs/카테고리-항목구성.md 원본).
 import { getPayload } from 'payload'
 import config from '../src/payload.config.js'
-import { formFor } from '../src/lib/category-groups'
+import { formFor, SIZE_SPEC_KEYS } from '../src/lib/category-groups'
 
 type SeedEntry = {
   key: string
@@ -254,7 +254,9 @@ const ENTRIES: SeedEntry[] = [
 // 시드가 다루는 카테고리(2~4)에서, 화면 정의(category-groups.ts)에 더 이상 없는 키를
 // 가진 행을 찾는다. 1번은 이 스크립트가 화면 정의를 읽지 않으므로(하드코딩) 손대지 않는다.
 const SEEDED_CATEGORIES = [2, 3, 4] as const
-const seededKeys = new Set(ENTRIES.map((e) => e.key))
+// 사이즈 규격 5칸(size-spec-1~5)은 이 스크립트가 심지 않고 관리자가 채운다(4라운드 F) —
+// "화면 정의에 없는 키" 취급으로 비활성화하면 관리자가 입력한 이름·단가가 시드 한 번에 꺼진다
+const seededKeys = new Set([...ENTRIES.map((e) => e.key), ...SIZE_SPEC_KEYS])
 
 const main = async () => {
   const payload = await getPayload({ config })

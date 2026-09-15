@@ -2,14 +2,14 @@
 
 /* ── 05 문의 폼 ── */
 .form { display: flex; flex-direction: column; gap: 56px; margin-top: 32px; }
-.lead { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.6; color: var(--brown-600); }
+.lead { margin: 0; font-size: 16px; font-weight: 500; line-height: 1.6; color: var(--c-text2); }
 .section { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
 .field { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.label { font-size: 17px; font-weight: 800; line-height: 1.5; color: var(--brown-900); }
+.label { font-size: 17px; font-weight: 800; line-height: 1.5; color: var(--c-title); }
 .input,
 .textarea {
   width: 100%; min-width: 0; padding: 0 16px; height: 54px;
-  border: 1px solid var(--brown-600); border-radius: var(--radius-md); background: #fff;
+  border: 1px solid var(--c-text2); border-radius: var(--radius-md); background: #fff;
   font: inherit; font-size: 17px; line-height: 1.5; color: var(--ink-900);
 }
 .textarea { height: 150px; padding: 16px; resize: vertical; }
@@ -18,25 +18,25 @@
 .cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 
 .drop { display: block; }
-.dropActive .dropBtn { border-color: var(--orange-500); background: var(--cream-100); }
+.dropActive .dropBtn { border-color: var(--c-primary); background: var(--c-sel-bg); }
 .drop input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
-.drop:has(input:focus-visible) .dropBtn { outline: 2px solid var(--orange-500); outline-offset: 2px; }
+.drop:has(input:focus-visible) .dropBtn { outline: 2px solid var(--c-primary); outline-offset: 2px; }
 .dropBtn {
   display: inline-flex; align-items: center; justify-content: center; height: 44px; padding: 0 22px;
-  border: 1.5px solid var(--brown-900); border-radius: var(--radius); background: #fff; color: var(--brown-900); font-weight: 700; cursor: pointer;
+  border: 1.5px solid var(--c-title); border-radius: var(--radius); background: #fff; color: var(--c-title); font-weight: 700; cursor: pointer;
 }
 .fileList { margin: 0; padding: 0; list-style: none; font-size: 14px; color: var(--ink-700); }
 
 /* 체크 행(동의) — .choice-box 모양을 그대로 쓴다 */
 .check {
   position: relative; display: flex; align-items: center; gap: 12px; min-height: 60px; padding: 12px 18px;
-  border: 1px solid var(--line-warm); border-radius: var(--radius-md); background: #fff;
+  border: 1px solid var(--c-line); border-radius: var(--radius-md); background: #fff;
   font-size: 16px; line-height: 1.5; color: var(--ink-700); cursor: pointer;
 }
 .check input { position: absolute; opacity: 0; pointer-events: none; }
-.check:has(input:checked) .checkBox { border-color: var(--orange-500); background: var(--orange-500) url('/ui/check.svg') center / 14px 14px no-repeat; }
-.check:has(input:focus-visible) { outline: 2px solid var(--orange-500); outline-offset: 2px; }
-.checkBox { flex: none; width: 22px; height: 22px; border: 1.6px solid var(--brown-600); border-radius: 7px; background: #fff; }
+.check:has(input:checked) .checkBox { border-color: var(--c-primary); background: var(--c-primary) url('/ui/check.svg') center / 14px 14px no-repeat; }
+.check:has(input:focus-visible) { outline: 2px solid var(--c-primary); outline-offset: 2px; }
+.checkBox { flex: none; width: 22px; height: 22px; border: 1.6px solid var(--c-text2); border-radius: 7px; background: #fff; }
 .checkText { flex: 1; min-width: 0; }
 .viewLink { flex: none; font-size: 14px; font-weight: 700; color: var(--ink-500); text-decoration: none; }
 
@@ -50,21 +50,21 @@
 
 /* ── 11 견적서 ── */
 .band { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 44px var(--side); background: var(--brand-50); }
-.chip { padding: 6px 12px; border-radius: 999px; background: var(--brand-100); color: var(--brand-900); font-size: 13px; font-weight: 700; line-height: 1.5; }
-.bandTitle { margin: 0; font-size: 38px; line-height: 1.25; letter-spacing: -0.02em; color: var(--ink-900); }
-.bandSub { margin: 0; font-size: 17px; line-height: 1.5; color: var(--ink-700); }
+.chip { padding: 6px 12px; border-radius: 999px; background: var(--brand-100); color: var(--brand-900); font-size: 16px; font-weight: 700; line-height: 1.5; }
+.bandTitle { margin: 0; font-size: 44px; line-height: 1.25; letter-spacing: -0.02em; color: var(--ink-900); }
+.bandSub { margin: 0; font-size: 20px; line-height: 1.5; color: var(--ink-700); }
 .page { display: flex; flex-direction: column; gap: 32px; padding: 48px var(--side) 64px; }
 .card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; min-width: 0; }
 .cardHead { display: flex; align-items: center; gap: 10px; }
-.cardTitle { flex: 1; margin: 0; font-size: 22px; line-height: 1.5; color: var(--ink-900); }
-.cardDesc { margin: 0; font-size: 15px; color: var(--ink-500); }
+.cardTitle { flex: 1; margin: 0; font-size: 28px; line-height: 1.5; color: var(--ink-900); }
+.cardDesc { margin: 0; font-size: 18px; color: var(--ink-500); }
 .info { margin: 0; padding: 6px 20px; border-radius: var(--radius-md); background: var(--surface); }
 .infoRow { display: flex; gap: 16px; padding: 10px 0; }
 .infoRow + .infoRow { border-top: 1px solid var(--line); }
-.infoRow dt { flex: none; width: 120px; font-size: 15px; color: var(--ink-500); }
-.infoRow dd { flex: 1; min-width: 0; margin: 0; font-size: 16px; color: var(--ink-700); overflow-wrap: anywhere; }
+.infoRow dt { flex: none; width: 140px; font-size: 18px; color: var(--ink-500); }
+.infoRow dd { flex: 1; min-width: 0; margin: 0; font-size: 20px; color: var(--ink-700); overflow-wrap: anywhere; }
 
-.table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; font-size: 15px; color: var(--ink-700); }
+.table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; font-size: 18px; color: var(--ink-700); }
 .table th { padding: 14px 18px; background: var(--surface); text-align: left; font-weight: 700; }
 .table td { padding: 16px 18px; border-top: 1px solid var(--line); }
 .table .colItem { width: 66.66%; }
@@ -97,18 +97,25 @@
   .cols3, .cols2 { grid-template-columns: minmax(0, 1fr); }
   .submit { height: 60px; font-size: 18px; }
   .band { padding-block: 28px; }
-  .bandTitle { font-size: 26px; }
-  .bandSub { font-size: 15px; }
+  .bandTitle { font-size: 30px; }
+  .bandSub { font-size: 17px; }
   .page { gap: 20px; padding-top: 24px; }
   .card { padding: 20px 18px; }
-  .cardTitle { font-size: 19px; }
-  .infoRow dt { width: 84px; font-size: 14px; }
-  .infoRow dd { font-size: 15px; }
-  .table th, .table td { padding: 12px 10px; font-size: 14px; }
+  .cardTitle { font-size: 22px; }
+  .infoRow dt { width: 96px; font-size: 16px; }
+  .infoRow dd { font-size: 17px; }
+  .table th, .table td { padding: 12px 10px; font-size: 16px; }
   .check { flex-wrap: wrap; }
   .sign .signName { margin-left: 34px; }
   .blockedWrap { padding-block: 40px; }
   .blocked { padding: 32px 20px; }
   .blockedTitle { font-size: 24px; }
   .blockedSub { font-size: 15px; }
+}
+@media (min-width: 768px) {
+  /* 5번 문의 폼: 1~4번과 같은 내용 글씨 크기 */
+  .lead { font-size: 28px; font-weight: 400; }
+  .label { font-size: 30px; font-weight: 500; }
+  .input, .textarea { font-size: 28px; }
+  .check, .consentText { font-size: 28px; font-weight: 400; }
 }

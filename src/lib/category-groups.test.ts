@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formFor } from './category-groups'
+import { formFor, SIZE_SPEC_KEYS } from './category-groups'
 
 describe('카테고리 폼 정의', () => {
   it('2·3·4번에 정의가 있고 1·5번에는 없다', () => {
@@ -33,16 +33,9 @@ describe('카테고리 폼 정의', () => {
     expect(formFor(3)!.periods).toBeUndefined()
   })
 
-  it('4번의 사이즈는 자유 입력이고 금액이 붙지 않는다', () => {
+  it('4번은 자유 입력 사이즈칸이 없다(6라운드) — 관리자 규격(sizeSpec) 선택만 받는다', () => {
     const f = formFor(4)!
-    expect(f.freeText?.some((t) => t.key === 'size')).toBe(true)
-    // 자유 입력은 계산에 들어가지 않는다
-    const priced = f.groups.flatMap((g) => g.items).filter((i) => i.priced)
-    expect(priced.every((i) => i.key !== 'size')).toBe(true)
-  })
-
-  it('자유 입력에는 길이 상한이 있다', () => {
-    for (const t of formFor(4)!.freeText ?? []) expect(t.maxLength).toBeGreaterThan(0)
+    expect(f.freeText).toBeUndefined()
   })
 
   it('4번 포스터·전광판 제작은 금액이 붙는 항목이다 (Figma v2 — 별도문의 폐지)', () => {
@@ -70,5 +63,15 @@ describe('카테고리 폼 정의', () => {
       }
     }
     expect(formFor(3)!.groups.find((g) => g.key === 'blog')!.items.every((i) => i.country === 'jp')).toBe(true)
+  })
+
+  it('4번 사이즈 규격 5칸(size-spec)은 자유 입력 다음의 별도 묶음이고, form.groups 시드 대상에는 없다(4라운드 F)', () => {
+    const f = formFor(4)!
+    expect(f.sizeSpecs?.map((s) => s.key)).toEqual([...SIZE_SPEC_KEYS])
+    expect(SIZE_SPEC_KEYS.length).toBe(5)
+    // 시드 스크립트(scripts/seed-prices.ts)는 form.groups 의 priced 키만 읽는다 —
+    // sizeSpecs 가 groups 에 섞여 있으면 시드가 다섯 칸을 미리 채워 "비어 있어야 한다" 규칙이 깨진다
+    const groupKeys = new Set(f.groups.flatMap((g) => g.items.map((i) => i.key)))
+    for (const k of SIZE_SPEC_KEYS) expect(groupKeys.has(k)).toBe(false)
   })
 })

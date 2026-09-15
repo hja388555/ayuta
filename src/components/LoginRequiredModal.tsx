@@ -44,7 +44,7 @@ export function LoginRequiredModal({
     >
       <div className={s.confirm}>
         <span className={s.icon}>
-          <img src="/ui/modal-user.svg" alt="" width={30} height={30} />
+          <span className="icon-mask" style={{ width: 30, height: 30, ['--icon-url' as string]: "url('/ui/modal-user.svg')" }} aria-hidden />
         </span>
         <p className={s.title}>{t('loginTitle')}</p>
         <p className={s.text}>

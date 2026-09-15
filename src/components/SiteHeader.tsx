@@ -4,8 +4,18 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import { LoginRequiredModal } from './LoginRequiredModal'
+import { isHeaderHidden } from '../lib/header-visibility'
 
-type Labels = { logo: string; home: string; inquiry: string; login: string; signup: string; mypage: string; logout: string; admin: string }
+type Labels = {
+  logo: string
+  login: string
+  signup: string
+  mypage: string
+  logout: string
+  admin: string
+  chat: string
+  call: string
+}
 
 /** 언어만 바꾼 주소. 쿼리(주문 선택·나라·목적)는 그대로 둔다 — 떼면 결제 화면이 404 가 되고 폼 선택이 사라진다 */
 export function localeSwitchHref(pathname: string, search: string, target: string): string {
@@ -49,20 +59,22 @@ export function SiteHeader({
   locale,
   loggedIn,
   isAdmin,
-  phone,
   labels,
+  phone,
 }: {
   locale: string
   loggedIn: boolean
   isAdmin: boolean
-  phone: string
   labels: Labels
+  phone: string
 }) {
   const pathname = usePathname() ?? `/${locale}`
   const router = useRouter()
   const [askLogin, setAskLogin] = useState(false)
   const home = `/${locale}`
-  const current = (href: string) => (pathname === href || pathname.startsWith(`${href}/`) ? 'page' : undefined)
+
+  // 1~4번 주문 화면은 헤더 자체를 없앤다(6라운드) — 판정은 header-visibility.ts(단위 테스트 대상)
+  if (isHeaderHidden(pathname)) return null
 
   async function logout() {
     await fetch('/api/users/logout', { method: 'POST' }).catch(() => {})
@@ -74,37 +86,22 @@ export function SiteHeader({
 
   return (
     <header className="site-header">
-      <Link href={home} className="site-logo" aria-label="AYUTA">
+      {/* 로고·메뉴·전화를 지운 헤더에도 홈으로 가는 링크는 남겨 둔다(스크린리더 전용) */}
+      <Link href={home} className="sr-only">
         {labels.logo}
       </Link>
-      <nav className="site-nav">
-        <Link href={home} aria-current={pathname === home ? 'page' : undefined}>
-          {labels.home}
-        </Link>
-        <Link href={`${home}/chat`} aria-current={current(`${home}/chat`)}>
-          {labels.inquiry}
-        </Link>
-        <Link
-          href={`${home}/mypage`}
-          aria-current={current(`${home}/mypage`)}
-          onClick={(e) => {
-            if (loggedIn) return
-            e.preventDefault()
-            setAskLogin(true)
-          }}
-        >
-          {labels.mypage}
-        </Link>
-      </nav>
       <LoginRequiredModal locale={locale} open={askLogin} onClose={() => setAskLogin(false)} />
+      {/* 쿼리를 읽기 전(정적 렌더)에는 경로만 바꾼 링크를 보여 주고, 읽은 뒤 쿼리를 붙인다 */}
+      <Suspense fallback={<LanguageLinks locale={locale} pathname={pathname} search="" />}>
+        <LanguageLinksWithQuery locale={locale} pathname={pathname} />
+      </Suspense>
       <div className="site-header-right">
-        <a className="site-phone" href={`tel:${phone.replace(/[^\d+]/g, '')}`}>
-          <img src="/ui/phone.svg" alt="" width={18} height={18} />
-          {phone}
-        </a>
         <div className="site-auth">
           {loggedIn ? (
             <>
+              <Link href={`${home}/mypage`} className="btn btn-secondary site-auth-mypage">
+                {labels.mypage}
+              </Link>
               {isAdmin ? (
                 <Link href="/manage" className="btn btn-primary">
                   {`[${labels.admin}]`}
@@ -125,10 +122,6 @@ export function SiteHeader({
             </>
           )}
         </div>
-        {/* 쿼리를 읽기 전(정적 렌더)에는 경로만 바꾼 링크를 보여 주고, 읽은 뒤 쿼리를 붙인다 */}
-        <Suspense fallback={<LanguageLinks locale={locale} pathname={pathname} search="" />}>
-          <LanguageLinksWithQuery locale={locale} pathname={pathname} />
-        </Suspense>
       </div>
     </header>
   )

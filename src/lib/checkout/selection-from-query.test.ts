@@ -94,6 +94,14 @@ describe('filterPricedSelection — 나라 밖 유료 항목은 계산에서도 
     expect(priced.items).toEqual(['subway-city-seoul', 'subway-city-tokyo'])
   })
 
+  it('4번 사이즈 규격(size-spec)은 form.groups 밖에 있지만 계산에서 빠지지 않는다(4라운드 F)', () => {
+    const model: PricingModel = { kind: 'sumMultiplier', category: 4, items: [], multipliers: { '1w': 1 } }
+    const form = formFor(4)
+    const raw = selectionFromQuery(model, { item: ['subway-city-seoul', 'size-spec-1'], period: '1w' })
+    const priced = filterPricedSelection(model, form, raw) as { items: string[] }
+    expect(priced.items).toEqual(['subway-city-seoul', 'size-spec-1'])
+  })
+
   it('1·2번(tier/videoPairs)은 이 규칙의 영향을 받지 않는다', () => {
     const tierModel: PricingModel = { kind: 'tier', category: 1, tiers: [], platforms: [] }
     const tierSel = selectionFromQuery(tierModel, { tier: ['standard'], country: 'kr' })
