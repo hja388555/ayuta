@@ -118,3 +118,7 @@
   /* 일본어 진행 바: 단계 이름을 말줄임 대신 두 줄로 전부 보여준다(2026-09-16 사용자) */
   :global(:lang(ja)) .stepLabel { white-space: normal; overflow: visible; text-overflow: clip; word-break: auto-phrase; overflow-wrap: anywhere; text-align: center; line-height: 1.3; }
 }
+
+/* 계약 동의 행: 체크·문구·내용보기 버튼을 세로 가운데로(2026-09-16 사용자) */
+.consent { align-items: center; }
+.consent :global(.choice-box) { margin-top: 0; }
