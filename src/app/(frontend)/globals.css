@@ -322,3 +322,7 @@ body {
   .arrowbar-arrow { width: 34px; height: 34px; margin-top: 0; font-size: 0; }
   .arrowbar-arrow-back { transform: scaleX(-1); }
 }
+@media (min-width: 768px) {
+  /* PC 우측 상담 버튼: 오른쪽 아래 → 오른쪽 세로 가운데(2026-09-15 사용자, 피그마 [v3] 메인 위치) */
+  .round-contact-fixed { top: 50%; bottom: auto; transform: translateY(-50%); }
+}
