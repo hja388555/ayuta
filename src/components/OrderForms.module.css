@@ -223,3 +223,7 @@
   /* 일본어 1번 표: 띄어쓰기가 없어 keep-all 이면 칸 밖으로 넘친다 — 일반 줄바꿈 */
   :global(:lang(ja)) .table thead th, :global(:lang(ja)) .table td { word-break: normal; overflow-wrap: anywhere; }
 }
+@media (min-width: 768px) {
+  /* 일본어 1번 표 머리칸: 등급 이름이 단어 중간에서 끊기지 않게 한 줄 + 조금 작게 */
+  :global(:lang(ja)) .table thead th:not(:first-child) { font-size: 30px; white-space: nowrap; padding-inline: 8px; }
+}
