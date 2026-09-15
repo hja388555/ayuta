@@ -330,3 +330,8 @@ body {
   /* PC 헤더는 메인에만 — 주문 흐름·견적 화면에서는 숨김(2026-09-15 사용자) */
   .site-header-pc-hidden { display: none; }
 }
+/* 일본어 선택 칸 글자가 칸 밖으로 넘치지 않게 — 긴 문구는 줄바꿈(2026-09-15). 한국어는 기존 한 줄 유지 */
+:lang(ja) .choice { overflow-wrap: anywhere; }
+@media (min-width: 768px) {
+  :lang(ja) .choice > span:last-child { white-space: normal; }
+}
