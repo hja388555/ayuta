@@ -114,3 +114,7 @@
 @media (max-width: 767px) {
   .editArrow { width: 28px; height: 28px; }
 }
+@media (max-width: 767px) {
+  /* 일본어 진행 바: 단계 이름을 말줄임 대신 두 줄로 전부 보여준다(2026-09-16 사용자) */
+  :global(:lang(ja)) .stepLabel { white-space: normal; overflow: visible; text-overflow: clip; word-break: auto-phrase; overflow-wrap: anywhere; text-align: center; line-height: 1.3; }
+}
