@@ -128,5 +128,5 @@
   .form { gap: 40px; margin-top: 40px; }
 }
 @media (min-width: 768px) {
-  .band, .page { padding-inline: max(32px, (100% - 1200px) / 2); }
+  .band, .page { padding-inline: max(32px, calc((100vw - 1200px) / 2)); }
 }

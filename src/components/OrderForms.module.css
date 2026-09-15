@@ -199,7 +199,7 @@
 }
 /* Q55 피그마 [v3] 재대조(2026-09-15): 본문 1200, 칸 간격 20, 선택 금액 남색, 총 금액 상자 */
 @media (min-width: 768px) {
-  .body { max-width: none; padding-inline: max(32px, (100% - 1200px) / 2); }
+  .body { box-sizing: border-box; width: 100%; max-width: 1264px; padding-inline: 32px; }
   .step :global(.choice-grid), .countryCol { gap: 20px; }
   .rows :global(.choice), .grid :global(.choice) { padding: 12px 14px; }
   .pay .payBtn { width: 590px; max-width: 100%; }
@@ -219,10 +219,3 @@
 }
 .grid :global(.choice):has(input:checked) .price,
 .body :global(.choice):has(input:checked) .price { color: #2b4a73; }
-@media (min-width: 768px) and (max-width: 1023px) {
-  /* 태블릿 폭: 금액이 칸 밖으로 밀려 가로 스크롤이 생기지 않게 줄바꿈 허용 */
-  .price, .body :global(.choice) > span:last-child { white-space: normal; }
-  .body :global(.choice) > span:last-child { grid-template-columns: minmax(0, 1fr); }
-  .body .price { grid-column: 1; grid-row: auto; }
-  .rows :global(.choice) > span:last-child { flex-wrap: wrap; }
-}
