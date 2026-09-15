@@ -248,6 +248,9 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
       const next = nextSelection(group, current, key)
       return { ...prev, [group.key]: next }
     })
+    // 나라 열은 항상 둘 다 보인다 — 체크 안 한 나라의 항목을 고르면 그 나라도 함께 체크한다(서버는 고른 나라 안의 항목만 계산)
+    const itemCountry = group.items.find((i) => i.key === key)?.country
+    if (form.countryTabs && itemCountry && !countries.includes(itemCountry)) setCountries((prev) => [...prev, itemCountry])
   }
 
   function onToggleCountry(c: CountryTab) {
@@ -300,8 +303,14 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
 
         // 3·4번(한국/일본 체크)만 나라 열 레이아웃을 쓴다 — 2번은 기존 레이아웃 그대로
         if (form.countryTabs) {
-          const cols = countryColumns(group, countries)
+          const cols = countryColumns(group, ['kr', 'jp'])
           if (cols.length === 0) return null
+          const head = (col: (typeof cols)[number]) =>
+            col.country ? (
+              <p key={`head-${col.country}`} className={s.countryHead}>
+                {labels.countries[col.country]}
+              </p>
+            ) : null
           const card = (item: ItemDef) => {
             const desc = labels.itemDescriptions?.[item.key]
             const price = priceText(item, group.key)
@@ -331,16 +340,18 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
             ? cols[0]!.items.flatMap((_, i) => cols.map((col) => col.items[i]!))
             : null
           return (
-            <section key={group.key} className={s.step}>
+            <section key={group.key} className={s.step} data-group={group.key}>
               <StepTitle id={id} title={labels.groupTitles[group.key] ?? group.key} hint={labels.groupHints[group.key]} />
               {interleaved ? (
-                <ChoiceGrid cols={cols.length} labelledBy={id}>
+                <ChoiceGrid cols={cols.length} labelledBy={id} className={s.countrySplit}>
+                  {cols.map(head)}
                   {interleaved.map(card)}
                 </ChoiceGrid>
               ) : cols.length > 1 ? (
-                <div className={s.countryCols} role="group" aria-labelledby={id}>
+                <div className={`${s.countryCols} ${s.countrySplit}`} role="group" aria-labelledby={id}>
                   {cols.map((col) => (
                     <div key={col.country} className={s.countryCol}>
+                      {head(col)}
                       {col.items.map(card)}
                     </div>
                   ))}
@@ -359,7 +370,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
 
         const cards = CARD_GROUPS.has(group.key)
         return (
-          <section key={group.key} className={`${s.step} ${cards ? s.grid : ''}`}>
+          <section key={group.key} className={`${s.step} ${cards ? s.grid : ''}`} data-group={group.key}>
             <StepTitle id={id} title={labels.groupTitles[group.key] ?? group.key} hint={labels.groupHints[group.key]} />
             {cards ? (
               <ChoiceGrid cols={group.key === 'country' ? 2 : 3} labelledBy={id}>
@@ -404,7 +415,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
         const group: GroupDef = { key: SIZE_SPEC_GROUP_KEY, multi: true, items: configured }
         const chosen = selections[group.key] ?? []
         return (
-          <section className={s.step}>
+          <section className={s.step} data-group="sizeSpec">
             <StepTitle id="group-sizeSpec" title={labels.groupTitles.sizeSpec ?? ''} />
             <div className={s.rows} role="group" aria-labelledby="group-sizeSpec">
               {configured.map((item) => {

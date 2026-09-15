@@ -159,7 +159,7 @@ export default async function QuotePage({ params }: Props) {
             <div className={s.infoRow}>
               <dt>{t('issuer')}</dt>
               <dd>
-                {company.name} · {company.phone}
+                {company.name} · <span style={{ whiteSpace: 'nowrap' }}>{company.phone}</span>
               </dd>
             </div>
           </dl>

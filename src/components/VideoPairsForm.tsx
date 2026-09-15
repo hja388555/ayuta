@@ -141,7 +141,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
                 key={item.key}
                 type="checkbox"
                 checked={types.includes(item.key)}
-                sub={priceText(item.key)}
+                sub={priceText(item.key) ? <span className={s.price}>{priceText(item.key)}</span> : undefined}
                 onChange={() => setTypes((prev) => toggleValue(prev, item.key))}
               >
                 {label(item.key)}
@@ -152,7 +152,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
       )}
 
       {lengthGroup && (
-        <section className={s.step}>
+        <section className={s.step} data-group="videoLength">
           <StepTitle id="group-videoLength" title={labels.groupTitles.videoLength ?? ''} />
           <ChoiceGrid cols={2} labelledBy="group-videoLength">
             {lengthGroup.items.map((item) => (
@@ -161,7 +161,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
                 type="radio"
                 name="videoLength"
                 checked={length === item.key}
-                sub={priceText(item.key)}
+                sub={priceText(item.key) ? <span className={s.price}>{priceText(item.key)}</span> : undefined}
                 onChange={() => setLength(item.key)}
               >
                 {label(item.key)}

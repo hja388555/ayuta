@@ -1,10 +1,10 @@
 /* 주문 폼 01~04 (Figma v2 208:2 · 218:2 · 218:367 · 219:2, 모바일 208:196 · 218:178 · 218:536 · 219:212) */
 
-.body { display: flex; flex-direction: column; gap: 32px; max-width: 960px; margin-inline: auto; padding: 28px var(--side) 48px; }
+.body { display: flex; flex-direction: column; gap: 32px; max-width: 1200px; margin-inline: auto; padding: 28px var(--side) 48px; }
 .bodyWide { gap: 40px; }
 
 /* 3·4번 나라 체크 행 아래 구분선(2026-09-14 3라운드) */
-.countryDivider { margin: 88px 0; border: 0; border-top: 1px solid var(--c-line); }
+.countryDivider { margin: 0; border: 0; border-top: 1px solid var(--c-line); }
 .title { margin: 0; font-size: 48px; font-weight: 800; line-height: 1.3; color: var(--c-title); }
 .titleParen { white-space: nowrap; }
 .step > :global(.step-title) { margin-bottom: 20px; }
@@ -12,6 +12,9 @@
 /* 한국/일본 나라 열(3·4번) */
 .countryCols { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; }
 .countryCol { display: grid; gap: 8px; align-content: start; }
+.countryHead { margin: 0; padding: 4px 0 8px; color: var(--c-title); font-size: 28px; font-weight: 800; line-height: 1.3; text-align: center; }
+.countrySplit { position: relative; column-gap: 64px !important; }
+.countrySplit::before { content: ''; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; background: var(--c-title); transform: translateX(-50%); }
 .oneCol :global(.choice-grid) { grid-template-columns: 1fr 1fr; }
 .desc { display: block; margin: 2px 0 4px; white-space: pre-line; font-size: 13px; font-weight: 500; color: var(--c-text2); }
 .posterNote { margin: 8px 0 0; font-size: 13px; color: var(--ink-500); }
@@ -25,15 +28,15 @@
 .srOnly { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
 
 /* 금액이 붙는 행 — 오른쪽 끝에 금액 */
-.rows { display: flex; flex-direction: column; gap: 12px; }
-.rows :global(.choice) { min-height: 62px; padding: 0 18px; font-size: 32px; }
+.rows { display: flex; flex-direction: column; gap: 20px; }
+.rows :global(.choice) { min-height: 48px; padding: 0 18px; font-size: 30px; }
 .rows :global(.choice) > span:last-child { flex: 1; display: flex; justify-content: space-between; align-items: center; gap: 12px; min-width: 0; }
-.price { flex: none; font-size: 30px; color: var(--ink-500); font-weight: 700; white-space: nowrap; }
+.price { flex: none; font-size: 26px; color: var(--ink-500); font-weight: 700; white-space: nowrap; }
 .rows :global(.choice):has(input:checked) .price { color: var(--brand-600); }
 
-.grid :global(.choice) { min-height: 60px; padding: 0 18px; font-size: 32px; }
-.grid :global(.choice-grid) { gap: 24px; }
-.platforms :global(.choice) { min-height: 64px; }
+.grid :global(.choice) { min-height: 48px; padding: 0 18px; font-size: 30px; }
+.step :global(.choice-grid) { gap: 32px; }
+.platforms :global(.choice) { min-height: 48px; }
 
 /* 기본 포함 칩 (02) */
 .chips { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -48,17 +51,17 @@
 .field input::placeholder { color: var(--ink-400); }
 
 /* 등급 비교표 (01) */
-.tableWrap { overflow-x: auto; border: 1px solid var(--c-title); border-radius: var(--radius); }
-.table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 26px; line-height: 1.4; color: var(--c-title); font-weight: 700; }
+.tableWrap { overflow-x: auto; border: 1px solid var(--c-sel-bg); border-radius: var(--radius); }
+.table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 28px; line-height: 1.4; color: var(--c-title); font-weight: 700; }
 .table col:first-child { width: 40%; }
 .table th, .table td { padding: 16px; text-align: center; border-top: 1px solid var(--c-line); }
-.table thead th { padding: 18px 16px; border-top: 0; background: var(--c-sum-bg); color: var(--c-title); font-size: 26px; }
+.table thead th { padding: 18px 16px; border-top: 0; background: var(--c-sum-bg); color: var(--c-title); font-size: 28px; }
 .table th:first-child, .table td:first-child { padding-left: 20px; text-align: left; }
 .table thead th:first-child { color: var(--c-title); font-size: 25px; }
-.table .on { background: var(--c-sel-bg); color: var(--c-title); box-shadow: inset 0 0 0 1.6px var(--c-title); }
-.table thead th.on { background: var(--c-amount); color: var(--c-title); }
+.table .on { background: var(--c-sel-bg); color: var(--c-title); box-shadow: inset 0 0 0 1.6px var(--c-sel-bg); }
+.table thead th.on { background: var(--c-sel-bg); color: var(--c-title); }
 .priceRow td { padding-block: 20px; color: var(--c-title); font-size: 22px; font-weight: 700; white-space: nowrap; }
-.priceRow td:first-child { font-size: 26px; white-space: normal; }
+.priceRow td:first-child { font-size: 28px; white-space: normal; }
 .priceRow td.on { color: var(--c-title); }
 .tierPick { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
 .tierPick input { position: absolute; opacity: 0; pointer-events: none; }
@@ -77,7 +80,7 @@
 .totalRowLabel { font-size: 17px; color: var(--c-sel-bg); }
 .totalRowAmount { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; color: var(--c-amount); }
 .payBtn { height: 60px; font-size: 20px; }
-.payBtn img { display: block; width: 24px; height: 24px; flex: none; }
+.payBtn img, .payBtn :global(.icon-mask) { display: block; width: 60px !important; height: 60px !important; flex: none; }
 
 /* 2번 기본 포함 · 안내 — Figma 303:188 Mobile · 303:60 PC */
 .chips2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
@@ -87,24 +90,30 @@
 @media (max-width: 767px) {
   .body { gap: 24px; padding: 20px 16px 32px; }
   .bodyWide { gap: 32px; }
-  .countryDivider { margin: 48px 0; }
+  .countryDivider { margin: 0; }
   .countryCols { gap: 32px; }
+  .countryHead { padding: 2px 0 6px; font-size: 17px; }
+  .countrySplit { column-gap: 25px !important; }
   .title { font-size: 20px; }
-  .rows { gap: 10px; }
-  .rows :global(.choice), .grid :global(.choice) { min-height: 56px; padding: 0 16px; font-size: 20px; font-weight: 800; }
+  .rows { gap: 16px; }
+  .rows :global(.choice), .grid :global(.choice) { min-height: 44px; padding: 0 12px; font-size: 16px; font-weight: 700; }
+  .table thead th:first-child { font-size: 16px; }
+  .platforms :global(.choice-grid) { grid-template-columns: 1fr; }
   /* 모바일은 이름 아래 금액(4번 항목 한 줄은 PC 전용) */
   .rows :global(.choice) > span:last-child { display: block; }
   .price { display: block; font-size: 17px; }
   .oneCol :global(.choice-grid) { grid-template-columns: 1fr; }
-  .grid :global(.choice-grid) { gap: 16px; }
+  .step :global(.choice-grid) { gap: 20px; }
   .chip { font-size: 13px; padding: 8px 12px; }
   .note { font-size: 13px; }
-  .table { font-size: 12px; }
+  .table { font-size: 15px; }
   .table col:first-child { width: 31%; }
   .table th, .table td { padding: 12px 4px; }
-  .table thead th { padding: 12px 4px; font-size: 12px; }
+  .table thead th { padding: 12px 4px; font-size: 15px; }
   .table th:first-child, .table td:first-child { padding-left: 10px; }
-  .priceRow td { font-size: 12px; }
+  .priceRow td { font-size: 12px; letter-spacing: -0.02em; padding-inline: 2px; }
+  .table thead th:not(:first-child) { font-size: 13px; }
+  .priceRow td:first-child { font-size: 15px; }
   .tierPick { gap: 4px; }
   /* 등급 이름이 글자 중간에서 꺾이지 않게 한다("プレミア/ム"). 좁은 칸에서는 체크 상자를 이름 위로 올려 폭을 확보한다 */
   .table thead th, .table td:first-child { word-break: keep-all; overflow-wrap: normal; }
@@ -114,4 +123,77 @@
   .itemsValue { font-size: 14px; }
   .totalRowLabel { font-size: 15px; }
   .totalRowAmount { font-size: 22px; }
+}
+
+/* PC: 금액은 이름 줄 오른쪽, 설명은 아래 줄 전체 폭. 한 줄 개수는 이름이 한 줄에 들어가는 만큼 */
+@media (min-width: 768px) {
+  .desc { grid-column: 1 / -1; grid-row: 2; white-space: pre-line; }
+  .price { grid-column: 2; grid-row: 1; }
+  .step[data-group='videoLength'] :global(.choice-grid),
+  .step[data-group='subwaySpot'] :global(.choice-grid) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .step[data-group='sizeSpec'] .rows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) {
+  /* 나라 두 열에서 이름+금액이 한 줄에 안 들어가는 섹션은 금액을 이름 아래로 */
+  .step[data-group='community'] .price { grid-column: 1; grid-row: 2; }
+}
+@media (min-width: 768px) {
+  /* 가독성: PC 보조 문구 키움 */
+  .desc { font-size: 20px; line-height: 1.5; }
+  .chip2 { font-size: 22px; padding: 10px 16px; }
+  .chip2 img, .chip2 :global(.icon-mask) { width: 20px; height: 20px; }
+  .videoNote { font-size: 20px; padding: 14px 18px; }
+  .posterNote { font-size: 18px; }
+}
+@media (min-width: 768px) {
+  /* 2026-09-15 클라이언트: 1~5번 내용 글씨를 섹션 제목(40px)보다 살짝 작게 키우고 진하지 않게 */
+  .body :global(.choice) { font-size: 34px; font-weight: 500; }
+  .body :global(.choice-sub) { font-size: 30px; font-weight: 500; }
+  .body .price { font-size: 30px; font-weight: 500; }
+  .desc { font-size: 30px; font-weight: 400; }
+  .table, .table thead th, .table thead th:first-child, .priceRow td:first-child { font-size: 34px; font-weight: 500; }
+  .priceRow td { font-size: 30px; font-weight: 500; }
+  .chip2 { font-size: 30px; font-weight: 500; }
+  .chip2 img, .chip2 :global(.icon-mask) { width: 26px; height: 26px; }
+  .videoNote { font-size: 28px; font-weight: 500; }
+  .posterNote { font-size: 26px; }
+  .countryHead { font-size: 34px; }
+  /* 글씨가 커져 한 줄에 3개가 안 들어가는 지하철 광고 위치는 2개씩 */
+  .step[data-group='subwaySpot'] :global(.choice-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) {
+  .body :global(.choice):has(input:checked) { font-weight: 500; }
+}
+/* 2026-09-15 클라이언트: 총 결제 상자·버튼 크기 절반, 버튼 좌우로 넓히지 않음 */
+@media (min-width: 768px) {
+  .pay { width: 100%; margin-left: 0; }
+  .pay .payBtn { width: 50%; align-self: center; }
+  .totalBox { padding: 10px 16px; gap: 4px; }
+  .payBtn { height: 52px; }
+}
+@media (max-width: 767px) {
+  /* 블로그 설명도 위 항목 글씨와 같은 크기 */
+  .desc { font-size: 17px; font-weight: 500; line-height: 1.5; }
+}
+@media (min-width: 768px) {
+  /* 총 금액 상자 글씨를 설명 글씨(28px)와 같게 */
+  .itemsLabel, .itemsValue, .totalRowLabel, .totalRowAmount { font-size: 28px; }
+  .totalRowLabel { font-weight: 500; }
+  .totalRowAmount { font-weight: 700; }
+}
+@media (max-width: 767px) {
+  /* 1번 표: 머리칸 등급 이름·금액 줄도 본문과 같은 크기대 */
+  .table thead th:not(:first-child) { font-size: 15px; }
+  .table thead th :global(.choice-box), .table thead th img { width: 18px; height: 18px; }
+  .priceRow td { font-size: 13px; letter-spacing: -0.04em; }
+  .priceRow td:first-child { font-size: 15px; letter-spacing: 0; }
+}
+@media (min-width: 768px) {
+  /* 결제하러 가기 글씨를 총 금액 상자와 같은 28px */
+  .pay .payBtn { font-size: 28px; height: 64px; }
+}
+@media (max-width: 767px) {
+  /* 4번 사이즈 규격: 가격을 이름 줄 오른쪽 끝으로 */
+  .step[data-group='sizeSpec'] :global(.choice) > span:last-child { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: center; }
+  .step[data-group='sizeSpec'] .price { display: inline; grid-column: 2; }
 }

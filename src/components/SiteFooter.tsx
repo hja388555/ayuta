@@ -1,3 +1,5 @@
+import { Fragment } from 'react'
+
 type Info = { businessNo: string; phone: string; ceo: string; contactPhone: string | null; address: string; mailOrderNo: string | null; name: string }
 type Labels = { businessNo: string; phone: string; ceo: string; contact: string; mailOrder: string }
 
@@ -12,19 +14,26 @@ type LegalLink = { href: string; label: string }
 type LegalLinks = { terms: LegalLink; privacy: LegalLink; refund: LegalLink }
 
 export function SiteFooter({ info, labels, legal }: { info: Info; labels: Labels; legal: LegalLinks }) {
-  const parts = [
-    `${labels.businessNo} ${info.businessNo}`,
-    `${labels.phone} ${info.phone}`,
-    `${labels.ceo} ${info.ceo}`,
-    info.contactPhone ? `${labels.contact} ${info.contactPhone}` : null,
-    info.address,
-    info.mailOrderNo ? `${labels.mailOrder} ${info.mailOrderNo}` : null,
-  ].filter(Boolean) as string[]
+  // 전화번호 칸은 좁은 화면에서도 "02-3394- / 8838" 처럼 끊기지 않게 한 덩어리로 둔다
+  const parts: [string, boolean][] = [
+    [`${labels.businessNo} ${info.businessNo}`, false],
+    [`${labels.phone} ${info.phone}`, true],
+    [`${labels.ceo} ${info.ceo}`, false],
+    info.contactPhone ? [`${labels.contact} ${info.contactPhone}`, true] : null,
+    [info.address, false],
+    info.mailOrderNo ? [`${labels.mailOrder} ${info.mailOrderNo}`, false] : null,
+  ].filter((p): p is [string, boolean] => p !== null)
   return (
     <footer data-site-footer="" className="site-footer">
       <div className="site-footer-inner">
         <p>
-          {info.name} | {parts.join(' | ')}
+          {info.name}
+          {parts.map(([text, keep]) => (
+            <Fragment key={text}>
+              {' | '}
+              <span style={keep ? { whiteSpace: 'nowrap' } : undefined}>{text}</span>
+            </Fragment>
+          ))}
         </p>
         <p style={{ marginTop: 6 }}>
           <a href={legal.terms.href}>{legal.terms.label}</a>

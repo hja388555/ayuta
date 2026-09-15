@@ -42,7 +42,8 @@
 .summaryTitle { margin: 0; font-size: 19px; font-weight: 800; color: var(--c-title); }
 .summaryLine { margin: 2px 0 0; font-size: 18px; font-weight: 700; color: var(--c-text2); }
 .summaryStrong { margin: 4px 0 0; font-size: 24px; font-weight: 800; color: var(--c-title); }
-.editLink { font-size: 18px; font-weight: 800; color: var(--c-title); text-decoration: none; }
+.editLink { display: inline-flex; align-items: center; gap: 6px; font-size: 18px; font-weight: 800; color: var(--c-title); text-decoration: none; }
+.editArrow { font-size: 64px; line-height: 1; margin-top: -10px; }
 
 /* 동의 행 — .choice 모양을 쓰되 오른쪽에 내용보기 버튼이 붙는다 */
 .consent { gap: 12px; min-height: 64px; cursor: default; }
@@ -92,4 +93,8 @@
   .summaryTitle { font-size: 17px; }
   .summaryLine { font-size: 16px; }
   .summaryStrong { font-size: 22px; }
+}
+@media (min-width: 768px) {
+  .note { font-size: 18px; }
+  .consentLabel { font-size: 22px; }
 }

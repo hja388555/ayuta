@@ -69,7 +69,7 @@ export function CoverSteps({ locale, categories, labels }: Props) {
 
       <section>
         <StepTitle id="cover-purpose" title={labels.stepPurpose} />
-        <ChoiceGrid cols={2} labelledBy="cover-purpose">
+        <ChoiceGrid cols={2} labelledBy="cover-purpose" className="purpose-grid">
           {PURPOSE_CODES.map((code) => (
             <ChoiceCard
               key={code}
@@ -92,7 +92,7 @@ export function CoverSteps({ locale, categories, labels }: Props) {
           </p>
         )}
 
-        <div style={{ display: 'grid', gap: 12 }} aria-labelledby="cover-service" role="list">
+        <div className="service-list" aria-labelledby="cover-service" role="list">
           {categories.map((c) => (
             // 클릭이 곧 이동이다. 확인 단계·[다음] 버튼을 만들지 않는다 (G1, G2-7) —
             // 나라 미선택 시에만 handleServiceClick이 이동을 막는다

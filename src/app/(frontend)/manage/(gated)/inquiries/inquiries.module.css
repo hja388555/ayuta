@@ -84,5 +84,7 @@
   .infoRow { flex-direction: column; gap: 2px; }
   .infoLabel { width: auto; }
   .cDel, .del { width: 42px; }
+  .lineHead, .line { flex-wrap: wrap; }
+  .cLabel { flex: 1 1 100%; }
   .field { padding: 0 8px; }
 }

@@ -26,7 +26,7 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
   const tabIcon = (name: string, color?: string) => (
     <span
       className="icon-mask"
-      style={{ width: 36, height: 36, color, ['--icon-url' as string]: `url(/ui/tab-${name}.svg)` }}
+      style={{ width: 36, height: 36, color, ['--icon-url' as string]: `url(/ui/tab-${name}-fill.svg)` }}
       aria-hidden
     />
   )
@@ -35,10 +35,10 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
     return (
       <nav className="arrowbar" aria-label="Navigation">
         <button type="button" onClick={() => window.history.back()}>
-          {labels.back}
+          <span className="arrowbar-arrow" aria-hidden>‹</span> {labels.back.replace(/[‹›]/g, "").trim()}
         </button>
         <button type="button" onClick={() => window.history.forward()}>
-          {labels.next}
+          {labels.next.replace(/[‹›]/g, "").trim()} <span className="arrowbar-arrow" aria-hidden>›</span>
         </button>
       </nav>
     )
@@ -55,8 +55,8 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
       <a href={`tel:${phone.replace(/[^\d+]/g, '')}`} aria-label={labels.call}>
         {tabIcon('phone', '#16a34a')}
       </a>
-      <Link href={chat} aria-current={onChat ? 'page' : undefined} aria-label={labels.chat}>
-        {tabIcon('chat')}
+      <Link href={chat} aria-current={onChat ? 'page' : undefined} className="tabbar-chat" aria-label={labels.chat}>
+        <span className="tabbar-chat-circle">{labels.chat}</span>
       </Link>
       <Link
         href={mypage}

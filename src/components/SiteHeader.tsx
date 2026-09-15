@@ -4,7 +4,6 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import { LoginRequiredModal } from './LoginRequiredModal'
-import { RoundContactButtons } from './FloatingContact'
 import { isHeaderHidden } from '../lib/header-visibility'
 
 type Labels = {
@@ -97,7 +96,6 @@ export function SiteHeader({
         <LanguageLinksWithQuery locale={locale} pathname={pathname} />
       </Suspense>
       <div className="site-header-right">
-        <RoundContactButtons locale={locale} phone={phone} labels={{ chat: labels.chat, call: labels.call }} />
         <div className="site-auth">
           {loggedIn ? (
             <>

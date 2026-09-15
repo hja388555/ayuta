@@ -75,7 +75,7 @@ export default async function LocaleLayout({
         }}
         phone={footerInfo.phone}
       />
-      <FloatingContact locale={locale} phone={footerInfo.phone} labels={{ chat: tTabs('chat'), call: tTabs('call') }} />
+      <FloatingContact locale={locale} phone={footerInfo.phone} labels={{ home: tTabs('home'), call: tTabs('call'), chat: tTabs('chat'), mypage: tTabs('mypage') }} />
       {children}
       <InstallBanner labels={{ title: tInstall('title'), install: tInstall('install'), close: tInstall('close'), iosHint: tInstall('iosHint') }} />
       <FooterSlot

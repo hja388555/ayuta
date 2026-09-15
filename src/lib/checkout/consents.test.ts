@@ -36,8 +36,8 @@ describe('기본 동의(이용약관·개인정보) 항상 포함', () => {
     const template = [{ key: 'contract', label: '계약 내용에 동의합니다.', required: true }]
     const result = withBaseConsents(template, 'ko')
     expect(result.map((d) => d.key)).toEqual(['terms', 'privacy', 'contract'])
-    expect(result[0]).toEqual({ key: 'terms', label: '서비스 이용 약관에 동의 합니다.', required: true })
-    expect(result[1]).toEqual({ key: 'privacy', label: '개인정보 수집 이용에 동의 합니다.', required: true })
+    expect(result[0]).toEqual({ key: 'terms', label: '서비스 이용 약관에 동의합니다.', required: true })
+    expect(result[1]).toEqual({ key: 'privacy', label: '개인정보 수집 이용에 동의합니다.', required: true })
   })
 
   it('일본어 화면은 일본어 문구를 쓴다', () => {

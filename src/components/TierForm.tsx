@@ -244,7 +244,7 @@ export function PaySection({
       </div>
       <button type="button" className={`btn btn-primary btn-block ${s.payBtn}`} disabled={disabled} onClick={onPay}>
         {payButton}
-        <span className="icon-mask" style={{ width: 18, height: 18, ['--icon-url' as string]: "url('/ui/chevron.svg')" }} aria-hidden />
+        <span className="icon-mask" style={{ width: 56, height: 56, ['--icon-url' as string]: "url('/ui/chevron.svg')" }} aria-hidden />
       </button>
     </div>
   )
