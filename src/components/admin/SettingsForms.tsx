@@ -384,7 +384,7 @@ export function NotifyMailCard({ email }: { email: string }) {
 
 /**
  * 내 비밀번호 변경(Figma [v2] A10 282:2 PC / 282:49 Mobile, 2026-09-12 추가). 로그인한 관리자 누구나 자기 비밀번호만 바꾼다.
- * 서버(/api/me/password)가 현재 비밀번호를 로그인으로 확인하고 규칙(10자·조합)을 다시 본다 — 여기 검사는 안내용이다.
+ * 서버(/api/me/password)가 현재 비밀번호를 로그인으로 확인하고 규칙(8자 이상)을 다시 본다 — 여기 검사는 안내용이다.
  */
 export function AdminPasswordForm() {
   const [v, setV] = useState({ current: '', next: '', confirm: '' })
@@ -408,7 +408,7 @@ export function AdminPasswordForm() {
 
   const fields: Array<{ key: keyof typeof v; label: string; placeholder: string; autoComplete: string }> = [
     { key: 'current', label: '현재 비밀번호', placeholder: '현재 비밀번호를 입력해 주세요', autoComplete: 'current-password' },
-    { key: 'next', label: '새 비밀번호', placeholder: '영문 · 숫자 · 기호 조합 10자 이상', autoComplete: 'new-password' },
+    { key: 'next', label: '새 비밀번호', placeholder: '8자 이상', autoComplete: 'new-password' },
     { key: 'confirm', label: '새 비밀번호 확인', placeholder: '새 비밀번호를 한 번 더 입력해 주세요', autoComplete: 'new-password' },
   ]
 
@@ -428,7 +428,7 @@ export function AdminPasswordForm() {
           />
         </label>
       ))}
-      <p className={s.hint}>로그인한 내 계정의 비밀번호를 바꿉니다. 영문 · 숫자 · 기호를 섞어 10자 이상으로 정해 주세요.</p>
+      <p className={s.hint}>로그인한 내 계정의 비밀번호를 바꿉니다. 8자 이상으로 정해 주세요.</p>
       <button type="button" className={`btn btn-primary btn-block ${s.bigBtn}`} onClick={save} disabled={busy}>
         {busy ? '바꾸는 중…' : '비밀번호 변경'}
       </button>

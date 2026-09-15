@@ -27,13 +27,8 @@ afterAll(async () => {
   await payload.delete({ collection: 'users', id: userId, overrideAccess: true }).catch(() => {})
 })
 
-describe('비밀번호 변경 규칙(Q34)', () => {
-  it.each([
-    ['too_short', 'Ab1!short'],
-    ['needs_letter', '1234567890!'],
-    ['needs_number', 'abcdefghij!'],
-    ['needs_symbol', 'abcdefghij1'],
-  ])('%s 이면 400 weak_password', async (_, newPassword) => {
+describe('비밀번호 변경 규칙(8자 이상)', () => {
+  it.each([['too_short', 'Ab1!abc']])('%s 이면 400 weak_password', async (_, newPassword) => {
     const res = await post('/api/me/password', { currentPassword: PW, newPassword })
     expect(res.status).toBe(400)
     expect((await res.json()).error).toBe('weak_password')
