@@ -8,7 +8,7 @@
 const MESSAGES: Record<string, string> = {
   unauthenticated: '로그인이 풀렸습니다. 다시 로그인해 주세요.',
   wrong_password: '현재 비밀번호가 맞지 않습니다. 5회 틀리면 10분간 잠깁니다.',
-  weak_password: '새 비밀번호는 영문 · 숫자 · 기호를 섞어 10자 이상이어야 합니다.',
+  weak_password: '새 비밀번호는 8자 이상이어야 합니다.',
   same_password: '새 비밀번호가 현재 비밀번호와 같습니다. 다른 비밀번호를 입력해 주세요.',
   forbidden: '이 작업을 할 권한이 없습니다.',
   invalid_input: '입력값이 올바르지 않습니다. 다시 확인해 주세요.',
@@ -38,7 +38,7 @@ const MESSAGES: Record<string, string> = {
   invite_failed: '초대를 만들지 못했습니다. 잠시 후 다시 시도해 주세요.',
   cannot_change_self: '자기 자신의 권한은 바꿀 수 없습니다.',
   last_super: '마지막 최고관리자의 권한은 내릴 수 없습니다. 다른 최고관리자를 먼저 만들어 주세요.',
-  password_too_short: '관리자 비밀번호는 10자 이상이어야 합니다.',
+  password_too_short: '관리자 비밀번호는 8자 이상이어야 합니다.',
   unknown_placeholder: '계약서에 채울 수 없는 빈칸({{...}})이 있습니다. 오타가 없는지 확인해 주세요. 그대로 저장하면 해당 상품 주문이 막힙니다.',
   consent_keys_mismatch: '동의 항목 구성이 바뀌었습니다. 화면을 새로고침한 뒤 문구만 고쳐 주세요.',
   legal_failed: '문서를 저장하지 못했습니다. 화면을 새로고침한 뒤 다시 시도해 주세요.',

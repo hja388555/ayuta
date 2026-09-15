@@ -232,3 +232,7 @@
   /* 1~4번 섹션 사이 여백 48px(2026-09-16 사용자) */
   .body, .bodyWide { gap: 48px; }
 }
+@media (min-width: 768px) {
+  /* 1~4번 섹션 사이 여백 72px(2026-09-16 사용자) */
+  .body, .bodyWide { gap: 72px; }
+}

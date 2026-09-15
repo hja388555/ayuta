@@ -92,8 +92,8 @@ describe('POST /api/signup', () => {
     expect(await userByEmail(email)).toBeUndefined()
   })
 
-  it('비밀번호 규칙(영문·숫자·기호 10자 이상)에 안 맞으면 400 weak_password 이다', async () => {
-    for (const password of ['short', 'abcdefghij1', 'abcdefghij!', '1234567890!']) {
+  it('비밀번호 규칙(8자 이상)에 안 맞으면 400 weak_password 이다', async () => {
+    for (const password of ['short', 'abc123!']) {
       const email = `mp-weak+${RUN}-${password.length}${password[0]}@ayuta.test`
       const res = await post('/api/signup', signupBody(email, { password }))
       expect(res.status).toBe(400)
