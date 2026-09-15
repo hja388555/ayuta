@@ -227,3 +227,8 @@
   /* 일본어 1번 표 머리칸: 등급 이름이 단어 중간에서 끊기지 않게 한 줄 + 조금 작게 */
   :global(:lang(ja)) .table thead th:not(:first-child) { font-size: 30px; white-space: nowrap; padding-inline: 8px; }
 }
+
+@media (min-width: 768px) {
+  /* 1~4번 섹션 사이 여백 48px(2026-09-16 사용자) */
+  .body, .bodyWide { gap: 48px; }
+}

@@ -26,8 +26,9 @@ async function brandColor() {
 
 // 로고에서 흰 글자만 떼어 낸다. 타원을 그대로 얹으면 가장자리 안티앨리어싱이 옅은 테두리로 남는다.
 // 밝기(흰 정도)를 알파로 삼은 흰색 이미지 — 파란 타원·투명 배경은 모두 알파 0 쪽으로 간다
+// 로고에서 흰 글자만 떼어 낸 뒤 투명 여백을 잘라, 글자 폭이 width 가 되게 맞춘다
 async function lettering(width) {
-  const { data, info } = await sharp(SRC).resize({ width }).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
+  const { data, info } = await sharp(SRC).ensureAlpha().raw().toBuffer({ resolveWithObject: true })
   const out = Buffer.alloc(info.width * info.height * 4)
   for (let p = 0; p < info.width * info.height; p++) {
     const i = p * 4
@@ -37,7 +38,8 @@ async function lettering(width) {
     out[i] = out[i + 1] = out[i + 2] = 255
     out[i + 3] = Math.round((white * data[i + 3]) / 255)
   }
-  return sharp(out, { raw: { width: info.width, height: info.height, channels: 4 } }).png().toBuffer()
+  const trimmed = await sharp(out, { raw: { width: info.width, height: info.height, channels: 4 } }).trim({ threshold: 10 }).png().toBuffer()
+  return sharp(trimmed).resize({ width }).png().toBuffer()
 }
 
 async function icon(size, logoRatio, out, background) {
@@ -54,11 +56,11 @@ const color = await brandColor()
 const hex = '#' + [color.r, color.g, color.b].map((v) => v.toString(16).padStart(2, '0')).join('').toUpperCase()
 console.log('brand color', hex)
 
-// 일반 아이콘: 로고를 크게(글자가 잘 보이게)
-await icon(192, 0.92, path.join(root, 'public/icons/icon-192.png'), color)
-await icon(512, 0.92, path.join(root, 'public/icons/icon-512.png'), color)
-// maskable: 안전 영역(지름 80%) 안에 글자가 들어가게 로고 폭 70%
-await icon(512, 0.7, path.join(root, 'public/icons/icon-maskable-512.png'), color)
+// 일반 아이콘: 글자만 한 줄로 크게 — 아이콘 폭의 86%
+await icon(192, 0.86, path.join(root, 'public/icons/icon-192.png'), color)
+await icon(512, 0.86, path.join(root, 'public/icons/icon-512.png'), color)
+// maskable: 안전 영역(지름 80% 원) 안에 글자가 들어가게 64%
+await icon(512, 0.64, path.join(root, 'public/icons/icon-maskable-512.png'), color)
 // iOS 홈 화면(apple-touch-icon)과 브라우저 탭 파비콘 — Next 가 app/ 의 파일을 자동으로 연결한다
-await icon(180, 0.92, path.join(root, 'src/app/apple-icon.png'), color)
-await icon(48, 0.95, path.join(root, 'src/app/icon.png'), color)
+await icon(180, 0.86, path.join(root, 'src/app/apple-icon.png'), color)
+await icon(48, 0.9, path.join(root, 'src/app/icon.png'), color)

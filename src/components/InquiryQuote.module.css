@@ -130,3 +130,8 @@
 @media (min-width: 768px) {
   .band, .page { padding-inline: max(32px, calc((100vw - 1200px) / 2)); }
 }
+
+@media (min-width: 768px) {
+  /* 5번 문의 폼 블록 사이 여백 48px(2026-09-16 사용자) */
+  .form { gap: 48px; }
+}

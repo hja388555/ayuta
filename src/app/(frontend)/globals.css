@@ -335,3 +335,19 @@ body {
 @media (min-width: 768px) {
   :lang(ja) .choice > span:last-child { white-space: normal; }
 }
+
+@media (min-width: 768px) {
+  /* PC 우측 원 3개(전화·채팅·마이페이지) 70px (2026-09-16 사용자) */
+  .round-contact-btn { width: 70px; height: 70px; }
+  .round-contact-btn .icon-mask { width: 42px; height: 42px; }
+  .round-contact-chat-text { font-size: 16px; }
+}
+
+/* 섹션 사이 여백(2026-09-16 사용자): PC 메인 국가→목적→서비스 48px, 모바일 광고 목적↔서비스 36px, 모바일 서비스 화살표는 글자 크기 */
+@media (min-width: 768px) {
+  .cover-steps { gap: 48px; }
+}
+@media (max-width: 767px) {
+  .cover-steps { gap: 36px; }
+  .row-link::after { width: 17px; height: 17px; background-size: 17px 17px; }
+}
