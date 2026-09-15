@@ -617,9 +617,9 @@ const CONTRACT_3_JA = `AYUTA 代表新聞・地域新聞・ブログ広告サー
 契約日: {{contractDate}}`
 
 const CONSENTS_3_KO: ConsentDef[] = [
-  { key: 'terms', label: '서비스 이용약관을 확인하고 동의합니다.', required: true },
-  { key: 'privacy', label: '개인정보 수집·이용에 동의합니다.', required: true },
-  { key: 'contract', label: '위 계약내용 및 취소·환불 조건을 확인하고 동의합니다.', required: true },
+  { key: 'terms', label: '서비스 이용 약관에 동의합니다.', required: true },
+  { key: 'privacy', label: '개인정보 수집 이용에 동의합니다.', required: true },
+  { key: 'contract', label: '위 계약 내용을 모두 확인하였으며 이에 동의합니다.', required: true },
 ]
 const CONSENTS_3_JA: ConsentDef[] = [
   { key: 'terms', label: 'サービス利用規約を確認し同意します。', required: true },
@@ -822,9 +822,9 @@ const CONTRACT_4_JA = `AYUTA 地下鉄・バス・ブログサービス契約書
 □ 本契約内容とキャンセル・返金条件を確認し同意します。`
 
 const CONSENTS_4_KO: ConsentDef[] = [
-  { key: 'terms', label: '서비스 이용약관을 확인하고 동의합니다.', required: true },
-  { key: 'privacy', label: '개인정보 수집·이용에 동의합니다.', required: true },
-  { key: 'contract', label: '본 계약내용과 취소·환불 조건을 확인하고 동의합니다.', required: true },
+  { key: 'terms', label: '서비스 이용 약관에 동의합니다.', required: true },
+  { key: 'privacy', label: '개인정보 수집 이용에 동의합니다.', required: true },
+  { key: 'contract', label: '위 계약 내용을 모두 확인하였으며 이에 동의합니다.', required: true },
 ]
 const CONSENTS_4_JA: ConsentDef[] = [
   { key: 'terms', label: 'サービス利用規約を確認し同意します。', required: true },

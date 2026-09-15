@@ -197,3 +197,25 @@
   .step[data-group='sizeSpec'] :global(.choice) > span:last-child { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: center; }
   .step[data-group='sizeSpec'] .price { display: inline; grid-column: 2; }
 }
+/* Q55 피그마 [v3] 재대조(2026-09-15): 본문 1200, 칸 간격 20, 선택 금액 남색, 총 금액 상자 */
+@media (min-width: 768px) {
+  .body { box-sizing: border-box; width: 100%; max-width: 1264px; padding-inline: 32px; }
+  .step :global(.choice-grid), .countryCol { gap: 20px; }
+  .rows :global(.choice), .grid :global(.choice) { padding: 12px 14px; }
+  .pay .payBtn { width: 590px; max-width: 100%; }
+  .totalBox { gap: 10px; }
+  .itemsLabel, .itemsValue { font-weight: 500; }
+}
+@media (max-width: 767px) {
+  .countryCol { gap: 16px; }
+  .step :global(.choice-grid) { gap: 16px; }
+  .periods :global(.choice-grid) { gap: 12px; }
+  .rows :global(.choice), .grid :global(.choice) { padding: 10px 12px; }
+  .totalBox { padding-inline: 24px; }
+  .price { font-size: 18px; font-weight: 800; }
+  .priceRow td { padding-block: 20px; }
+  .table thead th:first-child { font-size: 15px; }
+  .tierBox { width: 18px; height: 18px; }
+}
+.grid :global(.choice):has(input:checked) .price,
+.body :global(.choice):has(input:checked) .price { color: #2b4a73; }

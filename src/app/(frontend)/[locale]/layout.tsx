@@ -6,6 +6,7 @@ import { FloatingContact } from '@/components/FloatingContact'
 import { FooterSlot } from '@/components/FooterSlot'
 import { InstallBanner } from '@/components/InstallBanner'
 import { MobileTabBar } from '@/components/MobileTabBar'
+import { PcScale } from '@/components/PcScale'
 import { loadFooterInfo } from '@/lib/company-settings'
 import { getSessionUser } from '@/lib/dal'
 import { isAdminRole } from '@/lib/roles'
@@ -59,6 +60,7 @@ export default async function LocaleLayout({
 
   return (
     <NextIntlClientProvider>
+      <PcScale />
       <SiteHeader
         locale={locale}
         loggedIn={Boolean(user)}

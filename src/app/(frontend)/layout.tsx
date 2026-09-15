@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default async function FrontendLayout({ children }: { children: React.ReactNode }) {
   const locale = await getLocale()
   return (
-    <html lang={locale}>
+    <html lang={locale} suppressHydrationWarning>
       <body>{children}</body>
     </html>
   )

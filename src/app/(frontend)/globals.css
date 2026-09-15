@@ -306,3 +306,23 @@ body {
   /* 메인 광고 서비스 목록: 피그마 폭 1022px, 왼쪽 정렬 (2026-09-15) */
   .service-list { max-width: 1022px; }
 }
+/* Q55 피그마 [v3] 재대조(2026-09-15): 메인 칸 여백·간격, 서비스 줄 간격 20, 푸터 20px */
+.service-list { gap: 20px; }
+@media (min-width: 768px) {
+  .choice { padding: 12px 14px; }
+  .cover-steps .choice-grid { gap: 20px; }
+  .site-footer-inner { font-size: 20px; line-height: 1.5; }
+  .round-contact-chat-text { font-weight: 700; }
+}
+@media (max-width: 767px) {
+  .choice { padding: 10px 12px; }
+  .cover-steps .choice-sub { font-size: 16px; font-weight: 500; }
+}
+@media (max-width: 767px) {
+  .arrowbar-arrow { width: 34px; height: 34px; margin-top: 0; font-size: 0; }
+  .arrowbar-arrow-back { transform: scaleX(-1); }
+}
+@media (min-width: 768px) {
+  /* PC 우측 상담 버튼: 오른쪽 아래 → 오른쪽 세로 가운데(2026-09-15 사용자, 피그마 [v3] 메인 위치) */
+  .round-contact-fixed { top: 50%; bottom: auto; transform: translateY(-50%); }
+}

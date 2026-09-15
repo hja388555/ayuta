@@ -98,3 +98,19 @@
   .note { font-size: 18px; }
   .consentLabel { font-size: 22px; }
 }
+/* Q55 피그마 [v3] 재대조(2026-09-15): 본문 1200 가운데, 결제하기 버튼 590 가운데 */
+@media (min-width: 768px) {
+  .page { max-width: 1200px; margin-inline: auto; }
+  .payBtn { display: flex; width: 590px; max-width: 100%; margin-inline: auto; }
+}
+@media (max-width: 767px) {
+  .row { gap: 16px; }
+}
+/* Q55 사용자 결정(2026-09-15): 결제·견적 결제 공통 — 안내·서명·동의 PC 22px, 수정하기 화살표는 아이콘 */
+.editArrow { display: inline-block; width: 30px; height: 30px; margin-top: 0; font-size: 0; vertical-align: middle; transform: scaleX(-1); }
+@media (min-width: 768px) {
+  .note, .sign, .consentLabel { font-size: 22px; }
+}
+@media (max-width: 767px) {
+  .editArrow { width: 28px; height: 28px; }
+}
