@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isHeaderHidden } from './header-visibility'
+import { isHeaderHidden, isPcHeaderHidden } from './header-visibility'
 
 describe('헤더 숨김 판정(6라운드)', () => {
   it('1~4번 주문 화면(digital-sns·local-video·press-blog·transit)은 헤더를 숨긴다', () => {
@@ -19,5 +19,23 @@ describe('헤더 숨김 판정(6라운드)', () => {
     expect(isHeaderHidden('/ko')).toBe(false)
     expect(isHeaderHidden('/ko/mypage')).toBe(false)
     expect(isHeaderHidden('/ja/quote/abc123')).toBe(false)
+  })
+})
+
+describe('PC 헤더 숨김 판정(메인에만 헤더)', () => {
+  it('주문 흐름(1~5번·결제)과 견적 확인 화면은 PC 에서 헤더를 숨긴다', () => {
+    expect(isPcHeaderHidden('/ko/order/digital-sns')).toBe(true)
+    expect(isPcHeaderHidden('/ko/order/transit/checkout')).toBe(true)
+    expect(isPcHeaderHidden('/ja/order/other')).toBe(true)
+    expect(isPcHeaderHidden('/ko/order/complete')).toBe(true)
+    expect(isPcHeaderHidden('/ja/quote/abc123')).toBe(true)
+  })
+
+  it('메인·마이페이지·로그인 등은 PC 에서도 헤더를 유지한다', () => {
+    expect(isPcHeaderHidden('/ko')).toBe(false)
+    expect(isPcHeaderHidden('/ja/')).toBe(false)
+    expect(isPcHeaderHidden('/ko/mypage')).toBe(false)
+    expect(isPcHeaderHidden('/ko/login')).toBe(false)
+    expect(isPcHeaderHidden('/ko/orders')).toBe(false)
   })
 })
