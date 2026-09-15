@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import { LoginRequiredModal } from './LoginRequiredModal'
-import { isHeaderHidden } from '../lib/header-visibility'
+import { isHeaderHidden, isPcHeaderHidden } from '../lib/header-visibility'
 
 type Labels = {
   logo: string
@@ -85,7 +85,7 @@ export function SiteHeader({
   }
 
   return (
-    <header className="site-header">
+    <header className={isPcHeaderHidden(pathname) ? 'site-header site-header-pc-hidden' : 'site-header'}>
       {/* 로고·메뉴·전화를 지운 헤더에도 홈으로 가는 링크는 남겨 둔다(스크린리더 전용) */}
       <Link href={home} className="sr-only">
         {labels.logo}

@@ -13,3 +13,12 @@ export function isHeaderHidden(pathname: string): boolean {
   // 같은 카테고리라도 checkout(결제) 화면은 헤더를 유지한다
   return !rest?.startsWith('checkout')
 }
+
+/**
+ * PC(768px 이상)에서 헤더를 숨길 경로(2026-09-15 사용자 결정 — PC 헤더는 메인에만).
+ * 메인에서 서비스를 선택해 들어간 주문 흐름(1~5번 주문·결제)과 견적 확인 화면은 PC 에서 헤더를 숨긴다.
+ * 모바일 표시는 isHeaderHidden 규칙 그대로다.
+ */
+export function isPcHeaderHidden(pathname: string): boolean {
+  return /^\/(ko|ja)\/(order|quote)(\/|$)/.test(pathname)
+}
