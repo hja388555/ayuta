@@ -366,7 +366,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
           <TotalBar label={labels.totalLabel} amount={formatAmount(amount, currency)} />
           {editHref ? (
             <a href={editHref} className={s.editLink}>
-              <span className={s.editArrow} aria-hidden>‹</span> {labels.editSelection}
+              <span className={`icon-mask ${s.editArrow}`} style={{ ['--icon-url' as string]: "url('/ui/chevron.svg')" }} aria-hidden /> {labels.editSelection}
             </a>
           ) : null}
         </section>

@@ -119,3 +119,14 @@
   .input, .textarea { font-size: 28px; }
   .check, .consentText { font-size: 28px; font-weight: 400; }
 }
+/* Q55 피그마 [v3] 재대조(2026-09-15): 5번 문의 폼 간격·버튼 590 가운데 */
+.form { gap: 21px; margin-top: 20px; }
+@media (min-width: 768px) {
+  .submit { width: 590px; max-width: 100%; align-self: center; margin-inline: auto; }
+}
+@media (max-width: 767px) {
+  .form { gap: 40px; margin-top: 40px; }
+}
+@media (min-width: 768px) {
+  .band, .page { padding-inline: max(32px, (100% - 1200px) / 2); }
+}

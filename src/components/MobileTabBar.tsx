@@ -35,10 +35,10 @@ export function MobileTabBar({ locale, phone, loggedIn, labels }: { locale: stri
     return (
       <nav className="arrowbar" aria-label="Navigation">
         <button type="button" onClick={() => window.history.back()}>
-          <span className="arrowbar-arrow" aria-hidden>‹</span> {labels.back.replace(/[‹›]/g, "").trim()}
+          <span className="icon-mask arrowbar-arrow arrowbar-arrow-back" style={{ ['--icon-url' as string]: "url('/ui/chevron.svg')" }} aria-hidden /> {labels.back.replace(/[‹›]/g, "").trim()}
         </button>
         <button type="button" onClick={() => window.history.forward()}>
-          {labels.next.replace(/[‹›]/g, "").trim()} <span className="arrowbar-arrow" aria-hidden>›</span>
+          {labels.next.replace(/[‹›]/g, "").trim()} <span className="icon-mask arrowbar-arrow" style={{ ['--icon-url' as string]: "url('/ui/chevron.svg')" }} aria-hidden />
         </button>
       </nav>
     )
