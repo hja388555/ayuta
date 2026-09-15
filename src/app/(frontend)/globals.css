@@ -351,3 +351,11 @@ body {
   .cover-steps { gap: 36px; }
   .row-link::after { width: 17px; height: 17px; background-size: 17px 17px; }
 }
+/* 섹션 사이 여백 확대(2026-09-16 사용자 "더 늘려야겠다"): PC 72px, 모바일 48px 통일 */
+@media (min-width: 768px) {
+  .cover-steps { gap: 72px; }
+}
+@media (max-width: 767px) {
+  .cover-steps { gap: 48px; }
+  .cover-steps > section:first-child { margin-bottom: 0; }
+}
