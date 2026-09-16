@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { isSuperRole } from '@/lib/roles'
 import { authedPayload } from '@/lib/admin/orders-data'
-import { formFor } from '@/lib/category-groups'
+import { formFor, type CategoryForm } from '@/lib/category-groups'
+import { loadServices, loadServiceForm } from '@/lib/services/load'
 import { PERIOD_KEYS } from '@/globals/PricingSettings'
 import { PeriodMultiplierForm } from '@/components/admin/PeriodMultiplierForm'
 import { PriceBoard, type PriceRow, type PriceSection } from '@/components/admin/PriceBoard'
@@ -16,9 +17,10 @@ import koMessages from '../../../../../../messages/ko.json'
  * A8 단가 관리(Figma [v2] 230:2 / 230:117). 셸(사이드바·헤더)은 (gated)/layout 이 그린다 — 여기는 본문만.
  *
  * 조회는 관리자 전부, 저장은 super 만(API 가 최종 판정한다).
- * 카테고리 1~4 만 다룬다 — 5번은 문의 후 관리자가 견적을 발행하는 흐름이라 단가표가 없다.
+ * 탭은 DB 의 서비스에서 만든다 — 관리자가 추가한 서비스도 단가를 고칠 수 있어야 한다.
+ * 문의형(inquiry)은 뺀다: 문의 후 관리자가 견적을 발행하는 흐름이라 단가표가 없다.
  */
-const CATEGORY_TABS = [
+const FALLBACK_TABS = [
   { no: 1, label: '1. 디지털 · SNS' },
   { no: 2, label: '2. 현지 영상' },
   { no: 3, label: '3. 신문 · 블로그' },
@@ -41,7 +43,13 @@ export default async function PricesPage({ searchParams }: Props) {
 
   const sp = await searchParams
   const requested = Number(typeof sp.c === 'string' ? sp.c : '1')
-  const category = CATEGORY_TABS.find((t) => t.no === requested)?.no ?? 1
+
+  // 탭은 공개된 서비스에서 만든다. 문의형은 단가표가 없어 뺀다(5번, 그리고 관리자가 만든 문의형)
+  const services = await loadServices().catch(() => [])
+  const tabs = services.length > 0
+    ? services.filter((v) => v.model !== 'inquiry').map((v) => ({ no: v.no, label: v.nameKo }))
+    : FALLBACK_TABS.map((t) => ({ no: t.no, label: t.label }))
+  const category = tabs.find((t) => t.no === requested)?.no ?? tabs[0]?.no ?? 1
 
   const { payload, user: payloadUser } = await authedPayload()
   const { docs } = await payload.find({
@@ -84,7 +92,9 @@ export default async function PricesPage({ searchParams }: Props) {
   const settings =
     category === 4 ? await payload.findGlobal({ slug: 'pricing-settings', depth: 0, user: payloadUser, overrideAccess: false }) : null
   const periodLabels = koMessages.groupForm.periods as Record<string, string>
-  const sections = buildSections(category, rows)
+  // 묶음 정의도 DB 를 먼저 본다 — 관리자가 묶음을 고치면 단가 화면의 구분도 따라가야 한다
+  const form = (await loadServiceForm(category)) ?? formFor(category) ?? null
+  const sections = buildSections(category, rows, form)
 
   return (
     <div className={s.page}>
@@ -98,7 +108,7 @@ export default async function PricesPage({ searchParams }: Props) {
       </p>
 
       <nav className={s.tabs} aria-label="서비스">
-        {CATEGORY_TABS.map((t) => (
+        {tabs.map((t) => (
           <Link key={t.no} href={`/manage/prices?c=${t.no}`} className={t.no === category ? `${s.tab} ${s.tabActive}` : s.tab} aria-current={t.no === category ? 'page' : undefined}>
             {t.label}
           </Link>
@@ -145,8 +155,11 @@ export default async function PricesPage({ searchParams }: Props) {
   )
 }
 
-/** 화면 묶음(등급·그룹)대로 단가 줄을 나눈다. 묶음에 없는 줄은 '기타 항목'으로 모아 빠뜨리지 않는다 */
-function buildSections(category: number, rows: PriceRow[]): PriceSection[] {
+/**
+ * 화면 묶음(등급·그룹)대로 단가 줄을 나눈다. 묶음에 없는 줄은 '기타 항목'으로 모아 빠뜨리지 않는다.
+ * 묶음 정의는 넘겨받는다 — DB 에 있으면 그것을, 없으면 호출부가 기존 상수를 준다
+ */
+function buildSections(category: number, rows: PriceRow[], form: CategoryForm | null): PriceSection[] {
   const byKey = new Map(rows.map((r) => [r.key, r]))
   const used = new Set<string>()
   const sections: PriceSection[] = []
@@ -164,7 +177,7 @@ function buildSections(category: number, rows: PriceRow[]): PriceSection[] {
     if (tiers.length) sections.push({ title: '등급 단가', rows: tiers })
   } else {
     const titles = koMessages.groupForm.contractTitles as Record<string, string>
-    for (const g of formFor(category)?.groups ?? []) {
+    for (const g of form?.groups ?? []) {
       const list = take(g.items.filter((i) => i.priced).map((i) => i.key))
       if (list.length) sections.push({ title: titles[g.key] ?? g.key, rows: list })
     }

@@ -1,6 +1,6 @@
 import type { PriceBook } from '@ayuta/pricing'
 import type { CategoryDef } from '../categories'
-import { formFor } from '../category-groups'
+import { formFor, type CategoryForm } from '../category-groups'
 import { formatCountries } from '../cover-selection'
 import koMessages from '../../../messages/ko.json'
 import jaMessages from '../../../messages/ja.json'
@@ -18,10 +18,10 @@ export const PLATFORM_LABELS: Record<string, { ko: string; ja: string }> = {
   line: { ko: 'LINE', ja: 'LINE' },
 }
 
-// 3번(대표신문·지역신문·블로그)·4번(지하철·버스·블로그) 계약서 자동 채움 목록에 "광고 국가"가
-// 명시돼 있다(docs/법무문서-확정본.md H절 · G절). 1번은 별도 자리({{country}})로 채우므로 여기
-// 섞지 않고, 2번은 "촬영 국가"라는 다른 필드라 이 라벨을 쓰지 않는다(카테고리별 소스가 다르다).
-const COUNTRY_ITEM_CATEGORIES = new Set([3, 4])
+// 계약서 자동 채움 목록에 "광고 국가"가 들어가는 서비스는 한국/일본 탭으로 항목을 나누는
+// 서비스다(3·4번, docs/법무문서-확정본.md H절 · G절). 관리자가 만든 서비스도 탭을 켜면 같다.
+// 1번은 별도 자리({{country}})로 채우므로 여기 섞지 않고, 2번(videoPairs)은 "촬영 국가"라는
+// 다른 필드라 이 라벨을 쓰지 않는다 — 아래에서 모델 종류로 갈라진다.
 export const COUNTRY_ITEM_LABEL: { ko: string; ja: string } = { ko: '광고 국가', ja: '広告国' }
 // 1번(tier) 항목 라벨. 로케일과 무관하게 이 한국어로 저장된다 — 마이페이지는 보여 줄 때만 번역한다(mypage/localize-items.ts)
 export const TIER_ITEM_LABELS = { tier: '등급', platform: '플랫폼' } as const
@@ -41,7 +41,15 @@ const asStringArray = (v: unknown): string[] => (Array.isArray(v) ? v.filter((x)
  * 정의를 따라 다시 훑어 사람이 읽을 라벨로 바꾼다. 금액은 절대 여기 섞지 않는다 —
  * 금액은 계약서의 총 계약금액/계약금액 줄({{amount}})에만 나온다.
  */
-export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelection: unknown, locale: 'ko' | 'ja'): ContractItem[] {
+export function buildContractItems(
+  def: CategoryDef,
+  book: PriceBook,
+  rawSelection: unknown,
+  locale: 'ko' | 'ja',
+  // 화면·주문 생성이 이미 읽어 둔 폼 정의를 넘긴다. 이 함수는 순수 함수로 남겨야 한다 —
+  // 단위 테스트가 DB 없이 계약서 줄을 고정한다. 넘기지 않으면 기존 상수를 본다
+  formFromDb?: CategoryForm | null,
+): ContractItem[] {
   const messages = messagesFor(locale)
   const groupTitles: Record<string, string> = messages.groupForm.contractTitles
   const itemLabels: Record<string, string> = messages.groupForm.itemLabels
@@ -65,7 +73,7 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
     const sel = typeof rawSelection === 'object' && rawSelection !== null ? (rawSelection as { items?: unknown; pairs?: unknown }) : {}
     const items: ContractItem[] = []
     // 촬영 국가(금액 없음) — item= 으로 온 것 중 촬영 국가 묶음에 있는 것만
-    const countryGroup = formFor(2)?.groups.find((g) => g.key === 'country')
+    const countryGroup = (formFromDb ?? formFor(def.no))?.groups.find((g) => g.key === 'country')
     const chosen = new Set(asStringArray(sel.items))
     const countries = countryGroup?.items.filter((i) => chosen.has(i.key)) ?? []
     if (countries.length > 0) {
@@ -86,7 +94,7 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
 
   if (def.model.kind !== 'sum' && def.model.kind !== 'sumMultiplier') return []
 
-  const form = formFor(def.model.category)
+  const form = formFromDb ?? formFor(def.model.category)
   if (!form) return []
 
   const sel = typeof rawSelection === 'object' && rawSelection !== null ? (rawSelection as { items?: unknown; period?: unknown; size?: unknown }) : {}
@@ -109,7 +117,7 @@ export function buildContractItems(def: CategoryDef, book: PriceBook, rawSelecti
 
   // 3·4번 — 자동 채움 목록에 "광고 국가"가 있는 카테고리다(2번은 "촬영 국가"라는 별개
   // 필드). 표지에서 고른 나라를 그대로 싣는다.
-  if (COUNTRY_ITEM_CATEGORIES.has(def.no)) {
+  if (form.countryTabs === true) {
     const country = 'country' in (rawSelection as Record<string, unknown>) ? asStringArray((rawSelection as { country?: unknown }).country) : []
     if (country.length > 0) items.push({ label: COUNTRY_ITEM_LABEL[locale], value: formatCountries(country, locale) })
   }
