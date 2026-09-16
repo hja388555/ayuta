@@ -105,10 +105,14 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
   const [tiers, setTiers] = useState<string[]>(() => [...new Set(restore?.tiers ?? [])].filter((k) => Boolean(book.entries[k])))
   const [platforms, setPlatforms] = useState<string[]>(() => [...new Set(restore?.platforms ?? [])].filter((p) => (PLATFORMS as readonly string[]).includes(p)))
 
-  // 등급 목록은 단가표(book)에서 뽑는다 — model.tiers 는 카테고리 표의 자리표시자일 뿐,
-  // 실제로 무엇을 고를 수 있는지는 DB 에 등록된 단가가 결정한다
+  // 등급 목록은 단가표(book)에서 뽑되 등급 키만 고른다.
+  // 단가표는 카테고리 단위라 같은 카테고리에 등급이 아닌 행(플랫폼 등)이 들어오면 그것까지
+  // 표 열이 된다 — 2026-09-16 에 플랫폼 4개를 카테고리 1 에 심자 표가 7열로 늘어나 깨졌다.
   // 표 열 순서는 베이직 → 스탠다드 → 프리미엄(Figma). book.entries 는 DB 순서라 그대로 쓰면 뒤집힌다
-  const tierOptions = useMemo(() => orderTiers(Object.values(book.entries)), [book])
+  const tierOptions = useMemo(
+    () => orderTiers(Object.values(book.entries).filter((e) => (TIER_ORDER as readonly string[]).includes(e.key))),
+    [book],
+  )
   const total = useMemo(() => previewTotal(book, model, tiers, platforms), [book, model, tiers, platforms])
 
   const canPay = tiers.length > 0
