@@ -317,6 +317,15 @@ export interface Order {
   };
   signature: string;
   contractText: string;
+  consentSnapshot?:
+    | {
+        key: string;
+        label: string;
+        required: boolean;
+        agreed: boolean;
+        id?: string | null;
+      }[]
+    | null;
   sealAsset?: (number | null) | BrandAsset;
   /**
    * 주문 상세의 계약기간 저장 경로로만 변경됩니다. 변경 이력이 남습니다.
@@ -917,6 +926,15 @@ export interface OrdersSelect<T extends boolean = true> {
       };
   signature?: T;
   contractText?: T;
+  consentSnapshot?:
+    | T
+    | {
+        key?: T;
+        label?: T;
+        required?: T;
+        agreed?: T;
+        id?: T;
+      };
   sealAsset?: T;
   contractStart?: T;
   contractEnd?: T;

@@ -15,6 +15,7 @@ import { nextOrderNumber } from '../order-counter'
 import { loadCompanyContractFields } from '../company-settings'
 import { OrdererSchema, buyerContractFields, normalizeOrdererPhone, type Orderer } from './orderer'
 import { allRequiredChecked, withBaseConsents, type ConsentDef } from './consents'
+import { consentSnapshot } from './consent-snapshot'
 import { buildContractItems, categoryContractFacts, type ContractItem } from './contract-items'
 import { loadServiceForm } from '../services/load'
 import { filterPricedSelection } from './selection-from-query'
@@ -103,6 +104,13 @@ type PersistOrderArgs = {
   locale: 'ko' | 'ja'
   currency: Currency
   consents: Record<string, boolean>
+  /**
+   * 견적마다 계약서를 쓰는 경우(Q53) 그 견적에 붙은 계약서 본문과 동의 항목.
+   * 넘기면 고정 계약서 템플릿 대신 이것을 쓴다 — 고객이 견적 화면에서 읽고 동의한 글과
+   * 주문에 남는 글이 같아야 한다. 5번은 고정 템플릿이 아예 없으므로 이 통로가 유일한 계약서다
+   */
+  quoteContractBody?: string
+  quoteConsents?: ConsentDef[]
   orderer: Orderer
   signature: string
   idempotencyKey?: string
@@ -254,14 +262,16 @@ export async function persistOrder(args: PersistOrderArgs): Promise<CreateOrderR
   // 템플릿이 없는 카테고리는 여기서 null 이 되고, 동의 항목이 없어 3번 검사는
   // 통과할 수 있지만 5번 검사(no_contract)에서 반드시 막힌다
   const template = await loadActiveContractTemplate(payload, args.category, args.locale)
-  const templateConsents: ConsentDef[] = (template?.consents as ConsentDef[] | undefined) ?? []
+  // 견적에 붙은 동의가 있으면 그것이 정본이다 — 고객이 그 화면에서 본 문구 그대로 남겨야 한다
+  const templateConsents: ConsentDef[] = args.quoteConsents ?? ((template?.consents as ConsentDef[] | undefined) ?? [])
 
   // 템플릿은 있는데 동의 항목이 하나도 정의돼 있지 않으면(관리자 설정 실수) 동의 없이
   // 결제가 통과해 버린다 — allRequiredChecked([], ...)는 빈 배열에 대해 항상 참이다
   // (정의 자체가 없는 카테고리에서는 정상 동작이라 그건 그대로 둔다. 템플릿이
   // '있는데' consents가 빈 경우만 막는다). 이용약관·개인정보는 템플릿과 무관하게 항상
   // 붙으므로 이 판정은 기본 동의를 더하기 전(templateConsents) 값으로 본다
-  if (template && templateConsents.length === 0) return { ok: false, reason: 'contract_incomplete', detail: ['consents'] }
+  if (!args.quoteConsents && template && templateConsents.length === 0)
+    return { ok: false, reason: 'contract_incomplete', detail: ['consents'] }
 
   // 이용약관·개인정보 동의는 계약서 템플릿 유무와 상관없이 모든 결제(카테고리·견적)에
   // 항상 필수다(클라이언트 요청) — 템플릿 동의 앞에 붙인다
@@ -285,11 +295,12 @@ export async function persistOrder(args: PersistOrderArgs): Promise<CreateOrderR
     day: 'numeric',
   }).format(now)
 
-  // 5. 계약서 템플릿의 빈칸을 채운다 — 템플릿이 없거나 missing 이 있으면 거부.
+  // 5. 계약서의 빈칸을 채운다 — 쓸 글이 없거나 missing 이 있으면 거부.
   // 구멍 뚫린 계약서에 서명하게 두느니 결제를 막는 게 낫다
-  if (!template) return { ok: false, reason: 'no_contract' }
+  const contractSource = args.quoteContractBody ?? (template ? (template.body as string) : null)
+  if (!contractSource) return { ok: false, reason: 'no_contract' }
 
-  const { text: contractText, missing } = fillContract(template.body as string, {
+  const { text: contractText, missing } = fillContract(contractSource, {
     amount: lines.amount,
     currency: args.currency,
     contractDate,
@@ -327,6 +338,8 @@ export async function persistOrder(args: PersistOrderArgs): Promise<CreateOrderR
         // 가격 없는 선택(국가, 사이즈, 채널 등)도 관리자가 주문 상세에서 볼 수 있어야 한다 —
         // 그렇지 않으면 CS 문의가 왔을 때 관리자가 계약서 전문을 처음부터 다시 읽어야 한다
         contractItems: lines.contractItems,
+        // 고객이 체크한 동의를 문구째로 남긴다(Q53) — 나중에 문구가 바뀌어도 이 주문은 그대로다
+        consentSnapshot: consentSnapshot(consentDefs, args.consents),
         country: lines.country,
         purpose: lines.purpose,
         idempotencyKey: idempotencyKey || undefined,
