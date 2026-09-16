@@ -66,7 +66,9 @@ describe('새 광고 서비스 만들기', () => {
     expect((await res.json()).error).toBe('forbidden')
   })
 
-  it('번호는 서버가 기존 다음 번호로 정한다', async () => {
+  it('번호는 서버가 정한다 — 이미 쓰는 번호보다 크다', async () => {
+    // 「최대 + 1」을 그대로 단정하지 않는다. 다른 통합 테스트도 전용 서비스를 만들었다 지우므로
+    // 읽은 순간과 만드는 순간 사이에 최대값이 바뀔 수 있다. 규칙 자체는 단위 테스트가 고정한다
     const payload = await localPayload()
     const before = await payload.find({ collection: 'ad-services', limit: 500, depth: 0, overrideAccess: true })
     const maxNo = before.docs.reduce((m, d) => Math.max(m, d.no as number), 0)
@@ -75,7 +77,8 @@ describe('새 광고 서비스 만들기', () => {
     expect(res.status).toBe(200)
     const body = await res.json()
     serviceIds.push(body.id as number)
-    expect(body.no).toBe(maxNo + 1)
+    expect(body.no).toBeGreaterThan(maxNo)
+    expect(before.docs.some((d) => d.no === body.no)).toBe(false)
   })
 
   it('주소도 서버가 정한다 — 한국어 이름이면 번호를 쓴다', async () => {
