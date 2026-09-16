@@ -22,7 +22,7 @@ export function GuestChatGate({ locale, labels, children }: { locale: 'ko' | 'ja
   if (showForm) return <>{children}</>
   return (
     <div className={c.gate}>
-      <p className={c.gateTitle}>{labels.title}</p>
+      <p id="guest-chat-gate-title" className={c.gateTitle}>{labels.title}</p>
       <p className={c.gateDesc}>{labels.desc}</p>
       <Link href={`/${locale}/signup?next=/${locale}/chat`} className={`btn btn-primary ${c.gateBtn}`}>
         {labels.signup}
