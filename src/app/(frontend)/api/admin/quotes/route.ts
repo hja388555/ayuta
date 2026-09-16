@@ -5,6 +5,8 @@ import { z } from 'zod'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { currencyForLocale } from '@/lib/payments/channel'
 import { parseQuoteLines, quoteIssueProblem } from '@/lib/quotes/lines'
+import { quoteContractIssue } from '@/lib/quotes/quote-contract'
+import { QUOTE_CATEGORY } from '@/lib/quotes/create-quote-order'
 import { generateQuoteToken, hashQuoteToken, newQuoteNumber } from '@/lib/quotes/token'
 
 /**
@@ -16,10 +18,21 @@ import { generateQuoteToken, hashQuoteToken, newQuoteNumber } from '@/lib/quotes
  * - 토큰 원문은 응답으로 한 번만 돌려준다. DB 에는 해시만 남으므로 다시 볼 방법이 없다 —
  *   링크를 잃어버리면 재발행한다.
  */
+const ConsentSchema = z.object({
+  key: z.string().trim().min(1).max(40),
+  labelKo: z.string().trim().min(1).max(300),
+  labelJa: z.string().trim().min(1).max(300),
+  required: z.boolean(),
+})
+
 const BodySchema = z.object({
   inquiryId: z.number().int().positive(),
   lines: z.unknown(),
   validDays: z.number().int().min(1).max(30).optional().default(7),
+  // 견적마다 계약서를 쓰는 서비스에서만 채워 온다(Q53). 고정 계약서 서비스는 비워 둔다
+  contractTitle: z.string().trim().max(200).optional().default(''),
+  contractBody: z.string().trim().max(20000).optional().default(''),
+  contractConsents: z.array(ConsentSchema).max(20).optional().default([]),
 })
 
 export async function POST(req: Request): Promise<Response> {
@@ -49,6 +62,24 @@ export async function POST(req: Request): Promise<Response> {
   if (limit) return NextResponse.json({ error: 'quote_too_large', detail: limit }, { status: 400 })
 
   const payload = await getPayload({ config })
+
+  // 이 견적이 어떤 계약서 방식을 쓰는지는 서비스가 정한다. 견적 흐름은 문의형 서비스(5번)다 —
+  // 관리자가 그 서비스를 「견적 발행 때마다 작성」으로 두면 문구·동의 항목을 여기서 받는다
+  const { docs: svc } = await payload.find({
+    collection: 'ad-services',
+    where: { no: { equals: QUOTE_CATEGORY } },
+    limit: 1,
+    depth: 0,
+    overrideAccess: true,
+  })
+  const contractMode = (svc[0]?.contractMode as 'fixed' | 'perQuote' | undefined) ?? 'perQuote'
+  const contractProblem = quoteContractIssue(contractMode, {
+    title: body.data.contractTitle,
+    body: body.data.contractBody,
+    consents: body.data.contractConsents,
+  })
+  if (contractProblem) return NextResponse.json({ error: contractProblem }, { status: 400 })
+
   let inquiry
   try {
     inquiry = await payload.findByID({ collection: 'inquiries', id: body.data.inquiryId, depth: 0, overrideAccess: true })
@@ -85,6 +116,10 @@ export async function POST(req: Request): Promise<Response> {
       issuedAt: now.toISOString(),
       expiresAt: expiresAt.toISOString(),
       issuedBy: user.id,
+      // 발행 순간의 문구를 그대로 붙여 둔다. 필드가 update 를 막고 있어 이후에는 바뀌지 않는다
+      ...(body.data.contractTitle ? { contractTitle: body.data.contractTitle } : {}),
+      ...(body.data.contractBody ? { contractBody: body.data.contractBody } : {}),
+      ...(body.data.contractConsents.length > 0 ? { contractConsents: body.data.contractConsents } : {}),
     },
     overrideAccess: true,
   })

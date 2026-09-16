@@ -107,7 +107,16 @@ export default async function QuotePage({ params }: Props) {
 
   // 계약서 미리보기 — 주문 생성(persistOrder)이 저장할 것과 같은 항목·금액으로 빈칸을 채운다.
   // 주문자 칸은 자리표시자로 남기고 화면(CheckoutForm)이 입력 중인 값으로 채운다(카테고리 결제 화면과 같다). 템플릿이 없으면 결제를 열지 않는다
-  const template = await loadActiveContractTemplate(payload, QUOTE_CATEGORY, contractLocale)
+  // 이 견적 전용 계약서가 발행 때 붙어 있으면 그것이 정본이다(Q53). 없으면 기존 고정 템플릿을 쓴다 —
+  // 예전에 발행된 견적도 계속 열려야 한다
+  const snapshotBody = (quote.contractBody as string | null | undefined) ?? ''
+  const snapshotConsents = ((quote.contractConsents ?? []) as Array<{ key: string; labelKo: string; labelJa: string; required: boolean }>).map(
+    (c) => ({ key: c.key, label: contractLocale === 'ja' ? c.labelJa : c.labelKo, required: c.required }),
+  )
+  const fixed = snapshotBody ? null : await loadActiveContractTemplate(payload, QUOTE_CATEGORY, contractLocale)
+  const template = snapshotBody
+    ? { body: snapshotBody, consents: snapshotConsents, title: (quote.contractTitle as string | null | undefined) ?? '' }
+    : fixed
   const orderLines = quoteOrderLines(
     { quoteNumber: quote.quoteNumber, lines: parsedLines.lines, total: parsedLines.total },
     Array.isArray(inquiry?.country) ? (inquiry.country as string[]) : [],
