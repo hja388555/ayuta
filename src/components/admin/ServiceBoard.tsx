@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
 import { priceAmountProblem } from '@/lib/admin/price-limits'
@@ -84,6 +84,10 @@ export function ServiceBoard({
     active: service.active,
   })
   const [cards, setCards] = useState(groups)
+
+  // 묶음·항목을 추가하면 서버에서 다시 읽어 온다(router.refresh). useState 는 최초 값만 잡으므로
+  // 새로 받은 목록을 여기서 화면에 반영해야 방금 만든 줄이 보인다
+  useEffect(() => setCards(groups), [groups])
   const [confirm, setConfirm] = useState(false)
   const [denied, setDenied] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -99,6 +103,61 @@ export function ServiceBoard({
 
   function patchGroup(groupId: number, patch: Partial<GroupCard>) {
     setCards((prev) => prev.map((g) => (g.id === groupId ? { ...g, ...patch } : g)))
+  }
+
+  /**
+   * 묶음·항목 추가는 저장을 기다리지 않고 바로 만든다.
+   *
+   * 빈 줄을 화면에만 띄워 두면 그 줄의 id 가 없어 「바뀐 줄만 보낸다」는 저장 규칙에 걸리고,
+   * 항목은 서버가 키를 만들어야 해서 어차피 한 번은 서버에 다녀와야 한다. 만들자마자
+   * 서버 값(id·키)을 받아 화면에 꽂아 두면 이후 편집은 기존 줄과 똑같이 흐른다.
+   */
+  async function addGroup() {
+    if (!canEdit) return setDenied(true)
+    setBusy(true)
+    const order = (cards.at(-1)?.sortOrder ?? 0) + 10
+    const res = await fetch('/api/admin/service-groups', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        serviceId: service.id,
+        key: `g${Date.now().toString(36)}`,
+        titleKo: '새 묶음',
+        titleJa: '新しいグループ',
+        multi: false,
+        countryTabs: false,
+        axis: 'none',
+        sortOrder: order,
+        active: true,
+      }),
+    })
+    setBusy(false)
+    if (!res.ok) return setToast({ kind: 'error', text: '묶음을 만들지 못했습니다.' })
+    router.refresh()
+  }
+
+  async function addItem(groupId: number) {
+    if (!canEdit) return setDenied(true)
+    const card = cards.find((g) => g.id === groupId)
+    setBusy(true)
+    const res = await fetch('/api/admin/service-items', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        groupId,
+        labelKo: '새 항목',
+        labelJa: '新しい項目',
+        priceKrw: 0,
+        priceJpy: 0,
+        priced: true,
+        exclusive: false,
+        sortOrder: (card?.items.at(-1)?.sortOrder ?? 0) + 10,
+        active: true,
+      }),
+    })
+    setBusy(false)
+    if (!res.ok) return setToast({ kind: 'error', text: '항목을 만들지 못했습니다.' })
+    router.refresh()
   }
 
   function askSave() {
@@ -354,6 +413,10 @@ export function ServiceBoard({
             </div>
           )}
 
+          <button type="button" className={s.addRowBtn} onClick={() => addItem(g.id)} disabled={busy}>
+            + 항목 추가
+          </button>
+
           <label className={s.inlineCheck}>
             <input
               type="checkbox"
@@ -369,6 +432,10 @@ export function ServiceBoard({
           </p>
         </section>
       ))}
+
+      <button type="button" className={s.addRowBtn} onClick={addGroup} disabled={busy}>
+        + 묶음 추가
+      </button>
 
       <div className={s.actions}>
         <button type="button" className={s.primaryBtn} onClick={askSave} disabled={busy}>
