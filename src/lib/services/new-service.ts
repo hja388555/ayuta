@@ -17,13 +17,16 @@ export function nextServiceNo(existing: number[]): number {
  * 그때는 번호를 그대로 쓴다(service-6 처럼 뜻 없는 이름보다 짧고 고치기 쉽다).
  */
 export function serviceSlug(nameKo: string, no: number, taken: string[]): string {
-  const base =
-    nameKo
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 40)
-      .replace(/-+$/, '') || `service-${no}`
+  const cleaned = nameKo
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40)
+    .replace(/-+$/, '')
+
+  // 한국어 이름에서 영문이 다 떨어져 나가고 숫자만 남는 일이 흔하다("6. 옥외 광고 2026" → "6-2026").
+  // 뜻 없는 숫자 주소를 고객 링크로 내보내지 않는다
+  const base = /[a-z]/.test(cleaned) ? cleaned : `service-${no}`
 
   const used = new Set(taken)
   const safe = RESERVED_SLUGS.has(base) ? `${base}-${no}` : base

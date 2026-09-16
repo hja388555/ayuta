@@ -25,6 +25,11 @@ describe('새 서비스 주소', () => {
     expect(serviceSlug('옥외 전광판 광고', 6, [])).toBe('service-6')
   })
 
+  it('숫자만 남는 이름도 번호를 쓴다', () => {
+    // "6. 옥외 광고 2026" 처럼 한글이 떨어져 나가면 숫자만 남는다 — 뜻 없는 주소가 된다
+    expect(serviceSlug('6. 옥외 광고 2026', 6, [])).toBe('service-6')
+  })
+
   it('이미 쓰는 주소면 번호를 붙인다', () => {
     expect(serviceSlug('Outdoor LED', 7, ['outdoor-led'])).toBe('outdoor-led-7')
   })

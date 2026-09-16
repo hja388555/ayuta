@@ -43,9 +43,11 @@ afterAll(async () => {
   for (const id of userIds) await payload.delete({ collection: 'users', id, overrideAccess: true }).catch(() => {})
 })
 
+// 이름에 실행 번호를 섞지 않는다 — 숫자가 주소 규칙에 끼어들어 무엇을 검증하는지 흐려진다.
+// 서비스는 매번 지우므로 이름이 겹쳐도 된다
 const newBody = (over: Record<string, unknown> = {}) => ({
-  nameKo: `테스트 신규 ${RUN}`,
-  nameJa: `テスト新規 ${RUN}`,
+  nameKo: '테스트 신규 서비스',
+  nameJa: 'テスト新規サービス',
   model: 'sum',
   contractMode: 'fixed',
   sortOrder: 990,
@@ -85,7 +87,7 @@ describe('새 광고 서비스 만들기', () => {
   })
 
   it('보낸 번호·주소는 무시한다', async () => {
-    const res = await post(newBody({ no: 1, slug: 'digital-sns', nameKo: `무시 확인 ${RUN}` }), superToken)
+    const res = await post(newBody({ no: 1, slug: 'digital-sns', nameKo: '무시 확인' }), superToken)
     expect(res.status).toBe(200)
     const body = await res.json()
     serviceIds.push(body.id as number)
