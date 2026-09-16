@@ -21,6 +21,7 @@
     "migrate": "payload migrate",
     "seed:super": "payload run scripts/seed-admins.ts",
     "seed:prices": "payload run scripts/seed-prices.ts",
+    "seed:services": "payload run scripts/seed-services.ts",
     "seed:contracts": "payload run scripts/seed-contracts.ts",
     "seed:legal": "payload run scripts/seed-legal.ts",
     "db:bootstrap": "payload run scripts/ensure-order-counters.ts",
