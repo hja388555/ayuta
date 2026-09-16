@@ -105,9 +105,11 @@ type PersistOrderArgs = {
   currency: Currency
   consents: Record<string, boolean>
   /**
-   * 견적마다 계약서를 쓰는 경우(Q53) 그 견적에 붙은 동의 항목. 넘기면 계약서 템플릿의
-   * 동의 대신 이것을 쓴다 — 고객이 견적 화면에서 본 문구와 주문에 남는 문구가 같아야 한다
+   * 견적마다 계약서를 쓰는 경우(Q53) 그 견적에 붙은 계약서 본문과 동의 항목.
+   * 넘기면 고정 계약서 템플릿 대신 이것을 쓴다 — 고객이 견적 화면에서 읽고 동의한 글과
+   * 주문에 남는 글이 같아야 한다. 5번은 고정 템플릿이 아예 없으므로 이 통로가 유일한 계약서다
    */
+  quoteContractBody?: string
   quoteConsents?: ConsentDef[]
   orderer: Orderer
   signature: string
@@ -293,11 +295,12 @@ export async function persistOrder(args: PersistOrderArgs): Promise<CreateOrderR
     day: 'numeric',
   }).format(now)
 
-  // 5. 계약서 템플릿의 빈칸을 채운다 — 템플릿이 없거나 missing 이 있으면 거부.
+  // 5. 계약서의 빈칸을 채운다 — 쓸 글이 없거나 missing 이 있으면 거부.
   // 구멍 뚫린 계약서에 서명하게 두느니 결제를 막는 게 낫다
-  if (!template) return { ok: false, reason: 'no_contract' }
+  const contractSource = args.quoteContractBody ?? (template ? (template.body as string) : null)
+  if (!contractSource) return { ok: false, reason: 'no_contract' }
 
-  const { text: contractText, missing } = fillContract(template.body as string, {
+  const { text: contractText, missing } = fillContract(contractSource, {
     amount: lines.amount,
     currency: args.currency,
     contractDate,
