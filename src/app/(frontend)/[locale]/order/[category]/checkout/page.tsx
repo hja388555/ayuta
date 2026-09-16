@@ -9,6 +9,7 @@ import { Shell } from '@/components/Shell'
 import { CheckoutForm } from '@/components/CheckoutForm'
 import { categoryBySlug } from '@/lib/categories'
 import { formFor } from '@/lib/category-groups'
+import { loadServiceForm } from '@/lib/services/load'
 import { loadPriceBook } from '@/lib/price-book'
 import { loadCategoryModel } from '@/lib/pricing-model'
 import { currencyForLocale } from '@/lib/payments/channel'
@@ -45,7 +46,8 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   const currency = currencyForLocale(locale)
   const book = await loadPriceBook(def.no, currency)
 
-  const form = formFor(def.no)
+  // 주문 화면과 같은 출처를 본다 — 한쪽만 DB 를 읽으면 미리보기와 청구 금액이 갈라진다(2026-09-16)
+  const form = (await loadServiceForm(def.no)) ?? formFor(def.no)
   // 4번 기간 배수 등 관리자가 DB 에서 고치는 값을 채운 모델 — 견적 화면·주문 생성과 같은 로더
   // 언어를 넘겨 4번 기간 줄 이름도 화면 언어로 받는다(주문 생성과 같다)
   const model = await loadCategoryModel(def, locale)
