@@ -8,6 +8,11 @@ import { loadPriceBook } from '../src/lib/price-book'
 
 const RUN = Date.now()
 
+// 실제 서비스가 쓰지 않는 번호를 쓴다. 카테고리 1·2 에 손상 행을 심으면 같은 번호로 주문을
+// 만드는 다른 통합 테스트(order-lookup 등)가 그 행을 읽고 「금액은 정수여야 합니다」로 죽는다.
+const DECIMAL_CATEGORY = 901
+const NEGATIVE_CATEGORY = 902
+
 describe('loadPriceBook — 손상된 단가 방어', () => {
   const createdIds: number[] = []
 
@@ -26,7 +31,7 @@ describe('loadPriceBook — 손상된 단가 방어', () => {
     const created = await payload.create({
       collection: 'price-entries',
       overrideAccess: true,
-      data: { key: `broken-decimal-${RUN}`, labelKo: '손상됨', labelJa: '損傷', category: 1, priceKrw: 1000, priceJpy: 100, active: true },
+      data: { key: `broken-decimal-${RUN}`, labelKo: '손상됨', labelJa: '損傷', category: DECIMAL_CATEGORY, priceKrw: 1000, priceJpy: 100, active: true },
     })
     createdIds.push(created.id as number)
 
@@ -35,7 +40,7 @@ describe('loadPriceBook — 손상된 단가 방어', () => {
     // 버그 등) 들어온다고 가정하고 raw SQL로 재현한다.
     await payload.db.pool.query(`UPDATE price_entries SET price_krw = 1000.5 WHERE id = $1`, [created.id])
 
-    await expect(loadPriceBook(1, 'KRW')).rejects.toThrow(/정수/)
+    await expect(loadPriceBook(DECIMAL_CATEGORY, 'KRW')).rejects.toThrow(/정수/)
   })
 
   it('음수 단가도 거부한다', async () => {
@@ -43,12 +48,12 @@ describe('loadPriceBook — 손상된 단가 방어', () => {
     const created = await payload.create({
       collection: 'price-entries',
       overrideAccess: true,
-      data: { key: `broken-negative-${RUN}`, labelKo: '손상됨', labelJa: '損傷', category: 2, priceKrw: 1000, priceJpy: 100, active: true },
+      data: { key: `broken-negative-${RUN}`, labelKo: '손상됨', labelJa: '損傷', category: NEGATIVE_CATEGORY, priceKrw: 1000, priceJpy: 100, active: true },
     })
     createdIds.push(created.id as number)
 
     await payload.db.pool.query(`UPDATE price_entries SET price_krw = -500 WHERE id = $1`, [created.id])
 
-    await expect(loadPriceBook(2, 'KRW')).rejects.toThrow(/음수/)
+    await expect(loadPriceBook(NEGATIVE_CATEGORY, 'KRW')).rejects.toThrow(/음수/)
   })
 })
