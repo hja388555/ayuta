@@ -124,3 +124,26 @@
   .bandBtns .bandDelete { font-size: 13px; }
   .bandBtns .bandMain { flex: 1.2; }
 }
+
+/* 광고 서비스 편집(Figma [v3] 13-B, 2026-09-16) — 기본 정보 칸·묶음 카드·항목 표 */
+.formGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 18px; }
+.field { display: flex; flex-direction: column; gap: 6px; min-width: 0; font-size: 14px; color: var(--ink-500); }
+.field input, .field select { height: 44px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: #fff; font: inherit; font-size: 15px; color: var(--ink-900); }
+.field input:disabled, .field select:disabled { background: var(--surface); color: var(--ink-500); }
+.cardTags { display: flex; flex-wrap: wrap; gap: 6px; }
+.pillOn { flex: none; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--brand-600); background: var(--brand-50); color: var(--brand-900); font-size: 12px; font-weight: 700; line-height: 1.5; white-space: nowrap; }
+.pillOff { flex: none; padding: 6px 10px; border-radius: 999px; background: #fef3f2; color: #d92d20; font-size: 12px; font-weight: 700; line-height: 1.5; white-space: nowrap; }
+.tableWrap { min-width: 0; overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; }
+.table { width: 100%; border-collapse: collapse; font-size: 14px; color: var(--ink-900); }
+.table th { padding: 12px 14px; background: var(--surface); color: var(--ink-500); font-size: 13px; font-weight: 700; text-align: left; white-space: nowrap; }
+.table td { padding: 10px 14px; border-top: 1px solid var(--line); }
+.table input, .table select { width: 100%; min-width: 92px; height: 38px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: #fff; font: inherit; font-size: 14px; color: var(--ink-900); }
+.table input:disabled, .table select:disabled { background: var(--surface); color: var(--ink-500); }
+.inlineCheck { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--ink-700); }
+.inlineCheck input { width: 18px; height: 18px; }
+.primaryBtn { height: 48px; padding: 0 28px; border: 0; border-radius: 12px; background: var(--brand-600); color: #fff; font: inherit; font-size: 16px; font-weight: 700; cursor: pointer; }
+.primaryBtn:disabled { opacity: 0.6; cursor: default; }
+.listLink { color: var(--ink-900); font-weight: 700; text-decoration: none; }
+.listLink:hover { text-decoration: underline; }
+.backLink { flex: none; font-size: 14px; color: var(--ink-500); text-decoration: none; }
+.backLink:hover { text-decoration: underline; }
