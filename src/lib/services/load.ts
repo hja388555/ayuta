@@ -119,6 +119,29 @@ export async function loadServices(): Promise<ServiceDef[]> {
   return (docs as unknown as ServiceDoc[]).map(toService)
 }
 
+/**
+ * 주문에 적힌 번호로 서비스 이름을 찾는다. 화면이 「1. 디지털 광고」처럼 그릴 때 쓴다.
+ *
+ * 내려둔(active:false) 서비스도 포함한다 — 이미 받은 주문은 그 서비스가 숨겨져도 이름이 보여야 한다.
+ * 마이페이지·계약서 목록은 주문 여러 건을 한 화면에 그리므로 번호를 모아 한 번에 읽는다.
+ */
+export async function loadServiceNames(nos: number[]): Promise<Map<number, { nameKo: string; nameJa: string }>> {
+  const unique = [...new Set(nos.filter((n) => Number.isInteger(n)))]
+  if (unique.length === 0) return new Map()
+
+  const payload = await getPayload({ config })
+  const { docs } = await payload.find({
+    collection: 'ad-services',
+    where: { no: { in: unique } },
+    limit: 200,
+    depth: 0,
+    overrideAccess: true,
+  })
+  return new Map(
+    (docs as unknown as ServiceDoc[]).map((d) => [d.no, { nameKo: d.nameKo, nameJa: d.nameJa }]),
+  )
+}
+
 /** 주문 주소(slug)로 서비스 하나. 없거나 내려둔 서비스면 null */
 export async function loadServiceBySlug(slug: string): Promise<ServiceDef | null> {
   const payload = await getPayload({ config })

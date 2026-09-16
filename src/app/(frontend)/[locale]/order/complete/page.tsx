@@ -10,6 +10,8 @@ import { GUEST_PROOF_COOKIE_NAME, readGuestProof } from '@/lib/checkout/guest-pr
 import { getSessionUser } from '@/lib/dal'
 import { sealDataUri } from '@/lib/seal'
 import { categoryByNo } from '@/lib/categories'
+import { loadServiceNames } from '@/lib/services/load'
+import { serviceLabel } from '@/lib/services/service-label'
 import s from '@/components/OrderComplete.module.css'
 
 export const dynamic = 'force-dynamic'
@@ -63,6 +65,9 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
   const paid = order.status === 'paid'
   const isMember = Boolean(order.customer)
   const category = categoryByNo(order.category)
+  // 관리자가 만든 6번 이후 서비스는 번역 키가 없다 — DB 이름을 먼저 쓰고 없을 때만 기존 번역으로 돌아간다
+  const serviceNames = await loadServiceNames([order.category]).catch(() => new Map())
+  const serviceText = serviceLabel(order.category, locale, serviceNames.get(order.category), category ? tCat(category.slug) : undefined)
   const orderedAt = new Intl.DateTimeFormat('sv-SE', {
     timeZone: 'Asia/Seoul',
     year: 'numeric',
@@ -124,12 +129,10 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
                 <dt>{t('orderedAtLabel')}</dt>
                 <dd>{orderedAt}</dd>
               </div>
-              {category ? (
-                <div className={s.tableRow}>
-                  <dt>{t('serviceLabel')}</dt>
-                  <dd>{`${category.no}. ${tCat(category.slug)}`}</dd>
-                </div>
-              ) : null}
+              <div className={s.tableRow}>
+                <dt>{t('serviceLabel')}</dt>
+                <dd>{serviceText}</dd>
+              </div>
               <div className={s.tableRow}>
                 <dt>{t('payMethodLabel')}</dt>
                 {/* 결제 수단은 PortOne 연동 후 실제 값으로 바뀐다. 지금은 카드 한 가지뿐이다 */}

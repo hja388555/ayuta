@@ -6,6 +6,8 @@ import { Badge, TotalBar } from '@/components/ui'
 import { ContractModal } from '@/components/ContractModal'
 import { getSessionUser } from '@/lib/dal'
 import { categoryByNo } from '@/lib/categories'
+import { loadServiceNames } from '@/lib/services/load'
+import { serviceLabel } from '@/lib/services/service-label'
 import { findOwnedOrder, formatOrderSchedule } from '@/lib/order-lookup'
 import { sealDataUri } from '@/lib/seal'
 import { loadPriceBook } from '@/lib/price-book'
@@ -38,6 +40,8 @@ export default async function OrderDetailPage({ params }: Props) {
   const schedule = formatOrderSchedule(order, pending)
   const sealSrc = isSigned(order.status) ? await sealDataUri(order.sealAsset as number | null | undefined) : undefined
   const category = categoryByNo(order.category)
+  const serviceNames = await loadServiceNames([order.category]).catch(() => new Map())
+  const serviceText = serviceLabel(order.category, locale, serviceNames.get(order.category), category ? tCat(category.slug) : undefined)
   const on = progressCount(order.status)
 
   const orderedAt = new Intl.DateTimeFormat('sv-SE', {
@@ -64,7 +68,7 @@ export default async function OrderDetailPage({ params }: Props) {
   const countryLabel = t('detail.country')
   const countries = ((order.country as string[] | null | undefined) ?? []).map((c) => t(`detail.countries.${c}` as 'detail.countries.kr'))
   const rows = [
-    ...(category ? [{ label: t('detail.service'), value: `${category.no}. ${tCat(category.slug)}` }] : []),
+    { label: t('detail.service'), value: serviceText },
     ...(countries.length > 0 && !items.some((it) => it.label === countryLabel || it.label === '광고 국가') ? [{ label: countryLabel, value: countries.join(', ') }] : []),
     ...items,
     { label: t('detail.contractPeriod'), value: schedule.contractPeriod },

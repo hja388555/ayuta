@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui'
 import { ContractModal } from '@/components/ContractModal'
 import { getSessionUser } from '@/lib/dal'
 import { categoryByNo } from '@/lib/categories'
+import { loadServiceNames } from '@/lib/services/load'
+import { serviceLabel } from '@/lib/services/service-label'
 import { formatOrderSchedule } from '@/lib/order-lookup'
 import { createSealLoader } from '@/lib/seal'
 import { isSigned, matchesFilter, statusTone, summarize, toSummaryFilter } from '@/lib/mypage/status'
@@ -56,6 +58,8 @@ export default async function MyOrdersPage({ params, searchParams }: Props) {
   // 요약 카드를 누르면 그 묶음만 보인다. 요약 숫자는 필터와 상관없이 전체 기준이다
   const visible = orders.map((o, i) => ({ o, i })).filter(({ o }) => matchesFilter(o.status as string, filter))
 
+  const serviceNames = await loadServiceNames(orders.map((o) => o.category as number)).catch(() => new Map())
+
   return (
     <>
       <h1 className={s.title}>{t('ordersTitle')}</h1>
@@ -92,7 +96,9 @@ export default async function MyOrdersPage({ params, searchParams }: Props) {
                   <Badge tone={statusTone(status)}>{t(`badge.${status}` as 'badge.paid')}</Badge>
                 </span>
               </div>
-              <h2 className={s.service}>{category ? `${category.no}. ${tCat(category.slug)}` : '-'}</h2>
+              <h2 className={s.service}>
+                {serviceLabel(o.category as number, locale, serviceNames.get(o.category as number), category ? tCat(category.slug) : undefined)}
+              </h2>
               <div className={s.cardBody}>
                 <div className={s.meta}>
                   <span>{t('list.orderedAt', { date: day.format(new Date(o.createdAt as string)) })}</span>
