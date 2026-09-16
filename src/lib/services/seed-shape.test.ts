@@ -57,6 +57,21 @@ describe('상수 → 서비스 행 변환', () => {
     expect(all.some((i) => i.exclusive)).toBe(true)
   })
 
+  it('1번은 플랫폼·등급 두 묶음으로 옮긴다', () => {
+    // 등급 표와 플랫폼 목록은 category-groups.ts 가 아니라 화면 문구에 있었다(2026-09-16 사용자 결정)
+    const one = servicesFromConstants().find((r) => r.no === 1)!
+    expect(one.groups.map((g) => g.key)).toEqual(['platform', 'tier'])
+    const tier = one.groups.find((g) => g.key === 'tier')!
+    // 등급은 중복 선택이고 금액을 합산한다(calculators/tier.ts)
+    expect(tier.multi).toBe(true)
+    expect(tier.items.map((i) => i.key)).toEqual(['basic', 'standard', 'premium'])
+    expect(tier.items.every((i) => i.priced)).toBe(true)
+    const platform = one.groups.find((g) => g.key === 'platform')!
+    // 플랫폼은 채널 선택일 뿐 금액에 영향이 없다
+    expect(platform.items.every((i) => i.priced === false)).toBe(true)
+    expect(platform.items.map((i) => i.key)).toEqual(['instagram', 'youtube', 'tiktok', 'line'])
+  })
+
   it('묶음·항목 순서는 화면에 나오는 차례대로 번호를 매긴다', () => {
     const first = servicesFromConstants().find((r) => r.no === 2)!
     expect(first.groups.map((g) => g.sortOrder)).toEqual(first.groups.map((_, i) => (i + 1) * 10)) // 10, 20, 30…

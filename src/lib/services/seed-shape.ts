@@ -38,6 +38,38 @@ export type SeedService = {
   groups: SeedGroup[]
 }
 
+// 1번(등급형)은 묶음 정의가 category-groups.ts 에 없다 — 등급 표와 플랫폼 목록이 화면 문구
+// (messages 의 tierForm)에 있기 때문이다. 2026-09-16 사용자 결정에 따라 등급·플랫폼만 DB 로 옮긴다.
+// 등급은 중복 선택이고 금액을 합산한다(calculators/tier.ts). 플랫폼은 금액에 영향이 없다.
+const TIER_GROUPS: SeedGroup[] = [
+  {
+    key: 'platform',
+    multi: true,
+    countryTabs: false,
+    axis: 'none',
+    sortOrder: 10,
+    items: ['instagram', 'youtube', 'tiktok', 'line'].map((key, i) => ({
+      key,
+      priced: false,
+      exclusive: false,
+      sortOrder: (i + 1) * 10,
+    })),
+  },
+  {
+    key: 'tier',
+    multi: true,
+    countryTabs: false,
+    axis: 'none',
+    sortOrder: 20,
+    items: ['basic', 'standard', 'premium'].map((key, i) => ({
+      key,
+      priced: true,
+      exclusive: false,
+      sortOrder: (i + 1) * 10,
+    })),
+  },
+]
+
 // 2번 영상은 "종류 × 길이" 쌍으로 계산한다. 어느 묶음이 어느 축인지는 계산 모델이 들고 있던
 // 정보라 묶음 행에도 남겨야 한다 — 없으면 새 서비스에서 같은 계산을 못 만든다
 const axisOf = (groupKey: string): SeedGroup['axis'] => {
@@ -67,7 +99,10 @@ const toGroup = (group: GroupDef, index: number, countryTabs: boolean): SeedGrou
 export function servicesFromConstants(): SeedService[] {
   return CATEGORIES.map((def, index) => {
     const form = formFor(def.no)
-    const groups = (form?.groups ?? []).map((g, i) => toGroup(g, i, form?.countryTabs === true))
+    const groups =
+      def.model.kind === 'tier'
+        ? TIER_GROUPS
+        : (form?.groups ?? []).map((g, i) => toGroup(g, i, form?.countryTabs === true))
     return {
       no: def.no,
       slug: def.slug,
