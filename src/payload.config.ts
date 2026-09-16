@@ -10,6 +10,8 @@ import { integer, pgTable, serial, text, unique } from 'drizzle-orm/pg-core'
 
 import { Users } from './collections/Users'
 import { PriceEntries } from './collections/PriceEntries'
+import { AdServices } from './collections/AdServices'
+import { AdServiceGroups } from './collections/AdServiceGroups'
 import { Orders } from './collections/Orders'
 import { OrderTransitions } from './collections/OrderTransitions'
 import { OrderNotes } from './collections/OrderNotes'
@@ -36,7 +38,7 @@ export default buildConfig({
     user: Users.slug,
     importMap: { baseDir: path.resolve(dirname) },
   },
-  collections: [
+  collections: [AdServices, AdServiceGroups, 
     Users,
     PriceEntries,
     Orders,

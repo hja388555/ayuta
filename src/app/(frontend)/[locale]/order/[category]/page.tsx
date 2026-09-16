@@ -15,6 +15,7 @@ import type { TierRow } from '@/components/TierForm'
 import styles from '@/components/OrderForms.module.css'
 import { categoryBySlug } from '@/lib/categories'
 import { formFor } from '@/lib/category-groups'
+import { loadServiceForm } from '@/lib/services/load'
 import { loadPriceBook } from '@/lib/price-book'
 import { loadCategoryModel } from '@/lib/pricing-model'
 import { currencyForLocale } from '@/lib/payments/channel'
@@ -93,8 +94,10 @@ export default async function OrderPage({ params, searchParams }: Props) {
   // 미리보기 계산에 쓰는 모델 — 4번 기간 배수는 DB(관리자 설정) 값이다. 결제 화면·주문 생성과
   // 같은 로더를 써야 미리보기와 청구 금액이 갈라지지 않는다
   const model = await loadCategoryModel(def)
-  // formFor가 null이면(1·5번) 아래에서 GroupForm 갈래로 안 간다 — 던지지 않는다
-  const groupFormDef = formFor(def.no)
+  // 묶음·항목 정의는 DB(ad-service-groups + price-entries)가 먼저다(2026-09-16). 아직 안 심겼으면
+  // 기존 상수로 떨어진다 — 전환 도중에도 화면이 멈추지 않게. formFor 가 null 이면(1·5번)
+  // 아래에서 GroupForm 갈래로 안 간다 — 던지지 않는다
+  const groupFormDef = (await loadServiceForm(def.no)) ?? formFor(def.no)
 
   return (
     <main>

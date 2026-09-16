@@ -71,10 +71,23 @@ export const PriceEntries: CollectionConfig = {
     // PriceEntry.label 에 채워 넣으므로 계산기·화면은 이 분리를 모른다.
     { name: 'labelKo', type: 'text', required: true },
     { name: 'labelJa', type: 'text', required: true },
-    { name: 'category', type: 'number', required: true, index: true, min: 1, max: 5 },
+    // 상한을 두지 않는다 — 관리자가 만든 6번 이후 서비스도 같은 표를 쓴다(2026-09-16)
+    { name: 'category', type: 'number', required: true, index: true, min: 1 },
     // 정수 최소단위. 환율 자동 변환은 하지 않는다 (대표님이 각각 입력)
     { name: 'priceKrw', type: 'number', required: true, min: 0, validate: validateMinorAmount },
     { name: 'priceJpy', type: 'number', required: true, min: 0, validate: validateMinorAmount },
     { name: 'active', type: 'checkbox', required: true, defaultValue: true },
+    // 아래는 화면 구조를 DB 로 옮기며 추가한 값들(2026-09-16). 기존 행과 시드·통합 테스트는 이 값을 모른 채
+    // 단가를 만든다 — required 를 걸면 그 호출이 전부 깨진다. 기본값만 두고 필수는 걸지 않는다
+    { name: 'group', type: 'relationship', relationTo: 'ad-service-groups', index: true },
+    // 금액이 붙지 않는 선택지(촬영 국가 등). 거짓이면 계산에 들어가지 않는다
+    { name: 'priced', type: 'checkbox', defaultValue: true },
+    // 한국/일본 탭으로 나뉘는 묶음에서 어느 탭에 속하는지. 비우면 두 탭 모두에 보인다
+    { name: 'country', type: 'select', options: ['kr', 'jp'] },
+    // 고르면 같은 묶음의 나머지를 비우는 항목(예: 포스터 제작 안 함)
+    { name: 'exclusive', type: 'checkbox', defaultValue: false },
+    { name: 'descKo', type: 'text' },
+    { name: 'descJa', type: 'text' },
+    { name: 'sortOrder', type: 'number', defaultValue: 100 },
   ],
 }

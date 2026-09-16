@@ -67,6 +67,8 @@ export interface Config {
   };
   blocks: {};
   collections: {
+    'ad-services': AdService;
+    'ad-service-groups': AdServiceGroup;
     users: User;
     'price-entries': PriceEntry;
     orders: Order;
@@ -92,6 +94,8 @@ export interface Config {
   };
   collectionsJoins: {};
   collectionsSelect: {
+    'ad-services': AdServicesSelect<false> | AdServicesSelect<true>;
+    'ad-service-groups': AdServiceGroupsSelect<false> | AdServiceGroupsSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
     'price-entries': PriceEntriesSelect<false> | PriceEntriesSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
@@ -157,6 +161,60 @@ export interface UserAuthOperations {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ad-services".
+ */
+export interface AdService {
+  id: number;
+  no: number;
+  slug: string;
+  nameKo: string;
+  nameJa: string;
+  descKo?: string | null;
+  descJa?: string | null;
+  /**
+   * 계산 방식입니다. 주문이 들어온 뒤 바꾸면 과거 주문과 계산이 어긋납니다.
+   */
+  model: 'tier' | 'sum' | 'sumMultiplier' | 'videoPairs' | 'inquiry';
+  /**
+   * fixed = 미리 쓴 계약서, perQuote = 견적 발행 때마다 작성
+   */
+  contractMode: 'fixed' | 'perQuote';
+  sortOrder: number;
+  active: boolean;
+  periods?:
+    | {
+        key: string;
+        labelKo: string;
+        labelJa: string;
+        multiplier: number;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ad-service-groups".
+ */
+export interface AdServiceGroup {
+  id: number;
+  service: number | AdService;
+  key: string;
+  titleKo: string;
+  titleJa: string;
+  hintKo?: string | null;
+  hintJa?: string | null;
+  multi: boolean;
+  countryTabs: boolean;
+  axis: 'none' | 'type' | 'length';
+  sortOrder: number;
+  active: boolean;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users".
  */
 export interface User {
@@ -208,6 +266,13 @@ export interface PriceEntry {
   priceKrw: number;
   priceJpy: number;
   active: boolean;
+  group?: (number | null) | AdServiceGroup;
+  priced?: boolean | null;
+  country?: ('kr' | 'jp') | null;
+  exclusive?: boolean | null;
+  descKo?: string | null;
+  descJa?: string | null;
+  sortOrder?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -572,6 +637,14 @@ export interface PayloadLockedDocument {
   id: number;
   document?:
     | ({
+        relationTo: 'ad-services';
+        value: number | AdService;
+      } | null)
+    | ({
+        relationTo: 'ad-service-groups';
+        value: number | AdServiceGroup;
+      } | null)
+    | ({
         relationTo: 'users';
         value: number | User;
       } | null)
@@ -687,6 +760,52 @@ export interface PayloadMigration {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ad-services_select".
+ */
+export interface AdServicesSelect<T extends boolean = true> {
+  no?: T;
+  slug?: T;
+  nameKo?: T;
+  nameJa?: T;
+  descKo?: T;
+  descJa?: T;
+  model?: T;
+  contractMode?: T;
+  sortOrder?: T;
+  active?: T;
+  periods?:
+    | T
+    | {
+        key?: T;
+        labelKo?: T;
+        labelJa?: T;
+        multiplier?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ad-service-groups_select".
+ */
+export interface AdServiceGroupsSelect<T extends boolean = true> {
+  service?: T;
+  key?: T;
+  titleKo?: T;
+  titleJa?: T;
+  hintKo?: T;
+  hintJa?: T;
+  multi?: T;
+  countryTabs?: T;
+  axis?: T;
+  sortOrder?: T;
+  active?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -731,6 +850,13 @@ export interface PriceEntriesSelect<T extends boolean = true> {
   priceKrw?: T;
   priceJpy?: T;
   active?: T;
+  group?: T;
+  priced?: T;
+  country?: T;
+  exclusive?: T;
+  descKo?: T;
+  descJa?: T;
+  sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;
 }

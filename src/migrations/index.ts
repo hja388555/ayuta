@@ -11,6 +11,7 @@ import * as migration_20260911_232040_guest_chat from './20260911_232040_guest_c
 import * as migration_20260912_055606_band_focus from './20260912_055606_band_focus';
 import * as migration_20260913_040459_purpose_many from './20260913_040459_purpose_many';
 import * as migration_20260913_043043_drop_band_focus from './20260913_043043_drop_band_focus';
+import * as migration_20260916_070737_ad_services from './20260916_070737_ad_services';
 
 export const migrations = [
   {
@@ -76,6 +77,11 @@ export const migrations = [
   {
     up: migration_20260913_043043_drop_band_focus.up,
     down: migration_20260913_043043_drop_band_focus.down,
-    name: '20260913_043043_drop_band_focus'
+    name: '20260913_043043_drop_band_focus',
+  },
+  {
+    up: migration_20260916_070737_ad_services.up,
+    down: migration_20260916_070737_ad_services.down,
+    name: '20260916_070737_ad_services'
   },
 ];

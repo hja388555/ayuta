@@ -20,7 +20,7 @@ export const ContractTemplates: CollectionConfig = {
   // 관리자 화면(/manage/legal)에서 문구를 고치면 이력이 남는다(큐 Q25 2차)
   hooks: { afterChange: [recordLegalRevision('contract-templates', (doc) => `${doc.category}번 계약서 (${doc.locale})`)] },
   fields: [
-    { name: 'category', type: 'number', required: true, min: 1, max: 5, index: true },
+    { name: 'category', type: 'number', required: true, min: 1, index: true },
     { name: 'locale', type: 'select', required: true, options: ['ko', 'ja'], index: true },
     { name: 'title', type: 'text', required: true },
     // 빈칸은 {{productName}} {{items}} {{amount}} {{contractDate}} {{buyerName}} {{signature}}
