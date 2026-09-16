@@ -77,7 +77,7 @@ export const Orders: CollectionConfig = {
     { name: 'amount', type: 'number', required: true, access: IMMUTABLE },
     { name: 'locale', type: 'select', required: true, options: ['ko', 'ja'] },
     // 계약서 템플릿을 고른 카테고리 번호. 계약서·동의 항목을 나중에 다시 찾을 때 쓴다
-    { name: 'category', type: 'number', required: true, min: 1, max: 5, access: IMMUTABLE },
+    { name: 'category', type: 'number', required: true, min: 1, access: IMMUTABLE },
     {
       // 금액과 항목명을 값으로 복사해 둔다.
       // 단가 ID만 참조하면 관리자가 단가를 고치는 순간 과거 주문 금액이 전부 바뀐다
