@@ -16,6 +16,7 @@ import { loadCompanyContractFields } from '../company-settings'
 import { OrdererSchema, buyerContractFields, normalizeOrdererPhone, type Orderer } from './orderer'
 import { allRequiredChecked, withBaseConsents, type ConsentDef } from './consents'
 import { buildContractItems, categoryContractFacts, type ContractItem } from './contract-items'
+import { loadServiceForm } from '../services/load'
 import { filterPricedSelection } from './selection-from-query'
 import { sanitizeCountries, sanitizePurposes, type CountryCode, type PurposeCode } from '../cover-selection'
 
@@ -202,7 +203,8 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
       // 쓴다. 필터는 여기 계산 한 곳에서만 걸어야 국가·사이즈 같은 무료 선택이 계약서에서
       // 사라지지 않는다
       const book = await loadPriceBook(def.no, currency)
-      const form = formFor(def.no)
+      // 결제 화면과 같은 출처를 본다 — 한쪽만 DB 를 읽으면 미리보기와 청구 금액이 갈라진다
+      const form = (await loadServiceForm(def.no)) ?? formFor(def.no)
       // 4번 기간 배수 등 관리자가 DB 에서 고치는 값을 채운 모델 — 견적 화면과 같은 로더를 쓴다
       const model = await loadCategoryModel(def, input.locale)
       const pricedSelection = filterPricedSelection(model, form, input.selection)
@@ -212,7 +214,7 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
       // 계약서 항목은 원본 선택(input.selection) 전체에서 뽑는다 — quote.lines는 금액칸이
       // 있는 항목만 담고 값도 금액이라(위 4 참고) 계약서 "무엇을 샀는지" 줄에 쓸 수 없다.
       // 돈은 {{amount}}(총 계약금액/계약금액) 줄에만 나온다
-      const contractItems = buildContractItems(def, book, input.selection, input.locale)
+      const contractItems = buildContractItems(def, book, input.selection, input.locale, form)
 
       // 1번 계약서 제1조의 "선택 상품 / 선택 채널 / 광고 국가"는 {{items}}가 아니라 각자의 자리로
       // 채운다 — 원문(§B)이 줄마다 따로 라벨을 붙여 두기 때문이다. 결제 화면 미리보기와 같은 함수를 쓴다

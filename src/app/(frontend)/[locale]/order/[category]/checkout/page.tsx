@@ -106,7 +106,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
   // 입력 중인 주문자 값으로 채워 저장될 전문과 같은 글이 보인다. 결제를 확정하는 계약서가
   // 아니라 미리 읽어 보는 사본이라 여기서 missing 을 막지 않는다
   const contractLocale = locale === 'ja' ? 'ja' : 'ko'
-  const contractItems = buildContractItems(def, book, rawSelection, contractLocale)
+  const contractItems = buildContractItems(def, book, rawSelection, contractLocale, form)
   const preview = fillContract(template.body as string, {
     amount: quote.total,
     currency,

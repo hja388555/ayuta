@@ -19,6 +19,24 @@ describe('countryFactValue — 1번 계약서 {{country}}', () => {
   })
 })
 
+describe('buildContractItems — 광고 국가는 한국/일본 탭을 쓰는 서비스에 실린다', () => {
+  // 3·4번이라고 번호로 판정하던 것을 묶음 설정(countryTabs)으로 바꿨다(2026-09-16).
+  // 관리자가 만든 서비스도 탭을 켜면 계약서에 광고 국가가 들어가야 한다
+  const def6 = { no: 6, slug: 'service-6', model: { kind: 'sum', category: 6 } } as unknown as (typeof CATEGORIES)[number]
+
+  it('탭을 켠 서비스는 고른 나라를 싣는다', () => {
+    const form = { groups: [], countryTabs: true }
+    const items = buildContractItems(def6, emptyBook, { items: [], country: ['jp', 'kr'] }, 'ko', form)
+    expect(items.find((i) => i.label === '광고 국가')?.value).toBe('한국, 일본')
+  })
+
+  it('탭을 끈 서비스는 나라를 골랐어도 싣지 않는다', () => {
+    const form = { groups: [], countryTabs: false }
+    const items = buildContractItems(def6, emptyBook, { items: [], country: ['kr'] }, 'ko', form)
+    expect(items.some((i) => i.label === '광고 국가')).toBe(false)
+  })
+})
+
 describe('buildContractItems — 4번(지하철·버스·블로그) 광고 국가', () => {
   const def4 = CATEGORIES.find((c) => c.no === 4)!
 
