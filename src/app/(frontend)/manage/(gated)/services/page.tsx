@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import Link from 'next/link'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { isSuperRole } from '@/lib/roles'
 import { authedPayload } from '@/lib/admin/orders-data'
@@ -78,7 +79,9 @@ export default async function ServicesPage() {
               <div className={s.listMain}>
                 {/* 이름에 이미 번호가 들어 있다("1. 디지털/SNS광고") — 화면에서 또 붙이면 겹친다.
                     이름이 정본이므로 관리자가 고친 그대로 보여 준다 */}
-                <strong>{d.nameKo as string}</strong>
+                <Link className={s.listLink} href={`/manage/services/${d.id}`}>
+                  {d.nameKo as string}
+                </Link>
                 <p className={s.hint}>
                   {String(d.no)}번 · {MODEL_LABELS[d.model as string] ?? (d.model as string)} ·{' '}
                   {CONTRACT_LABELS[d.contractMode as string] ?? (d.contractMode as string)} ·
