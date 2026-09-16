@@ -81,6 +81,17 @@ export async function createQuoteOrder(rawInput: unknown, customerId: number | n
     // 통화는 견적이 정한다(발행 시 문의 언어로 고정). 화면 언어를 바꿔도 금액 단위가 흔들리지 않는다
     currency: quote.currency as Currency,
     consents: input.consents,
+    // 이 견적에 붙은 동의 항목이 있으면 그것을 쓴다(Q53) — 고객이 견적 화면에서 본 문구와
+    // 주문에 남는 문구가 같아야 한다. 없으면 persistOrder 가 기존 계약서 템플릿을 본다
+    ...(Array.isArray(quote.contractConsents) && quote.contractConsents.length > 0
+      ? {
+          quoteConsents: (quote.contractConsents as Array<{ key: string; labelKo: string; labelJa: string; required: boolean }>).map((c) => ({
+            key: c.key,
+            label: input.locale === 'ja' ? c.labelJa : c.labelKo,
+            required: c.required,
+          })),
+        }
+      : {}),
     orderer: input.orderer,
     signature: input.signature,
     idempotencyKey: quoteOrderKey(quote.id),

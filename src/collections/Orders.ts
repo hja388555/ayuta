@@ -136,6 +136,20 @@ export const Orders: CollectionConfig = {
     // 결제 시점 계약서 전문. 값으로 복사한다 — 나중에 템플릿을 고쳐도 이미 체결된 주문은
     // 그 순간 고객이 읽고 서명한 문서 그대로 남아야 한다
     { name: 'contractText', type: 'textarea', required: true, access: IMMUTABLE },
+    // 고객이 실제로 체크한 동의 항목(Q53). 계약서 전문과 같은 이유로 값으로 복사한다 —
+    // 관리자가 나중에 동의 문구를 고치면 「이 고객이 무엇에 동의했는지」를 되짚을 근거가 사라진다.
+    // 화면에 보여 준 문구·순서 그대로, 체크 결과와 함께 남긴다
+    {
+      name: 'consentSnapshot',
+      type: 'array',
+      access: IMMUTABLE,
+      fields: [
+        { name: 'key', type: 'text', required: true },
+        { name: 'label', type: 'text', required: true },
+        { name: 'required', type: 'checkbox', required: true },
+        { name: 'agreed', type: 'checkbox', required: true },
+      ],
+    },
     // 결제 시점의 대표자 서명·날인(큐 Q25 3차). 도장을 나중에 바꿔도 이 계약서는 그때 도장 그대로다.
     // 도장을 아직 올리지 않았으면 비어 있다(주문은 막지 않는다) — 화면은 src/lib/seal.ts 가 그린다
     { name: 'sealAsset', type: 'relationship', relationTo: 'brand-assets', access: IMMUTABLE },
