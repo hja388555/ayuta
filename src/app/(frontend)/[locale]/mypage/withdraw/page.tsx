@@ -6,6 +6,8 @@ import config from '@payload-config'
 import { WithdrawForm } from '@/components/MypageForms'
 import { ACTIVE_ORDER_STATUSES } from '@/app/(frontend)/api/me/withdraw/route'
 import { CATEGORIES } from '@/lib/categories'
+import { loadServiceNames } from '@/lib/services/load'
+import { serviceLabel } from '@/lib/services/service-label'
 import { getSessionUser } from '@/lib/dal'
 import s from '@/components/Account.module.css'
 
@@ -35,9 +37,10 @@ export default async function WithdrawPage({ params }: Props) {
     depth: 0,
     overrideAccess: true,
   })
+  const serviceNames = await loadServiceNames(active.map((o) => o.category as number)).catch(() => new Map())
   const categoryLabel = (no: number) => {
     const slug = CATEGORIES.find((c) => c.no === no)?.slug
-    return slug ? `${no}. ${tCat(slug)}` : ''
+    return serviceLabel(no, locale, serviceNames.get(no), slug ? tCat(slug) : undefined)
   }
 
   return (

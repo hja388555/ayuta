@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui'
 import { ContractModal } from '@/components/ContractModal'
 import { getSessionUser } from '@/lib/dal'
 import { categoryByNo } from '@/lib/categories'
+import { loadServiceNames } from '@/lib/services/load'
+import { serviceLabel } from '@/lib/services/service-label'
 import { formatOrderSchedule } from '@/lib/order-lookup'
 import { createSealLoader } from '@/lib/seal'
 import { SIGNED_STATUSES } from '@/lib/mypage/status'
@@ -48,6 +50,8 @@ export default async function ContractsPage({ params }: Props) {
 
   const day = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit' })
 
+  const serviceNames = await loadServiceNames(orders.map((o) => o.category as number)).catch(() => new Map())
+
   return (
     <>
       <h1 className={s.title}>{t('title')}</h1>
@@ -74,7 +78,9 @@ export default async function ContractsPage({ params }: Props) {
                   )}
                 </span>
               </div>
-              <h2 className={s.service}>{category ? `${category.no}. ${tCat(category.slug)}` : '-'}</h2>
+              <h2 className={s.service}>
+                {serviceLabel(o.category as number, locale, serviceNames.get(o.category as number), category ? tCat(category.slug) : undefined)}
+              </h2>
               <div className={s.cardBody}>
                 <div className={s.meta}>
                   <span>{t('contractDateLine', { date: day.format(new Date(o.createdAt as string)) })}</span>
