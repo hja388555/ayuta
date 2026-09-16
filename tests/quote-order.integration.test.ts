@@ -42,9 +42,19 @@ const quoteIds: number[] = []
 // 5번 견적 발행에 필요한 계약서 입력(Q53). 내용 자체는 이 테스트의 관심사가 아니다
 const QUOTE_CONTRACT = {
   contractTitle: 'AYUTA 광고 서비스 계약서',
-  contractBody: '제1조 갑이 신청한 광고 항목과 금액은 {{items}} · {{amount}} 와 같다.',
+  // 이 파일은 계약서에 금액·주문자·서명이 박히는지를 확인한다. 견적 본문이 고정 템플릿을
+  // 대신하므로(Q53) 확인할 자리표시자를 여기에 그대로 둔다
+  contractBody: [
+    '테스트 견적 계약서',
+    '{{items}}',
+    '계약금액: {{amount}}',
+    '계약일: {{contractDate}}',
+    '갑: {{buyerName}} / {{buyerAddress}} / {{buyerEmail}} / {{buyerPhone}}',
+    '을: {{companyName}}',
+    '전자서명: {{signature}}',
+  ].join('\n'),
   contractConsents: [
-    { key: 'agree', labelKo: '위 계약 내용에 동의합니다.', labelJa: '上記契約内容に同意します。', required: true },
+    { key: 'contract', labelKo: '위 계약 내용에 동의합니다.', labelJa: '上記契約内容に同意します。', required: true },
   ],
 }
 

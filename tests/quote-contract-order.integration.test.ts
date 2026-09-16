@@ -118,10 +118,18 @@ describe('견적 계약서 → 주문 스냅샷', () => {
     })
     expect(res.status).toBe(200)
     const body = await res.json()
-    orderIds.push(body.orderId as number)
 
+    // 응답은 주문번호만 돌려준다(order-response.ts) — 주문 행은 번호로 찾는다
     const payload = await localPayload()
-    const order = await payload.findByID({ collection: 'orders', id: body.orderId as number, overrideAccess: true, depth: 0 })
+    const { docs } = await payload.find({
+      collection: 'orders',
+      where: { orderNumber: { equals: body.orderNumber as string } },
+      limit: 1,
+      depth: 0,
+      overrideAccess: true,
+    })
+    const order = docs[0]!
+    orderIds.push(order.id as number)
     const snapshot = order.consentSnapshot as Array<{ key: string; label: string; required: boolean; agreed: boolean }>
 
     // 이용 약관·개인정보는 모든 결제에 공통으로 붙고, 그 뒤에 이 견적의 항목이 온다
