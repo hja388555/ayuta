@@ -2,7 +2,9 @@ import type { PricingModel } from '@ayuta/pricing'
 import { formFor } from './category-groups'
 
 export type CategoryDef = {
-  no: 1 | 2 | 3 | 4 | 5
+  // 관리자가 만든 서비스는 6번부터 받는다(2026-09-16) — 번호를 타입으로 묶지 않는다.
+  // 계산 모델(PricingModel.category)도 같은 이유로 number 다
+  no: number
   slug: string
   model: PricingModel
 }

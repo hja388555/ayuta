@@ -4,6 +4,7 @@ import { localeAlternates } from '@/lib/seo'
 import { Shell } from '@/components/Shell'
 import { CoverSteps } from '@/components/CoverSteps'
 import { CATEGORIES } from '@/lib/categories'
+import { loadServices } from '@/lib/services/load'
 import { COUNTRY_CODES, PURPOSE_CODES } from '@/lib/cover-selection'
 
 type Props = { params: Promise<{ locale: string }> }
@@ -31,6 +32,15 @@ export default async function CoverPage({ params }: Props) {
   const t = await getTranslations('cover')
   const tagline = t('tagline')
   const { head: taglineHead, tail: taglineTail } = splitTagline(tagline)
+
+  // 메인 서비스 목록은 DB(ad-services)가 먼저다(2026-09-16). 이름도 DB 값을 쓰고, 아직 안 심겼으면
+  // 기존 상수와 화면 문구로 떨어진다 — 전환 도중에도 목록이 비지 않게 한다
+  const services = await loadServices()
+  const coverCategories = services.length > 0 ? services.map((s) => ({ slug: s.slug })) : CATEGORIES
+  const serviceNames =
+    services.length > 0
+      ? Object.fromEntries(services.map((s) => [s.slug, locale === 'ja' ? s.nameJa : s.nameKo]))
+      : Object.fromEntries(CATEGORIES.map((c) => [c.slug, t(`services.${c.slug}`)]))
 
   return (
     <main>
@@ -60,7 +70,7 @@ export default async function CoverPage({ params }: Props) {
         <div className="v3-body cover-body">
           <CoverSteps
             locale={locale}
-            categories={CATEGORIES}
+            categories={coverCategories}
             labels={{
               stepCountry: t('stepCountry'),
               stepPurpose: t('stepPurpose'),
@@ -74,7 +84,7 @@ export default async function CoverPage({ params }: Props) {
                 COUNTRY_CODES.filter((c) => t.has(`countryNotes.${c}`)).map((c) => [c, t(`countryNotes.${c}`)]),
               ),
               purposes: Object.fromEntries(PURPOSE_CODES.map((p) => [p, t(`purposes.${p}`)])),
-              services: Object.fromEntries(CATEGORIES.map((c) => [c.slug, t(`services.${c.slug}`)])),
+              services: serviceNames,
             }}
           />
         </div>

@@ -11,11 +11,13 @@ import {
   PURPOSE_CODES,
   type CountryCode,
 } from '@/lib/cover-selection'
-import type { CategoryDef } from '@/lib/categories'
+
 
 type Props = {
   locale: string
-  categories: readonly CategoryDef[]
+  // 이 화면이 쓰는 값은 주소(slug)뿐이다. 계산 모델까지 요구하면 DB 에서 읽은 서비스를
+  // 넘길 때 쓰지도 않는 값을 지어내야 한다(2026-09-16)
+  categories: readonly { slug: string }[]
   labels: {
     stepCountry: string
     stepPurpose: string
