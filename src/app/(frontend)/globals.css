@@ -371,3 +371,8 @@ body {
   .cover-steps { gap: 80px; }
   .cover-steps .choice-sub { font-size: 18px; }
 }
+
+/* 소제목 아래 여백을 주문 화면과 같은 20px 로(2026-09-16 피그마 대조) — 모바일은 그대로 12px */
+@media (min-width: 768px) {
+  .step-title { margin-bottom: 20px; }
+}
