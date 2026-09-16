@@ -13,6 +13,7 @@ import { isAdminRole } from '@/lib/roles'
 import { hasLocale } from 'next-intl'
 import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
+import { siteUrl } from '@/lib/seo'
 
 // 헤더가 요청마다 로그인 상태·[관리자] 버튼을 판단해야 한다(요구사항 1-16). 정적으로 한 번
 // 렌더링해 두면 모든 사람에게 같은 헤더(비로그인 상태)가 나간다
@@ -26,7 +27,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: { default: t('title'), template: `%s | ${t('siteName')}` },
     description: t('description'),
-    openGraph: { siteName: t('siteName'), locale: locale === 'ja' ? 'ja_JP' : 'ko_KR', type: 'website' },
+    // 링크 미리보기 이미지(og:image) — 카카오톡·슬랙 등은 절대 주소만 읽는다
+    openGraph: {
+      siteName: t('siteName'),
+      locale: locale === 'ja' ? 'ja_JP' : 'ko_KR',
+      type: 'website',
+      images: [{ url: new URL('/og.png', siteUrl()).toString(), width: 1200, height: 630, alt: t('siteName') }],
+    },
+    twitter: { card: 'summary_large_image', images: [new URL('/og.png', siteUrl()).toString()] },
   }
 }
 
