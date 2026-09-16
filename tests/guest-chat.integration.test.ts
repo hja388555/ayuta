@@ -86,14 +86,16 @@ describe('비회원 채팅 시작', () => {
     expect(doc.guestPrivacyConsentAt).toBeTruthy()
   })
 
-  it('비회원이 /ko/chat 에 오면 로그인으로 보내지 않고 시작 폼을 보인다', async () => {
+  it('비회원이 /ko/chat 에 오면 로그인으로 보내지 않고 회원가입 안내를 보인다', async () => {
+    // 2026-09-16 사용자: 비회원은 먼저 회원가입을 권한다. 시작 폼은 [급한 문의만 남기기] 를 눌러야 나온다
     const res = await api('/ko/chat', { redirect: 'manual' })
     expect(res.status).toBe(200)
     const html = await res.text()
-    expect(html).toMatch(/id="guest-chat-title"[^>]*>로그인 없이 채팅 시작하기</)
-    expect(html).toContain(`href="/ko/login?next=${encodeURIComponent('/ko/chat')}"`)
+    expect(html).toMatch(/id="guest-chat-gate-title"[^>]*>상담은 로그인 후 이용할 수 있어요</)
+    expect(html).toContain('href="/ko/signup?next=/ko/chat"')
+    expect(html).toContain('href="/ko/login?next=/ko/chat"')
     const ja = await (await api('/ja/chat')).text()
-    expect(ja).toMatch(/id="guest-chat-title"[^>]*>ログインせずにチャットを始める</)
+    expect(ja).toMatch(/id="guest-chat-gate-title"[^>]*>ご相談はログイン後にご利用いただけます</)
   })
 })
 
@@ -169,8 +171,8 @@ describe('비회원 대화', () => {
     const set = res.headers.getSetCookie().find((c) => c.startsWith('ayuta_chat_guest='))!
     expect(set.split(';')[0]).toBe('ayuta_chat_guest=')
     expect(set).toMatch(/Max-Age=0|Expires=Thu, 01 Jan 1970/i)
-    // 쿠키 없이 들어오면 시작 폼, 다른 손님의 쿠키는 여전히 된다
-    expect(await (await api('/ko/chat')).text()).toContain('id="guest-chat-title"')
+    // 쿠키 없이 들어오면 회원가입 안내, 다른 손님의 쿠키는 여전히 된다
+    expect(await (await api('/ko/chat')).text()).toContain('id="guest-chat-gate-title"')
     expect((await api('/api/chat/messages', { headers: { Cookie: cookieA } })).status).toBe(200)
     // 쿠키가 없어도 실패하지 않는다(로그아웃에서 무조건 부른다)
     expect((await api('/api/chat/guest', { method: 'DELETE' })).status).toBe(200)

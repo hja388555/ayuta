@@ -6,6 +6,7 @@ import { Shell } from '@/components/Shell'
 import { ChatRoom } from '@/components/ChatRoom'
 import { ChatFrame } from '@/components/ChatFrame'
 import { GuestChatStart } from '@/components/GuestChatStart'
+import { GuestChatGate } from '@/components/GuestChatGate'
 import { getSessionUser } from '@/lib/dal'
 import { toChatLocale } from '@/lib/chat/rules'
 import { guestThreadFromCookie } from '@/lib/chat/service'
@@ -62,6 +63,10 @@ export default async function ChatPage({ params, searchParams }: Props) {
   return (
     <Shell bleed background="#f7f8fa">
       <ChatFrame title={t('title')} badge={t('badge')} notices={[t('notice1'), t('guestNotice2')]}>
+        <GuestChatGate
+          locale={chatLocale}
+          labels={{ title: t('gateTitle'), desc: t('gateDesc'), signup: t('gateSignup'), login: t('gateLogin'), inquiry: t('gateInquiry') }}
+        >
         <GuestChatStart
           locale={chatLocale}
           linkInvalid={link === 'invalid'}
@@ -84,6 +89,7 @@ export default async function ChatPage({ params, searchParams }: Props) {
             errors: Object.fromEntries(errorCodes.map((code) => [code, t(`guestErrors.${code}`)])),
           }}
         />
+        </GuestChatGate>
       </ChatFrame>
     </Shell>
   )

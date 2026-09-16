@@ -72,3 +72,16 @@
   .send { height: 38px; font-size: 13px; }
   .notice { font-size: 12px; }
 }
+/* 비로그인 상담 진입 — 회원가입 유도(2026-09-16 사용자) */
+.gate { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px 20px 40px; text-align: center; }
+.gateTitle { margin: 0; font-size: 20px; font-weight: 800; color: var(--c-title); word-break: keep-all; }
+.gateDesc { margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: var(--c-text2); word-break: keep-all; }
+.gateBtn { width: 100%; max-width: 420px; height: 52px; font-size: 16px; }
+.gateInquiry { margin-top: 4px; border: 0; background: none; font: inherit; font-size: 15px; color: var(--c-text2); text-decoration: underline; cursor: pointer; }
+@media (min-width: 768px) {
+  .gate { padding: 64px 20px 56px; gap: 14px; }
+  .gateTitle { font-size: 26px; }
+  .gateDesc { font-size: 18px; }
+  .gateBtn { height: 56px; font-size: 18px; }
+  .gateInquiry { font-size: 16px; }
+}

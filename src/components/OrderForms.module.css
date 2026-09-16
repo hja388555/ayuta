@@ -236,3 +236,22 @@
   /* 1~4번 섹션 사이 여백 72px(2026-09-16 사용자) */
   .body, .bodyWide { gap: 72px; }
 }
+/* 2026-09-16 사용자: PC 글자가 커서 여백이 없어 보인다 — 내용 글씨를 한 단계 줄이고 묶음 사이를 80px 로 */
+@media (min-width: 768px) {
+  .body, .bodyWide { gap: 80px; }
+  .body :global(.choice) { font-size: 24px; }
+  .body :global(.choice-sub) { font-size: 20px; }
+  .body .price { font-size: 22px; }
+  .desc { font-size: 20px; }
+  .countryHead { font-size: 26px; }
+  .table, .table thead th, .table thead th:first-child, .priceRow td:first-child { font-size: 24px; }
+  .priceRow td { font-size: 22px; }
+  :global(:lang(ja)) .table thead th:not(:first-child) { font-size: 22px; }
+  .chip2 { font-size: 22px; }
+  .chip2 img, .chip2 :global(.icon-mask) { width: 20px; height: 20px; }
+  .videoNote { font-size: 20px; }
+  .posterNote { font-size: 18px; }
+  .itemsLabel, .itemsValue, .totalRowLabel, .totalRowAmount { font-size: 22px; }
+  .pay .payBtn { font-size: 22px; height: 56px; }
+  .payBtn img, .payBtn :global(.icon-mask) { width: 44px !important; height: 44px !important; }
+}

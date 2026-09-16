@@ -139,3 +139,11 @@
   /* 5번 문의 폼 블록 사이 여백 72px(2026-09-16 사용자) */
   .form { gap: 72px; }
 }
+@media (min-width: 768px) {
+  /* 5번 문의 폼도 같은 기준으로(2026-09-16 사용자) */
+  .form { gap: 80px; }
+  .lead { font-size: 20px; }
+  .label { font-size: 22px; }
+  .input, .textarea { font-size: 20px; }
+  .check, .consentText { font-size: 20px; }
+}

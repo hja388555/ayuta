@@ -364,3 +364,10 @@ body {
   .choice { align-items: center; }
   .choice .choice-box { margin-top: 0; }
 }
+@media (min-width: 768px) {
+  /* PC 소제목·본문 한 단계 축소, 메인 묶음 사이도 80px (2026-09-16 사용자) */
+  .step-title h2 { font-size: 32px; }
+  .step-title p { font-size: 18px; }
+  .cover-steps { gap: 80px; }
+  .cover-steps .choice-sub { font-size: 18px; }
+}
