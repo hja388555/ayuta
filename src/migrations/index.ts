@@ -12,6 +12,7 @@ import * as migration_20260912_055606_band_focus from './20260912_055606_band_fo
 import * as migration_20260913_040459_purpose_many from './20260913_040459_purpose_many';
 import * as migration_20260913_043043_drop_band_focus from './20260913_043043_drop_band_focus';
 import * as migration_20260916_070737_ad_services from './20260916_070737_ad_services';
+import * as migration_20260916_142623_quote_contract from './20260916_142623_quote_contract';
 
 export const migrations = [
   {
@@ -82,6 +83,11 @@ export const migrations = [
   {
     up: migration_20260916_070737_ad_services.up,
     down: migration_20260916_070737_ad_services.down,
-    name: '20260916_070737_ad_services'
+    name: '20260916_070737_ad_services',
+  },
+  {
+    up: migration_20260916_142623_quote_contract.up,
+    down: migration_20260916_142623_quote_contract.down,
+    name: '20260916_142623_quote_contract'
   },
 ];

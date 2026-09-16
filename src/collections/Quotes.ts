@@ -54,6 +54,22 @@ export const Quotes: CollectionConfig = {
     { name: 'expiresAt', type: 'date', required: true },
     { name: 'issuedBy', type: 'relationship', relationTo: 'users' },
     { name: 'revokedAt', type: 'date' },
+    // 견적마다 계약서를 새로 쓰는 서비스(ad-services.contractMode: 'perQuote', 지금은 5번)의
+    // 발행 순간 문구다. 라인·합계와 같은 이유로 발행 뒤에는 바꾸지 않는다 — 고객이 읽고 동의한
+    // 글과 나중에 보이는 글이 달라지면 계약서가 아니다. 고치려면 회수하고 새로 발행한다.
+    { name: 'contractTitle', type: 'text', access: { update: () => false } },
+    { name: 'contractBody', type: 'textarea', access: { update: () => false } },
+    {
+      name: 'contractConsents',
+      type: 'array',
+      access: { update: () => false },
+      fields: [
+        { name: 'key', type: 'text', required: true },
+        { name: 'labelKo', type: 'text', required: true },
+        { name: 'labelJa', type: 'text', required: true },
+        { name: 'required', type: 'checkbox', required: true, defaultValue: true },
+      ],
+    },
   ],
   timestamps: true,
 }

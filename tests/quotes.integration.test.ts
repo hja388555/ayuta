@@ -17,6 +17,16 @@ let inquiryId: number
 const auth = (who?: string): Record<string, string> => (who && tokens[who] ? { Authorization: `JWT ${tokens[who]}` } : {})
 const issue = (body: unknown, who?: string) => api('/api/admin/quotes', { method: 'POST', headers: auth(who), body: JSON.stringify(body) })
 const revoke = (quoteId: number, who?: string) => api('/api/admin/quotes/revoke', { method: 'POST', headers: auth(who), body: JSON.stringify({ quoteId }) })
+// 5번은 견적마다 계약서를 쓴다(Q53) — 문구·필수 동의가 없으면 발행이 막힌다.
+// 이 파일의 관심사는 권한·회수·토큰이라 계약서는 최소한으로만 채운다
+const CONTRACT = {
+  contractTitle: 'AYUTA 광고 서비스 계약서',
+  contractBody: '제1조 갑이 신청한 광고 항목과 금액은 {{items}} · {{amount}} 와 같다.',
+  contractConsents: [
+    { key: 'agree', labelKo: '위 계약 내용에 동의합니다.', labelJa: '上記契約内容に同意します。', required: true },
+  ],
+}
+
 const lines = [
   { label: '현수막 제작', quantity: 2, unitAmount: 150_000 },
   { label: '설치', quantity: 1, unitAmount: 50_000 },
@@ -73,7 +83,7 @@ describe('POST /api/admin/quotes — 발행', () => {
   })
 
   it('관리자가 발행하면 링크가 나오고, 합계는 서버가 계산하며, 토큰 원문은 DB 에 없다', async () => {
-    const res = await issue({ inquiryId, lines, total: 1 }, 'manager')
+    const res = await issue({ inquiryId, lines, total: 1, ...CONTRACT }, 'manager')
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.path).toMatch(/^\/ko\/quote\/[A-Za-z0-9_-]{22}$/)
@@ -98,8 +108,8 @@ describe('POST /api/admin/quotes — 발행', () => {
   })
 
   it('재발행하면 이전 링크는 회수 안내로 바뀐다 — 링크 두 개가 동시에 살아 있지 않다', async () => {
-    const first = await (await issue({ inquiryId, lines }, 'manager')).json()
-    const second = await (await issue({ inquiryId, lines: [{ label: '수정 견적', quantity: 1, unitAmount: 90_000 }] }, 'manager')).json()
+    const first = await (await issue({ inquiryId, lines, ...CONTRACT }, 'manager')).json()
+    const second = await (await issue({ inquiryId, lines: [{ label: '수정 견적', quantity: 1, unitAmount: 90_000 }], ...CONTRACT }, 'manager')).json()
     expect(second.revokedCount).toBeGreaterThanOrEqual(1)
     expect(await (await api(first.path)).text()).toContain('회수된 견적입니다')
     expect(await (await api(second.path)).text()).toContain('수정 견적')
@@ -108,7 +118,7 @@ describe('POST /api/admin/quotes — 발행', () => {
 
 describe('견적 링크 상태', () => {
   it('회수하면 즉시 회수 안내가 나오고, 두 번 회수하면 400 이다', async () => {
-    const q = await (await issue({ inquiryId, lines }, 'manager')).json()
+    const q = await (await issue({ inquiryId, lines, ...CONTRACT }, 'manager')).json()
     expect((await revoke(q.quoteId, 'customer')).status).toBe(403)
     expect((await revoke(q.quoteId, 'manager')).status).toBe(200)
     expect(await (await api(q.path)).text()).toContain('회수된 견적입니다')
@@ -116,7 +126,7 @@ describe('견적 링크 상태', () => {
   })
 
   it('유효기간이 지나면 만료 안내가 나온다', async () => {
-    const q = await (await issue({ inquiryId, lines }, 'manager')).json()
+    const q = await (await issue({ inquiryId, lines, ...CONTRACT }, 'manager')).json()
     const payload = await localPayload()
     await payload.db.pool.query("UPDATE quotes SET expires_at = now() - interval '1 minute' WHERE id = $1", [q.quoteId])
     expect(await (await api(q.path)).text()).toContain('견적 유효기간이 지났습니다')
@@ -130,7 +140,7 @@ describe('견적 링크 상태', () => {
   })
 
   it('견적 화면은 검색 엔진에 노출되지 않는다', async () => {
-    const q = await (await issue({ inquiryId, lines }, 'manager')).json()
+    const q = await (await issue({ inquiryId, lines, ...CONTRACT }, 'manager')).json()
     const html = await (await api(q.path)).text()
     expect(html).toMatch(/<meta name="robots" content="noindex, ?nofollow"/)
   })

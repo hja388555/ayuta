@@ -11,6 +11,17 @@ type Row = { label: string; quantity: string; unitAmount: string }
 const EMPTY: Row = { label: '', quantity: '1', unitAmount: '' }
 const VALID_DAYS = [3, 7, 14] as const
 
+type Consent = { key: string; labelKo: string; labelJa: string; required: boolean }
+const DEFAULT_CONSENT: Consent = {
+  key: 'agree',
+  labelKo: '위 계약 내용을 모두 확인하였으며 이에 동의합니다.',
+  labelJa: '上記契約内容をすべて確認し、これに同意します。',
+  required: true,
+}
+// 이용 약관·개인정보 두 줄은 모든 결제 화면에 공통으로 붙는다(lib/checkout/consents.ts).
+// 여기서는 관리자가 보도록 보여만 주고, 발행 요청에는 싣지 않는다
+const BASE_CONSENT_LABELS = ['서비스 이용 약관에 동의합니다.', '개인정보 수집 이용에 동의합니다.'] as const
+
 /**
  * [v2] A9-B 견적 발행. 왼쪽(문의 내용 + 견적 항목)과 오른쪽(발행 설정 + 발행 이력)이 한 상태를 공유해
  * 두 칸 전체를 이 컴포넌트가 그린다. 문의 내용·이력 카드는 서버에서 만들어 넘겨받는다.
@@ -36,6 +47,10 @@ export function QuoteIssueForm({
   const draftKey = `ayuta:quote-draft:${inquiryId}`
   const [rows, setRows] = useState<Row[]>([{ ...EMPTY }])
   const [validDays, setValidDays] = useState<number>(7)
+  // 이 견적에만 쓰는 계약서(Q53). 발행하면 문구가 그대로 굳는다 — 고치려면 회수하고 다시 발행한다
+  const [contractTitle, setContractTitle] = useState('')
+  const [contractBody, setContractBody] = useState('')
+  const [consents, setConsents] = useState<Consent[]>([{ ...DEFAULT_CONSENT }])
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
@@ -105,7 +120,14 @@ export function QuoteIssueForm({
       const res = await fetch('/api/admin/quotes', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ inquiryId, lines, validDays }),
+        body: JSON.stringify({
+          inquiryId,
+          lines,
+          validDays,
+          contractTitle: contractTitle.trim(),
+          contractBody: contractBody.trim(),
+          contractConsents: consents.map((c) => ({ ...c, labelKo: c.labelKo.trim(), labelJa: c.labelJa.trim() })),
+        }),
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok || !body?.ok) {
@@ -165,6 +187,77 @@ export function QuoteIssueForm({
           <TotalBar label="합계 (자동 계산)" amount={money.format(preview)} />
           <p className={s.muted} style={{ fontSize: 12 }}>
             금액은 단가이며 수량을 곱해 합산합니다. 단위는 {unit}입니다(문의 언어 기준). 발행 후에는 수정할 수 없고, 고치려면 다시 발행합니다.
+          </p>
+        </section>
+
+        <section className={s.card}>
+          <h2 className={s.cardTitle}>이 견적의 계약서</h2>
+          <label className={s.fieldGroup}>
+            계약서 제목
+            <input
+              className={s.field}
+              value={contractTitle}
+              maxLength={200}
+              onChange={(e) => setContractTitle(e.target.value)}
+              disabled={busy}
+              placeholder="AYUTA 광고 서비스 계약서"
+            />
+          </label>
+          <label className={s.fieldGroup}>
+            계약서 본문
+            <textarea
+              className={s.field}
+              value={contractBody}
+              maxLength={20000}
+              rows={12}
+              onChange={(e) => setContractBody(e.target.value)}
+              disabled={busy}
+            />
+          </label>
+          <p className={s.muted} style={{ fontSize: 12 }}>
+            · 발행하면 이 문구는 고정됩니다. 고치려면 견적을 회수하고 다시 발행해야 합니다. {'{{items}}'} {'{{amount}}'} 자리에는 견적 내역과 금액이 자동으로 들어갑니다.
+          </p>
+        </section>
+
+        <section className={s.card}>
+          <h2 className={s.cardTitle}>고객 동의 항목</h2>
+          {BASE_CONSENT_LABELS.map((label) => (
+            <label key={label} className={s.fieldGroup}>
+              공통 (모든 결제 화면)
+              <input className={s.field} value={label} readOnly disabled />
+            </label>
+          ))}
+          {consents.map((c, i) => (
+            <label key={i} className={s.fieldGroup}>
+              이 견적 동의 {i + 1} {c.required ? '(필수)' : '(선택)'}
+              <input
+                className={s.field}
+                value={c.labelKo}
+                maxLength={300}
+                onChange={(e) => setConsents(consents.map((x, j) => (j === i ? { ...x, labelKo: e.target.value } : x)))}
+                disabled={busy}
+                aria-label={`${i + 1}번 동의 문구(한국어)`}
+              />
+              <input
+                className={s.field}
+                value={c.labelJa}
+                maxLength={300}
+                onChange={(e) => setConsents(consents.map((x, j) => (j === i ? { ...x, labelJa: e.target.value } : x)))}
+                disabled={busy}
+                aria-label={`${i + 1}번 동의 문구(일본어)`}
+              />
+            </label>
+          ))}
+          <button
+            type="button"
+            className={s.add}
+            onClick={() => setConsents([...consents, { key: `agree${consents.length + 1}`, labelKo: '', labelJa: '', required: true }])}
+            disabled={busy || consents.length >= 20}
+          >
+            + 동의 항목 추가
+          </button>
+          <p className={s.muted} style={{ fontSize: 12 }}>
+            · 이용 약관과 개인정보 두 줄은 모든 결제 화면에 공통으로 들어갑니다. 위에는 이 견적에만 쓰는 항목을 적습니다.
           </p>
         </section>
       </div>

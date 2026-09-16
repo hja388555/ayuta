@@ -479,6 +479,17 @@ export interface Quote {
   expiresAt: string;
   issuedBy?: (number | null) | User;
   revokedAt?: string | null;
+  contractTitle?: string | null;
+  contractBody?: string | null;
+  contractConsents?:
+    | {
+        key: string;
+        labelKo: string;
+        labelJa: string;
+        required: boolean;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1036,6 +1047,17 @@ export interface QuotesSelect<T extends boolean = true> {
   expiresAt?: T;
   issuedBy?: T;
   revokedAt?: T;
+  contractTitle?: T;
+  contractBody?: T;
+  contractConsents?:
+    | T
+    | {
+        key?: T;
+        labelKo?: T;
+        labelJa?: T;
+        required?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
 }

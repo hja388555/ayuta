@@ -39,9 +39,23 @@ let inquiryId: number
 let createdTemplateId: number | null = null
 const quoteIds: number[] = []
 
+// 5번 견적 발행에 필요한 계약서 입력(Q53). 내용 자체는 이 테스트의 관심사가 아니다
+const QUOTE_CONTRACT = {
+  contractTitle: 'AYUTA 광고 서비스 계약서',
+  contractBody: '제1조 갑이 신청한 광고 항목과 금액은 {{items}} · {{amount}} 와 같다.',
+  contractConsents: [
+    { key: 'agree', labelKo: '위 계약 내용에 동의합니다.', labelJa: '上記契約内容に同意します。', required: true },
+  ],
+}
+
 type Issued = { quoteId: number; quoteNumber: string; path: string }
 const issue = async (): Promise<Issued & { token: string }> => {
-  const res = await api('/api/admin/quotes', { method: 'POST', headers: { Authorization: `JWT ${managerToken}` }, body: JSON.stringify({ inquiryId, lines }) })
+  // 5번은 견적마다 계약서를 쓴다(Q53) — 문구·필수 동의가 없으면 발행이 막힌다
+  const res = await api('/api/admin/quotes', {
+    method: 'POST',
+    headers: { Authorization: `JWT ${managerToken}` },
+    body: JSON.stringify({ inquiryId, lines, ...QUOTE_CONTRACT }),
+  })
   expect(res.status).toBe(200)
   const body = (await res.json()) as Issued
   quoteIds.push(body.quoteId)
