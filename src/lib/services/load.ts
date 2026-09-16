@@ -1,7 +1,7 @@
 import 'server-only'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import type { CategoryForm, GroupDef, ItemDef } from '../category-groups'
+import { formFor, type CategoryForm, type GroupDef, type ItemDef } from '../category-groups'
 
 /**
  * DB(ad-services · ad-service-groups · price-entries)에서 광고 서비스 정의를 읽는다(2026-09-16).
@@ -42,6 +42,9 @@ export type ItemRow = {
   sortOrder: number
 }
 
+/** 묶음으로 표현되지 않는 화면 칸 — 기간·사이즈 규격·자유 입력 */
+export type FormExtra = Pick<CategoryForm, 'periods' | 'sizeSpecs' | 'freeText'>
+
 const byOrder = <T extends { sortOrder: number; key: string }>(a: T, b: T) =>
   a.sortOrder - b.sortOrder || a.key.localeCompare(b.key)
 
@@ -51,7 +54,7 @@ const byOrder = <T extends { sortOrder: number; key: string }>(a: T, b: T) =>
  * 항목이 하나도 연결되지 않은 묶음은 뺀다. 단가 행이 지워졌거나 아직 안 심긴 묶음을 그대로
  * 그리면 화면에 제목만 남은 빈 칸이 생긴다.
  */
-export function formFromRows(groups: GroupRow[], items: ItemRow[]): CategoryForm {
+export function formFromRows(groups: GroupRow[], items: ItemRow[], extra?: FormExtra): CategoryForm {
   const sortedGroups = [...groups].sort(byOrder)
   const defs: GroupDef[] = []
   for (const group of sortedGroups) {
@@ -72,6 +75,11 @@ export function formFromRows(groups: GroupRow[], items: ItemRow[]): CategoryForm
   return {
     groups: defs,
     ...(sortedGroups.some((g) => g.countryTabs) ? { countryTabs: true } : {}),
+    // 기간·사이즈 규격·자유 입력은 묶음이 아니라 화면의 별도 칸이다(CategoryForm 참고).
+    // 묶음만 옮기면 4번에서 「사이즈 규격」·「광고 기간」이 통째로 사라진다
+    ...(extra?.periods && extra.periods.length > 0 ? { periods: extra.periods } : {}),
+    ...(extra?.sizeSpecs && extra.sizeSpecs.length > 0 ? { sizeSpecs: extra.sizeSpecs } : {}),
+    ...(extra?.freeText && extra.freeText.length > 0 ? { freeText: extra.freeText } : {}),
   }
 }
 
@@ -183,9 +191,23 @@ export async function loadServiceForm(no: number): Promise<CategoryForm | null> 
     })
   }
 
+  // 기간은 서비스 행에, 사이즈 규격·자유 입력은 아직 코드 정의에 있다(E단계에서 함께 옮긴다)
+  const serviceDoc = service.docs[0] as unknown as ServiceDoc
+  const constants = formFor(no)
+  const extra: FormExtra = {
+    ...(serviceDoc.periods && serviceDoc.periods.length > 0
+      ? { periods: serviceDoc.periods.map((p) => p.key) }
+      : constants?.periods
+        ? { periods: constants.periods }
+        : {}),
+    ...(constants?.sizeSpecs ? { sizeSpecs: constants.sizeSpecs } : {}),
+    ...(constants?.freeText ? { freeText: constants.freeText } : {}),
+  }
+
   const form = formFromRows(
     groupRows.map((g) => g.row),
     itemRows,
+    extra,
   )
   return form.groups.length > 0 ? form : null
 }
