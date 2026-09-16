@@ -22,6 +22,7 @@ const ITEMS: NavItem[] = [
   { label: '환불 관리', icon: 'refund', hint: '결제 연동 후' },
   { label: '이미지 관리', icon: 'image', href: '/manage/images' },
   { label: '단가 관리', icon: 'card', href: '/manage/prices' },
+  { label: '광고 서비스 관리', icon: 'doc', href: '/manage/services' },
   { label: '문의 · 채팅', icon: 'chat', href: '/manage/inquiries' },
   { label: '설정', icon: 'user', href: '/manage/settings' },
   { label: '계약서 · 약관', icon: 'doc', href: '/manage/legal', sub: true },
