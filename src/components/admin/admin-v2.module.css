@@ -147,3 +147,5 @@
 .listLink:hover { text-decoration: underline; }
 .backLink { flex: none; font-size: 14px; color: var(--ink-500); text-decoration: none; }
 .backLink:hover { text-decoration: underline; }
+.ghostBtn { height: 48px; padding: 0 22px; border: 1px solid var(--line-strong); border-radius: 12px; background: #fff; color: var(--ink-700); font: inherit; font-size: 16px; cursor: pointer; }
+.ghostBtn:disabled { opacity: 0.6; cursor: default; }

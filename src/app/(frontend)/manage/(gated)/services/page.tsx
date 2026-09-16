@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { isSuperRole } from '@/lib/roles'
 import { authedPayload } from '@/lib/admin/orders-data'
+import { NewServiceForm } from '@/components/admin/NewServiceForm'
 import s from '@/components/admin/admin-v2.module.css'
 
 /**
@@ -69,6 +70,8 @@ export default async function ServicesPage() {
         메인 화면과 주문 화면에 나오는 광고 서비스입니다. 공개를 끄면 메인과 주문 주소에서 숨겨지고, 이미 받은 주문은 그대로 남습니다.
         {canEdit ? null : ' (중간관리자는 조회만 할 수 있습니다)'}
       </p>
+
+      <NewServiceForm canEdit={canEdit} />
 
       {docs.length === 0 ? (
         <p className={s.note}>등록된 서비스가 없습니다.</p>
