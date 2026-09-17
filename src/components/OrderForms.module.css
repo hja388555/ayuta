@@ -47,7 +47,7 @@
 /* 사이즈 입력 (04) */
 .field { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
 .field label { font-size: 15px; color: var(--ink-700); }
-.field input { height: 54px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); font: inherit; font-size: 17px; color: var(--ink-900); background: #fff; }
+.field input { height: 54px; padding: 0 16px; border: 1px solid var(--c-line); border-radius: var(--radius-md); font: inherit; font-size: 17px; color: var(--ink-900); background: #fff; }
 .field input::placeholder { color: var(--ink-400); }
 
 /* 등급 비교표 (01) */

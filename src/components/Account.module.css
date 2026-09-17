@@ -13,7 +13,7 @@
 .label { font-size: 15px; line-height: 1.5; color: var(--ink-700); }
 .inline { display: flex; gap: 8px; }
 .control { position: relative; flex: 1; min-width: 0; display: flex; align-items: center; }
-.input { width: 100%; height: 54px; padding: 0 16px; border: 1px solid var(--line-strong); border-radius: var(--radius-md); background: #fff; font: inherit; font-size: 17px; color: var(--ink-900); }
+.input { width: 100%; height: 54px; padding: 0 16px; border: 1px solid var(--c-line); border-radius: var(--radius-md); background: #fff; font: inherit; font-size: 17px; color: var(--ink-900); }
 .input::placeholder { color: var(--ink-400); }
 .input:focus { outline: none; border-color: var(--brand-600); }
 .invalid .input { border: 1.6px solid var(--danger-600); padding-right: 44px; }
