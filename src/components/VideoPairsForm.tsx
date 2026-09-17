@@ -113,79 +113,81 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
   const summary = [...countryItems.map(label), ...types.map(label), ...(length ? [label(length)] : [])]
 
   return (
-    <>
-      {countryGroup && (
-        <section className={`${s.step} ${s.grid}`}>
-          <StepTitle id="group-country" title={labels.groupTitles.country ?? ''} />
-          <ChoiceGrid cols={2} labelledBy="group-country">
-            {countryGroup.items.map((item) => (
-              <ChoiceCard
-                key={item.key}
-                type="checkbox"
-                checked={countryItems.includes(item.key)}
-                onClick={() => setCountryItems((prev) => nextSelection(countryGroup, prev, item.key))}
-              >
-                {label(item.key)}
-              </ChoiceCard>
-            ))}
-          </ChoiceGrid>
-        </section>
-      )}
+    // PC 는 왼쪽 740(선택) | 오른쪽 420(결제 패널) 두 칸. 모바일은 두 감싸개가 display: contents 라 기존 배치 그대로
+    <div className={s.split}>
+      <div className={s.choices}>
+        {countryGroup && (
+          <section className={`${s.step} ${s.grid}`}>
+            <StepTitle id="group-country" title={labels.groupTitles.country ?? ''} />
+            <ChoiceGrid cols={2} labelledBy="group-country">
+              {countryGroup.items.map((item) => (
+                <ChoiceCard
+                  key={item.key}
+                  type="checkbox"
+                  checked={countryItems.includes(item.key)}
+                  onClick={() => setCountryItems((prev) => nextSelection(countryGroup, prev, item.key))}
+                >
+                  {label(item.key)}
+                </ChoiceCard>
+              ))}
+            </ChoiceGrid>
+          </section>
+        )}
 
-      {typeGroup && (
+        {typeGroup && (
+          <section className={s.step}>
+            <StepTitle id="group-videoType" title={labels.groupTitles.videoType ?? ''} />
+            <ChoiceGrid cols={2} labelledBy="group-videoType">
+              {typeGroup.items.map((item) => (
+                <ChoiceCard
+                  key={item.key}
+                  type="checkbox"
+                  checked={types.includes(item.key)}
+                  sub={priceText(item.key) ? <span className={s.price}>{priceText(item.key)}</span> : undefined}
+                  onChange={() => setTypes((prev) => toggleValue(prev, item.key))}
+                >
+                  {label(item.key)}
+                </ChoiceCard>
+              ))}
+            </ChoiceGrid>
+          </section>
+        )}
+
+        {lengthGroup && (
+          <section className={s.step} data-group="videoLength">
+            <StepTitle id="group-videoLength" title={labels.groupTitles.videoLength ?? ''} />
+            <ChoiceGrid cols={2} labelledBy="group-videoLength">
+              {lengthGroup.items.map((item) => (
+                <ChoiceCard
+                  key={item.key}
+                  type="radio"
+                  name="videoLength"
+                  checked={length === item.key}
+                  sub={priceText(item.key) ? <span className={s.price}>{priceText(item.key)}</span> : undefined}
+                  onChange={() => setLength(item.key)}
+                >
+                  {label(item.key)}
+                </ChoiceCard>
+              ))}
+            </ChoiceGrid>
+          </section>
+        )}
+
+        {/* 기본 포함 칩 — 선택지가 아니라 안내다 */}
         <section className={s.step}>
-          <StepTitle id="group-videoType" title={labels.groupTitles.videoType ?? ''} />
-          <ChoiceGrid cols={2} labelledBy="group-videoType">
-            {typeGroup.items.map((item) => (
-              <ChoiceCard
-                key={item.key}
-                type="checkbox"
-                checked={types.includes(item.key)}
-                sub={priceText(item.key) ? <span className={s.price}>{priceText(item.key)}</span> : undefined}
-                onChange={() => setTypes((prev) => toggleValue(prev, item.key))}
-              >
-                {label(item.key)}
-              </ChoiceCard>
+          <StepTitle title={labels.groupTitles.basicIncluded ?? ''} />
+          <ul className={s.chips2}>
+            {labels.basicIncludedItems.map((c, i) => (
+              <li key={`${i}-${c}`} className={s.chip2}>
+                <span className="icon-mask" style={{ width: 16, height: 16, ['--icon-url' as string]: "url('/ui/check-chip.svg')" }} aria-hidden />
+                {c}
+              </li>
             ))}
-          </ChoiceGrid>
+          </ul>
         </section>
-      )}
 
-      {lengthGroup && (
-        <section className={s.step} data-group="videoLength">
-          <StepTitle id="group-videoLength" title={labels.groupTitles.videoLength ?? ''} />
-          <ChoiceGrid cols={2} labelledBy="group-videoLength">
-            {lengthGroup.items.map((item) => (
-              <ChoiceCard
-                key={item.key}
-                type="radio"
-                name="videoLength"
-                checked={length === item.key}
-                sub={priceText(item.key) ? <span className={s.price}>{priceText(item.key)}</span> : undefined}
-                onChange={() => setLength(item.key)}
-              >
-                {label(item.key)}
-              </ChoiceCard>
-            ))}
-          </ChoiceGrid>
-        </section>
-      )}
-
-      {/* 기본 포함 칩 — 선택지가 아니라 안내다 */}
-      <section className={s.step}>
-        <StepTitle title={labels.groupTitles.basicIncluded ?? ''} />
-        <ul className={s.chips2}>
-          {labels.basicIncludedItems.map((c, i) => (
-            <li key={`${i}-${c}`} className={s.chip2}>
-              <span className="icon-mask" style={{ width: 16, height: 16, ['--icon-url' as string]: "url('/ui/check-chip.svg')" }} aria-hidden />
-              {c}
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <p className={s.videoNote}>{labels.shortVideoNote}</p>
-
+        <p className={s.videoNote}>{labels.shortVideoNote}</p>
+      </div>
       <PaySection
         totalLabel={labels.totalLabel}
         itemsLabel={labels.itemsLabel}
@@ -195,6 +197,6 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
         disabled={!canPay || pending}
         onPay={goToPayment}
       />
-    </>
+    </div>
   )
 }

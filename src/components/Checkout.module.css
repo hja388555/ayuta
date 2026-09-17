@@ -129,3 +129,38 @@
   .ordererCols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
   .ordererCols .input { font-size: 20px; }
 }
+
+/* 확정 PC 두 칸(2026-09-18, Figma 484:1000): 왼쪽 740 주문자·계약·결제수단 | 오른쪽 420 고정 패널 주문 내역·결제 버튼.
+   모바일은 감싸개를 display: contents 로 풀고 order 로 기존 순서를 지킨다 */
+.split, .splitMain, .splitSide { display: contents; }
+@media (max-width: 767px) {
+  .splitMain > section[aria-labelledby='co-orderer'] { order: 1; }
+  .splitSide > section[aria-labelledby='co-review'] { order: 2; }
+  .splitMain > section[aria-labelledby='co-contract'] { order: 3; }
+  .splitMain > .payCard { order: 4; }
+  .payAction { order: 5; }
+}
+@media (min-width: 768px) {
+  .split { display: grid; grid-template-columns: 740px 420px; column-gap: 40px; align-items: start; }
+  .splitMain { display: flex; flex-direction: column; gap: 40px; min-width: 0; }
+  .splitSide { position: sticky; top: 24px; align-self: start; display: flex; flex-direction: column; gap: 16px; min-width: 0; padding: 28px; border: 1px solid var(--c-line); border-radius: 20px; background: #fff; }
+  /* 주문 내역 카드는 패널 안에 녹인다 — 패널 하나에 내역·결제 버튼(Figma 484:1000) */
+  .splitSide > .card { padding: 0; border: 0; border-radius: 0; }
+  /* 주문자 정보는 한 칸에 세로로 */
+  .ordererCols { display: flex; flex-direction: column; gap: 18px; }
+  .payBtn { width: 100%; margin-inline: 0; height: 56px; font-size: 18px; }
+
+  /* 글자 크기 단계(PC): 쪽 제목 32 · 카드 제목 22 · 입력·동의 18 · 이름표·보조 15 */
+  .h1 { font-size: 32px; }
+  .card :global(.step-title h2) { font-size: 22px; }
+  .label { font-size: 15px; }
+  .input, .ordererCols .input { font-size: 18px; }
+  .consentLabel, .sign { font-size: 18px; }
+  .note { font-size: 15px; }
+  .summaryTitle { font-size: 18px; }
+  .summaryLine { font-size: 15px; }
+  .summaryStrong { font-size: 18px; }
+  .editLink { font-size: 15px; }
+  /* 선택 내용 수정하기 화살표: 20px 가는 선 */
+  .editArrow { width: 20px; height: 20px; }
+}

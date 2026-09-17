@@ -537,7 +537,7 @@ export interface AdminInvite {
  */
 export interface BandImage {
   id: number;
-  slot: 'category-1' | 'category-2' | 'category-3' | 'category-4' | 'category-5';
+  slot: 'main' | 'category-1' | 'category-2' | 'category-3' | 'category-4' | 'category-5';
   altKo?: string | null;
   altJa?: string | null;
   focusY?: number | null;

@@ -315,157 +315,163 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
         })}
       </ol>
 
-      <section className={s.card} aria-labelledby="co-orderer">
-        <StepTitle id="co-orderer" title={labels.ordererTitle} />
-        <div className={s.ordererCols}>
-          <div className={s.col}>
-          {field('name', { required: true, autoComplete: 'name' })}
-          {field('representative', { required: true })}
-          {field('phone', { required: true })}
-          {field('email', { required: true, type: 'email', autoComplete: 'email' })}
-          </div>
-          <div className={s.col}>
-          {field('postalCode', {
-            required: true,
-            autoComplete: 'postal-code',
-            addon: (
-              <AddressSearch
-                locale={locale}
-                className={`btn btn-secondary ${s.searchBtn}`}
-                labels={{ button: labels.addressSearch, close: labels.close }}
-                focusId="co-address2"
-                onSelect={(p) => setOrderer((prev) => ({ ...prev, ...p }))}
-              />
-            ),
-          })}
-          {field('address1', { required: true, autoComplete: 'address-line1' })}
-          {field('address2', { autoComplete: 'address-line2' })}
-          {field('businessNo')}
-          </div>
-        </div>
-        <p className={s.note}>{keepTail(labels.ordererNote)}</p>
-        {attempted && errorCount > 0 ? (
-          <p className={s.banner} role="alert">
-            <img src="/ui/alert-field.svg" alt="" width={18} height={18} />
-            {summary}
-          </p>
-        ) : null}
-      </section>
-
-      {reviewSummary ? (
-        <section className={s.card} aria-labelledby="co-review">
-          <StepTitle id="co-review" title={labels.reviewTitle} />
-          <div className={s.summary}>
-            <p className={s.summaryTitle}>{reviewSummary.title}</p>
-            {reviewSummary.lines.map((l, i) => (
-              <p key={`${i}-${l.text}`} className={l.strong ? s.summaryStrong : s.summaryLine}>
-                {l.text}
+      {/* PC 는 왼쪽 740(주문자·계약·결제수단) | 오른쪽 420 고정 패널(주문 내역·결제 버튼). 모바일은 감싸개가 display: contents 라
+          order 로 기존 순서(주문자 → 주문 내역 → 계약 → 결제수단 → 버튼)를 그대로 지킨다 */}
+      <div className={s.split}>
+        <div className={s.splitMain}>
+          <section className={s.card} aria-labelledby="co-orderer">
+            <StepTitle id="co-orderer" title={labels.ordererTitle} />
+            <div className={s.ordererCols}>
+              <div className={s.col}>
+              {field('name', { required: true, autoComplete: 'name' })}
+              {field('representative', { required: true })}
+              {field('phone', { required: true })}
+              {field('email', { required: true, type: 'email', autoComplete: 'email' })}
+              </div>
+              <div className={s.col}>
+              {field('postalCode', {
+                required: true,
+                autoComplete: 'postal-code',
+                addon: (
+                  <AddressSearch
+                    locale={locale}
+                    className={`btn btn-secondary ${s.searchBtn}`}
+                    labels={{ button: labels.addressSearch, close: labels.close }}
+                    focusId="co-address2"
+                    onSelect={(p) => setOrderer((prev) => ({ ...prev, ...p }))}
+                  />
+                ),
+              })}
+              {field('address1', { required: true, autoComplete: 'address-line1' })}
+              {field('address2', { autoComplete: 'address-line2' })}
+              {field('businessNo')}
+              </div>
+            </div>
+            <p className={s.note}>{keepTail(labels.ordererNote)}</p>
+            {attempted && errorCount > 0 ? (
+              <p className={s.banner} role="alert">
+                <img src="/ui/alert-field.svg" alt="" width={18} height={18} />
+                {summary}
               </p>
+            ) : null}
+          </section>
+
+          <section className={s.card} aria-labelledby="co-contract">
+            <StepTitle id="co-contract" title={labels.contractTitle} />
+            {template.consents.map((c) => (
+              <div key={c.key} className={`choice ${s.consent}`}>
+                <label className={s.consentLabel}>
+                  <input
+                    type="checkbox"
+                    checked={checked[c.key] === true}
+                    onChange={(e) => {
+                      // 약관류(이용약관 등)는 주문자 정보와 무관하다 — 계약서 동의만 막는다
+                      if (e.target.checked && !PUBLIC_DOC_KEYS.has(c.key) && !guardContract()) return
+                      setChecked((prev) => ({ ...prev, [c.key]: e.target.checked }))
+                    }}
+                  />
+                  <span className="choice-box" aria-hidden />
+                  <span>{keepTail(c.label)}</span>
+                </label>
+                {PUBLIC_DOC_KEYS.has(c.key) ? (
+                  <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setViewDoc(c.key as LegalKind)}>
+                    <img src="/ui/doc.svg" alt="" width={16} height={16} />
+                    {labels.viewContent}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className={`btn btn-secondary ${s.viewBtn}`}
+                    aria-disabled={contractLocked || undefined}
+                    onClick={() => {
+                      if (guardContract()) setShowContract(c.key)
+                    }}
+                  >
+                    <img src="/ui/doc.svg" alt="" width={16} height={16} />
+                    {labels.viewContract}
+                  </button>
+                )}
+              </div>
             ))}
-          </div>
-          <TotalBar label={labels.totalLabel} amount={formatAmount(amount, currency)} />
-          {editHref ? (
-            <a href={editHref} className={s.editLink}>
-              <span className={`icon-mask ${s.editArrow}`} style={{ ['--icon-url' as string]: "url('/ui/chevron.svg')" }} aria-hidden /> {labels.editSelection}
-            </a>
+            {contractLocked && contractBlocked ? (
+              <p className={s.contractLock} role="alert">
+                {labels.contractNeedsOrderer}
+              </p>
+            ) : null}
+            {/* 입력칸을 직접 고치게 하지 않는다 — 필수 동의가 끝나면 주문자명이 자동 기입된다 */}
+            <div className={signature ? `${s.sign} ${s.signOn}` : s.sign} aria-live="polite">
+              <span className={s.signBox} aria-hidden />
+              <span className={s.signText}>{keepTail(labels.signatureLabel)}</span>
+              <span className={s.signName}>{signature || '—'}</span>
+            </div>
+          </section>
+
+          {/* 빈칸이 채워진 상태를 그대로 보여준다 — createOrder가 실제로 저장할 것과 같은 텍스트다.
+              template.body 는 서버가 주문자 칸만 남기고 채운 미리보기이고, 주문자 칸은 입력 중인 값으로 여기서 채운다 */}
+          {/* 13-B 계약서 팝업 확인 모드 — [계약 확인 완료]를 누르면 연 줄의 동의가 체크된다 */}
+          <ContractDialog
+            open={showContract !== null}
+            onClose={() => setShowContract(null)}
+            onConfirm={() => {
+              if (showContract) setChecked((prev) => ({ ...prev, [showContract]: true }))
+              setShowContract(null)
+            }}
+            title={template.title}
+            closeLabel={labels.close}
+            contractText={showContract !== null ? fillBuyerPreview(template.body, { ...orderer, phone: phoneForSubmit(orderer.phone, orderer.phoneCountry) }, signature) : ''}
+          />
+          <LegalConsentModal kind={viewDoc} locale={locale} onClose={() => setViewDoc(null)} onAgree={(k) => setChecked((prev) => ({ ...prev, [k]: true }))} />
+
+          <section className={`${s.card} ${s.payCard}`} aria-labelledby="co-pay">
+            <StepTitle id="co-pay" title={labels.payTitle} />
+            {/* 결제수단은 지금 카드 하나뿐이다. PortOne 연동 전이라 선택값은 서버로 보내지 않는다 */}
+            <div className={s.pay}>
+              <ChoiceCard type="radio" name="payMethod" checked>
+                <span className={s.payOption}>
+                  <img src="/ui/card.svg" alt="" width={20} height={20} />
+                  {labels.payCard}
+                </span>
+              </ChoiceCard>
+            </div>
+          </section>
+        </div>
+        <aside className={s.splitSide}>
+          {reviewSummary ? (
+            <section className={s.card} aria-labelledby="co-review">
+              <StepTitle id="co-review" title={labels.reviewTitle} />
+              <div className={s.summary}>
+                <p className={s.summaryTitle}>{reviewSummary.title}</p>
+                {reviewSummary.lines.map((l, i) => (
+                  <p key={`${i}-${l.text}`} className={l.strong ? s.summaryStrong : s.summaryLine}>
+                    {l.text}
+                  </p>
+                ))}
+              </div>
+              <TotalBar label={labels.totalLabel} amount={formatAmount(amount, currency)} />
+              {editHref ? (
+                <a href={editHref} className={s.editLink}>
+                  <span className={`icon-mask ${s.editArrow}`} style={{ ['--icon-url' as string]: "url('/ui/chevron.svg')" }} aria-hidden /> {labels.editSelection}
+                </a>
+              ) : null}
+            </section>
           ) : null}
-        </section>
-      ) : null}
-
-      <section className={s.card} aria-labelledby="co-contract">
-        <StepTitle id="co-contract" title={labels.contractTitle} />
-        {template.consents.map((c) => (
-          <div key={c.key} className={`choice ${s.consent}`}>
-            <label className={s.consentLabel}>
-              <input
-                type="checkbox"
-                checked={checked[c.key] === true}
-                onChange={(e) => {
-                  // 약관류(이용약관 등)는 주문자 정보와 무관하다 — 계약서 동의만 막는다
-                  if (e.target.checked && !PUBLIC_DOC_KEYS.has(c.key) && !guardContract()) return
-                  setChecked((prev) => ({ ...prev, [c.key]: e.target.checked }))
-                }}
-              />
-              <span className="choice-box" aria-hidden />
-              <span>{keepTail(c.label)}</span>
-            </label>
-            {PUBLIC_DOC_KEYS.has(c.key) ? (
-              <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setViewDoc(c.key as LegalKind)}>
-                <img src="/ui/doc.svg" alt="" width={16} height={16} />
-                {labels.viewContent}
-              </button>
-            ) : (
-              <button
-                type="button"
-                className={`btn btn-secondary ${s.viewBtn}`}
-                aria-disabled={contractLocked || undefined}
-                onClick={() => {
-                  if (guardContract()) setShowContract(c.key)
-                }}
-              >
-                <img src="/ui/doc.svg" alt="" width={16} height={16} />
-                {labels.viewContract}
-              </button>
-            )}
+          <div className={s.payAction}>
+            <button
+              type="button"
+              className={`btn btn-primary btn-block ${s.payBtn}`}
+              aria-disabled={!canPay || submitting}
+              disabled={submitting}
+              onClick={submit}
+            >
+              {submitting ? labels.submitting : labels.payButton.replace('{amount}', formatAmount(amount, currency))}
+            </button>
+            {error ? (
+              <p className={s.serverError} role="alert">
+                {error}
+              </p>
+            ) : null}
           </div>
-        ))}
-        {contractLocked && contractBlocked ? (
-          <p className={s.contractLock} role="alert">
-            {labels.contractNeedsOrderer}
-          </p>
-        ) : null}
-        {/* 입력칸을 직접 고치게 하지 않는다 — 필수 동의가 끝나면 주문자명이 자동 기입된다 */}
-        <div className={signature ? `${s.sign} ${s.signOn}` : s.sign} aria-live="polite">
-          <span className={s.signBox} aria-hidden />
-          <span className={s.signText}>{keepTail(labels.signatureLabel)}</span>
-          <span className={s.signName}>{signature || '—'}</span>
-        </div>
-      </section>
-
-      {/* 빈칸이 채워진 상태를 그대로 보여준다 — createOrder가 실제로 저장할 것과 같은 텍스트다.
-          template.body 는 서버가 주문자 칸만 남기고 채운 미리보기이고, 주문자 칸은 입력 중인 값으로 여기서 채운다 */}
-      {/* 13-B 계약서 팝업 확인 모드 — [계약 확인 완료]를 누르면 연 줄의 동의가 체크된다 */}
-      <ContractDialog
-        open={showContract !== null}
-        onClose={() => setShowContract(null)}
-        onConfirm={() => {
-          if (showContract) setChecked((prev) => ({ ...prev, [showContract]: true }))
-          setShowContract(null)
-        }}
-        title={template.title}
-        closeLabel={labels.close}
-        contractText={showContract !== null ? fillBuyerPreview(template.body, { ...orderer, phone: phoneForSubmit(orderer.phone, orderer.phoneCountry) }, signature) : ''}
-      />
-      <LegalConsentModal kind={viewDoc} locale={locale} onClose={() => setViewDoc(null)} onAgree={(k) => setChecked((prev) => ({ ...prev, [k]: true }))} />
-
-      <section className={`${s.card} ${s.payCard}`} aria-labelledby="co-pay">
-        <StepTitle id="co-pay" title={labels.payTitle} />
-        {/* 결제수단은 지금 카드 하나뿐이다. PortOne 연동 전이라 선택값은 서버로 보내지 않는다 */}
-        <div className={s.pay}>
-          <ChoiceCard type="radio" name="payMethod" checked>
-            <span className={s.payOption}>
-              <img src="/ui/card.svg" alt="" width={20} height={20} />
-              {labels.payCard}
-            </span>
-          </ChoiceCard>
-        </div>
-      </section>
-
-      <div>
-        <button
-          type="button"
-          className={`btn btn-primary btn-block ${s.payBtn}`}
-          aria-disabled={!canPay || submitting}
-          disabled={submitting}
-          onClick={submit}
-        >
-          {submitting ? labels.submitting : labels.payButton.replace('{amount}', formatAmount(amount, currency))}
-        </button>
-        {error ? (
-          <p className={s.serverError} role="alert">
-            {error}
-          </p>
-        ) : null}
+        </aside>
       </div>
     </div>
   )

@@ -29,8 +29,8 @@ export default async function ImagesPage() {
   return (
     <div className={s.page}>
       <h1 className={s.title}>이미지 관리</h1>
-      <p className={s.lead}>각 광고 서비스 페이지 상단에 들어가는 이미지입니다. PC · 모바일 모두 표시됩니다.</p>
-      <p className={s.info}>권장 가로 1200px 이상 · JPG · PNG · WEBP · 5MB 이하</p>
+      <p className={s.lead}>메인 화면 PC 왼쪽 이미지와 각 광고 서비스 페이지 상단 이미지입니다. 메인 이미지는 PC에서만, 서비스 이미지는 PC · 모바일 모두 표시됩니다.</p>
+      <p className={s.info}>메인 권장 800 × 1192px · 서비스 권장 가로 1200px 이상 · JPG · PNG · WEBP · 5MB 이하</p>
       {canEdit ? null : <p className={s.note}>중간관리자는 조회만 할 수 있습니다. 교체 · 삭제는 최고관리자만 할 수 있습니다.</p>}
       <div className={s.bandGrid}>
         {BAND_SLOTS.map((slot) => {

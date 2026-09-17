@@ -285,112 +285,98 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
   const summary = [...allSelected.map(labelForItem), ...(period ? [labels.periods[period] ?? period] : [])]
 
   return (
-    <>
-      {form.countryTabs && (
-        <ChoiceGrid cols={2}>
-          {(['kr', 'jp'] as const).map((c) => (
-            <ChoiceCard key={c} type="checkbox" checked={countries.includes(c)} onChange={() => onToggleCountry(c)}>
-              {labels.countries[c]}
-            </ChoiceCard>
-          ))}
-        </ChoiceGrid>
-      )}
-      {form.countryTabs && <hr className={s.countryDivider} />}
-
-      {form.groups.map((group) => {
-        const id = `group-${group.key}`
-        const chosen = selections[group.key] ?? []
-
-        // 3·4번(한국/일본 체크)만 나라 열 레이아웃을 쓴다 — 2번은 기존 레이아웃 그대로
-        if (form.countryTabs) {
-          const cols = countryColumns(group, ['kr', 'jp'])
-          if (cols.length === 0) return null
-          const head = (col: (typeof cols)[number]) =>
-            col.country ? (
-              <p key={`head-${col.country}`} className={s.countryHead}>
-                {labels.countries[col.country]}
-              </p>
-            ) : null
-          const card = (item: ItemDef) => {
-            const desc = labels.itemDescriptions?.[item.key]
-            const price = priceText(item, group.key)
-            const sub = desc || price ? (
-              <>
-                {desc ? <span className={s.desc}>{desc}</span> : null}
-                {price ? <span className={s.price}>{price}</span> : null}
-              </>
-            ) : undefined
-            return (
-              <ChoiceCard
-                key={item.key}
-                type={group.multi ? 'checkbox' : 'radio'}
-                name={group.multi ? undefined : id}
-                checked={chosen.includes(item.key)}
-                onClick={() => pick(group, item.key)}
-                sub={sub}
-              >
-                {labelForItem(item.key)}
+    // PC 는 왼쪽 740(선택) | 오른쪽 420(결제 패널) 두 칸. 모바일은 두 감싸개가 display: contents 라 기존 배치 그대로
+    <div className={s.split}>
+      <div className={s.choices}>
+        {form.countryTabs && (
+          <ChoiceGrid cols={2}>
+            {(['kr', 'jp'] as const).map((c) => (
+              <ChoiceCard key={c} type="checkbox" checked={countries.includes(c)} onChange={() => onToggleCountry(c)}>
+                {labels.countries[c]}
               </ChoiceCard>
+            ))}
+          </ChoiceGrid>
+        )}
+        {form.countryTabs && <hr className={s.countryDivider} />}
+
+        {form.groups.map((group) => {
+          const id = `group-${group.key}`
+          const chosen = selections[group.key] ?? []
+
+          // 3·4번(한국/일본 체크)만 나라 열 레이아웃을 쓴다 — 2번은 기존 레이아웃 그대로
+          if (form.countryTabs) {
+            const cols = countryColumns(group, ['kr', 'jp'])
+            if (cols.length === 0) return null
+            const head = (col: (typeof cols)[number]) =>
+              col.country ? (
+                <p key={`head-${col.country}`} className={s.countryHead}>
+                  {labels.countries[col.country]}
+                </p>
+              ) : null
+            const card = (item: ItemDef) => {
+              const desc = labels.itemDescriptions?.[item.key]
+              const price = priceText(item, group.key)
+              const sub = desc || price ? (
+                <>
+                  {desc ? <span className={s.desc}>{desc}</span> : null}
+                  {price ? <span className={s.price}>{price}</span> : null}
+                </>
+              ) : undefined
+              return (
+                <ChoiceCard
+                  key={item.key}
+                  type={group.multi ? 'checkbox' : 'radio'}
+                  name={group.multi ? undefined : id}
+                  checked={chosen.includes(item.key)}
+                  onClick={() => pick(group, item.key)}
+                  sub={sub}
+                >
+                  {labelForItem(item.key)}
+                </ChoiceCard>
+              )
+            }
+            // 두 열의 항목 수가 같으면(3번 전국·지역신문·커뮤니티, 4번 도시) 한 줄에 나라별로 번갈아 넣어
+            // ChoiceGrid 의 같은-줄 높이 맞춤을 그대로 쓴다. 수가 다르면 열을 나눠 각자 세로로 쌓는다
+            const sameLength = cols.length > 1 && cols.every((col) => col.items.length === cols[0]!.items.length)
+            const interleaved = sameLength
+              ? cols[0]!.items.flatMap((_, i) => cols.map((col) => col.items[i]!))
+              : null
+            return (
+              <section key={group.key} className={s.step} data-group={group.key}>
+                <StepTitle id={id} title={labels.groupTitles[group.key] ?? group.key} hint={labels.groupHints[group.key]} />
+                {interleaved ? (
+                  <ChoiceGrid cols={cols.length} labelledBy={id} className={s.countrySplit}>
+                    {cols.map(head)}
+                    {interleaved.map(card)}
+                  </ChoiceGrid>
+                ) : cols.length > 1 ? (
+                  <div className={`${s.countryCols} ${s.countrySplit}`} role="group" aria-labelledby={id}>
+                    {cols.map((col) => (
+                      <div key={col.country} className={s.countryCol}>
+                        {head(col)}
+                        {col.items.map(card)}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className={group.key === 'blog' ? s.oneCol : undefined}>
+                    <ChoiceGrid cols={2} labelledBy={id}>
+                      {cols[0]!.items.map(card)}
+                    </ChoiceGrid>
+                  </div>
+                )}
+                {group.key === 'posterBillboard' && labels.posterNote ? <p className={s.posterNote}>{labels.posterNote}</p> : null}
+              </section>
             )
           }
-          // 두 열의 항목 수가 같으면(3번 전국·지역신문·커뮤니티, 4번 도시) 한 줄에 나라별로 번갈아 넣어
-          // ChoiceGrid 의 같은-줄 높이 맞춤을 그대로 쓴다. 수가 다르면 열을 나눠 각자 세로로 쌓는다
-          const sameLength = cols.length > 1 && cols.every((col) => col.items.length === cols[0]!.items.length)
-          const interleaved = sameLength
-            ? cols[0]!.items.flatMap((_, i) => cols.map((col) => col.items[i]!))
-            : null
-          return (
-            <section key={group.key} className={s.step} data-group={group.key}>
-              <StepTitle id={id} title={labels.groupTitles[group.key] ?? group.key} hint={labels.groupHints[group.key]} />
-              {interleaved ? (
-                <ChoiceGrid cols={cols.length} labelledBy={id} className={s.countrySplit}>
-                  {cols.map(head)}
-                  {interleaved.map(card)}
-                </ChoiceGrid>
-              ) : cols.length > 1 ? (
-                <div className={`${s.countryCols} ${s.countrySplit}`} role="group" aria-labelledby={id}>
-                  {cols.map((col) => (
-                    <div key={col.country} className={s.countryCol}>
-                      {head(col)}
-                      {col.items.map(card)}
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className={group.key === 'blog' ? s.oneCol : undefined}>
-                  <ChoiceGrid cols={2} labelledBy={id}>
-                    {cols[0]!.items.map(card)}
-                  </ChoiceGrid>
-                </div>
-              )}
-              {group.key === 'posterBillboard' && labels.posterNote ? <p className={s.posterNote}>{labels.posterNote}</p> : null}
-            </section>
-          )
-        }
 
-        const cards = CARD_GROUPS.has(group.key)
-        return (
-          <section key={group.key} className={`${s.step} ${cards ? s.grid : ''}`} data-group={group.key}>
-            <StepTitle id={id} title={labels.groupTitles[group.key] ?? group.key} hint={labels.groupHints[group.key]} />
-            {cards ? (
-              <ChoiceGrid cols={group.key === 'country' ? 2 : 3} labelledBy={id}>
-                {group.items.map((item) => (
-                  <ChoiceCard
-                    key={item.key}
-                    type={group.multi ? 'checkbox' : 'radio'}
-                    name={group.multi ? undefined : id}
-                    checked={chosen.includes(item.key)}
-                    onClick={() => pick(group, item.key)}
-                  >
-                    {labelForItem(item.key)}
-                  </ChoiceCard>
-                ))}
-              </ChoiceGrid>
-            ) : (
-              <div className={s.rows} role="group" aria-labelledby={id}>
-                {group.items.map((item) => {
-                  const entry = book.entries[item.key]
-                  return (
+          const cards = CARD_GROUPS.has(group.key)
+          return (
+            <section key={group.key} className={`${s.step} ${cards ? s.grid : ''}`} data-group={group.key}>
+              <StepTitle id={id} title={labels.groupTitles[group.key] ?? group.key} hint={labels.groupHints[group.key]} />
+              {cards ? (
+                <ChoiceGrid cols={group.key === 'country' ? 2 : 3} labelledBy={id}>
+                  {group.items.map((item) => (
                     <ChoiceCard
                       key={item.key}
                       type={group.multi ? 'checkbox' : 'radio'}
@@ -398,72 +384,88 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
                       checked={chosen.includes(item.key)}
                       onClick={() => pick(group, item.key)}
                     >
-                      <span>{labelForItem(item.key)}</span>
-                      {item.priced && entry && <span className={s.price}>{formatAmount(entry.amount, book.currency)}</span>}
+                      {labelForItem(item.key)}
+                    </ChoiceCard>
+                  ))}
+                </ChoiceGrid>
+              ) : (
+                <div className={s.rows} role="group" aria-labelledby={id}>
+                  {group.items.map((item) => {
+                    const entry = book.entries[item.key]
+                    return (
+                      <ChoiceCard
+                        key={item.key}
+                        type={group.multi ? 'checkbox' : 'radio'}
+                        name={group.multi ? undefined : id}
+                        checked={chosen.includes(item.key)}
+                        onClick={() => pick(group, item.key)}
+                      >
+                        <span>{labelForItem(item.key)}</span>
+                        {item.priced && entry && <span className={s.price}>{formatAmount(entry.amount, book.currency)}</span>}
+                      </ChoiceCard>
+                    )
+                  })}
+                </div>
+              )}
+            </section>
+          )
+        })}
+
+        {(() => {
+          const configured = configuredSizeSpecs(form, book)
+          if (configured.length === 0) return null
+          const group: GroupDef = { key: SIZE_SPEC_GROUP_KEY, multi: true, items: configured }
+          const chosen = selections[group.key] ?? []
+          return (
+            <section className={s.step} data-group="sizeSpec">
+              <StepTitle id="group-sizeSpec" title={labels.groupTitles.sizeSpec ?? ''} />
+              <div className={s.rows} role="group" aria-labelledby="group-sizeSpec">
+                {configured.map((item) => {
+                  const entry = book.entries[item.key]!
+                  return (
+                    <ChoiceCard key={item.key} type="checkbox" checked={chosen.includes(item.key)} onClick={() => pick(group, item.key)}>
+                      <span>{entry.label}</span>
+                      <span className={s.price}>{formatAmount(entry.amount, book.currency)}</span>
                     </ChoiceCard>
                   )
                 })}
               </div>
-            )}
+            </section>
+          )
+        })()}
+
+        {form.periods && (
+          <section className={`${s.step} ${s.grid} ${s.periods}`}>
+            <StepTitle id="group-period" title={labels.groupTitles.period ?? ''} />
+            <ChoiceGrid cols={form.periods.length} labelledBy="group-period">
+              {form.periods.map((p) => (
+                <ChoiceCard key={p} type="radio" name="period" checked={period === p} onChange={() => setPeriod(p)}>
+                  {labels.periods[p] ?? p}
+                </ChoiceCard>
+              ))}
+            </ChoiceGrid>
           </section>
-        )
-      })}
+        )}
 
-      {(() => {
-        const configured = configuredSizeSpecs(form, book)
-        if (configured.length === 0) return null
-        const group: GroupDef = { key: SIZE_SPEC_GROUP_KEY, multi: true, items: configured }
-        const chosen = selections[group.key] ?? []
-        return (
-          <section className={s.step} data-group="sizeSpec">
-            <StepTitle id="group-sizeSpec" title={labels.groupTitles.sizeSpec ?? ''} />
-            <div className={s.rows} role="group" aria-labelledby="group-sizeSpec">
-              {configured.map((item) => {
-                const entry = book.entries[item.key]!
-                return (
-                  <ChoiceCard key={item.key} type="checkbox" checked={chosen.includes(item.key)} onClick={() => pick(group, item.key)}>
-                    <span>{entry.label}</span>
-                    <span className={s.price}>{formatAmount(entry.amount, book.currency)}</span>
-                  </ChoiceCard>
-                )
-              })}
-            </div>
+        {labels.basicIncludedItems && (
+          <section className={s.step}>
+            <StepTitle
+              title={labels.groupTitles.basicIncluded ?? ''}
+              hint={labels.groupHints.basicIncluded}
+            />
+            <ul className={s.chips} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
+              {labels.basicIncludedItems.map((c, i) => (
+                <li key={`${i}-${c}`} className={s.chip}>
+                  <span className="icon-mask" style={{ width: 16, height: 16, ['--icon-url' as string]: "url('/ui/check-chip.svg')" }} aria-hidden />
+                  {c}
+                </li>
+              ))}
+            </ul>
           </section>
-        )
-      })()}
+        )}
 
-      {form.periods && (
-        <section className={`${s.step} ${s.grid} ${s.periods}`}>
-          <StepTitle id="group-period" title={labels.groupTitles.period ?? ''} />
-          <ChoiceGrid cols={form.periods.length} labelledBy="group-period">
-            {form.periods.map((p) => (
-              <ChoiceCard key={p} type="radio" name="period" checked={period === p} onChange={() => setPeriod(p)}>
-                {labels.periods[p] ?? p}
-              </ChoiceCard>
-            ))}
-          </ChoiceGrid>
-        </section>
-      )}
-
-      {labels.basicIncludedItems && (
-        <section className={s.step}>
-          <StepTitle
-            title={labels.groupTitles.basicIncluded ?? ''}
-            hint={labels.groupHints.basicIncluded}
-          />
-          <ul className={s.chips} style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-            {labels.basicIncludedItems.map((c, i) => (
-              <li key={`${i}-${c}`} className={s.chip}>
-                <span className="icon-mask" style={{ width: 16, height: 16, ['--icon-url' as string]: "url('/ui/check-chip.svg')" }} aria-hidden />
-                {c}
-              </li>
-            ))}
-          </ul>
-        </section>
-      )}
-
-      {labels.shortVideoNote && <p className={s.note}>{labels.shortVideoNote}</p>}
-
+        {labels.shortVideoNote && <p className={s.note}>{labels.shortVideoNote}</p>}
+      </div>
       <PaySection
         totalLabel={labels.totalLabel}
         itemsLabel={labels.itemsLabel}
@@ -473,6 +475,6 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
         disabled={!canPay || pending}
         onPay={goToPayment}
       />
-    </>
+    </div>
   )
 }

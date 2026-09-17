@@ -23,7 +23,7 @@ export default async function BandPositionPage({ params }: { params: Promise<{ s
     throw err
   }
   const { slot } = await params
-  if (!isBandSlot(slot)) notFound()
+  if (!isBandSlot(slot) || slot === 'main') notFound()
 
   const payload = await getPayload({ config })
   const { docs } = await payload.find({ collection: 'band-images', where: { slot: { equals: slot } }, limit: 1, depth: 0, overrideAccess: true })

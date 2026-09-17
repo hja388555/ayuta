@@ -147,3 +147,12 @@
   .input, .textarea { font-size: 20px; }
   .check, .consentText { font-size: 20px; }
 }
+
+@media (min-width: 768px) {
+  /* 확정 PC 05(2026-09-18, Figma 484:930): 글자 단계 — 입력 18 · 이름표·안내 15, 제출 버튼은 폼 끝 전체 폭 */
+  .lead { font-size: 15px; }
+  .label { font-size: 15px; }
+  .input, .textarea { font-size: 18px; }
+  .check, .consentText { font-size: 18px; }
+  .form .submit { width: 100%; height: 56px; font-size: 18px; }
+}

@@ -132,74 +132,76 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
   const on = (key: string) => (tiers.includes(key) ? s.on : undefined)
 
   return (
-    <>
-      <section className={`${s.step} ${s.grid} ${s.platforms}`}>
-        {/* v3: 제목·안내문 없이 카드만 보여준다. 스크린리더용 레이블은 aria-label 로 남긴다 */}
-        <ChoiceGrid cols={2} ariaLabel={labels.platformTitle}>
-          {PLATFORMS.map((p) => (
-            <ChoiceCard
-              key={p}
-              type="checkbox"
-              checked={platforms.includes(p)}
-              onChange={() => setPlatforms((prev) => toggleValue(prev, p))}
-            >
-              {labels.platforms[p] ?? p}
-            </ChoiceCard>
-          ))}
-        </ChoiceGrid>
-      </section>
+    // PC 는 왼쪽 740(선택) | 오른쪽 420(결제 패널) 두 칸. 모바일은 두 감싸개가 display: contents 라 기존 배치 그대로
+    <div className={s.split}>
+      <div className={s.choices}>
+        <section className={`${s.step} ${s.grid} ${s.platforms}`}>
+          {/* v3: 제목·안내문 없이 카드만 보여준다. 스크린리더용 레이블은 aria-label 로 남긴다 */}
+          <ChoiceGrid cols={2} ariaLabel={labels.platformTitle}>
+            {PLATFORMS.map((p) => (
+              <ChoiceCard
+                key={p}
+                type="checkbox"
+                checked={platforms.includes(p)}
+                onChange={() => setPlatforms((prev) => toggleValue(prev, p))}
+              >
+                {labels.platforms[p] ?? p}
+              </ChoiceCard>
+            ))}
+          </ChoiceGrid>
+        </section>
 
-      <section className={s.step}>
-        <div className={s.tableWrap}>
-          <table className={s.table} aria-label={labels.contentHead}>
-            <colgroup>
-              <col />
-              {tierOptions.map((e) => (
-                <col key={e.key} />
-              ))}
-            </colgroup>
-            <thead>
-              <tr>
-                <th scope="col">{labels.contentHead}</th>
+        <section className={s.step}>
+          <div className={s.tableWrap}>
+            <table className={s.table} aria-label={labels.contentHead}>
+              <colgroup>
+                <col />
                 {tierOptions.map((e) => (
-                  <th key={e.key} scope="col" className={on(e.key)}>
-                    <label className={s.tierPick}>
-                      <input
-                        type="checkbox"
-                        checked={tiers.includes(e.key)}
-                        onChange={() => setTiers((prev) => toggleValue(prev, e.key))}
-                      />
-                      <span className={s.tierBox} aria-hidden />
-                      {e.label}
-                    </label>
-                  </th>
+                  <col key={e.key} />
                 ))}
-              </tr>
-            </thead>
-            <tbody>
-              {labels.rows.map((row) => (
-                <tr key={row.label}>
-                  <td>{row.label}</td>
+              </colgroup>
+              <thead>
+                <tr>
+                  <th scope="col">{labels.contentHead}</th>
+                  {tierOptions.map((e) => (
+                    <th key={e.key} scope="col" className={on(e.key)}>
+                      <label className={s.tierPick}>
+                        <input
+                          type="checkbox"
+                          checked={tiers.includes(e.key)}
+                          onChange={() => setTiers((prev) => toggleValue(prev, e.key))}
+                        />
+                        <span className={s.tierBox} aria-hidden />
+                        {e.label}
+                      </label>
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {labels.rows.map((row) => (
+                  <tr key={row.label}>
+                    <td>{row.label}</td>
+                    {tierOptions.map((e) => (
+                      <td key={e.key} className={on(e.key)}>
+                        {row[e.key] ?? ''}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                <tr className={s.priceRow}>
+                  <td>{labels.priceRow}</td>
                   {tierOptions.map((e) => (
                     <td key={e.key} className={on(e.key)}>
-                      {row[e.key] ?? ''}
+                      {formatAmount(e.amount, book.currency)}
                     </td>
                   ))}
                 </tr>
-              ))}
-              <tr className={s.priceRow}>
-                <td>{labels.priceRow}</td>
-                {tierOptions.map((e) => (
-                  <td key={e.key} className={on(e.key)}>
-                    {formatAmount(e.amount, book.currency)}
-                  </td>
-                ))}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
-
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
       <PaySection
         totalLabel={labels.totalLabel}
         itemsLabel={labels.itemsLabel}
@@ -209,7 +211,7 @@ export function TierForm({ book, model, locale, categorySlug, country, purposes,
         disabled={!canPay || pending}
         onPay={goToPayment}
       />
-    </>
+    </div>
   )
 }
 

@@ -3,8 +3,9 @@ import { EXTENSION_FOR, sniffFileType, type SniffedType } from './file-sniff'
 /**
  * 광고 서비스 페이지 상단 띠 이미지(Figma [v2] A6 이미지 관리 229:650).
  * 슬롯은 카테고리 번호와 1:1 — 주문 화면이 `category-${no}` 로 찾는다.
+ * `main` 은 메인 화면 PC 왼쪽 칸 이미지(2026-09-18 확정 PC 484:2). 비어 있으면 기본 서울 이미지를 쓴다.
  */
-export const BAND_SLOTS = ['category-1', 'category-2', 'category-3', 'category-4', 'category-5'] as const
+export const BAND_SLOTS = ['main', 'category-1', 'category-2', 'category-3', 'category-4', 'category-5'] as const
 export type BandSlot = (typeof BAND_SLOTS)[number]
 
 export const BAND_MAX_BYTES = 5 * 1024 * 1024
@@ -12,6 +13,7 @@ export const BAND_MIME_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as cons
 type BandMime = (typeof BAND_MIME_TYPES)[number]
 
 export const BAND_TITLES: Record<BandSlot, string> = {
+  main: '메인 화면 (PC 왼쪽)',
   'category-1': '1. 디지털 광고 / SNS 커뮤니티',
   'category-2': '2. 현지 전문 영상 촬영',
   'category-3': '3. 대표신문 / 지역신문 / 블로그',
