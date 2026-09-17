@@ -30,6 +30,9 @@ pnpm typecheck
 > `next start`(프로덕션)는 스키마를 자동으로 만들지 않는다.
 > 배포 전에 `pnpm migrate` 를 반드시 돌린다. 안 하면 `relation "admins" does not exist` 로 로그인이 전부 실패한다.
 
+> 배포는 `main` 뿐이다(`vercel.json` 의 `deploymentEnabled`). 다른 브랜치는 미리보기 배포를 만들지 않는다 —
+> 미리보기 환경에는 DB 환경변수가 없어 `vercel-build` 의 `payload migrate` 단계에서 항상 실패했다.
+
 ---
 
 ## 구조

@@ -74,8 +74,10 @@
 }
 /* 비로그인 상담 진입 — 회원가입 유도(2026-09-16 사용자) */
 .gate { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 48px 20px 40px; text-align: center; }
-.gateTitle { margin: 0; font-size: 20px; font-weight: 800; color: var(--c-title); word-break: keep-all; }
-.gateDesc { margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: var(--c-text2); word-break: keep-all; }
+.gateTitle { margin: 0; font-size: 20px; font-weight: 800; color: var(--c-title); }
+.gateDesc { margin: 0 0 8px; font-size: 15px; line-height: 1.6; color: var(--c-text2); }
+/* keep-all 은 한국어 전용 — 일본어 문장은 끊을 공백이 없어 칸을 넘어간다 */
+:global(:lang(ko)) .gateTitle, :global(:lang(ko)) .gateDesc { word-break: keep-all; }
 .gateBtn { width: 100%; max-width: 420px; height: 52px; font-size: 16px; }
 .gateInquiry { margin-top: 4px; border: 0; background: none; font: inherit; font-size: 15px; color: var(--c-text2); text-decoration: underline; cursor: pointer; }
 @media (min-width: 768px) {
