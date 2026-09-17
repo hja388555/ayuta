@@ -26,7 +26,7 @@ async function startGuest(n: string, ip = freshIp(), locale: 'ko' | 'ja' = 'ko')
   const res = await api('/api/chat/guest', {
     method: 'POST',
     headers: { 'x-real-ip': ip },
-    body: JSON.stringify({ name: `손님${n}`, email: guestEmail(n), phone: '010-1234-5678', consent: true, locale }),
+    body: JSON.stringify({ name: `손님${n}`, email: guestEmail(n), phone: '010-1234-5678', body: '문의합니다', consent: true, locale }),
   })
   return { res, cookie: cookieFrom(res) }
 }
@@ -57,7 +57,7 @@ afterAll(async () => {
 
 describe('비회원 채팅 시작', () => {
   it('동의가 없거나 형식이 틀리면 400, 쿠키도 없다', async () => {
-    const good = { name: '손님', email: guestEmail('v'), phone: '010-1234-5678', consent: true, locale: 'ko' }
+    const good = { name: '손님', email: guestEmail('v'), phone: '010-1234-5678', body: '문의합니다', consent: true, locale: 'ko' }
     const noConsent = await api('/api/chat/guest', { method: 'POST', headers: { 'x-real-ip': freshIp() }, body: JSON.stringify({ ...good, consent: false }) })
     expect(noConsent.status).toBe(400)
     expect((await noConsent.json()).error).toBe('consent_required')
@@ -140,26 +140,32 @@ describe('비회원 대화', () => {
   it('다른 쿠키로는 남의 방이 보이지 않고, 모양만 맞는 가짜 쿠키는 401', async () => {
     const other = await (await api('/api/chat/thread', { headers: { Cookie: cookieB } })).json()
     expect(other.thread.id).not.toBe(threadA)
-    expect(other.messages).toEqual([])
+    // 방은 자기 문의 내용(첫 메시지) 한 건만 갖고 열린다 — 남의 방 글은 섞이지 않는다
+    expect(other.messages).toHaveLength(1)
+    expect((other.messages[0].body as string)).toContain('문의합니다')
     const fake = `ayuta_chat_guest=${'A'.repeat(43)}`
     expect((await api('/api/chat/messages', { headers: { Cookie: fake } })).status).toBe(401)
     expect((await api('/api/chat/messages', { method: 'POST', headers: { Cookie: fake }, body: JSON.stringify({ body: 'x' }) })).status).toBe(401)
     expect((await api(`/api/admin/chat/threads/${threadA}/messages`, { headers: { Cookie: cookieA } })).status).toBe(401)
   })
 
-  it('비회원도 1분 20개 한도에 걸린다', async () => {
+  it('비회원은 도배 한도(1분 20개)에 닿기 전에 문의 2회에서 먼저 막힌다', async () => {
+    // 2026-09-17 사용자 결정으로 비회원 메시지는 2건까지다. 문의 폼이 첫 건을 넣으므로
+    // 방에서는 한 번만 더 보낼 수 있고 그다음은 403 이다(도배 한도 429 까지 가지 않는다).
+    // 1분 20개 한도 자체는 회원 채팅(chat.integration.test.ts)이 확인한다
     const { cookie } = await startGuest('rate')
     const statuses: number[] = []
-    for (let i = 0; i < 21; i++) statuses.push((await api('/api/chat/messages', { method: 'POST', headers: { Cookie: cookie! }, body: JSON.stringify({ body: `m${i}` }) })).status)
-    expect(statuses.slice(0, 20).every((st) => st === 200)).toBe(true)
-    expect(statuses[20]).toBe(429)
+    for (let i = 0; i < 3; i++) statuses.push((await api('/api/chat/messages', { method: 'POST', headers: { Cookie: cookie! }, body: JSON.stringify({ body: `m${i}` }) })).status)
+    expect(statuses[0]).toBe(200)
+    expect(statuses[1]).toBe(403)
+    expect(statuses[2]).toBe(403)
   }, 30_000)
 
   it('이미 쿠키가 있으면 다시 시작해도 같은 방', async () => {
     const res = await api('/api/chat/guest', {
       method: 'POST',
       headers: { Cookie: cookieA, 'x-real-ip': freshIp() },
-      body: JSON.stringify({ name: '다시', email: guestEmail('again'), phone: '010-1111-2222', consent: true, locale: 'ko' }),
+      body: JSON.stringify({ name: '다시', email: guestEmail('again'), phone: '010-1111-2222', body: '문의합니다', consent: true, locale: 'ko' }),
     })
     expect((await res.json()).thread.id).toBe(threadA)
   })
@@ -302,7 +308,7 @@ describe('회원 채팅 · 진입점', () => {
     const res = await api('/api/chat/guest', {
       method: 'POST',
       headers: { ...auth('member'), 'x-real-ip': freshIp() },
-      body: JSON.stringify({ name: '회원', email: guestEmail('m'), phone: '010-1234-5678', consent: true, locale: 'ko' }),
+      body: JSON.stringify({ name: '회원', email: guestEmail('m'), phone: '010-1234-5678', body: '문의합니다', consent: true, locale: 'ko' }),
     })
     expect(res.status).toBe(409)
   })
