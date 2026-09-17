@@ -3,6 +3,7 @@
   "regions": ["icn1"],
   "git": {
     "deploymentEnabled": {
+      "*": false,
       "main": true
     }
   }
