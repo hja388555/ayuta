@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel, type VideoPair } from '@ayuta/pricing'
 import type { CategoryForm } from '@/lib/category-groups'
 import { ChoiceCard, ChoiceGrid, StepTitle } from './ui'
-import { formatAmount, PaySection, toggleValue } from './TierForm'
+import { formatAmount, PaySection, toggleValue, toQuote, type QuoteLabels } from './TierForm'
 import { initialSelections, nextSelection } from './GroupForm'
 import s from './OrderForms.module.css'
 
@@ -24,10 +24,9 @@ export function singleLengthFromPairs(pairs: readonly { type: string; length: st
 /**
  * 화면에 보여줄 금액. 서버가 청구할 금액과 같은 함수(calculate)로 계산한다.
  */
-export function previewPairsTotal(book: PriceBook, model: PricingModel, pairs: readonly VideoPair[]): number {
-  if (pairs.length === 0) return 0
-  const r = calculate(model, book, { pairs: [...pairs] })
-  return r.ok ? r.total : 0
+export function previewPairsQuote(book: PriceBook, model: PricingModel, pairs: readonly VideoPair[]) {
+  if (pairs.length === 0) return { total: 0, rows: [] }
+  return toQuote(calculate(model, book, { pairs: [...pairs] }), book.currency)
 }
 
 /**
@@ -54,6 +53,7 @@ type Labels = {
   itemLabels: Record<string, string>
   totalLabel: string
   itemsLabel: string
+  quote: QuoteLabels
   payButton: string
   basicIncludedItems: string[]
   shortVideoNote: string
@@ -94,7 +94,7 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
   const [length, setLength] = useState<string | undefined>(() => restoredSingle.length)
 
   const pairs = useMemo(() => pairsForSingleLength(types, length), [types, length])
-  const total = useMemo(() => previewPairsTotal(book, model, pairs), [book, model, pairs])
+  const quote = useMemo(() => previewPairsQuote(book, model, pairs), [book, model, pairs])
   const canPay = types.length > 0 && Boolean(length)
 
   const label = (key: string): string => book.entries[key]?.label ?? labels.itemLabels[key] ?? key
@@ -192,7 +192,9 @@ export function VideoPairsForm({ form, model, book, locale, categorySlug, countr
         totalLabel={labels.totalLabel}
         itemsLabel={labels.itemsLabel}
         items={summary}
-        amount={formatAmount(total, book.currency)}
+        quote={labels.quote}
+        rows={quote.rows}
+        amount={formatAmount(quote.total, book.currency)}
         payButton={labels.payButton}
         disabled={!canPay || pending}
         onPay={goToPayment}

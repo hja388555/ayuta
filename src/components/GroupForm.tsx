@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation'
 import { calculate, type PriceBook, type PricingModel } from '@ayuta/pricing'
 import type { CategoryForm, GroupDef, ItemDef } from '@/lib/category-groups'
 import { ChoiceCard, ChoiceGrid, StepTitle } from './ui'
-import { formatAmount, PaySection } from './TierForm'
+import { formatAmount, PaySection, toQuote, type QuoteLabels } from './TierForm'
 import { keepTrailingWordTogether } from '../lib/label-wrap'
 import s from './OrderForms.module.css'
 
@@ -52,16 +52,15 @@ export function pricedKeys(form: CategoryForm, selections: Readonly<Record<strin
  * 계산이 실패하면(선택 없음, 단가 없는 키, 기간 미선택) 0을 보여준다 —
  * 틀린 금액을 보여주는 것보다 낫다.
  */
-export function previewGroupTotal(
+export function previewGroupQuote(
   book: PriceBook,
   model: PricingModel,
   items: readonly string[],
   period?: string,
-): number {
+) {
   const sel: Record<string, unknown> = { items: [...items] }
   if (model.kind === 'sumMultiplier') sel.period = period ?? ''
-  const r = calculate(model, book, sel)
-  return r.ok ? r.total : 0
+  return toQuote(calculate(model, book, sel), book.currency)
 }
 
 /**
@@ -196,6 +195,7 @@ type Labels = {
   sizePlaceholder: string
   totalLabel: string
   itemsLabel: string
+  quote: QuoteLabels
   payButton: string
   /** 2번 기본 포함 칩 — 선택지가 아니라 안내다 */
   basicIncludedItems?: string[]
@@ -237,7 +237,7 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
   const size = ''
 
   const priced = useMemo(() => pricedKeys(form, selections), [form, selections])
-  const total = useMemo(() => previewGroupTotal(book, model, priced, period), [book, model, priced, period])
+  const quote = useMemo(() => previewGroupQuote(book, model, priced, period), [book, model, priced, period])
 
   const allSelected = useMemo(() => Object.values(selections).flat(), [selections])
   const canPay = allSelected.length > 0 && (!form.periods || Boolean(period))
@@ -470,7 +470,9 @@ export function GroupForm({ form, model, book, locale, categorySlug, country, pu
         totalLabel={labels.totalLabel}
         itemsLabel={labels.itemsLabel}
         items={summary}
-        amount={formatAmount(total, book.currency)}
+        quote={labels.quote}
+        rows={quote.rows}
+        amount={formatAmount(quote.total, book.currency)}
         payButton={labels.payButton}
         disabled={!canPay || pending}
         onPay={goToPayment}

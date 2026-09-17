@@ -73,6 +73,19 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const tCat = await getTranslations('categories')
   const tForm = await getTranslations('inquiryForm')
   const tPage = await getTranslations('orderPage')
+  const tCover = await getTranslations('cover')
+
+  // 우측 견적 패널 맨 위 참고 줄 — 표지에서 고른 나라·목적을 금액 없이 되짚어 준다
+  const countryLabels: Record<string, string> = tCover.raw('countries')
+  const purposeLabels: Record<string, string> = tCover.raw('purposes')
+  const quoteLabels = {
+    head: tPage('quote.head'),
+    empty: tPage('quote.empty'),
+    refs: [
+      ...(country.length > 0 ? [{ label: tPage('quote.country'), amount: country.map((c) => countryLabels[c] ?? c).join(', ') }] : []),
+      ...(purposes.length > 0 ? [{ label: tPage('quote.purpose'), amount: purposes.map((p) => purposeLabels[p] ?? p).join(', ') }] : []),
+    ],
+  }
 
   // 5번 문의 폼: ?type= 은 URL 에서 온 값이라 카테고리 표와 대조한다. 없는 값이면 미선택(1-18).
   // 받은 문자열을 화면에 그대로 그리지 않는다 — 대조를 통과한 슬러그만 넘긴다
@@ -124,6 +137,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   priceRow: t('priceRow'),
                   totalLabel: t('totalLabel'),
                   itemsLabel: tPage('itemsLabel'),
+                  quote: quoteLabels,
                   payButton: t('payButton'),
                 }}
               />
@@ -143,6 +157,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   itemLabels: tGroup.raw('itemLabels'),
                   totalLabel: tGroup('totalLabel'),
                   itemsLabel: tPage('itemsLabel'),
+                  quote: quoteLabels,
                   payButton: tGroup('payButton'),
                   basicIncludedItems: tGroup.raw('basicIncludedItems') as string[],
                   shortVideoNote: tGroup('shortVideoNote'),
@@ -168,6 +183,7 @@ export default async function OrderPage({ params, searchParams }: Props) {
                   sizePlaceholder: tGroup('sizePlaceholder'),
                   totalLabel: tGroup('totalLabel'),
                   itemsLabel: tPage('itemsLabel'),
+                  quote: quoteLabels,
                   payButton: tGroup('payButton'),
                   // 기본 포함 칩 · SNS 영상 안내는 2번(현지 영상 제작)에만 있다 — 선택지가 아니라 안내다
                   basicIncludedItems: def.no === 2 ? (tGroup.raw('basicIncludedItems') as string[]) : undefined,
