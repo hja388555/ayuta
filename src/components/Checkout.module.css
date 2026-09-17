@@ -54,7 +54,7 @@
 .contractLock { margin: -4px 0 0; font-size: 14px; line-height: 1.5; color: var(--danger-600); }
 
 /* 전자서명 */
-.sign { display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 12px 20px; border: 1px solid var(--line); border-radius: var(--radius-md); background: #fff; font-size: 16px; line-height: 1.5; color: var(--ink-900); }
+.sign { display: flex; align-items: center; gap: 14px; min-height: 72px; padding: 12px 20px; border: 1px solid var(--c-line); border-radius: var(--radius-md); background: #fff; font-size: 16px; line-height: 1.5; color: var(--ink-900); }
 .signOn { border-color: var(--c-primary); background: var(--c-sel-bg); }
 .signBox { flex: none; width: 22px; height: 22px; border: 1.6px solid var(--line-strong); border-radius: 7px; background: #fff; }
 .signOn .signBox { border-color: var(--c-primary); background: var(--c-primary) url('/ui/check.svg') center / 14px 14px no-repeat; }

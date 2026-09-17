@@ -3,7 +3,7 @@
 .h1 { margin: 0; font-size: 34px; line-height: 1.25; letter-spacing: -0.02em; }
 .stack { display: flex; flex-direction: column; gap: 24px; }
 
-.card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; }
+.card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--c-line); border-radius: var(--radius-xl); background: #fff; }
 .cardTitle { margin: 0; font-size: 20px; line-height: 1.5; }
 .cardHint { margin: -8px 0 0; font-size: 15px; line-height: 1.5; color: var(--ink-500); }
 
