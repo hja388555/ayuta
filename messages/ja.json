@@ -852,6 +852,13 @@
     "gateDesc": "会話の記録と書類を安全に保管するため、会員登録が必要です",
     "gateSignup": "30秒で会員登録して相談する",
     "gateLogin": "ログイン",
-    "gateInquiry": "急ぎのお問い合わせだけ残す"
+    "gateInquiry": "急ぎのお問い合わせだけ残す",
+    "guestBody": "お問い合わせ内容",
+    "guestBodyPlaceholder": "ご質問をご記入ください",
+    "guestBodyNotice": "ご記入の内容は相談の最初のメッセージとして送信されます。",
+    "guestLimitTitle": "続けてご相談いただくには会員登録が必要です",
+    "guestLimitDesc": "未会員のお問い合わせは2回までです。ファイル添付と相談の継続は会員のみご利用いただけます。",
+    "guestLimitSignup": "会員登録して相談を続ける",
+    "guestLimitLogin": "すでにアカウントをお持ちです"
   }
 }

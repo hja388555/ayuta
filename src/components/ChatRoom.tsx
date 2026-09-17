@@ -181,13 +181,24 @@ export function useVisiblePolling(fn: () => void, ms: number, enabled: boolean) 
 }
 
 /** 고객 1:1 채팅(Figma [v2] 12). 4초마다 새 메시지를 가져오고, 열 때·새 답장이 올 때 읽음 처리 */
-export function ChatRoom({ locale, labels, guest }: { locale: ChatLocale; labels: Labels; guest?: { leave: string; leaveConfirm: string } }) {
+export function ChatRoom({
+  locale,
+  labels,
+  guest,
+}: {
+  locale: ChatLocale
+  labels: Labels
+  // 비회원일 때만 넘어온다 — 나가기와, 2회를 다 썼을 때 보여 줄 가입 안내 문구
+  guest?: { leave: string; leaveConfirm: string; limitTitle: string; limitDesc: string; limitSignup: string; limitLogin: string }
+}) {
   const router = useRouter()
   const [leaving, setLeaving] = useState(false)
   const [messages, setMessages] = useState<ChatMessageView[]>([])
   const [status, setStatus] = useState<'open' | 'closed'>('open')
   const [loaded, setLoaded] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  // 비회원이 2회를 다 쓰면 가입을 권한다(2026-09-17 사용자). 대화는 그대로 두고 입력만 막는다
+  const [signupNeeded, setSignupNeeded] = useState(false)
   const [text, setText] = useState('')
   const [sending, setSending] = useState(false)
   const listRef = useRef<HTMLDivElement>(null)
@@ -255,6 +266,11 @@ export function ChatRoom({ locale, labels, guest }: { locale: ChatLocale; labels
     try {
       const res = await fetch('/api/chat/messages', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ body }) })
       if (!res.ok) {
+        if (res.status === 403) {
+          // 더 보낼 수 없다 — 지금까지 쓴 글은 남겨 둔다(가입 후 그대로 이어 보낼 수 있게)
+          setSignupNeeded(true)
+          return
+        }
         setError(res.status === 429 ? labels.rateLimited : labels.sendError)
         return
       }
@@ -283,7 +299,20 @@ export function ChatRoom({ locale, labels, guest }: { locale: ChatLocale; labels
           {error}
         </p>
       ) : null}
-      <Composer value={text} onChange={setText} onSend={send} sending={sending || !loaded} placeholder={labels.placeholder} sendLabel={labels.send} attachLabel={labels.attach} />
+      {signupNeeded && guest ? (
+        <div className={s.signupGate} role="alert">
+          <p className={s.signupTitle}>{guest.limitTitle}</p>
+          <p className={s.signupDesc}>{guest.limitDesc}</p>
+          <a className={`btn btn-primary ${s.signupBtn}`} href={`/${locale}/signup?next=/${locale}/chat`}>
+            {guest.limitSignup}
+          </a>
+          <a className={`btn btn-secondary ${s.signupBtn}`} href={`/${locale}/login?next=/${locale}/chat`}>
+            {guest.limitLogin}
+          </a>
+        </div>
+      ) : (
+        <Composer value={text} onChange={setText} onSend={send} sending={sending || !loaded} placeholder={labels.placeholder} sendLabel={labels.send} attachLabel={labels.attach} />
+      )}
       {guest ? (
         <button type="button" className={s.leave} onClick={leave} disabled={leaving}>
           {guest.leave}

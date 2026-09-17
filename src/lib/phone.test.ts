@@ -153,15 +153,15 @@ describe('입력칸 도우미', () => {
 
 describe('validateGuestStart', () => {
   it('빈 폼은 네 칸 오류를 한꺼번에 낸다', () => {
-    expect(validateGuestStart({ name: '', email: '', phone: '', phoneCountry: 'KR', consent: false })).toEqual({ name: 'required', email: 'required', phone: 'required', consent: 'consent_required' })
+    expect(validateGuestStart({ name: '', email: '', phone: '', phoneCountry: 'KR', body: '문의합니다', consent: false })).toEqual({ name: 'required', email: 'required', phone: 'required', consent: 'consent_required' })
   })
   it('형식 오류는 칸별로 따로 낸다', () => {
-    expect(validateGuestStart({ name: '손님', email: 'x', phone: 'abc', phoneCountry: 'KR', consent: true })).toEqual({ email: 'email', phone: 'phone' })
-    expect(validateGuestStart({ name: '손님', email: 'a@b.co', phone: '010-1234-5678', phoneCountry: 'JP', consent: true })).toEqual({ phone: 'phone' })
+    expect(validateGuestStart({ name: '손님', email: 'x', phone: 'abc', phoneCountry: 'KR', body: '문의합니다', consent: true })).toEqual({ email: 'email', phone: 'phone' })
+    expect(validateGuestStart({ name: '손님', email: 'a@b.co', phone: '010-1234-5678', phoneCountry: 'JP', body: '문의합니다', consent: true })).toEqual({ phone: 'phone' })
   })
   it('올바르면 오류 없음', () => {
-    expect(validateGuestStart({ name: '손님', email: 'a@b.co', phone: '010-1234-5678', phoneCountry: 'KR', consent: true })).toEqual({})
-    expect(validateGuestStart({ name: '손님', email: 'a@b.co', phone: '090-1234-5678', phoneCountry: 'JP', consent: true })).toEqual({})
+    expect(validateGuestStart({ name: '손님', email: 'a@b.co', phone: '010-1234-5678', phoneCountry: 'KR', body: '문의합니다', consent: true })).toEqual({})
+    expect(validateGuestStart({ name: '손님', email: 'a@b.co', phone: '090-1234-5678', phoneCountry: 'JP', body: '문의합니다', consent: true })).toEqual({})
   })
 })
 

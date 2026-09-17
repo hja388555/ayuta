@@ -53,7 +53,18 @@ export default async function ChatPage({ params, searchParams }: Props) {
     }
     return (
       <Shell bleed background="#f7f8fa">
-        <ChatRoom locale={chatLocale} labels={labels} guest={user ? undefined : { leave: t('guestLeave'), leaveConfirm: t('guestLeaveConfirm') }} />
+        <ChatRoom locale={chatLocale} labels={labels} guest={
+            user
+              ? undefined
+              : {
+                  leave: t('guestLeave'),
+                  leaveConfirm: t('guestLeaveConfirm'),
+                  limitTitle: t('guestLimitTitle'),
+                  limitDesc: t('guestLimitDesc'),
+                  limitSignup: t('guestLimitSignup'),
+                  limitLogin: t('guestLimitLogin'),
+                }
+          } />
       </Shell>
     )
   }
@@ -75,6 +86,9 @@ export default async function ChatPage({ params, searchParams }: Props) {
             desc: t('guestDesc'),
             name: t('guestName'),
             namePlaceholder: t('guestNamePlaceholder'),
+            body: t('guestBody'),
+            bodyPlaceholder: t('guestBodyPlaceholder'),
+            bodyNotice: t('guestBodyNotice'),
             email: t('guestEmail'),
             emailPlaceholder: t('guestEmailPlaceholder'),
             phone: t('guestPhone'),

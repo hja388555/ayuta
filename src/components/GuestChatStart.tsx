@@ -20,6 +20,9 @@ export type GuestStartLabels = {
   emailPlaceholder: string
   phone: string
   phonePlaceholder: string
+  body: string
+  bodyPlaceholder: string
+  bodyNotice: string
   consent: string
   consentView: string
   start: string
@@ -42,6 +45,7 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [phoneCountry, setPhoneCountry] = useState<PhoneCountry>(() => phoneCountryForLocale(locale))
+  const [body, setBody] = useState('')
   const phoneErrorText = usePhoneErrorText()
   const [consent, setConsent] = useState(false)
   const [viewPrivacy, setViewPrivacy] = useState(false)
@@ -53,7 +57,7 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (busy) return
-    const fe = validateGuestStart({ name, email, phone, phoneCountry, consent })
+    const fe = validateGuestStart({ name, email, phone, phoneCountry, body, consent })
     setFieldErr(fe)
     if (Object.keys(fe).length > 0) {
       setError(null)
@@ -65,7 +69,7 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
       const res = await fetch('/api/chat/guest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone: phoneForSubmit(phone, phoneCountry), consent: true, locale }),
+        body: JSON.stringify({ name, email, phone: phoneForSubmit(phone, phoneCountry), body: body.trim(), consent: true, locale }),
       })
       const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string }
       if (res.status === 409) return router.refresh()
@@ -126,6 +130,24 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
           />
           {fieldError('phone')}
         </div>
+        <label className={s.field}>
+          <span className={s.label}>
+            {labels.body} * <span className={c.startCount}>({body.length}/500)</span>
+          </span>
+          <textarea
+            className={s.input}
+            rows={5}
+            placeholder={labels.bodyPlaceholder}
+            value={body}
+            maxLength={500}
+            onChange={(e) => (setBody(e.target.value), clear('body'))}
+            disabled={busy}
+            required
+            {...invalid('body')}
+          />
+          {fieldError('body')}
+          <span className={c.startNotice}>{labels.bodyNotice}</span>
+        </label>
         <div>
           <label className={s.check}>
             <input type="checkbox" checked={consent} onChange={(e) => (setConsent(e.target.checked), clear('consent'))} disabled={busy} required {...invalid('consent')} />

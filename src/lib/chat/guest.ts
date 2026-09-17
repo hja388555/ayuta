@@ -36,6 +36,9 @@ export const GuestStartSchema = z
     email: z.string().trim().email().max(200),
     // 화면은 E.164(+81…·+82…)로 보낸다. 국가번호가 없으면 화면 언어의 나라 → 다른 나라 순으로 본다(lib/phone)
     phone: z.string().trim().max(PHONE_MAX),
+    // 문의 내용. 방을 만들면서 첫 메시지로 들어간다(2026-09-17 사용자) — 담당자가 무엇을 묻는지
+    // 모르는 빈 방이 열리지 않게 한다
+    body: z.string().trim().min(1).max(500),
     consent: z.literal(true),
     locale: z.enum(['ko', 'ja']),
   })
