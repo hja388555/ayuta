@@ -29,5 +29,8 @@ export const BandImages: CollectionConfig = {
     { name: 'slot', type: 'select', required: true, unique: true, index: true, options: [...BAND_SLOTS] },
     { name: 'altKo', type: 'text' },
     { name: 'altJa', type: 'text' },
+    // 띠에 보일 위아래 위치(0~100). 사진을 88px(모바일)·215px(PC) 높이로 자를 때 어디를 남길지 정한다.
+    // 이미지를 교체하면 가운데(50)로 돌아간다 — 새 사진에 옛 위치는 뜻이 없다
+    { name: 'focusY', type: 'number', defaultValue: 50, min: 0, max: 100 },
   ],
 }
