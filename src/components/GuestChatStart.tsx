@@ -135,7 +135,7 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
             {labels.body} * <span className={c.startCount}>({body.length}/500)</span>
           </span>
           <textarea
-            className={s.input}
+            className={s.textarea}
             rows={5}
             placeholder={labels.bodyPlaceholder}
             value={body}
