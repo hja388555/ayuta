@@ -81,9 +81,13 @@ describe('띠 이미지 올리기·내려받기·삭제', () => {
 
     const res = await fetch(`${BASE}/api/band-image/${SLOT}`)
     expect(res.status).toBe(200)
-    expect(res.headers.get('content-type')).toBe('image/png')
-    expect(res.headers.get('cache-control')).toContain('public')
-    expect(new Uint8Array(await res.arrayBuffer())).toEqual(PNG)
+    // 올릴 때 WEBP 로 줄여 저장한다
+    expect(res.headers.get('content-type')).toBe('image/webp')
+    expect(res.headers.get('cache-control')).toContain('max-age=60')
+    expect((await res.arrayBuffer()).byteLength).toBeGreaterThan(0)
+    const [doc] = (await payload.find({ collection: 'band-images', where: { slot: { equals: SLOT } }, overrideAccess: true })).docs
+    const pinned = await fetch(`${BASE}/api/band-image/${SLOT}?v=${encodeURIComponent(String(doc!.updatedAt))}`)
+    expect(pinned.headers.get('cache-control')).toContain('immutable')
   })
 
   it('삭제하면 공개 주소가 404, 다시 지우면 404', async () => {
