@@ -61,6 +61,17 @@ export function focusAfterDrag(startFocus: number, dy: number, imageH: number, w
   return clampFocus(startFocus + (dy / room) * 100)
 }
 
+/** 화면에 내려보낼 최대 가로(px). PC 띠 1200 의 레티나 2배까지만 남긴다 */
+export const BAND_MAX_WIDTH = 2400
+
+/**
+ * 공개 이미지 캐시. 화면은 ?v=<updatedAt> 을 붙여 부르므로 v 가 맞으면 주소가 바뀌기 전까지 내용이 같다 — 1년 고정.
+ * v 가 없거나 옛 값이면 교체가 곧 보이도록 짧게.
+ */
+export function bandCacheControl(v: string | null, updatedAt: string): string {
+  return v === updatedAt ? 'public, max-age=31536000, s-maxage=31536000, immutable' : 'public, max-age=60, s-maxage=300'
+}
+
 export function isBandSlot(v: unknown): v is BandSlot {
   return typeof v === 'string' && (BAND_SLOTS as readonly string[]).includes(v)
 }

@@ -4,7 +4,7 @@ import sharp from 'sharp'
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import { requireSuperForApi } from '@/lib/admin/require-super'
-import { BAND_FOCUS_DEFAULT, BAND_MAX_BYTES, checkBandUpload, isBandSlot, parseFocus } from '@/lib/band-images'
+import { BAND_FOCUS_DEFAULT, BAND_MAX_BYTES, BAND_MAX_WIDTH, checkBandUpload, isBandSlot, parseFocus } from '@/lib/band-images'
 
 /**
  * 광고 서비스 띠 이미지 교체·삭제(Figma [v2] A6). 최고관리자만.
@@ -49,9 +49,12 @@ export async function POST(req: Request, { params }: Ctx): Promise<Response> {
 
   // 앞머리 바이트는 맞지만 내용이 깨진 파일을 지우기 전에 걸러낸다 — 실제로 디코딩되는지 확인한다.
   // 이 확인 없이 교체하면 이전 이미지를 지운 뒤 저장이 실패해 슬롯이 비어 버린다
+  // 저장 전에 가로 2400 이하 WEBP 로 줄인다 — 휴대폰 원본(수 MB)을 그대로 내려보내면 화면이 느리다
+  let optimized: Buffer
   try {
     const meta = await sharp(buf).metadata()
     if (!meta.width || !meta.height) throw new Error('no dimensions')
+    optimized = await sharp(buf).rotate().resize({ width: BAND_MAX_WIDTH, withoutEnlargement: true }).webp({ quality: 82 }).toBuffer()
   } catch {
     return NextResponse.json({ error: 'invalid_band_image' }, { status: 400 })
   }
@@ -64,7 +67,7 @@ export async function POST(req: Request, { params }: Ctx): Promise<Response> {
       collection: 'band-images',
       // 새 사진이라 이전 위치는 의미가 없다 — 가운데로 돌아간다
       data: { slot, focusY: BAND_FOCUS_DEFAULT },
-      file: { data: buf, mimetype: checked.mime, name: `${slot}-${randomUUID()}.${checked.ext}`, size: buf.length },
+      file: { data: optimized, mimetype: 'image/webp', name: `${slot}-${randomUUID()}.webp`, size: optimized.length },
       overrideAccess: true,
     })
     return NextResponse.json({ ok: true })

@@ -45,7 +45,7 @@ export default async function CoverPage({ params }: Props) {
       : Object.fromEntries(CATEGORIES.map((c) => [c.slug, t(`services.${c.slug}`)]))
 
   // 왼쪽 칸 이미지는 관리자 이미지 관리의 main 슬롯. 없거나 DB 를 못 읽으면 기본 서울 이미지
-  let asideImage = '/brand/ayuta-seoul.jpg'
+  let asideImage = '/brand/ayuta-seoul.webp'
   try {
     const payload = await getPayload({ config })
     const { docs } = await payload.find({ collection: 'band-images', where: { slot: { equals: 'main' } }, limit: 1, depth: 0, overrideAccess: true })

@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server'
+import sharp from 'sharp'
 import { getPayload } from 'payload'
 import config from '@payload-config'
-import { BAND_MIME_TYPES, isBandSlot } from '@/lib/band-images'
+import { BAND_MAX_WIDTH, BAND_MIME_TYPES, bandCacheControl, isBandSlot } from '@/lib/band-images'
 import { readUploadFile } from '@/lib/uploads/storage'
 
 /**
@@ -10,7 +11,7 @@ import { readUploadFile } from '@/lib/uploads/storage'
  */
 const NOT_FOUND = () => NextResponse.json({ error: 'not_found' }, { status: 404, headers: { 'Cache-Control': 'no-store' } })
 
-export async function GET(_req: Request, { params }: { params: Promise<{ slot: string }> }): Promise<Response> {
+export async function GET(req: Request, { params }: { params: Promise<{ slot: string }> }): Promise<Response> {
   const { slot } = await params
   if (!isBandSlot(slot)) return NOT_FOUND()
   const payload = await getPayload({ config })
@@ -22,11 +23,22 @@ export async function GET(_req: Request, { params }: { params: Promise<{ slot: s
   // DB 값을 그대로 헤더에 쓰지 않는다 — 허용 목록 밖이면 PNG 로 보지 않고 막는다
   const type = (BAND_MIME_TYPES as readonly string[]).includes(String(doc.mimeType)) ? String(doc.mimeType) : null
   if (!type) return NOT_FOUND()
-  return new Response(new Uint8Array(data), {
+
+  // 최적화 전에 올린 이미지(원본 JPG·PNG, 큰 WEBP)는 내려보낼 때 줄인다. 결과는 CDN 이 주소 단위로 캐시한다
+  let body: Uint8Array = new Uint8Array(data)
+  let contentType = type
+  if (type !== 'image/webp' || Number(doc.width ?? 0) > BAND_MAX_WIDTH) {
+    try {
+      body = new Uint8Array(await sharp(data).rotate().resize({ width: BAND_MAX_WIDTH, withoutEnlargement: true }).webp({ quality: 82 }).toBuffer())
+      contentType = 'image/webp'
+    } catch {}
+  }
+
+  return new Response(body, {
     headers: {
-      'Content-Type': type,
+      'Content-Type': contentType,
       'X-Content-Type-Options': 'nosniff',
-      'Cache-Control': 'public, max-age=300, s-maxage=3600',
+      'Cache-Control': bandCacheControl(new URL(req.url).searchParams.get('v'), String(doc.updatedAt)),
     },
   })
 }

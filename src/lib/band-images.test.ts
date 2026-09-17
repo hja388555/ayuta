@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { BAND_MAX_BYTES, checkBandUpload, isBandSlot } from './band-images'
+import { BAND_MAX_BYTES, bandCacheControl, checkBandUpload, isBandSlot } from './band-images'
 
 const png = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0x00])
 
@@ -31,5 +31,13 @@ describe('checkBandUpload', () => {
     const big = new Uint8Array(BAND_MAX_BYTES + 1)
     big.set(png)
     expect(checkBandUpload(big)).toEqual({ ok: false, status: 413 })
+  })
+})
+
+describe('bandCacheControl', () => {
+  it('v 가 현재 updatedAt 이면 1년 고정, 아니면 짧게', () => {
+    expect(bandCacheControl('2026-09-18T00:00:00.000Z', '2026-09-18T00:00:00.000Z')).toContain('immutable')
+    expect(bandCacheControl(null, '2026-09-18T00:00:00.000Z')).toBe('public, max-age=60, s-maxage=300')
+    expect(bandCacheControl('old', '2026-09-18T00:00:00.000Z')).not.toContain('immutable')
   })
 })
