@@ -293,3 +293,8 @@
   .videoNote, .posterNote { font-size: 15px; }
   .step[data-group='subwaySpot'] :global(.choice-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
+
+/* 아주 좁은 화면(320)에서 ₩1,000,000 이 칸을 넘는다. 줄바꿈 대신 금액만 줄인다 */
+@media (max-width: 360px) {
+  .price { font-size: 14px; letter-spacing: -0.02em; }
+}
