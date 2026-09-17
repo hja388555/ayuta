@@ -51,6 +51,8 @@
 }
 
 * { box-sizing: border-box; }
+/* 모바일 브라우저가 본문 글자를 제멋대로 키워(자동 확대) 제목·설명이 칸 밖으로 나갔다 */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   margin: 0;
   font-family: 'Pretendard Variable', Pretendard, -apple-system, system-ui, sans-serif;
@@ -67,6 +69,8 @@ body {
 /* 일본어 선택 카드 라벨도 같은 이유로 문절 단위 줄바꿈("広告"가 "広/告"로 갈라지는 것 방지) */
 :lang(ja) .choice { word-break: auto-phrase; text-wrap: balance; }
 :lang(ja) .cover-tagline { word-break: auto-phrase; }
+/* 긴 가타카나 한 덩어리(グローバルマーケティング)를 끊지 않는 브라우저가 있다 — 칸을 넘기지 말고 줄을 바꾼다 */
+.cover-headline, .cover-tagline { min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
 
 /* 표는 좁은 화면에서 셀을 줄이지 않고 가로로 스크롤한다 */
 .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -243,8 +247,9 @@ body {
   .cover-logo { width: 112px; height: 68px; font-size: 26px; }
   .cover-headline { font-size: 24px; }
   :lang(ja) .cover-headline { font-size: 19px; }
-  .cover-tagline { font-size: 20px; white-space: normal; }
-  .cover-tagline-break { display: inline; }
+  .cover-tagline { font-size: 18px; white-space: normal; }
+  /* 수동 줄바꿈을 쓰면 「함께합니다」가 혼자 남는다 — 폭에 맞춰 자연 줄바꿈 */
+  .cover-tagline-break { display: none; }
   .cover-body { padding: 24px 0 40px; }
   .cover-steps { gap: 24px; }
   .site-header-right { gap: 8px; }
