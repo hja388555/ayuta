@@ -3,6 +3,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { localeAlternates } from '@/lib/seo'
 import { Shell } from '@/components/Shell'
 import { CoverSteps } from '@/components/CoverSteps'
+import { JsonLd, organizationJsonLd } from '@/components/JsonLd'
+import { loadCompany } from '@/lib/company-settings'
 import { CATEGORIES } from '@/lib/categories'
 import { loadServices } from '@/lib/services/load'
 import { COUNTRY_CODES, PURPOSE_CODES } from '@/lib/cover-selection'
@@ -54,6 +56,7 @@ export default async function CoverPage({ params }: Props) {
 
   return (
     <main>
+      <JsonLd data={organizationJsonLd(locale, await loadCompany(locale === 'ja' ? 'ja' : 'ko'))} />
       <Shell as="section">
         {/* PC 는 왼쪽 400(로고·문구·브랜드 이미지, 스크롤 따라감) | 오른쪽 720(단계) 두 칸(2026-09-18 확정 PC 484:2). 모바일은 기존 세로 배치 그대로 */}
         <div className="v3-body cover-split">
