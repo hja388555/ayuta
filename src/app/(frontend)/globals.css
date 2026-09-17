@@ -387,6 +387,9 @@ body {
 .cover-brand-image { display: none; }
 @media (min-width: 768px) {
   .cover-split { display: grid; grid-template-columns: 400px 720px; column-gap: 80px; align-items: start; width: 1200px; max-width: 100%; padding-top: 80px; }
+  /* 오른쪽에 고정 상담 버튼(오른쪽 24 + 폭 70)이 떠 있어, 화면 가운데에 두면 왼쪽 여백만 넓어 보인다.
+     버튼을 뺀 폭의 가운데에 둬서 로고 앞 여백 = 콘텐츠 끝~버튼 사이 여백 */
+  .cover-split { margin-left: max(24px, calc((100% - 1200px - 94px) / 2)); margin-right: auto; }
   /* 왼쪽 칸은 스크롤을 따라간다. 메인 헤더는 고정이 아니라 위로 사라지므로 화면 위에서 24px */
   .cover-aside { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 24px; }
   .cover-brand { flex-direction: column; align-items: flex-start; gap: 28px; padding: 0; }
