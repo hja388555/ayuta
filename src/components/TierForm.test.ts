@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { buildPaymentQuery, orderTiers, previewTotal, tierSummaryItems, toggleValue } from './TierForm'
+import { buildPaymentQuery, orderTiers, previewQuote, tierSummaryItems, toggleValue } from './TierForm'
 
 const book: PriceBook = {
   currency: 'KRW',
@@ -54,23 +54,26 @@ describe('선택 토글', () => {
   })
 })
 
-describe('미리보기 금액', () => {
-  it('등급을 여러 개 고르면 합산된다', () => {
-    expect(previewTotal(book, model, ['basic', 'standard'], [])).toBe(1_500_000)
+describe('미리보기 견적', () => {
+  it('등급을 여러 개 고르면 합산되고 등급마다 한 줄씩 적힌다', () => {
+    const q = previewQuote(book, model, ['basic', 'standard'], [])
+    expect(q.total).toBe(1_500_000)
+    expect(q.rows.map((r) => r.label)).toEqual(['베이직', '스탠다드'])
+    expect(q.rows.every((r) => Boolean(r.amount))).toBe(true)
   })
 
   it('플랫폼을 아무리 골라도 금액이 변하지 않는다', () => {
-    const a = previewTotal(book, model, ['standard'], [])
-    const b = previewTotal(book, model, ['standard'], ['instagram', 'youtube', 'tiktok', 'line'])
+    const a = previewQuote(book, model, ['standard'], []).total
+    const b = previewQuote(book, model, ['standard'], ['instagram', 'youtube', 'tiktok', 'line']).total
     expect(a).toBe(b)
   })
 
-  it('아무것도 안 고르면 0을 보여준다 — 던지지 않는다', () => {
-    expect(previewTotal(book, model, [], [])).toBe(0)
+  it('아무것도 안 고르면 빈 견적을 보여준다 — 던지지 않는다', () => {
+    expect(previewQuote(book, model, [], [])).toEqual({ total: 0, rows: [] })
   })
 
-  it('단가에 없는 등급이 섞이면 0을 보여준다 — 틀린 금액을 보여주지 않는다', () => {
-    expect(previewTotal(book, model, ['standard', 'ghost'], [])).toBe(0)
+  it('단가에 없는 등급이 섞이면 빈 견적을 보여준다 — 틀린 금액을 보여주지 않는다', () => {
+    expect(previewQuote(book, model, ['standard', 'ghost'], [])).toEqual({ total: 0, rows: [] })
   })
 })
 

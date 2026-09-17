@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook } from '@ayuta/pricing'
-import { buildPairsQuery, pairsForSingleLength, previewPairsTotal, singleLengthFromPairs } from './VideoPairsForm'
+import { buildPairsQuery, pairsForSingleLength, previewPairsQuote, singleLengthFromPairs } from './VideoPairsForm'
 import { selectionFromQuery } from '../lib/checkout/selection-from-query'
 import { CATEGORIES } from '../lib/categories'
 
@@ -29,9 +29,9 @@ describe('영상 종류 여러 개 + 길이 한 번 (2026-09-13)', () => {
   })
   it('미리보기 금액은 종류마다 길이 값을 더한다', () => {
     // 파일 상단 픽스처: company 1,000,000 · product 900,000 · 10m 200,000
-    expect(previewPairsTotal(book, model, pairsForSingleLength([], 'video-length-10m'))).toBe(0)
-    expect(previewPairsTotal(book, model, pairsForSingleLength(['video-type-company', 'video-type-product'], undefined))).toBe(0)
-    expect(previewPairsTotal(book, model, pairsForSingleLength(['video-type-company', 'video-type-product'], 'video-length-10m'))).toBe(1_200_000 + 1_100_000)
+    expect(previewPairsQuote(book, model, pairsForSingleLength([], 'video-length-10m')).total).toBe(0)
+    expect(previewPairsQuote(book, model, pairsForSingleLength(['video-type-company', 'video-type-product'], undefined)).total).toBe(0)
+    expect(previewPairsQuote(book, model, pairsForSingleLength(['video-type-company', 'video-type-product'], 'video-length-10m')).total).toBe(1_200_000 + 1_100_000)
   })
   it('만든 쿼리를 결제 화면이 같은 쌍으로 되돌린다', () => {
     const pairs = pairsForSingleLength(['video-type-company', 'video-type-product'], 'video-length-30m')

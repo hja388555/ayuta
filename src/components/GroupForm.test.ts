@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook, type PricingModel } from '@ayuta/pricing'
-import { buildGroupQuery, configuredSizeSpecs, countryColumns, dropOtherCountries, initialCountries, initialSelections, nextSelection, pricedKeys, previewGroupTotal, toggleCountry } from './GroupForm'
+import { buildGroupQuery, configuredSizeSpecs, countryColumns, dropOtherCountries, initialCountries, initialSelections, nextSelection, pricedKeys, previewGroupQuote, toggleCountry } from './GroupForm'
 import { formFor } from '../lib/category-groups'
 import type { CategoryForm } from '@/lib/category-groups'
 
@@ -78,26 +78,26 @@ describe('priced 항목 추출', () => {
 
 describe('묶음 폼 미리보기', () => {
   it('고른 항목이 합산된다', () => {
-    const total = previewGroupTotal(sumBook, sumModel, ['national-kr-hankyung', 'national-kr-donga'])
+    const total = previewGroupQuote(sumBook, sumModel, ['national-kr-hankyung', 'national-kr-donga']).total
     expect(total).toBe(1_600_000)
   })
 
   it('기간을 고르면 배수가 적용된다 (4번)', () => {
     const items = ['subway-city-seoul', 'subway-spot-door-side']
-    expect(previewGroupTotal(multBook, multModel, items, '1w')).toBe(1_500_000)
-    expect(previewGroupTotal(multBook, multModel, items, '2w')).toBe(2_250_000)
+    expect(previewGroupQuote(multBook, multModel, items, '1w').total).toBe(1_500_000)
+    expect(previewGroupQuote(multBook, multModel, items, '2w').total).toBe(2_250_000)
   })
 
   it('아무것도 안 고르면 0을 보여준다 — 던지지 않는다', () => {
-    expect(previewGroupTotal(sumBook, sumModel, [])).toBe(0)
+    expect(previewGroupQuote(sumBook, sumModel, []).total).toBe(0)
   })
 
   it('단가에 없는 항목이 섞이면 0을 보여준다', () => {
-    expect(previewGroupTotal(sumBook, sumModel, ['national-kr-hankyung', 'ghost'])).toBe(0)
+    expect(previewGroupQuote(sumBook, sumModel, ['national-kr-hankyung', 'ghost']).total).toBe(0)
   })
 
   it('4번에서 기간을 고르지 않으면 0을 보여준다', () => {
-    expect(previewGroupTotal(multBook, multModel, ['subway-city-seoul'], undefined)).toBe(0)
+    expect(previewGroupQuote(multBook, multModel, ['subway-city-seoul'], undefined).total).toBe(0)
   })
 })
 
@@ -234,7 +234,7 @@ describe('4번 사이즈 규격(size-spec) — 4라운드 F', () => {
       },
     }
     const model: PricingModel = { kind: 'sumMultiplier', category: 4, items: [], multipliers: { '1w': 1 } }
-    const total = previewGroupTotal(book, model, ['subway-city-seoul', 'size-spec-1'], '1w')
+    const total = previewGroupQuote(book, model, ['subway-city-seoul', 'size-spec-1'], '1w').total
     expect(total).toBe(1_200_000)
   })
 

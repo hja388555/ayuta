@@ -72,10 +72,22 @@
 /* 상품 내용 · 총액 · 결제 — 한 브라운 박스로 합쳤다(4라운드 E) */
 .pay { display: flex; flex-direction: column; gap: 8px; }
 .totalBox { display: flex; flex-direction: column; gap: 10px; padding: 16px 20px; border-radius: var(--radius); background: var(--c-title); color: #fff; }
-/* 상품 내용 한 줄: 왼쪽 라벨 + 오른쪽 항목(2026-09-14 5라운드) */
+/* 상품 내용 한 줄: 왼쪽 라벨 + 오른쪽 항목(2026-09-14 5라운드) — 모바일 전용 */
 .itemsRow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .itemsLabel { flex: none; margin: 0; font-size: 16px; font-weight: 700; color: var(--c-sel-bg); }
 .itemsValue { margin: 0; font-size: 16px; font-weight: 600; text-align: right; color: var(--c-sel-bg); }
+
+/* 견적서: 참고 줄(나라·목적) → 구분선 → 금액 줄 → 총액 박스(2026-09-18, Figma 487:126).
+   PC 우측 패널에서만 보인다 — 모바일 배치는 그대로 둔다 */
+.quote { display: none; flex-direction: column; gap: 6px; }
+.quoteHead { margin: 0 0 2px; font-size: 14px; font-weight: 600; color: var(--c-text2); }
+.quoteRow { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; min-width: 0; }
+.quoteLabel, .quoteItem { flex: none; font-size: 15px; color: var(--c-text2); }
+.quoteItem { font-size: 16px; font-weight: 600; color: var(--c-title); }
+.quoteValue, .quoteAmount { font-size: 15px; text-align: right; color: var(--c-text2); overflow-wrap: anywhere; }
+.quoteAmount { font-size: 17px; font-weight: 800; color: var(--c-title); white-space: nowrap; }
+.quoteLines { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--c-line); }
+.quoteEmpty { margin: 0; font-size: 15px; color: var(--c-text2); }
 .totalRow { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .totalRowLabel { font-size: 17px; color: var(--c-sel-bg); }
 .totalRowAmount { font-size: 28px; font-weight: 700; letter-spacing: -0.01em; color: var(--c-amount); }
@@ -121,8 +133,7 @@
   .table thead th, .table td:first-child { word-break: keep-all; overflow-wrap: normal; }
   .tierPick { flex-direction: column; }
   .payBtn { height: 52px; font-size: 17px; }
-  .itemsLabel { font-size: 14px; }
-  .itemsValue { font-size: 14px; }
+  .itemsLabel, .itemsValue { font-size: 14px; }
   .totalRowLabel { font-size: 15px; }
   .totalRowAmount { font-size: 22px; }
 }
@@ -265,12 +276,14 @@
   .body, .bodyWide { gap: 48px; max-width: 1264px; }
   .split { display: grid; grid-template-columns: 740px 420px; column-gap: 40px; align-items: start; }
   .choices { display: flex; flex-direction: column; gap: 64px; min-width: 0; }
-  /* 결제 패널: 흰 바탕 · 선 · 모서리 20, 스크롤을 따라간다(주문 화면 PC 헤더는 숨김이라 화면 위에서 24px) */
-  .split > .pay { position: sticky; top: 24px; align-self: start; gap: 16px; padding: 28px; border: 1px solid var(--c-line); border-radius: 20px; background: #fff; }
+  /* 결제 패널: 흰 바탕 · 선 · 모서리 20, 스크롤을 따라간다(주문 화면 PC 헤더는 숨김이라 화면 위에서 24px).
+     내용이 화면보다 길면 패널 안에서 스크롤된다 — 결제 버튼이 화면 밖으로 밀려나지 않게 */
+  .split > .pay { position: sticky; top: 24px; align-self: start; gap: 16px; padding: 28px; border: 1px solid var(--c-line); border-radius: 20px; background: #fff; max-height: calc(100vh - 48px); overflow-y: auto; }
   .split > .pay .payBtn { width: 100%; height: 56px; font-size: 18px; }
   .split > .pay .payBtn img, .split > .pay .payBtn :global(.icon-mask) { width: 24px !important; height: 24px !important; }
+  .quote { display: flex; }
+  .itemsRow { display: none; }
   .totalBox { padding: 16px 20px; gap: 8px; }
-  .itemsLabel, .itemsValue { font-size: 15px; }
   .totalRowLabel { font-size: 18px; }
   .totalRowAmount { font-size: 28px; }
 

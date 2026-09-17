@@ -5,9 +5,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { calculate } from '@ayuta/pricing'
 import { localPayload } from './helpers/localApi'
 import { loadPriceBook } from '../src/lib/price-book'
-import { previewTotal } from '../src/components/TierForm'
-import { previewGroupTotal } from '../src/components/GroupForm'
-import { previewPairsTotal } from '../src/components/VideoPairsForm'
+import { previewQuote } from '../src/components/TierForm'
+import { previewGroupQuote } from '../src/components/GroupForm'
+import { previewPairsQuote } from '../src/components/VideoPairsForm'
 import { CATEGORIES } from '../src/lib/categories'
 import { loadCategoryModel } from '../src/lib/pricing-model'
 
@@ -55,7 +55,7 @@ describe('견적 정합성 — 미리보기와 서버가 카테고리 1~4에서 
     const book = await loadPriceBook(1, 'KRW')
     const tiers = [k('tier-basic'), k('tier-standard')]
 
-    const preview = previewTotal(book, def.model, tiers, [])
+    const preview = previewQuote(book, def.model, tiers, []).total
     const server = calculate(def.model, book, { tiers, platforms: [] })
 
     expect(server.ok).toBe(true)
@@ -74,7 +74,7 @@ describe('견적 정합성 — 미리보기와 서버가 카테고리 1~4에서 
     ]
     expect(def.model.kind).toBe('videoPairs')
 
-    const preview = previewPairsTotal(book, model, pairs)
+    const preview = previewPairsQuote(book, model, pairs).total
     const server = calculate(model, book, { pairs })
 
     expect(server.ok).toBe(true)
@@ -87,7 +87,7 @@ describe('견적 정합성 — 미리보기와 서버가 카테고리 1~4에서 
     const book = await loadPriceBook(3, 'KRW')
     const items = [k('press-a'), k('press-b')]
 
-    const preview = previewGroupTotal(book, def.model, items)
+    const preview = previewGroupQuote(book, def.model, items).total
     const server = calculate(def.model, book, { items })
 
     expect(server.ok).toBe(true)
@@ -111,7 +111,7 @@ describe('견적 정합성 — 미리보기와 서버가 카테고리 1~4에서 
       const items = [k('transit-a'), k('transit-b')]
       const period = '2w'
 
-      const preview = previewGroupTotal(book, model, items, period)
+      const preview = previewGroupQuote(book, model, items, period).total
       const server = calculate(model, book, { items, period })
 
       expect(server.ok).toBe(true)
@@ -135,7 +135,7 @@ describe('견적 정합성 — 미리보기와 서버가 카테고리 1~4에서 
     const book = await loadPriceBook(3, 'KRW')
     const items = [k('press-a'), 'ghost-key-없음']
 
-    const preview = previewGroupTotal(book, def.model, items)
+    const preview = previewGroupQuote(book, def.model, items).total
     const server = calculate(def.model, book, { items })
 
     expect(preview).toBe(0)
