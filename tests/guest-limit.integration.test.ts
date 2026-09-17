@@ -96,7 +96,7 @@ describe('비회원 문의 2회 제한', () => {
     const payload = await localPayload()
     await payload.create({
       collection: 'chat-messages',
-      data: { thread: threadId!, sender: 'admin', body: '안녕하세요, 확인 후 연락드리겠습니다.' },
+      data: { thread: threadId!, sender: 'admin', body: '안녕하세요, 확인 후 연락드리겠습니다.', translationStatus: 'skipped' },
       overrideAccess: true,
     })
     const res = await send('답장 감사합니다.')
