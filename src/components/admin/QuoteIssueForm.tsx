@@ -206,7 +206,7 @@ export function QuoteIssueForm({
           <label className={s.fieldGroup}>
             계약서 본문
             <textarea
-              className={s.field}
+              className={s.fieldArea}
               value={contractBody}
               maxLength={20000}
               rows={12}
