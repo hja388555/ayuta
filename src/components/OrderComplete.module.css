@@ -6,7 +6,7 @@
 .heroTitle { margin: 0; font-size: 38px; line-height: 1.25; letter-spacing: -0.02em; }
 .heroText { margin: 0; font-size: 17px; line-height: 1.5; color: var(--ink-700); }
 .pending { margin: 0; padding: 14px 16px; border-radius: var(--radius-md); background: var(--warning-50); color: #b54708; font-size: 15px; font-weight: 700; line-height: 1.6; }
-.card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; }
+.card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--c-line); border-radius: var(--radius-xl); background: #fff; }
 .cardTitle { margin: 0; font-size: 22px; line-height: 1.5; }
 .table { margin: 0; padding: 18px 20px; border-radius: var(--radius-md); background: var(--surface); }
 .tableRow { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); line-height: 1.5; }

@@ -18,7 +18,7 @@
 .chip { padding: 7px 12px; border-radius: 999px; background: #fff; color: var(--ink-700); font-size: 14px; text-decoration: none; }
 .chip:hover { color: var(--brand-600); }
 
-.tableWrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 14px; }
+.tableWrap { overflow-x: auto; border: 1px solid var(--c-line); border-radius: 14px; }
 .table { width: 100%; border-collapse: collapse; font-size: 16px; }
 .table th { padding: 16px 20px; background: var(--surface); text-align: left; font-weight: 700; color: var(--ink-700); }
 .table td { padding: 16px 20px; border-top: 1px solid var(--line); color: var(--ink-700); }

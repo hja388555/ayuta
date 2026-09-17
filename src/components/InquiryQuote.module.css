@@ -54,7 +54,7 @@
 .bandTitle { margin: 0; font-size: 44px; line-height: 1.25; letter-spacing: -0.02em; color: var(--ink-900); }
 .bandSub { margin: 0; font-size: 20px; line-height: 1.5; color: var(--ink-700); }
 .page { display: flex; flex-direction: column; gap: 32px; padding: 48px var(--side) 64px; }
-.card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; min-width: 0; }
+.card { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--c-line); border-radius: var(--radius-xl); background: #fff; min-width: 0; }
 .cardHead { display: flex; align-items: center; gap: 10px; }
 .cardTitle { flex: 1; margin: 0; font-size: 28px; line-height: 1.5; color: var(--ink-900); }
 .cardDesc { margin: 0; font-size: 18px; color: var(--ink-500); }
@@ -64,7 +64,7 @@
 .infoRow dt { flex: none; width: 140px; font-size: 18px; color: var(--ink-500); }
 .infoRow dd { flex: 1; min-width: 0; margin: 0; font-size: 20px; color: var(--ink-700); overflow-wrap: anywhere; }
 
-.table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; font-size: 18px; color: var(--ink-700); }
+.table { width: 100%; border-collapse: separate; border-spacing: 0; border: 1px solid var(--c-line); border-radius: var(--radius-lg); overflow: hidden; font-size: 18px; color: var(--ink-700); }
 .table th { padding: 14px 18px; background: var(--surface); text-align: left; font-weight: 700; }
 .table td { padding: 16px 18px; border-top: 1px solid var(--line); }
 .table .colItem { width: 66.66%; }
@@ -82,7 +82,7 @@
 
 /* ── 11-B 열 수 없음 ── */
 .blockedWrap { display: flex; justify-content: center; padding: 100px var(--side); }
-.blocked { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; max-width: 560px; padding: 48px 40px; border: 1px solid var(--line); border-radius: 20px; background: #fff; }
+.blocked { display: flex; flex-direction: column; align-items: center; gap: 18px; width: 100%; max-width: 560px; padding: 48px 40px; border: 1px solid var(--c-line); border-radius: 20px; background: #fff; }
 .alertCircle { display: flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 999px; background: var(--warning-50); }
 .alertCircle img { width: 34px; height: 34px; }
 .blockedTitle { margin: 0; font-size: 30px; line-height: 1.3; letter-spacing: -0.02em; text-align: center; color: var(--ink-900); }

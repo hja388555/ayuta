@@ -32,7 +32,7 @@
 .statOn { border-color: var(--brand-600); background: var(--brand-50); }
 .statOn span { color: var(--brand-600); font-weight: 700; }
 
-.card { display: flex; flex-direction: column; gap: 14px; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; }
+.card { display: flex; flex-direction: column; gap: 14px; padding: 26px 28px; border: 1px solid var(--c-line); border-radius: var(--radius-xl); background: #fff; }
 .cardHead { display: flex; align-items: center; gap: 10px; }
 .orderNo { flex: 1; min-width: 0; font-size: 14px; line-height: 1.5; color: var(--ink-500); overflow-wrap: anywhere; }
 .service { margin: 0; font-size: 20px; line-height: 1.5; color: var(--ink-900); }
@@ -54,7 +54,7 @@
 
 /* 09-B 상세 */
 .sub { margin: 0; font-size: 16px; line-height: 1.5; color: var(--ink-500); }
-.section { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--line); border-radius: var(--radius-xl); background: #fff; }
+.section { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--c-line); border-radius: var(--radius-xl); background: #fff; }
 .sectionTitle { margin: 0; font-size: 20px; line-height: 1.5; color: var(--ink-900); }
 .hint { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-500); }
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
