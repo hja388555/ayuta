@@ -21,13 +21,25 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paths = ['', ...slugs.map((slug) => `/order/${slug}`), '/terms', '/privacy', '/refund']
   const abs = (p: string) => new URL(p, base).toString()
 
+  // 구글은 changefreq·priority 를 읽지 않고 lastModified 만 본다. 배포 시각을 쓴다 —
+  // 페이지 단위 수정 시각이 없어서(문구는 messages, 단가는 DB) 배포가 가장 가까운 근사다
+  const lastModified = deployedAt()
+
   return paths.flatMap((path) => {
     const languages = Object.fromEntries(routing.locales.map((l) => [l, abs(`/${l}${path}`)]))
+    // 언어를 정하지 못한 검색 엔진에게 보여줄 기본 — 페이지 <head> 의 x-default 와 같은 곳을 가리킨다
+    languages['x-default'] = abs(`/${routing.defaultLocale}${path}`)
     return routing.locales.map((locale) => ({
       url: abs(`/${locale}${path}`),
-      changeFrequency: 'weekly' as const,
-      priority: path === '' ? 1 : path.startsWith('/order/') ? 0.8 : 0.3,
+      lastModified,
       alternates: { languages },
     }))
   })
+}
+
+/** 배포 시각. Vercel 이 넣어 주는 커밋 시각을 쓰고, 없으면 지금 */
+function deployedAt(): Date {
+  const raw = process.env.VERCEL_GIT_COMMIT_SHA ? process.env.VERCEL_DEPLOYMENT_CREATED_AT : undefined
+  const at = raw ? new Date(Number(raw)) : new Date()
+  return Number.isNaN(at.getTime()) ? new Date() : at
 }

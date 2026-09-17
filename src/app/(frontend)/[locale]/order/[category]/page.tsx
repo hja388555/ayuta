@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { localeAlternates } from '@/lib/seo'
+import { JsonLd, serviceJsonLd } from '@/components/JsonLd'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { getPayload } from 'payload'
 import config from '@payload-config'
@@ -50,7 +51,15 @@ export async function generateMetadata({ params }: Pick<Props, 'params'>): Promi
   const def = categoryBySlug(category)
   if (!def) return {}
   const tCat = await getTranslations({ locale, namespace: 'categories' })
-  return { title: tCat(def.slug), alternates: localeAlternates(locale, `/order/${def.slug}`) }
+  const tSeo = await getTranslations({ locale, namespace: 'seo' })
+  // 설명은 카테고리마다 다르게 — 다섯 화면이 표지 설명을 같이 쓰면 검색 엔진이 중복으로 본다
+  const description = tSeo(`categories.${def.slug}`)
+  return {
+    title: tCat(def.slug),
+    description,
+    openGraph: { title: tCat(def.slug), description },
+    alternates: localeAlternates(locale, `/order/${def.slug}`),
+  }
 }
 
 export default async function OrderPage({ params, searchParams }: Props) {
@@ -74,6 +83,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
   const tForm = await getTranslations('inquiryForm')
   const tPage = await getTranslations('orderPage')
   const tCover = await getTranslations('cover')
+  const tSeo = await getTranslations('seo')
+  const tTabs = await getTranslations('tabs')
 
   // 우측 견적 패널 맨 위 참고 줄 — 표지에서 고른 나라·목적을 금액 없이 되짚어 준다
   const countryLabels: Record<string, string> = tCover.raw('countries')
@@ -114,6 +125,9 @@ export default async function OrderPage({ params, searchParams }: Props) {
 
   return (
     <main>
+      {serviceJsonLd(locale, def.slug, tCat(def.slug), tSeo(`categories.${def.slug}`), tTabs('home')).map((d, i) => (
+        <JsonLd key={i} data={d} />
+      ))}
       {def.no !== 5 ? <ImageBand slot={`category-${def.no}`} locale={locale} /> : null}
 
       {def.no !== 5 ? (
