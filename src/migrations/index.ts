@@ -14,6 +14,7 @@ import * as migration_20260913_043043_drop_band_focus from './20260913_043043_dr
 import * as migration_20260916_070737_ad_services from './20260916_070737_ad_services';
 import * as migration_20260916_142623_quote_contract from './20260916_142623_quote_contract';
 import * as migration_20260916_184141_order_consent_snapshot from './20260916_184141_order_consent_snapshot';
+import * as migration_20260917_152323_main_image_slot from './20260917_152323_main_image_slot';
 
 export const migrations = [
   {
@@ -94,6 +95,11 @@ export const migrations = [
   {
     up: migration_20260916_184141_order_consent_snapshot.up,
     down: migration_20260916_184141_order_consent_snapshot.down,
-    name: '20260916_184141_order_consent_snapshot'
+    name: '20260916_184141_order_consent_snapshot',
+  },
+  {
+    up: migration_20260917_152323_main_image_slot.up,
+    down: migration_20260917_152323_main_image_slot.down,
+    name: '20260917_152323_main_image_slot'
   },
 ];

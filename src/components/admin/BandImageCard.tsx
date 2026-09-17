@@ -126,7 +126,7 @@ export function BandImageCard({
         <button type="button" className={`btn btn-secondary ${s.bigBtn} ${s.bandMain}`} onClick={openPicker} disabled={busy}>
           {busy ? '처리 중…' : registered ? '교체' : '이미지 올리기'}
         </button>
-        {registered ? (
+        {registered && slot !== 'main' ? (
           <Link href={`/manage/images/${slot}/position`} className={`btn btn-outline ${s.bigBtn}`}>
             위치 조정
           </Link>

@@ -379,3 +379,37 @@ body {
 @media (min-width: 768px) {
   .step-title { margin-bottom: 20px; }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * 확정 PC 두 칸 배치(2026-09-18, Figma 299:2 "확정 PC" 484:2). 768 이상만 — 768~1439 는 PcScale 이 1440 화면을 줄인다.
+ * 모바일은 .cover-split·.cover-aside 가 일반 블록이고 브랜드 이미지는 숨겨 기존 세로 배치 그대로다
+ * ────────────────────────────────────────────────────────────────────────── */
+.cover-brand-image { display: none; }
+@media (min-width: 768px) {
+  .cover-split { display: grid; grid-template-columns: 400px 720px; column-gap: 80px; align-items: start; width: 1200px; max-width: 100%; padding-top: 80px; }
+  /* 왼쪽 칸은 스크롤을 따라간다. 메인 헤더는 고정이 아니라 위로 사라지므로 화면 위에서 24px */
+  .cover-aside { position: sticky; top: 24px; display: flex; flex-direction: column; gap: 24px; }
+  .cover-brand { flex-direction: column; align-items: flex-start; gap: 28px; padding: 0; }
+  .cover-text { gap: 8px; }
+  .cover-headline { font-size: 32px; line-height: 1.3; }
+  .cover-tagline { font-size: 18px; white-space: normal; }
+  .cover-logo { font-size: 32px; }
+  .cover-brand-image { display: block; width: 400px; height: 596px; border-radius: 20px; object-fit: cover; }
+  .cover-body { padding: 0 0 120px; }
+  .cover-split .purpose-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .cover-split .service-list { max-width: none; }
+
+  /* 글자 크기 단계(PC): 쪽 제목 32 · 단계 제목 22 · 선택지·입력·총액 이름 18 · 보조 15 · 총 금액 28 */
+  .step-title h2 { font-size: 22px; }
+  .step-title p { font-size: 15px; }
+  .choice { font-size: 18px; }
+  .cover-steps .choice-sub { font-size: 15px; }
+  .cover-steps { gap: 64px; }
+  .row-link { min-height: 56px; font-size: 18px; }
+  .row-link::after { width: 20px; height: 20px; background-size: 20px 20px; }
+  .total-bar-label { font-size: 18px; }
+  .total-bar-amount { font-size: 28px; }
+
+  /* 주문 화면 상단 이미지 1200×240, 모서리 20 */
+  .image-full { height: 240px; margin-top: 40px; border-radius: 20px; }
+}

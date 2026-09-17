@@ -7,6 +7,7 @@ describe('isBandSlot', () => {
   it('category-1~5 만 받는다', () => {
     expect(isBandSlot('category-1')).toBe(true)
     expect(isBandSlot('category-5')).toBe(true)
+    expect(isBandSlot('main')).toBe(true)
     expect(isBandSlot('category-6')).toBe(false)
     expect(isBandSlot('../category-1')).toBe(false)
     expect(isBandSlot(1)).toBe(false)

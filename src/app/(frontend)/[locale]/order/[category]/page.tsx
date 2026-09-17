@@ -183,8 +183,8 @@ export default async function OrderPage({ params, searchParams }: Props) {
         </>
       ) : (
         <>
-          {/* 5번은 금액 없이 문의를 받아 관리자가 견적을 발행한다(Q14 · Q14-B) */}
-          <div className={styles.body}>
+          {/* 5번은 금액 없이 문의를 받아 관리자가 견적을 발행한다(Q14 · Q14-B). PC 는 가운데 760 한 칸 */}
+          <div className={`${styles.body} ${styles.bodyNarrow}`}>
             <OrderTitle className={styles.title} title={tPage(`titles.${def.slug}`) as string} />
             <InquiryForm
               locale={locale}

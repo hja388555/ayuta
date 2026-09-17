@@ -6,6 +6,8 @@ import { CoverSteps } from '@/components/CoverSteps'
 import { CATEGORIES } from '@/lib/categories'
 import { loadServices } from '@/lib/services/load'
 import { COUNTRY_CODES, PURPOSE_CODES } from '@/lib/cover-selection'
+import { getPayload } from 'payload'
+import config from '@payload-config'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -42,51 +44,61 @@ export default async function CoverPage({ params }: Props) {
       ? Object.fromEntries(services.map((s) => [s.slug, locale === 'ja' ? s.nameJa : s.nameKo]))
       : Object.fromEntries(CATEGORIES.map((c) => [c.slug, t(`services.${c.slug}`)]))
 
+  // 왼쪽 칸 이미지는 관리자 이미지 관리의 main 슬롯. 없거나 DB 를 못 읽으면 기본 서울 이미지
+  let asideImage = '/brand/ayuta-seoul.jpg'
+  try {
+    const payload = await getPayload({ config })
+    const { docs } = await payload.find({ collection: 'band-images', where: { slot: { equals: 'main' } }, limit: 1, depth: 0, overrideAccess: true })
+    if (docs[0]) asideImage = `/api/band-image/main?v=${encodeURIComponent(String(docs[0].updatedAt))}`
+  } catch {}
+
   return (
     <main>
       <Shell as="section">
-        <div className="v3-body">
-          <div className="cover-brand">
-            <span className="cover-logo" aria-hidden>{t('logo')}</span>
-            <div className="cover-text">
-              <h1 className="cover-headline">{t('headline')}</h1>
-              <p className="cover-tagline">
-                {taglineTail ? (
-                  <>
-                    {taglineHead}
-                    <br className="cover-tagline-break" />
-                    {taglineTail}
-                  </>
-                ) : (
-                  tagline
-                )}
-              </p>
+        {/* PC 는 왼쪽 400(로고·문구·브랜드 이미지, 스크롤 따라감) | 오른쪽 720(단계) 두 칸(2026-09-18 확정 PC 484:2). 모바일은 기존 세로 배치 그대로 */}
+        <div className="v3-body cover-split">
+          <div className="cover-aside">
+            <div className="cover-brand">
+              <span className="cover-logo" aria-hidden>{t('logo')}</span>
+              <div className="cover-text">
+                <h1 className="cover-headline">{t('headline')}</h1>
+                <p className="cover-tagline">
+                  {taglineTail ? (
+                    <>
+                      {taglineHead}
+                      <br className="cover-tagline-break" />
+                      {taglineTail}
+                    </>
+                  ) : (
+                    tagline
+                  )}
+                </p>
+              </div>
             </div>
+            <img className="cover-brand-image" src={asideImage} width={400} height={596} alt="" />
           </div>
-        </div>
-      </Shell>
 
-      <Shell as="section">
-        <div className="v3-body cover-body">
-          <CoverSteps
-            locale={locale}
-            categories={coverCategories}
-            labels={{
-              stepCountry: t('stepCountry'),
-              stepPurpose: t('stepPurpose'),
-              stepService: t('stepService'),
-              countryRequired: t('countryRequired'),
-              countries: Object.fromEntries(COUNTRY_CODES.map((c) => [c, t(`countries.${c}`)])) as Record<
-                (typeof COUNTRY_CODES)[number],
-                string
-              >,
-              countryNotes: Object.fromEntries(
-                COUNTRY_CODES.filter((c) => t.has(`countryNotes.${c}`)).map((c) => [c, t(`countryNotes.${c}`)]),
-              ),
-              purposes: Object.fromEntries(PURPOSE_CODES.map((p) => [p, t(`purposes.${p}`)])),
-              services: serviceNames,
-            }}
-          />
+          <div className="cover-body">
+            <CoverSteps
+              locale={locale}
+              categories={coverCategories}
+              labels={{
+                stepCountry: t('stepCountry'),
+                stepPurpose: t('stepPurpose'),
+                stepService: t('stepService'),
+                countryRequired: t('countryRequired'),
+                countries: Object.fromEntries(COUNTRY_CODES.map((c) => [c, t(`countries.${c}`)])) as Record<
+                  (typeof COUNTRY_CODES)[number],
+                  string
+                >,
+                countryNotes: Object.fromEntries(
+                  COUNTRY_CODES.filter((c) => t.has(`countryNotes.${c}`)).map((c) => [c, t(`countryNotes.${c}`)]),
+                ),
+                purposes: Object.fromEntries(PURPOSE_CODES.map((p) => [p, t(`purposes.${p}`)])),
+                services: serviceNames,
+              }}
+            />
+          </div>
         </div>
       </Shell>
     </main>

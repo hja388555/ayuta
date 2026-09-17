@@ -255,3 +255,39 @@
   .pay .payBtn { font-size: 22px; height: 56px; }
   .payBtn img, .payBtn :global(.icon-mask) { width: 44px !important; height: 44px !important; }
 }
+
+/* 확정 PC 두 칸(2026-09-18, Figma 484:108 · 484:244 · 484:404 · 484:632): 왼쪽 740 선택 | 오른쪽 420 결제 패널.
+   모바일은 감싸개를 display: contents 로 두어 기존 세로 배치(선택 → 결제)를 그대로 쓴다 */
+.split, .choices { display: contents; }
+@media (min-width: 768px) {
+  .body, .bodyWide { gap: 48px; max-width: 1264px; }
+  .split { display: grid; grid-template-columns: 740px 420px; column-gap: 40px; align-items: start; }
+  .choices { display: flex; flex-direction: column; gap: 64px; min-width: 0; }
+  /* 결제 패널: 흰 바탕 · 선 · 모서리 20, 스크롤을 따라간다(주문 화면 PC 헤더는 숨김이라 화면 위에서 24px) */
+  .split > .pay { position: sticky; top: 24px; align-self: start; gap: 16px; padding: 28px; border: 1px solid var(--c-line); border-radius: 20px; background: #fff; }
+  .split > .pay .payBtn { width: 100%; height: 56px; font-size: 18px; }
+  .split > .pay .payBtn img, .split > .pay .payBtn :global(.icon-mask) { width: 24px !important; height: 24px !important; }
+  .totalBox { padding: 16px 20px; gap: 8px; }
+  .itemsLabel, .itemsValue { font-size: 15px; }
+  .totalRowLabel { font-size: 18px; }
+  .totalRowAmount { font-size: 28px; }
+
+  /* 5번 기타 광고: 가운데 760 한 칸, 패널 없음 */
+  .bodyNarrow { max-width: 824px; }
+
+  /* 글자 크기 단계(PC): 쪽 제목 32 · 선택지·표 18 · 보조 15 */
+  .title { font-size: 32px; }
+  .body :global(.choice) { font-size: 18px; }
+  .body :global(.choice-sub) { font-size: 15px; }
+  .body .price { font-size: 18px; }
+  .desc { font-size: 15px; }
+  .countryHead { font-size: 22px; }
+  .countryCols { gap: 40px; }
+  .table, .table thead th, .table thead th:first-child, .priceRow td:first-child { font-size: 18px; }
+  .priceRow td { font-size: 18px; }
+  :global(:lang(ja)) .table thead th:not(:first-child) { font-size: 16px; }
+  .chip2 { font-size: 18px; }
+  .chip2 img, .chip2 :global(.icon-mask) { width: 18px; height: 18px; }
+  .videoNote, .posterNote { font-size: 15px; }
+  .step[data-group='subwaySpot'] :global(.choice-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
