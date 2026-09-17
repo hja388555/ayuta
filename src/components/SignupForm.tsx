@@ -196,6 +196,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
 
   return (
     <form ref={formRef} onSubmit={submit} noValidate style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+      <div className={s.pair}>
       <section className={s.card} aria-labelledby="su-account">
         <h2 id="su-account" className={s.cardTitle}>
           {labels.accountTitle}
@@ -221,6 +222,7 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
         {field('address2', { autoComplete: 'address-line2', maxLength: 200, ph: labels.address2Ph })}
         {field('businessNo', { maxLength: 20, ph: labels.businessNoPh })}
       </section>
+      </div>
 
       <section className={s.card} aria-labelledby="su-consent">
         <h2 id="su-consent" className={s.cardTitle}>

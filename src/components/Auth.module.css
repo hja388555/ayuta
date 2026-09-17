@@ -60,3 +60,15 @@
   .row { grid-template-columns: minmax(0, 1fr); }
   .consent { padding: 0 14px; font-size: 15px; }
 }
+
+/* 회원가입 — PC 에서는 계정 정보 | 주문자 정보를 좌우로 놓고 한 화면에 들어오게 줄인다 */
+.pair { display: flex; flex-direction: column; gap: 20px; }
+@media (min-width: 1024px) {
+  .wide:has(.pair) { max-width: 1040px; }
+  .wide:has(.pair) .h1 { font-size: 30px; }
+  .pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+  .pair .card { gap: 14px; padding: 24px; }
+  .pair .row { grid-template-columns: minmax(0, 1fr); }
+  .pair .input, .pair .searchBtn { height: 46px; font-size: 15px; }
+  .pair { --field-h: 46px; }
+}
