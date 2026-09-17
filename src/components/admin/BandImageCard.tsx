@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState, type DragEvent } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
 import { Badge } from '@/components/ui'
@@ -8,7 +9,8 @@ import { AdminConfirm, NoPermission } from './AdminConfirm'
 import s from './admin-v2.module.css'
 
 /**
- * A6 서비스 카드 하나 — 미리보기(끌어다 놓기·클릭 업로드) + [교체]/[이미지 올리기] + [삭제].
+ * A6 서비스 카드 하나 — 미리보기(끌어다 놓기·클릭 업로드) + [교체]/[이미지 올리기] + [위치 조정] + [삭제].
+ * 띠는 사진을 고정 높이로 자르므로, 어디를 남길지는 위치 조정 화면에서 슬롯마다 정한다.
  * 삭제는 A11 ④ 확인 → ⑤ DELETE 입력 후 완전 삭제(파일까지 지워 되돌릴 수 없다).
  * 형식·크기·권한 판정은 서버(/api/admin/images/[slot])가 한다.
  */
@@ -124,6 +126,11 @@ export function BandImageCard({
         <button type="button" className={`btn btn-secondary ${s.bigBtn} ${s.bandMain}`} onClick={openPicker} disabled={busy}>
           {busy ? '처리 중…' : registered ? '교체' : '이미지 올리기'}
         </button>
+        {registered ? (
+          <Link href={`/manage/images/${slot}/position`} className={`btn btn-outline ${s.bigBtn}`}>
+            위치 조정
+          </Link>
+        ) : null}
         {registered ? (
           <button type="button" className={`btn btn-outline ${s.bigBtn} ${s.bandDelete}`} onClick={() => guard() && setStep('confirm')} disabled={busy}>
             <img src="/ui/admin-trash.svg" alt="" width={18} height={18} />

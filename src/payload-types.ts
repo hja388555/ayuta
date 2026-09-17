@@ -540,6 +540,7 @@ export interface BandImage {
   slot: 'category-1' | 'category-2' | 'category-3' | 'category-4' | 'category-5';
   altKo?: string | null;
   altJa?: string | null;
+  focusY?: number | null;
   prefix?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1133,6 +1134,7 @@ export interface BandImagesSelect<T extends boolean = true> {
   slot?: T;
   altKo?: T;
   altJa?: T;
+  focusY?: T;
   prefix?: T;
   updatedAt?: T;
   createdAt?: T;
