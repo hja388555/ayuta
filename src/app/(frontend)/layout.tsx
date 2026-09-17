@@ -3,6 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import { BRAND_BLUE } from '../manifest'
 import { siteUrl } from '@/lib/seo'
 import { getLocale } from 'next-intl/server'
+import 'pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css'
 import './globals.css'
 
 // 모바일 주소창·설치 앱 상단 색(큐 Q29). manifest 의 theme_color 와 같은 값
