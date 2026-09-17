@@ -390,11 +390,12 @@ body {
   /* 왼쪽 묶음(로고~이미지)은 오른쪽 칸과 위아래 끝을 맞춘다 — 이미지가 남은 높이를 채운다.
      두 칸 높이가 같아 스크롤을 따라갈 여지가 없으므로 sticky 는 두지 않는다 */
   .cover-aside { display: flex; flex-direction: column; gap: 24px; }
-  .cover-brand { flex-direction: column; align-items: flex-start; gap: 28px; padding: 0; }
-  .cover-text { gap: 8px; }
-  .cover-headline { font-size: 32px; line-height: 1.3; }
-  .cover-tagline { font-size: 18px; white-space: normal; }
-  .cover-logo { font-size: 32px; }
+  /* 로고는 작게 두고 제목·부제목을 그 오른쪽 한 줄에 둔다 */
+  .cover-brand { flex-direction: row; align-items: center; gap: 20px; padding: 0; }
+  .cover-text { gap: 6px; }
+  .cover-headline { font-size: 26px; line-height: 1.3; }
+  .cover-tagline { font-size: 15px; white-space: normal; }
+  .cover-logo { flex: none; width: 140px; height: 84px; font-size: 24px; }
   .cover-brand-image { display: block; flex: 1 1 0; min-height: 0; width: 400px; border-radius: 20px; object-fit: cover; }
   .cover-body { padding: 0; }
   .cover-split .purpose-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
