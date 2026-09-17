@@ -157,7 +157,7 @@ body {
 .choice:has(input:checked) { border: 1.6px solid var(--c-sel-bg); background: var(--c-sel-bg); color: var(--c-title); font-weight: 700; }
 .choice:has(input:checked) .choice-box { border-color: var(--c-primary); background: var(--c-primary) url('/ui/check.svg') center / 16px 16px no-repeat; }
 .choice:has(input:focus-visible) { outline: 2px solid var(--c-primary); outline-offset: 2px; }
-.choice-sub { display: block; margin-top: 2px; font-size: 18px; font-weight: 800; color: var(--c-text2); }
+.choice-sub { display: block; min-width: 0; margin-top: 2px; font-size: 18px; font-weight: 800; color: var(--c-text2); overflow-wrap: anywhere; }
 .cover-steps .choice-sub { font-size: 14px; font-weight: 500; }
 
 /* 표지 손스케치 히어로 — 타원 로고 + 오른쪽 세로 정렬 문구(로고 높이 기준 가운데, 5차 피드백 #20) */
