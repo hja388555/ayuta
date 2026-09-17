@@ -25,7 +25,15 @@ async function load(kind: Kind, locale: string) {
 
 export async function legalMetadata(kind: Kind, locale: string): Promise<Metadata> {
   const t = await getTranslations({ locale, namespace: 'legal' })
-  return { title: t(TITLE[kind]), alternates: localeAlternates(locale, PATH[kind]) }
+  const tSeo = await getTranslations({ locale, namespace: 'seo' })
+  // 약관 세 문서도 설명을 따로 둔다 — 표지 설명을 돌려쓰면 검색 엔진이 중복으로 본다
+  const description = tSeo(`legal.${kind}`)
+  return {
+    title: t(TITLE[kind]),
+    description,
+    openGraph: { title: t(TITLE[kind]), description },
+    alternates: localeAlternates(locale, PATH[kind]),
+  }
 }
 
 /** 개정일은 문서의 마지막 저장 시각(Asia/Seoul) — YYYY-MM-DD */
