@@ -85,3 +85,11 @@
   .gateBtn { height: 56px; font-size: 18px; }
   .gateInquiry { font-size: 16px; }
 }
+
+/* 비회원 문의 내용 칸과 2회 소진 안내(2026-09-17 사용자) */
+.startCount { margin-left: 4px; font-size: 13px; font-weight: 500; color: var(--c-text2); }
+.startNotice { display: block; margin-top: 6px; font-size: 13px; line-height: 1.5; color: var(--c-text2); word-break: keep-all; }
+.signupGate { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 20px; border-top: 1px solid var(--c-line); text-align: center; }
+.signupTitle { margin: 0; font-size: 17px; font-weight: 800; color: var(--c-title); word-break: keep-all; }
+.signupDesc { margin: 0 0 6px; font-size: 14px; line-height: 1.6; color: var(--c-text2); word-break: keep-all; }
+.signupBtn { width: 100%; max-width: 420px; height: 48px; font-size: 15px; }

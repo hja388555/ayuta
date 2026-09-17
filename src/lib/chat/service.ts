@@ -6,6 +6,7 @@ import config from '@payload-config'
 import { AuthError, getSessionUser, requireAdmin, requireUser, type SessionUser } from '@/lib/dal'
 import type { ChatMessage, ChatThread } from '@/payload-types'
 import { generateGuestToken, GUEST_COOKIE, hashGuestToken, isGuestTokenShape } from './guest'
+import { canGuestSend } from './guest-limit'
 import { cleanBody, fallbackTarget, isRateLimited, rateWindowStart, targetLang, toChatLocale, type ChatLocale } from './rules'
 import { translate } from './translate'
 import { formatPhone } from '../phone'
@@ -169,6 +170,18 @@ export async function sendMessage(payload: Payload, thread: ChatThread, sender: 
     overrideAccess: true,
   })
   if (isRateLimited(recent.totalDocs)) return { error: 'rate_limited', status: 429 }
+
+  // 비회원은 보낼 수 있는 메시지가 2건뿐이다(2026-09-17 사용자). 문의 폼이 넣은 첫 메시지가
+  // 1건으로 잡히므로, 방에서 한 번 더 보내면 소진된다. 그 뒤에는 가입해야 이어서 상담할 수 있다.
+  // 위 rateLimited 는 시간당 도배 방지라 기간이 짧다 — 이건 방 전체 기간을 센다
+  if (sender === 'customer' && who.userId === null) {
+    const mine = await payload.count({
+      collection: 'chat-messages',
+      where: { and: [{ thread: { equals: thread.id } }, { sender: { equals: 'customer' } }] },
+      overrideAccess: true,
+    })
+    if (!canGuestSend(mine.totalDocs)) return { error: 'guest_limit', status: 403 }
+  }
 
   const locale = toChatLocale(thread.locale)
   const target = targetLang(sender, locale)

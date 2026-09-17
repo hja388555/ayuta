@@ -198,7 +198,7 @@ describe('문의 · 비회원 채팅 연락처', () => {
     api('/api/chat/guest', {
       method: 'POST',
       headers: { 'x-real-ip': freshIp() },
-      body: JSON.stringify({ name: '손님', email: `phone-guest-${n}+${RUN}@ayuta.test`, phone, consent: true, locale }),
+      body: JSON.stringify({ name: '손님', email: `phone-guest-${n}+${RUN}@ayuta.test`, phone, body: '문의합니다', consent: true, locale }),
     })
 
   it.each([

@@ -35,7 +35,7 @@ describe('비회원 토큰', () => {
 })
 
 describe('시작 폼 검증', () => {
-  const ok = { name: ' 홍길동 ', email: 'a@b.co', phone: '010-1234-5678', consent: true, locale: 'ko' }
+  const ok = { name: ' 홍길동 ', email: 'a@b.co', phone: '010-1234-5678', body: '지하철 광고 단가를 알고 싶습니다.', consent: true, locale: 'ko' }
   it('정상 입력은 앞뒤 공백을 잘라 통과', () => {
     const r = GuestStartSchema.safeParse(ok)
     expect(r.success && r.data.name).toBe('홍길동')
@@ -47,6 +47,9 @@ describe('시작 폼 검증', () => {
       { ...ok, email: 'nope' },
       { ...ok, phone: '12' },
       { ...ok, phone: '010-abcd-5678' },
+      { ...ok, body: '' },
+      { ...ok, body: '   ' },
+      { ...ok, body: 'ㄱ'.repeat(501) },
       { ...ok, name: '  ' },
       { ...ok, locale: 'en' },
       { ...ok, extra: 1 },

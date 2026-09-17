@@ -851,6 +851,13 @@
     "gateDesc": "대화 기록과 서류를 안전하게 보관하기 위해 회원가입이 필요합니다",
     "gateSignup": "30초 회원가입하고 상담하기",
     "gateLogin": "로그인",
-    "gateInquiry": "급한 문의만 남기기"
+    "gateInquiry": "급한 문의만 남기기",
+    "guestBody": "문의 내용",
+    "guestBodyPlaceholder": "궁금한 점을 남겨주세요",
+    "guestBodyNotice": "남기신 내용은 상담 첫 메시지로 전달됩니다.",
+    "guestLimitTitle": "이어서 상담하려면 가입이 필요해요",
+    "guestLimitDesc": "비회원은 문의 2회까지 가능합니다. 파일 첨부와 상담 이어가기는 회원만 이용할 수 있어요.",
+    "guestLimitSignup": "회원가입하고 이어서 상담하기",
+    "guestLimitLogin": "이미 계정이 있어요"
   }
 }
