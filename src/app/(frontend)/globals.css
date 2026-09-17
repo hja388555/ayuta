@@ -148,6 +148,7 @@ body {
 .choice[data-no-sub] { align-items: center; }
 .choice[data-no-sub] .choice-box { margin-top: 0; }
 .choice input { position: absolute; opacity: 0; pointer-events: none; }
+.choice > span:last-child { min-width: 0; overflow-wrap: anywhere; }
 .choice-box { flex: none; width: 24px; height: 24px; margin-top: 3px; border: 2px solid var(--c-text2); border-radius: 7px; background: #fff; }
 .choice:has(input:checked) { border: 1.6px solid var(--c-sel-bg); background: var(--c-sel-bg); color: var(--c-title); font-weight: 700; }
 .choice:has(input:checked) .choice-box { border-color: var(--c-primary); background: var(--c-primary) url('/ui/check.svg') center / 16px 16px no-repeat; }
