@@ -370,6 +370,8 @@ body {
   .step-title h2 { font-size: 32px; }
   .step-title p { font-size: 18px; }
   .cover-steps { gap: 80px; }
+  /* 첫 묶음(로고) ~ 광고 국가 선택은 다른 묶음 사이(80)보다 넓게 120 — 아래 32 여백 포함 (2026-09-17 사용자) */
+  .cover-brand { padding-bottom: 88px; }
   .cover-steps .choice-sub { font-size: 18px; }
 }
 

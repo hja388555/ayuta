@@ -122,3 +122,10 @@
 /* 계약 동의 행: 체크·문구·내용보기 버튼을 세로 가운데로(2026-09-16 사용자) */
 .consent { align-items: center; }
 .consent :global(.choice-box) { margin-top: 0; }
+
+/* 주문자 정보 — PC 에서는 기본 정보 | 주소를 좌우로 놓는다 */
+.ordererCols, .col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+@media (min-width: 1024px) {
+  .ordererCols { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+  .ordererCols .input { font-size: 20px; }
+}

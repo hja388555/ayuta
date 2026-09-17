@@ -317,15 +317,14 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
 
       <section className={s.card} aria-labelledby="co-orderer">
         <StepTitle id="co-orderer" title={labels.ordererTitle} />
-        <div className={s.row} style={{ ['--cols' as string]: 2 }}>
+        <div className={s.ordererCols}>
+          <div className={s.col}>
           {field('name', { required: true, autoComplete: 'name' })}
           {field('representative', { required: true })}
-        </div>
-        <div className={s.row} style={{ ['--cols' as string]: 2 }}>
           {field('phone', { required: true })}
           {field('email', { required: true, type: 'email', autoComplete: 'email' })}
-        </div>
-        <div className={s.row} style={{ ['--cols' as string]: 2 }}>
+          </div>
+          <div className={s.col}>
           {field('postalCode', {
             required: true,
             autoComplete: 'postal-code',
@@ -340,9 +339,10 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
             ),
           })}
           {field('address1', { required: true, autoComplete: 'address-line1' })}
+          {field('address2', { autoComplete: 'address-line2' })}
+          {field('businessNo')}
+          </div>
         </div>
-        {field('address2', { autoComplete: 'address-line2' })}
-        {field('businessNo')}
         <p className={s.note}>{keepTail(labels.ordererNote)}</p>
         {attempted && errorCount > 0 ? (
           <p className={s.banner} role="alert">
