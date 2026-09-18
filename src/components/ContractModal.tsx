@@ -27,6 +27,42 @@ type Content = {
 }
 
 /**
+ * 계약서 본문 끝 동의 줄을 실제 체크칸으로 그린다. 나타나는 순서가 결제 화면의 동의 항목 순서와
+ * 같다 — 짝이 안 맞으면(줄 수 ≠ 항목 수) 누르게 하지 않고 원문 그대로 보여준다.
+ */
+type ConsentControl = { keys: string[]; checked: Record<string, boolean>; onToggle: (key: string, next: boolean) => void }
+
+function ConsentLines({ lines, control }: { lines: string[]; control?: ConsentControl }) {
+  if (!control || control.keys.length !== lines.length) {
+    return (
+      <ul className={s.consentList}>
+        {lines.map((line, i) => (
+          <li key={i} className={s.consentPlain}>
+            ☐ {line}
+          </li>
+        ))}
+      </ul>
+    )
+  }
+  return (
+    <ul className={s.consentList}>
+      {lines.map((line, i) => {
+        const key = control.keys[i]!
+        return (
+          <li key={key}>
+            <label className={s.consent}>
+              <input type="checkbox" checked={control.checked[key] === true} onChange={(e) => control.onToggle(key, e.target.checked)} />
+              <span className={s.consentBox} aria-hidden />
+              <span>{line}</span>
+            </label>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+/**
  * 「선택 상품 내용」 구간 — 원문의 ──── 문자 선 대신 진짜 테두리로, 공백 정렬 대신 두 칸으로
  * 그린다. 좁은 폭에서 선이 갈라지지 않는다. 값이 빈 칸(촬영 예정일 등)은 라벨만 보인다.
  */
@@ -67,7 +103,8 @@ export function ContractDialog({
   notice,
   contractText,
   seal,
-}: Content & { open: boolean; onClose: () => void; onConfirm?: () => void }) {
+  consentControl,
+}: Content & { open: boolean; onClose: () => void; onConfirm?: () => void; consentControl?: ConsentControl }) {
   const t = useTranslations('modal')
   const ref = useRef<HTMLDialogElement>(null)
   const [read, setRead] = useState(false)
@@ -81,6 +118,10 @@ export function ContractDialog({
     if (!open && d.open) d.close()
   }, [open])
   const blocks = splitContractBlocks(contractText)
+  // 본문 안에서 직접 체크하는 경우엔 하단에 "모두 확인했습니다" 줄을 또 두지 않는다
+  const inlineCount = blocks.reduce((n, b) => ('consents' in b ? n + b.consents.length : n), 0)
+  const inline = consentControl && consentControl.keys.length === inlineCount ? consentControl : null
+  const agreed = inline ? inline.keys.every((k) => inline.checked[k] === true) : read
 
   return (
     <dialog
@@ -117,6 +158,8 @@ export function ContractDialog({
           {blocks.map((b, i) =>
             'items' in b ? (
               <ContractItems key={i} items={b.items} />
+            ) : 'consents' in b ? (
+              <ConsentLines key={i} lines={b.consents} control={consentControl} />
             ) : (
               <section key={i} className={s.article}>
                 {b.heading !== null ? <h3 className={s.articleTitle}>{b.heading}</h3> : null}
@@ -133,12 +176,14 @@ export function ContractDialog({
       </div>
       {onConfirm ? (
         <div className={s.foot}>
-          <label className={s.check}>
-            <input type="checkbox" checked={read} onChange={(e) => setRead(e.target.checked)} />
-            <span className={s.checkBox} aria-hidden />
-            <span>{t('contractConfirmCheck')}</span>
-          </label>
-          <button type="button" className={`btn btn-primary btn-block ${s.confirmBtn}`} disabled={!read} onClick={onConfirm}>
+          {inline ? null : (
+            <label className={s.check}>
+              <input type="checkbox" checked={read} onChange={(e) => setRead(e.target.checked)} />
+              <span className={s.checkBox} aria-hidden />
+              <span>{t('contractConfirmCheck')}</span>
+            </label>
+          )}
+          <button type="button" className={`btn btn-primary btn-block ${s.confirmBtn}`} disabled={!agreed} onClick={onConfirm}>
             {t('contractConfirm')}
           </button>
         </div>

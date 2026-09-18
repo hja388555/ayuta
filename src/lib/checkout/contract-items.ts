@@ -188,7 +188,8 @@ export function categoryContractFacts(
   contractItems: readonly ContractItem[],
   rawSelection: unknown,
   locale: 'ko' | 'ja',
-): { productName: string; channels: string; country: string } {
+  book: PriceBook,
+): { productName: string; channels: string; country: string; contents: string; contentCount: string } {
   // contractItems 는 tier 모델에서 "등급"/"플랫폼" 라벨로 쌓인다(위 buildContractItems).
   // 플랫폼은 필수 선택이 아니라 비어 있을 수 있다 — undefined 로 두면 missing 판정으로
   // 1번 주문이 전부 막히므로 명시적 대시로 채운다(buyerContractFields 와 같은 관례)
@@ -196,5 +197,26 @@ export function categoryContractFacts(
     productName: contractItems.find((item) => item.label === TIER_ITEM_LABELS.tier[locale])?.value ?? '-',
     channels: contractItems.find((item) => item.label === TIER_ITEM_LABELS.platform[locale])?.value ?? '-',
     country: countryFactValue(rawSelection, locale),
+    ...tierContentFacts(book, rawSelection, locale),
   }
+}
+
+/**
+ * 1번 계약서 「선택 콘텐츠 / 콘텐츠 수량」 — 고른 등급의 제공 콘텐츠 표(tierForm.rows)를 펼친다.
+ * 표의 첫 줄(총 콘텐츠 갯수)이 수량, 나머지가 콘텐츠 목록이다. 개수가 아니라 제공 여부로만
+ * 적힌 칸("V")은 항목 이름만 싣는다. 등급을 둘 이상 골랐으면 등급 이름을 앞에 붙인다.
+ */
+export function tierContentFacts(book: PriceBook, rawSelection: unknown, locale: 'ko' | 'ja'): { contents: string; contentCount: string } {
+  const rows = messagesFor(locale).tierForm.rows as { label: string; basic: string; standard: string; premium: string }[]
+  const sel = typeof rawSelection === 'object' && rawSelection !== null ? (rawSelection as { tiers?: unknown }) : {}
+  const tiers = asStringArray(sel.tiers).filter((t): t is 'basic' | 'standard' | 'premium' => t === 'basic' || t === 'standard' || t === 'premium')
+  if (tiers.length === 0) return { contents: '-', contentCount: '-' }
+
+  const [countRow, ...contentRows] = rows
+  const withTier = (tier: string, text: string) => (tiers.length > 1 ? `${book.entries[tier]?.label ?? tier}: ${text}` : text)
+  const contents = tiers
+    .map((tier) => withTier(tier, contentRows.map((r) => (r[tier] === 'V' ? r.label : `${r.label} ${r[tier]}`)).join(', ')))
+    .join(' / ')
+  const contentCount = countRow ? tiers.map((tier) => withTier(tier, countRow[tier])).join(' / ') : '-'
+  return { contents, contentCount }
 }

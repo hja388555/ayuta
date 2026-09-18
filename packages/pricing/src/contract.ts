@@ -4,6 +4,9 @@ export type ContractFacts = {
   productName?: string
   country?: string
   channels?: string
+  // 1번 등급 상품의 제공 콘텐츠 — 등급 표에서 펼쳐 넣는다(선택 콘텐츠 / 총 수량)
+  contents?: string
+  contentCount?: string
   amount: number
   currency: 'KRW' | 'JPY'
   contractDate: string
@@ -57,6 +60,8 @@ export function fillContract(template: string, facts: ContractFacts): { text: st
     productName: facts.productName,
     country: facts.country,
     channels: facts.channels,
+    contents: facts.contents,
+    contentCount: facts.contentCount,
     amount: formatAmount(facts.amount, facts.currency),
     contractDate: facts.contractDate,
     buyerName: facts.buyerName,

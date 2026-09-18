@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { fillContract } from '@ayuta/pricing'
+import type { PriceBook } from '@ayuta/pricing'
 import { BUYER_PLACEHOLDERS_PENDING, fillBuyerPreview, markConsentBoxes } from './contract-preview'
 import { categoryContractFacts } from './contract-items'
 import { buyerContractFields } from './orderer'
@@ -24,6 +25,8 @@ const TEMPLATE = [
   '서명 {{signature}}',
 ].join('\n')
 
+const BOOK: PriceBook = { currency: 'KRW', entries: {} }
+
 const baseFacts = () => {
   const items = [
     { label: '등급', value: '스탠다드' },
@@ -34,7 +37,7 @@ const baseFacts = () => {
     currency: 'KRW' as const,
     contractDate: '2026년 9월 12일',
     items,
-    ...categoryContractFacts(items, { country: ['kr', 'jp'] }, 'ko'),
+    ...categoryContractFacts(items, { country: ['kr', 'jp'] }, 'ko', BOOK),
   }
 }
 
@@ -61,7 +64,7 @@ describe('결제 화면 계약서 미리보기', () => {
   })
 
   it('플랫폼을 안 골랐으면 채널은 대시다', () => {
-    expect(categoryContractFacts([{ label: '등급', value: '베이직' }], { country: ['kr'] }, 'ko')).toEqual({ productName: '베이직', channels: '-', country: '한국' })
+    expect(categoryContractFacts([{ label: '등급', value: '베이직' }], { country: ['kr'] }, 'ko', BOOK)).toMatchObject({ productName: '베이직', channels: '-', country: '한국' })
   })
 
   it('아직 서명 전이거나 모르는 칸은 원문 {{…}} 대신 — 로 보인다', () => {

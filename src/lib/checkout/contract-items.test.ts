@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { minor, type PriceBook } from '@ayuta/pricing'
-import { buildContractItems, countryFactValue, unpricedReviewRows } from './contract-items'
+import { buildContractItems, countryFactValue, unpricedReviewRows , tierContentFacts } from './contract-items'
 import { CATEGORIES } from '../categories'
 
 const emptyBook: PriceBook = { currency: 'KRW', entries: {} }
@@ -157,5 +157,26 @@ describe('unpricedReviewRows — 주문 내역 확인의 금액 없는 줄', () 
 
   it('3번은 금액 없는 줄이 없다', () => {
     expect(unpricedReviewRows(def(3), { items: ['x'] }, 'ko')).toEqual([])
+  })
+})
+
+describe('1번 선택 콘텐츠·수량', () => {
+  const book: PriceBook = { currency: 'KRW', entries: { basic: { key: 'basic', label: '베이직', amount: minor(1) }, premium: { key: 'premium', label: '프리미엄', amount: minor(3) } } }
+
+  it('고른 등급의 제공 콘텐츠 표를 펼친다', () => {
+    const { contents, contentCount } = tierContentFacts(book, { tiers: ['premium'] }, 'ko')
+    expect(contentCount).toBe('30개')
+    expect(contents).toContain('릴스 · 숏폼영상 6개')
+    expect(contents).toContain('SNS 업로드')
+    expect(contents).not.toContain('V')
+  })
+
+  it('등급을 둘 고르면 등급 이름을 앞에 붙인다', () => {
+    const { contentCount } = tierContentFacts(book, { tiers: ['basic', 'premium'] }, 'ko')
+    expect(contentCount).toBe('베이직: 10개 / 프리미엄: 30개')
+  })
+
+  it('등급이 없으면(다른 카테고리) 대시다', () => {
+    expect(tierContentFacts(book, { items: ['a'] }, 'ja')).toEqual({ contents: '-', contentCount: '-' })
   })
 })

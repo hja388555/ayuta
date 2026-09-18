@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import type { PriceBook } from '@ayuta/pricing'
 import type { ConsentDef } from '@/lib/checkout/consents'
-import { fillBuyerPreview, markConsentBoxes } from '../lib/checkout/contract-preview'
+import { fillBuyerPreview } from '../lib/checkout/contract-preview'
 import { clearOrdererDraft, readOrdererDraft, writeOrdererDraft } from '../lib/checkout/orderer-draft'
 import type { CheckoutLabels } from '@/lib/checkout/labels'
 import { defaultPhoneCountry, initialPhoneInput, isPhoneCountry, isValidPhone, type PhoneCountry } from '../lib/phone'
@@ -177,6 +177,10 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
   // 주문 내역 확인(2)은 볼 것만 있는 단계라 주문자 정보가 끝나면 곧바로 계약서 동의(3)로 넘어간다
   const currentStep = errorCount > 0 ? 1 : !consentsDone ? 3 : 4
   const summary = labels.errSummary.replace('{count}', String(errorCount))
+  // 약관·개인정보는 결제 화면에서 바로 체크하고, 계약서 항목은 계약서 팝업 안에서 체크한다
+  const publicConsents = template.consents.filter((c) => PUBLIC_DOC_KEYS.has(c.key))
+  const contractConsents = template.consents.filter((c) => !PUBLIC_DOC_KEYS.has(c.key))
+  const contractAgreed = contractConsents.length > 0 && contractConsents.every((c) => checked[c.key] === true)
 
   function setField(key: OrdererField, value: string) {
     setOrderer((prev) => ({ ...prev, [key]: value }))
@@ -358,41 +362,55 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
 
           <section className={s.card} aria-labelledby="co-contract">
             <StepTitle id="co-contract" title={labels.contractTitle} />
-            {template.consents.map((c) => (
+            {publicConsents.map((c) => (
               <div key={c.key} className={`choice ${s.consent}`}>
                 <label className={s.consentLabel}>
                   <input
                     type="checkbox"
                     checked={checked[c.key] === true}
-                    onChange={(e) => {
-                      // 약관류(이용약관 등)는 주문자 정보와 무관하다 — 계약서 동의만 막는다
-                      if (e.target.checked && !PUBLIC_DOC_KEYS.has(c.key) && !guardContract()) return
-                      setChecked((prev) => ({ ...prev, [c.key]: e.target.checked }))
-                    }}
+                    onChange={(e) => setChecked((prev) => ({ ...prev, [c.key]: e.target.checked }))}
                   />
                   <span className="choice-box" aria-hidden />
                   <span>{keepTail(c.label)}</span>
                 </label>
-                {PUBLIC_DOC_KEYS.has(c.key) ? (
-                  <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setViewDoc(c.key as LegalKind)}>
-                    <img src="/ui/doc.svg" alt="" width={16} height={16} />
-                    {labels.viewContent}
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className={`btn btn-secondary ${s.viewBtn}`}
-                    aria-disabled={contractLocked || undefined}
-                    onClick={() => {
-                      if (guardContract()) setShowContract(c.key)
-                    }}
-                  >
-                    <img src="/ui/doc.svg" alt="" width={16} height={16} />
-                    {labels.viewContract}
-                  </button>
-                )}
+                <button type="button" className={`btn btn-secondary ${s.viewBtn}`} onClick={() => setViewDoc(c.key as LegalKind)}>
+                  <img src="/ui/doc.svg" alt="" width={16} height={16} />
+                  {labels.viewContent}
+                </button>
               </div>
             ))}
+            {/* 계약서 항목은 줄마다 세우지 않는다 — 한 줄로 묶고, 체크는 계약서 팝업 안에서 한다(2026-09-18 사용자) */}
+            {contractConsents.length > 0 ? (
+              <div className={`choice ${s.consent}`}>
+                <label className={s.consentLabel}>
+                  <input
+                    type="checkbox"
+                    checked={contractAgreed}
+                    onChange={(e) => {
+                      if (!e.target.checked) {
+                        setChecked((prev) => ({ ...prev, ...Object.fromEntries(contractConsents.map((c) => [c.key, false])) }))
+                        return
+                      }
+                      // 켤 때는 계약서를 펴서 그 안에서 항목별로 체크하게 한다
+                      if (guardContract()) setShowContract(contractConsents[0]!.key)
+                    }}
+                  />
+                  <span className="choice-box" aria-hidden />
+                  <span>{keepTail(labels.contractAgreeAll)}</span>
+                </label>
+                <button
+                  type="button"
+                  className={`btn btn-secondary ${s.viewBtn}`}
+                  aria-disabled={contractLocked || undefined}
+                  onClick={() => {
+                    if (guardContract()) setShowContract(contractConsents[0]!.key)
+                  }}
+                >
+                  <img src="/ui/doc.svg" alt="" width={16} height={16} />
+                  {labels.viewContract}
+                </button>
+              </div>
+            ) : null}
             {contractLocked && contractBlocked ? (
               <p className={s.contractLock} role="alert">
                 {labels.contractNeedsOrderer}
@@ -412,19 +430,17 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
           <ContractDialog
             open={showContract !== null}
             onClose={() => setShowContract(null)}
-            onConfirm={() => {
-              if (showContract) setChecked((prev) => ({ ...prev, [showContract]: true }))
-              setShowContract(null)
+            onConfirm={() => setShowContract(null)}
+            consentControl={{
+              keys: contractConsents.map((c) => c.key),
+              checked,
+              onToggle: (key, next) => setChecked((prev) => ({ ...prev, [key]: next })),
             }}
             title={template.title}
             closeLabel={labels.close}
             contractText={
               showContract !== null
-                ? markConsentBoxes(
-                    fillBuyerPreview(template.body, { ...orderer, phone: phoneForSubmit(orderer.phone, orderer.phoneCountry) }, signature),
-                    template.consents.map((c) => c.key),
-                    checked,
-                  )
+                ? fillBuyerPreview(template.body, { ...orderer, phone: phoneForSubmit(orderer.phone, orderer.phoneCountry) }, signature)
                 : ''
             }
           />

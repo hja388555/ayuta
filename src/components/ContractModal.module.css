@@ -76,3 +76,17 @@
   .itemsTotal span { width: auto; font-size: 14px; }
   .itemsTotal strong { font-size: 17px; }
 }
+
+/* 본문 끝 동의 줄 — 원문의 ☐ 자리에 실제 체크칸을 둔다(2026-09-18 사용자) */
+.consentList { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.consent { position: relative; display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 0 18px; border: 1px solid var(--c-line); border-radius: 12px; font-size: 16px; font-weight: 700; line-height: 1.6; color: var(--ink-900); cursor: pointer; }
+.consent input { position: absolute; opacity: 0; pointer-events: none; }
+.consentBox { flex: none; width: 22px; height: 22px; border: 1.6px solid var(--brand-600); border-radius: 7px; background: #fff; }
+.consent:has(input:checked) { border-color: var(--brand-600); background: var(--brand-50); }
+.consent:has(input:checked) .consentBox { background: var(--brand-600) url('/ui/modal-check.svg') center / 14px 14px no-repeat; }
+.consent:has(input:focus-visible) { outline: 2px solid var(--brand-600); outline-offset: 2px; }
+.consentPlain { font-size: 16px; line-height: 1.7; color: var(--ink-700); }
+@media (max-width: 767px) {
+  .consent { min-height: 50px; padding: 0 14px; font-size: 14px; }
+  .consentPlain { font-size: 14px; }
+}

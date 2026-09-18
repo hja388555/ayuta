@@ -227,7 +227,7 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
 
       // 1번 계약서 제1조의 "선택 상품 / 선택 채널 / 광고 국가"는 {{items}}가 아니라 각자의 자리로
       // 채운다 — 원문(§B)이 줄마다 따로 라벨을 붙여 두기 때문이다. 결제 화면 미리보기와 같은 함수를 쓴다
-      const contractFacts = categoryContractFacts(contractItems, input.selection, input.locale)
+      const contractFacts = categoryContractFacts(contractItems, input.selection, input.locale, book)
 
       return {
         amount: quote.total,

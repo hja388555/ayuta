@@ -30,6 +30,7 @@ export const CHECKOUT_LABEL_KEYS = [
   'contractTitle',
   'viewContent',
   'viewContract',
+  'contractAgreeAll',
   'signatureLabel',
   'payTitle',
   'payCard',

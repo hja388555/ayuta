@@ -508,6 +508,7 @@
     "representative": "대표자 성명",
     "contractTitle": "계약서 동의",
     "viewContract": "계약서보기",
+    "contractAgreeAll": "계약서 내용을 모두 확인하고 동의합니다.",
     "signatureLabel": "위 계약 내용에 동의하며 아래 이름으로 전자서명합니다.",
     "payButton": "{amount} 결제하기",
     "submitting": "처리 중...",

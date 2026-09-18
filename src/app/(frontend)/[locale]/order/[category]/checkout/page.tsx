@@ -113,7 +113,7 @@ export default async function CheckoutPage({ params, searchParams }: Props) {
     contractDate,
     ...BUYER_PLACEHOLDERS_PENDING,
     items: contractItems,
-    ...categoryContractFacts(contractItems, rawSelection, contractLocale),
+    ...categoryContractFacts(contractItems, rawSelection, contractLocale, book),
     ...(await loadCompanyContractFields(contractLocale)),
   })
 

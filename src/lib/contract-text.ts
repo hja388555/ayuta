@@ -12,10 +12,11 @@ export type ContractItemRow = { label: string; value: string }
 /** ──── 로 감싼 「선택 상품 내용」 구간. caption·total 은 원문 글자 그대로다 */
 export type ContractItemsBlock = { caption: string; rows: ContractItemRow[]; total: ContractItemRow | null }
 
-export type ContractBlock = { heading: string | null; body: string } | { items: ContractItemsBlock }
+export type ContractBlock = { heading: string | null; body: string } | { items: ContractItemsBlock } | { consents: string[] }
 
 const ARTICLE = /^\s*제\s*\d+\s*조(?![가-힣])/
 const DIVIDER = /^\s*─{5,}\s*$/
+const CONSENT_LINE = /^\s*[☐☑]\s*(.+?)\s*$/
 
 export function isArticleHeading(line: string): boolean {
   return ARTICLE.test(line)
@@ -54,10 +55,25 @@ function findItemsBlock(lines: string[]): { start: number; end: number; items: C
 function splitArticles(lines: string[]): ContractBlock[] {
   const blocks: ContractBlock[] = []
   let cur: { heading: string | null; lines: string[] } = { heading: null, lines: [] }
+  let consents: string[] = []
   const flush = () => {
     if (cur.heading !== null || cur.lines.length > 0) blocks.push({ heading: cur.heading, body: cur.lines.join('\n') })
   }
+  const flushConsents = () => {
+    if (consents.length > 0) blocks.push({ consents })
+    consents = []
+  }
   for (const line of lines) {
+    const consent = CONSENT_LINE.exec(line)
+    if (consent) {
+      flush()
+      cur = { heading: null, lines: [] }
+      consents.push(consent[1]!)
+      continue
+    }
+    // ☐ 줄 사이의 빈 줄은 버린다 — 동의 묶음이 갈라지지 않는다
+    if (consents.length > 0 && !line.trim()) continue
+    flushConsents()
     if (isArticleHeading(line)) {
       flush()
       cur = { heading: line, lines: [] }
@@ -66,6 +82,7 @@ function splitArticles(lines: string[]): ContractBlock[] {
     }
   }
   flush()
+  flushConsents()
   return blocks
 }
 

@@ -89,3 +89,21 @@ describe('선택 상품 내용 구간', () => {
     expect(splitContractBlocks(odd).every((b) => !('items' in b))).toBe(true)
   })
 })
+
+describe('동의 줄', () => {
+  it('☐ 로 시작하는 줄은 한 묶음으로 떼어 낸다 — 박스 문자는 뺀 문구만 남는다', () => {
+    const text = '제3조 (동의)\n아래를 확인합니다.\n\n☐ 금액을 확인했습니다.\n☐ 계약 내용에 동의합니다.'
+    const blocks = splitContractBlocks(text)
+    const consents = blocks.find((b) => 'consents' in b)
+    expect(consents).toEqual({ consents: ['금액을 확인했습니다.', '계약 내용에 동의합니다.'] })
+    expect(blocks.filter((b) => !('consents' in b)).map((b) => ('body' in b ? b.body : '')).join('\n')).not.toContain('☐')
+  })
+
+  it('이미 체크된 계약서(☑)도 같은 묶음이다', () => {
+    expect(splitContractBlocks('☑ 확인했습니다.')).toEqual([{ consents: ['확인했습니다.'] }])
+  })
+
+  it('동의 줄이 없으면 묶음도 없다', () => {
+    expect(splitContractBlocks('제1조 목적\n내용').some((b) => 'consents' in b)).toBe(false)
+  })
+})

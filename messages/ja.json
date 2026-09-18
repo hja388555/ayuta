@@ -509,6 +509,7 @@
     "representative": "代表者名",
     "contractTitle": "契約書への同意",
     "viewContract": "契約書を見る",
+    "contractAgreeAll": "契約書の内容をすべて確認し同意します。",
     "signatureLabel": "上記の契約内容に同意し、以下の名前で電子署名します。",
     "payButton": "{amount} 支払う",
     "submitting": "処理中...",

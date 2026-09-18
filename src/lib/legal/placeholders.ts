@@ -12,6 +12,8 @@ const EVERY_FACT: Required<ContractFacts> = {
   productName: 'x',
   country: 'x',
   channels: 'x',
+  contents: 'x',
+  contentCount: 'x',
   amount: 0,
   currency: 'KRW',
   contractDate: 'x',
