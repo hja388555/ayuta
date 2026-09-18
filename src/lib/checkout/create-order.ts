@@ -14,6 +14,7 @@ import { loadCategoryModel } from '../pricing-model'
 import { nextOrderNumber } from '../order-counter'
 import { loadCompanyContractFields } from '../company-settings'
 import { OrdererSchema, buyerContractFields, normalizeOrdererPhone, type Orderer } from './orderer'
+import { markConsentBoxes } from './contract-preview'
 import { allRequiredChecked, withBaseConsents, type ConsentDef } from './consents'
 import { consentSnapshot } from './consent-snapshot'
 import { buildContractItems, categoryContractFacts, type ContractItem } from './contract-items'
@@ -300,7 +301,7 @@ export async function persistOrder(args: PersistOrderArgs): Promise<CreateOrderR
   const contractSource = args.quoteContractBody ?? (template ? (template.body as string) : null)
   if (!contractSource) return { ok: false, reason: 'no_contract' }
 
-  const { text: contractText, missing } = fillContract(contractSource, {
+  const { text: filledContract, missing } = fillContract(contractSource, {
     amount: lines.amount,
     currency: args.currency,
     contractDate,
@@ -313,6 +314,14 @@ export async function persistOrder(args: PersistOrderArgs): Promise<CreateOrderR
     ...(await loadCompanyContractFields(args.locale)),
   })
   if (missing.length > 0) return { ok: false, reason: 'contract_incomplete', detail: missing }
+
+  // 본문 끝 ☐ 줄은 결제 화면의 동의 항목과 같은 것이다 — 체크한 대로 ☑ 로 굳혀 저장한다.
+  // 기본 동의(약관·개인정보)는 본문에 줄이 없으므로 템플릿 동의만 짝을 맞춘다
+  const contractText = markConsentBoxes(
+    filledContract,
+    templateConsents.map((c) => c.key),
+    args.consents,
+  )
 
   // 6. 주문번호 채번
   const orderNumber = await nextOrderNumber('AY', now)

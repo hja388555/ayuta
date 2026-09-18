@@ -37,3 +37,19 @@ export function fillBuyerPreview(text: string, orderer: PreviewOrderer, signatur
   const values: Record<string, string> = { ...buyer, buyerName: orderer.name, signature }
   return text.replace(/\{\{(\w+)\}\}/g, (_whole, key: string) => values[key]?.trim() || EMPTY_MARK)
 }
+
+/**
+ * 계약서 본문 아래쪽 ☐ 줄을 동의 상태에 맞춰 ☑ 로 바꾼다.
+ * 원안 계약서는 마지막에 체크박스 줄을 달고 있고, 결제 화면의 동의 항목이 바로 그 줄들이다 —
+ * 순서가 같으므로 나타나는 순서대로 짝을 맞춘다. 줄 수가 동의 항목 수와 다르면 손대지 않는다
+ * (본문을 바꿀 때 조용히 엉뚱한 줄이 체크되는 것보다 그냥 원문이 낫다).
+ */
+export function markConsentBoxes(text: string, consentKeys: string[], checked: Record<string, boolean>): string {
+  const boxes = text.match(/☐/g)
+  if (!boxes || boxes.length !== consentKeys.length) return text
+  let i = 0
+  return text.replace(/☐/g, () => {
+    const key = consentKeys[i++]
+    return key && checked[key] ? '☑' : '☐'
+  })
+}

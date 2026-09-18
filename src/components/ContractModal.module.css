@@ -52,3 +52,26 @@
   .check { min-height: 54px; padding: 0 14px; font-size: 13px; }
   .confirmBtn { height: 52px; font-size: 16px; }
 }
+
+/* 「선택 상품 내용」 — 계약서 본문 속에서 눈에 띄어야 한다(고객 요청 2026-09-18).
+   원문의 ──── 문자 선은 폭이 좁으면 갈라지므로 여기서 진짜 테두리로 그린다 */
+.items { border: 1px solid var(--c-line); border-radius: 12px; background: var(--surface); overflow: hidden; }
+.itemsCaption { margin: 0; padding: 14px 18px; border-bottom: 1px solid var(--c-line); background: var(--c-sel-bg); color: var(--c-title); font-size: 17px; font-weight: 700; line-height: 1.4; }
+.itemsRows { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 16px 18px; }
+.itemsRow { display: flex; gap: 12px; }
+.itemsRow dt { flex: none; width: 130px; font-size: 15px; line-height: 1.7; color: var(--ink-500); }
+.itemsRow dd { flex: 1; min-width: 0; margin: 0; font-size: 15px; line-height: 1.7; color: var(--ink-900); overflow-wrap: anywhere; }
+.itemsTotal { display: flex; align-items: center; gap: 12px; padding: 16px 18px; border-top: 1px solid var(--c-line); background: #fff; }
+.itemsTotal span { flex: none; width: 130px; font-size: 16px; font-weight: 700; color: var(--c-title); }
+.itemsTotal strong { font-size: 20px; font-weight: 700; color: var(--c-primary); overflow-wrap: anywhere; }
+
+@media (max-width: 767px) {
+  .itemsCaption { padding: 12px 14px; font-size: 15px; }
+  .itemsRows { padding: 14px; }
+  .itemsRow { flex-direction: column; gap: 2px; }
+  .itemsRow dt { width: auto; font-size: 13px; }
+  .itemsRow dd { font-size: 14px; }
+  .itemsTotal { padding: 14px; }
+  .itemsTotal span { width: auto; font-size: 14px; }
+  .itemsTotal strong { font-size: 17px; }
+}

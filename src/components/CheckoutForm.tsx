@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import type { PriceBook } from '@ayuta/pricing'
 import type { ConsentDef } from '@/lib/checkout/consents'
-import { fillBuyerPreview } from '../lib/checkout/contract-preview'
+import { fillBuyerPreview, markConsentBoxes } from '../lib/checkout/contract-preview'
 import { clearOrdererDraft, readOrdererDraft, writeOrdererDraft } from '../lib/checkout/orderer-draft'
 import type { CheckoutLabels } from '@/lib/checkout/labels'
 import { defaultPhoneCountry, initialPhoneInput, isPhoneCountry, isValidPhone, type PhoneCountry } from '../lib/phone'
@@ -418,7 +418,15 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
             }}
             title={template.title}
             closeLabel={labels.close}
-            contractText={showContract !== null ? fillBuyerPreview(template.body, { ...orderer, phone: phoneForSubmit(orderer.phone, orderer.phoneCountry) }, signature) : ''}
+            contractText={
+              showContract !== null
+                ? markConsentBoxes(
+                    fillBuyerPreview(template.body, { ...orderer, phone: phoneForSubmit(orderer.phone, orderer.phoneCountry) }, signature),
+                    template.consents.map((c) => c.key),
+                    checked,
+                  )
+                : ''
+            }
           />
           <LegalConsentModal kind={viewDoc} locale={locale} onClose={() => setViewDoc(null)} onAgree={(k) => setChecked((prev) => ({ ...prev, [k]: true }))} />
 

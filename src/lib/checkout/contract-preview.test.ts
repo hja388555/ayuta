@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { fillContract } from '@ayuta/pricing'
-import { BUYER_PLACEHOLDERS_PENDING, fillBuyerPreview } from './contract-preview'
+import { BUYER_PLACEHOLDERS_PENDING, fillBuyerPreview, markConsentBoxes } from './contract-preview'
 import { categoryContractFacts } from './contract-items'
 import { buyerContractFields } from './orderer'
 
@@ -71,5 +71,16 @@ describe('결제 화면 계약서 미리보기', () => {
 
   it('주문자가 입력한 {{…}} 는 다시 치환되지 않는다', () => {
     expect(fillBuyerPreview('{{buyerName}} {{buyerEmail}}', { ...orderer, name: '{{buyerEmail}}' }, '')).toBe('{{buyerEmail}} hong@example.com')
+  })
+  it('체크한 동의만 본문 ☐ 가 ☑ 로 바뀐다', () => {
+    const body = '☐ 금액 확인\n☐ 계약 동의\n☐ 환불 동의'
+    const keys = ['amount', 'contract', 'refund']
+    expect(markConsentBoxes(body, keys, { amount: true, refund: true })).toBe('☑ 금액 확인\n☐ 계약 동의\n☑ 환불 동의')
+  })
+
+  it('☐ 줄 수와 동의 항목 수가 다르면 본문을 건드리지 않는다', () => {
+    const body = '☐ 금액 확인\n☐ 계약 동의'
+    expect(markConsentBoxes(body, ['amount', 'contract', 'refund'], { amount: true })).toBe(body)
+    expect(markConsentBoxes('☐ 없음 없음', [], {})).toBe('☐ 없음 없음')
   })
 })

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
-import { splitContractBlocks } from '../lib/contract-text'
+import { splitContractBlocks, type ContractItemsBlock } from '../lib/contract-text'
 import s from './ContractModal.module.css'
 
 type Content = {
@@ -14,6 +14,32 @@ type Content = {
   contractText: string
   /** 결제 시점 대표자 서명·날인. 서버가 권한 확인 후 data URI 로 넘긴다(src/lib/seal.ts) */
   seal?: { src: string; alt: string }
+}
+
+/**
+ * 「선택 상품 내용」 구간 — 원문의 ──── 문자 선 대신 진짜 테두리로, 공백 정렬 대신 두 칸으로
+ * 그린다. 좁은 폭에서 선이 갈라지지 않는다. 값이 빈 칸(촬영 예정일 등)은 라벨만 보인다.
+ */
+function ContractItems({ items }: { items: ContractItemsBlock }) {
+  return (
+    <section className={s.items}>
+      <h3 className={s.itemsCaption}>{items.caption}</h3>
+      <dl className={s.itemsRows}>
+        {items.rows.map((r, i) => (
+          <div key={`${r.label}-${i}`} className={s.itemsRow}>
+            <dt>{r.label}</dt>
+            <dd>{r.value || '—'}</dd>
+          </div>
+        ))}
+      </dl>
+      {items.total ? (
+        <div className={s.itemsTotal}>
+          <span>{items.total.label}</span>
+          <strong>{items.total.value || '—'}</strong>
+        </div>
+      ) : null}
+    </section>
+  )
 }
 
 /**
@@ -78,12 +104,16 @@ export function ContractDialog({
         ) : null}
         {notice ? <p className={s.notice}>{notice}</p> : null}
         <div className={s.text}>
-          {blocks.map((b, i) => (
-            <section key={i} className={s.article}>
-              {b.heading !== null ? <h3 className={s.articleTitle}>{b.heading}</h3> : null}
-              {b.body.trim() ? <p className={s.articleBody}>{b.body.replace(/^\n+|\n+$/g, '')}</p> : null}
-            </section>
-          ))}
+          {blocks.map((b, i) =>
+            'items' in b ? (
+              <ContractItems key={i} items={b.items} />
+            ) : (
+              <section key={i} className={s.article}>
+                {b.heading !== null ? <h3 className={s.articleTitle}>{b.heading}</h3> : null}
+                {b.body.trim() ? <p className={s.articleBody}>{b.body.replace(/^\n+|\n+$/g, '')}</p> : null}
+              </section>
+            ),
+          )}
         </div>
         {seal ? (
           <div className={s.seal}>
