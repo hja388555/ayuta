@@ -55,17 +55,18 @@
 /* 09-B 상세 */
 .sub { margin: 0; font-size: 16px; line-height: 1.5; color: var(--ink-500); }
 .section { display: flex; flex-direction: column; gap: 18px; padding: 26px 28px; border: 1px solid var(--c-line); border-radius: var(--radius-xl); background: #fff; }
-.sectionTitle { margin: 0; font-size: 20px; line-height: 1.5; color: var(--ink-900); }
+.sectionTitle { margin: 0; font-size: 22px; line-height: 1.5; color: var(--ink-900); }
 .hint { margin: 0; font-size: 15px; line-height: 1.5; color: var(--ink-500); }
 .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
 .step { display: flex; align-items: center; justify-content: center; padding: 14px 12px; border-radius: var(--radius); background: var(--surface); color: var(--ink-500); font-size: 15px; font-weight: 700; line-height: 1.5; text-align: center; }
 .stepOn { background: var(--brand-600); color: #fff; }
-.table { margin: 0; padding: 16px 20px; border-radius: var(--radius-md); background: var(--surface); }
-.row { display: flex; align-items: center; gap: 16px; padding: 10px 0; border-top: 1px solid var(--line); line-height: 1.5; }
+/* 주문 내용 표 — 정작 확인할 값이 금액보다 작아 PC 에서만 키운다. 모바일은 아래 767 규칙 그대로(2026-09-19 사용자) */
+.table { margin: 0; padding: 20px 24px; border-radius: var(--radius-md); background: var(--surface); }
+.row { display: flex; align-items: center; gap: 16px; padding: 13px 0; border-top: 1px solid var(--line); line-height: 1.5; }
 .row:first-child { padding-top: 0; border-top: 0; }
 .row:last-child { padding-bottom: 0; }
-.row dt { flex: none; width: 120px; font-size: 15px; color: var(--ink-500); }
-.row dd { flex: 1; min-width: 0; margin: 0; font-size: 17px; font-weight: 700; color: var(--ink-900); overflow-wrap: anywhere; }
+.row dt { flex: none; width: 138px; font-size: 18px; color: var(--ink-500); }
+.row dd { flex: 1; min-width: 0; margin: 0; font-size: 21px; font-weight: 700; color: var(--ink-900); overflow-wrap: anywhere; }
 .total :global(.total-bar) { padding: 22px 24px; }
 .total :global(.total-bar-label) { font-size: 18px; color: #a9b0bc; }
 .total :global(.total-bar-amount) { font-size: 30px; letter-spacing: -0.02em; }
