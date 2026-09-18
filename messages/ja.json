@@ -378,8 +378,7 @@
       "contracts": "契約書保管庫",
       "profile": "会員情報の変更",
       "password": "パスワード変更",
-      "withdraw": "退会",
-      "logout": "ログアウト"
+      "withdraw": "退会"
     },
     "summary": {
       "label": "ステータス別に表示",
