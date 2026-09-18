@@ -34,8 +34,11 @@ export function contractItemDictionary(from: Locale, to: Locale, books: { from?:
   const pairRecord = (a: Record<string, string>, b: Record<string, string>) => Object.keys(a).forEach((k) => add(a[k], b[k]))
 
   // 저장 시 로케일과 상관없이 한국어로 박히는 1번 라벨
-  add(TIER_ITEM_LABELS.tier, messagesFor(to).mypage.detail.tier)
-  add(TIER_ITEM_LABELS.platform, messagesFor(to).mypage.detail.platform)
+  // 예전 주문은 언어와 무관하게 한국어 라벨로 굳어 있고, 2026-09-18 이후 주문은 주문 언어 라벨이다
+  add(TIER_ITEM_LABELS.tier.ko, messagesFor(to).mypage.detail.tier)
+  add(TIER_ITEM_LABELS.platform.ko, messagesFor(to).mypage.detail.platform)
+  add(TIER_ITEM_LABELS.tier[from], messagesFor(to).mypage.detail.tier)
+  add(TIER_ITEM_LABELS.platform[from], messagesFor(to).mypage.detail.platform)
   for (const p of Object.values(PLATFORM_LABELS)) add(p[from], p[to])
   add(COUNTRY_ITEM_LABEL[from], COUNTRY_ITEM_LABEL[to])
   for (const c of COUNTRY_CODES) add(formatCountries([c], from), formatCountries([c], to))

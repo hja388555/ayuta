@@ -86,6 +86,11 @@ describe('buildContractItems — 1번 자동 채움 목록', () => {
     const items = buildContractItems(def1, emptyBook, { tiers: ['basic'], platforms: [] }, 'ko')
     expect(items.some((i) => i.label === '광고 국가')).toBe(false)
   })
+
+  it('일본어 계약서에는 일본어 라벨로 싣는다 — 계약서 본문에 그대로 찍히는 줄이다', () => {
+    const items = buildContractItems(def1, emptyBook, { tiers: ['basic'], platforms: ['line'], country: ['jp'] }, 'ja')
+    expect(items.map((i) => i.label)).toEqual(['グレード', 'プラットフォーム', '広告国'])
+  })
 })
 
 describe('buildContractItems — 2번은 촬영 국가라는 별개 필드다 (광고 국가를 섞지 않는다)', () => {
