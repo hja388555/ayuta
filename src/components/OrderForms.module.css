@@ -60,7 +60,8 @@
 .table thead th:first-child { color: var(--c-title); font-size: 25px; }
 .table .on { background: var(--c-sel-bg); color: var(--c-title); box-shadow: inset 0 0 0 1.6px var(--c-sel-bg); }
 .table thead th.on { background: var(--c-sel-bg); color: var(--c-title); }
-.priceRow td { padding-block: 20px; color: var(--c-title); font-size: 22px; font-weight: 700; white-space: nowrap; }
+/* 금액 줄은 표 마지막이라 아래 선이 없었다 — 경계를 하나 그어 항목과 끊는다 */
+.priceRow td { padding-block: 20px; border-bottom: 1px solid var(--c-line); color: var(--c-title); font-size: 22px; font-weight: 700; white-space: nowrap; }
 .priceRow td:first-child { font-size: 28px; white-space: normal; }
 .priceRow td.on { color: var(--c-title); }
 .tierPick { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
