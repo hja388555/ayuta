@@ -3,7 +3,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { splitContractBlocks, type ContractItemsBlock } from '../lib/contract-text'
+import { parseBoldSegments } from '../lib/contract-bold'
 import s from './ContractModal.module.css'
+
+/** 조항 본문의 `**강조**`만 굵게 그린다 — 저장된 글자는 그대로, 화면 모양만 바꾼다(contract-bold.ts) */
+function ArticleBody({ text }: { text: string }) {
+  return (
+    <p className={s.articleBody}>
+      {parseBoldSegments(text).map((seg, i) => (seg.bold ? <strong key={i}>{seg.text}</strong> : <span key={i}>{seg.text}</span>))}
+    </p>
+  )
+}
 
 type Content = {
   closeLabel: string
@@ -110,7 +120,7 @@ export function ContractDialog({
             ) : (
               <section key={i} className={s.article}>
                 {b.heading !== null ? <h3 className={s.articleTitle}>{b.heading}</h3> : null}
-                {b.body.trim() ? <p className={s.articleBody}>{b.body.replace(/^\n+|\n+$/g, '')}</p> : null}
+                {b.body.trim() ? <ArticleBody text={b.body.replace(/^\n+|\n+$/g, '')} /> : null}
               </section>
             ),
           )}

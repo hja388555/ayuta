@@ -36,6 +36,14 @@ export type ContractFacts = {
 
 const SIGN: Record<ContractFacts['currency'], string> = { KRW: '₩', JPY: '¥' }
 
+// 한국어 계약서 원문은 "총 계약금액 : ________ 원" 처럼 숫자 뒤에 단위 글자 「원」을 직접
+// 적는 빈칸이다(₩ 기호가 아니다) — docs/contracts/ko/*.txt 참조. 본문(seed)은 다른 작업이
+// 담당이라 단위를 여기, 치환 값 쪽에서 붙인다. 일본어는 원문이 이미 ¥ 기호를 쓰므로 그대로 둔다.
+function formatAmount(amount: number, currency: ContractFacts['currency']): string {
+  if (currency === 'KRW') return `${amount.toLocaleString('en-US')} 원`
+  return `${SIGN[currency]}${amount.toLocaleString('en-US')}`
+}
+
 /**
  * 계약서 빈칸을 사실로 채운다.
  *
@@ -49,7 +57,7 @@ export function fillContract(template: string, facts: ContractFacts): { text: st
     productName: facts.productName,
     country: facts.country,
     channels: facts.channels,
-    amount: `${SIGN[facts.currency]}${facts.amount.toLocaleString('en-US')}`,
+    amount: formatAmount(facts.amount, facts.currency),
     contractDate: facts.contractDate,
     buyerName: facts.buyerName,
     signature: facts.signature,

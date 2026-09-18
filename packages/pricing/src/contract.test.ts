@@ -20,9 +20,9 @@ describe('계약서 치환', () => {
     expect(text).not.toContain('{{')
   })
 
-  it('금액은 천 단위 구분과 통화 기호로 찍는다', () => {
+  it('원화는 계약서 원문대로 「원」을 붙여 찍는다', () => {
     const { text } = fillContract('{{amount}}', facts)
-    expect(text).toBe('₩1,000,000')
+    expect(text).toBe('1,000,000 원')
   })
 
   it('엔화는 엔 기호로 찍는다', () => {

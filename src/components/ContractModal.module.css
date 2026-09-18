@@ -22,6 +22,7 @@
 .article { display: flex; flex-direction: column; gap: 6px; }
 .articleTitle { margin: 0; font-size: 18px; font-weight: 700; line-height: 1.4; color: var(--ink-900); }
 .articleBody { margin: 0; white-space: pre-wrap; font-size: 16px; line-height: 1.7; color: var(--ink-700); overflow-wrap: anywhere; }
+.articleBody strong { font-weight: 700; color: var(--ink-900); }
 
 .seal { text-align: right; }
 .seal img { max-width: 160px; max-height: 100px; }
