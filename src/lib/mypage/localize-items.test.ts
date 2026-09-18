@@ -34,3 +34,15 @@ describe('localizeContractItems', () => {
     expect(localizeContractItems([{ label: '견적번호', value: '관리자가 바꾼 이름 · 10분' }], ja)).toEqual([{ label: '견적번호', value: '관리자가 바꾼 이름 · 10분' }])
   })
 })
+
+describe('1번 라벨 — 일본어로 굳은 주문도 번역한다', () => {
+  it('일본어 주문의 グレード 라벨을 한국어 화면에서 등급으로 바꾼다', () => {
+    const dict = contractItemDictionary('ja', 'ko')
+    expect(localizeContractItems([{ label: 'グレード', value: 'ベーシック' }], dict)).toEqual([{ label: '등급', value: 'ベーシック' }])
+  })
+
+  it('한국어로 굳은 예전 주문도 그대로 번역한다', () => {
+    const dict = contractItemDictionary('ja', 'ko')
+    expect(localizeContractItems([{ label: '등급', value: '베이직' }], dict)).toEqual([{ label: '등급', value: '베이직' }])
+  })
+})

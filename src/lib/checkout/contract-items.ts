@@ -23,8 +23,13 @@ export const PLATFORM_LABELS: Record<string, { ko: string; ja: string }> = {
 // 1번은 별도 자리({{country}})로 채우므로 여기 섞지 않고, 2번(videoPairs)은 "촬영 국가"라는
 // 다른 필드라 이 라벨을 쓰지 않는다 — 아래에서 모델 종류로 갈라진다.
 export const COUNTRY_ITEM_LABEL: { ko: string; ja: string } = { ko: '광고 국가', ja: '広告国' }
-// 1번(tier) 항목 라벨. 로케일과 무관하게 이 한국어로 저장된다 — 마이페이지는 보여 줄 때만 번역한다(mypage/localize-items.ts)
-export const TIER_ITEM_LABELS = { tier: '등급', platform: '플랫폼' } as const
+// 1번(tier) 항목 라벨. 계약서 본문에 그대로 찍히므로 계약서 언어로 쓴다 — 일본어 계약서에
+// 한국어 라벨이 남으면 안 된다(2026-09-18, 1번에 자동 채움 표가 생기면서 드러났다).
+// 2026-09-18 전 주문은 한국어 라벨로 굳어 있어 마이페이지 사전이 두 표기를 모두 받는다.
+export const TIER_ITEM_LABELS: { tier: { ko: string; ja: string }; platform: { ko: string; ja: string } } = {
+  tier: { ko: '등급', ja: 'グレード' },
+  platform: { ko: '플랫폼', ja: 'プラットフォーム' },
+}
 
 type Messages = typeof koMessages
 
@@ -62,9 +67,9 @@ export function buildContractItems(
     const tiers = asStringArray(sel.tiers)
     const platforms = asStringArray(sel.platforms)
     const items: ContractItem[] = []
-    if (tiers.length > 0) items.push({ label: TIER_ITEM_LABELS.tier, value: tiers.map(labelForKey).join(', ') })
+    if (tiers.length > 0) items.push({ label: TIER_ITEM_LABELS.tier[locale], value: tiers.map(labelForKey).join(', ') })
     if (platforms.length > 0) {
-      items.push({ label: TIER_ITEM_LABELS.platform, value: platforms.map((p) => PLATFORM_LABELS[p]?.[locale] ?? p).join(', ') })
+      items.push({ label: TIER_ITEM_LABELS.platform[locale], value: platforms.map((p) => PLATFORM_LABELS[p]?.[locale] ?? p).join(', ') })
     }
     // 1번도 계약서 끝의 자동 채움 목록에 광고 국가를 싣는다(2026-09-18 대표님 요청) —
     // 제1조 {{country}}와 같은 값이지만, 서명 바로 위에서 주문 내역을 한 번 더 확인한다
@@ -188,8 +193,8 @@ export function categoryContractFacts(
   // 플랫폼은 필수 선택이 아니라 비어 있을 수 있다 — undefined 로 두면 missing 판정으로
   // 1번 주문이 전부 막히므로 명시적 대시로 채운다(buyerContractFields 와 같은 관례)
   return {
-    productName: contractItems.find((item) => item.label === '등급')?.value ?? '-',
-    channels: contractItems.find((item) => item.label === '플랫폼')?.value ?? '-',
+    productName: contractItems.find((item) => item.label === TIER_ITEM_LABELS.tier[locale])?.value ?? '-',
+    channels: contractItems.find((item) => item.label === TIER_ITEM_LABELS.platform[locale])?.value ?? '-',
     country: countryFactValue(rawSelection, locale),
   }
 }
