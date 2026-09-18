@@ -226,8 +226,8 @@ export async function sendMessage(payload: Payload, thread: ChatThread, sender: 
  * 고객은 문의를 남긴 직후 답을 기다리는지 알 수 없어서, 사람이 붙기 전까지 이 한 줄이 그 자리를 채운다.
  * 번역 API 를 부르지 않고 두 언어를 같이 넣는다 — 관리자는 한국어, 일본어 방 고객은 일본어로 읽는다.
  */
-const GREETING_KO = '안녕하세요, AYUTA입니다. 남겨주신 문의는 확인 후 순차적으로 답변드리겠습니다.'
-const GREETING_JA = 'こんにちは、AYUTAです。いただいたお問い合わせを確認のうえ、順次ご返信いたします。'
+const GREETING_KO = '9~18시까지 전화 상담시간\n일요일 휴무지만 예약은 받고 있습니다\n예약을 남겨주세요 순차적으로 처리해드립니다'
+const GREETING_JA = '電話相談は9時から18時までです\n日曜は休業ですが、ご予約は承っております\nご予約を残していただければ順次対応いたします'
 
 export async function sendGreeting(payload: Payload, thread: ChatThread): Promise<void> {
   const ja = toChatLocale(thread.locale) === 'ja'
