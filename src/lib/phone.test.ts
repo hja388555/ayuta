@@ -3,6 +3,7 @@ import {
   defaultPhoneCountry,
   formatPhone,
   formatPhoneForContract,
+  clampPhoneInput,
   initialPhoneInput,
   isValidPhone,
   normalizePhone,
@@ -139,15 +140,27 @@ describe('입력칸 도우미', () => {
     expect(defaultPhoneCountry({ coverCountries: ['xx'], locale: 'ja' })).toBe('JP')
     expect(defaultPhoneCountry({})).toBe('KR')
   })
-  it('저장값을 나라·국내 표기로 푼다. 예전 값은 그대로', () => {
-    expect(initialPhoneInput('+819012345678', 'KR')).toEqual({ country: 'JP', value: '090-1234-5678' })
+  it('저장값을 나라·입력칸 표기(앞 0 없는 10자리)로 푼다. 예전 값은 그대로', () => {
+    expect(initialPhoneInput('+819012345678', 'KR')).toEqual({ country: 'JP', value: '9012345678' })
     expect(initialPhoneInput('010-1234-5678', 'JP')).toEqual({ country: 'JP', value: '010-1234-5678' })
     expect(initialPhoneInput(undefined, 'KR')).toEqual({ country: 'KR', value: '' })
   })
-  it('칸을 벗어날 때: 올바르면 국내 표기, 국가번호면 나라도 바꾼다', () => {
-    expect(tidyPhoneInput('01012345678', 'KR')).toEqual({ country: 'KR', value: '010-1234-5678' })
-    expect(tidyPhoneInput('+81 9012345678', 'KR')).toEqual({ country: 'JP', value: '090-1234-5678' })
+  it('칸을 벗어날 때: 올바르면 앞 0 없는 번호, 국가번호면 나라도 바꾼다', () => {
+    expect(tidyPhoneInput('01012345678', 'KR')).toEqual({ country: 'KR', value: '1012345678' })
+    expect(tidyPhoneInput('+81 9012345678', 'KR')).toEqual({ country: 'JP', value: '9012345678' })
     expect(tidyPhoneInput('0101234', 'KR')).toBeNull()
+  })
+  it('입력칸은 숫자만 받고 앞 0 을 떼고 10자리에서 끊는다', () => {
+    expect(clampPhoneInput('010-1234-5678', 'KR')).toBe('1012345678')
+    expect(clampPhoneInput('090-1234-5678', 'JP')).toBe('9012345678')
+    expect(clampPhoneInput('10123456789999', 'KR')).toBe('1012345678')
+    expect(clampPhoneInput('90123456789999', 'JP')).toBe('9012345678')
+    expect(clampPhoneInput('abc', 'KR')).toBe('')
+  })
+  it('앞 0 없이 적은 번호도 그 나라 번호로 읽는다', () => {
+    expect(normalizePhone('1012345678', 'KR')).toBe('+821012345678')
+    expect(normalizePhone('9012345678', 'JP')).toBe('+819012345678')
+    expect(normalizePhone('15881234', 'KR')).toBe('+8215881234')
   })
 })
 

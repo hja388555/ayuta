@@ -119,7 +119,9 @@ export async function getOrCreateOwnThread(payload: Payload, userId: number, loc
   const found = await findOwnThread(payload, userId)
   if (found) return found
   try {
-    return await payload.create({ collection: 'chat-threads', data: { customer: userId, locale, status: 'open', unreadForAdmin: 0, unreadForCustomer: 0 }, overrideAccess: true })
+    const thread = await payload.create({ collection: 'chat-threads', data: { customer: userId, locale, status: 'open', unreadForAdmin: 0, unreadForCustomer: 0 }, overrideAccess: true })
+    await sendGreeting(payload, thread)
+    return thread
   } catch (err) {
     // 동시에 두 요청이 방을 만들면 unique 에 걸린다 — 먼저 만들어진 방을 쓴다
     const again = await findOwnThread(payload, userId)
@@ -217,6 +219,37 @@ export async function sendMessage(payload: Payload, thread: ChatThread, sender: 
     [message.createdAt, isCustomer ? 1 : 0, isCustomer ? 0 : 1, isCustomer, thread.id],
   )
   return { message }
+}
+
+/**
+ * 방이 처음 열릴 때 담당자 이름으로 넣는 안내 한 줄(2026-09-18 사용자).
+ * 고객은 문의를 남긴 직후 답을 기다리는지 알 수 없어서, 사람이 붙기 전까지 이 한 줄이 그 자리를 채운다.
+ * 번역 API 를 부르지 않고 두 언어를 같이 넣는다 — 관리자는 한국어, 일본어 방 고객은 일본어로 읽는다.
+ */
+const GREETING_KO = '안녕하세요, AYUTA입니다. 남겨주신 문의는 확인 후 순차적으로 답변드리겠습니다.'
+const GREETING_JA = 'こんにちは、AYUTAです。いただいたお問い合わせを確認のうえ、順次ご返信いたします。'
+
+export async function sendGreeting(payload: Payload, thread: ChatThread): Promise<void> {
+  const ja = toChatLocale(thread.locale) === 'ja'
+  const message = await payload.create({
+    collection: 'chat-messages',
+    data: {
+      thread: thread.id,
+      sender: 'admin',
+      senderUser: null,
+      senderEmail: null,
+      body: GREETING_KO,
+      sourceLang: 'KO',
+      translatedBody: ja ? GREETING_JA : null,
+      translatedLang: ja ? 'JA' : null,
+      translationStatus: ja ? 'ok' : 'skipped',
+    },
+    overrideAccess: true,
+  })
+  await payload.db.pool.query(
+    `UPDATE chat_threads SET last_message_at = $1, updated_at = $1, unread_for_customer = unread_for_customer + 1 WHERE id = $2`,
+    [message.createdAt, thread.id],
+  )
 }
 
 export async function markRead(payload: Payload, threadId: number, who: 'customer' | 'admin') {

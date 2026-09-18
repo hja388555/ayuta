@@ -1,7 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
-import { normalizePhone, phoneErrorCountry, PHONE_COUNTRIES, PHONE_MAX, tidyPhoneInput, type PhoneCountry } from '../lib/phone'
+import { clampPhoneInput, normalizePhone, phoneErrorCountry, PHONE_COUNTRIES, PHONE_NSN_LEN, tidyPhoneInput, type PhoneCountry } from '../lib/phone'
 import s from './PhoneInput.module.css'
 
 const DIAL: Record<PhoneCountry, string> = { KR: '+82', JP: '+81' }
@@ -53,14 +53,14 @@ export function PhoneInput({ id, country, value, onChange, onBlur, invalid, desc
         type="tel"
         inputMode="tel"
         autoComplete="tel"
-        maxLength={PHONE_MAX}
+        maxLength={PHONE_NSN_LEN[country]}
         placeholder={t(country === 'JP' ? 'placeholderJP' : 'placeholderKR')}
         value={value}
         disabled={disabled}
         required={required}
         aria-invalid={invalid ? true : undefined}
         aria-describedby={describedBy}
-        onChange={(e) => onChange({ country, value: e.target.value })}
+        onChange={(e) => onChange({ country, value: clampPhoneInput(e.target.value, country) })}
         onBlur={() => {
           const tidy = tidyPhoneInput(value, country)
           if (tidy && (tidy.value !== value || tidy.country !== country)) onChange(tidy)

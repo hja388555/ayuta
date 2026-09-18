@@ -13,7 +13,8 @@
 
 .row { display: flex; align-items: center; }
 .rowMine { justify-content: flex-end; }
-.bubble { display: flex; flex-direction: column; gap: 6px; width: 520px; max-width: 80%; padding: 14px 18px; border-radius: 16px; background: #f7f8fa; }
+/* 내용만큼만 늘어난다 — 카드 폭이 672 로 줄어 고정 520 은 한 줄 메시지도 칸을 가로지른다(2026-09-18 사용자) */
+.bubble { display: flex; flex-direction: column; gap: 6px; width: fit-content; max-width: 80%; padding: 14px 18px; border-radius: 16px; background: #f7f8fa; }
 .primary { margin: 0; font-size: 16px; line-height: 1.5; color: #0b0b0c; white-space: pre-wrap; overflow-wrap: anywhere; }
 .rule { display: block; height: 1px; background: #eceef1; }
 .secondary { margin: 0; font-size: 14px; line-height: 1.5; color: #767b85; white-space: pre-wrap; overflow-wrap: anywhere; }
@@ -61,7 +62,7 @@
   .badge { font-size: 11px; }
   .card { gap: 12px; padding: 16px 14px; max-height: 60vh; }
   .row + .row { margin-top: -12px; }
-  .bubble { width: 280px; padding: 12px 14px; }
+  .bubble { padding: 12px 14px; }
   .primary { font-size: 13px; }
   .secondary { font-size: 12px; }
   .day { font-size: 11px; }

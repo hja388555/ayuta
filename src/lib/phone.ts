@@ -31,6 +31,26 @@ const JP_RULES = [/^0[5789]0\d{8}$/, /^0(?![5789]0)[1-9]\d{8}$/]
 
 export const isPhoneCountry = (v: unknown): v is PhoneCountry => v === 'KR' || v === 'JP'
 
+/**
+ * 입력칸에 들어갈 수 있는 자리수 — 국가번호를 옆에서 고르니 앞 0 을 뗀 번호(NSN)만 받는다.
+ * 한국 010-1234-5678 → 1012345678(10), 일본 090-1234-5678 → 9012345678(10).
+ */
+export const PHONE_NSN_LEN: Record<PhoneCountry, number> = { KR: 10, JP: 10 }
+
+/** 한국 대표번호(1588-1234 등)는 원래 앞 0 이 없다 — 0 을 붙이면 안 된다 */
+const KR_SERVICE_NUMBER = /^1[568]\d{6}$/
+
+/** NSN(앞 0 없는 번호)을 국내 번호(0 포함)로 */
+function toNational(nsn: string, country: PhoneCountry): string {
+  if (nsn.startsWith('0')) return nsn
+  return country === 'KR' && KR_SERVICE_NUMBER.test(nsn) ? nsn : `0${nsn}`
+}
+
+/** 입력칸이 받는 값으로 다듬는다 — 숫자만, 앞 0 제거, 나라별 자리수에서 끊는다 */
+export function clampPhoneInput(raw: string, country: PhoneCountry): string {
+  return raw.replace(/\D/g, '').replace(/^0+/, '').slice(0, PHONE_NSN_LEN[country])
+}
+
 /** 국내 번호(0 포함, 숫자만)가 그 나라 규칙에 맞는지 */
 function validNational(national: string, country: PhoneCountry): boolean {
   return (country === 'KR' ? KR_RULES : JP_RULES).some((re) => re.test(national))
@@ -47,13 +67,12 @@ export function splitPhone(raw: string, selected: PhoneCountry): { country: Phon
   const digits = v.replace(/\D/g, '')
   if (!digits || (plus && v.indexOf('+', 1) !== -1) || (!plus && v.includes('+'))) return null
   const intl = plus ? digits : digits.startsWith('00') ? digits.slice(2) : null
-  if (intl === null) return { country: selected, national: digits }
+  // 입력칸은 앞 0 을 떼고 받는다(1012345678). 0 을 붙여 적은 값도 그대로 통한다
+  if (intl === null) return { country: selected, national: toNational(digits, selected) }
   for (const country of PHONE_COUNTRIES) {
     if (intl.startsWith(DIAL[country])) {
-      const rest = intl.slice(DIAL[country].length)
-      // +82 010… 처럼 0 을 남긴 채 적는 경우가 흔하다. 한국 대표번호(1588…)는 원래 0 이 없다
-      const national = rest.startsWith('0') || (country === 'KR' && /^1[568]\d{6}$/.test(rest)) ? rest : `0${rest}`
-      return { country, national }
+      // +82 010… 처럼 0 을 남긴 채 적는 경우가 흔하다
+      return { country, national: toNational(intl.slice(DIAL[country].length), country) }
     }
   }
   return null
@@ -160,10 +179,13 @@ export function defaultPhoneCountry(opts: { stored?: string | null; coverCountri
   return opts.locale === 'ja' ? 'JP' : 'KR'
 }
 
-/** 입력칸 처음 값 — 저장된 번호를 나라와 국내 표기로 푼다. 읽을 수 없는 예전 값은 그대로 둔다 */
+/**
+ * 입력칸 처음 값 — 저장된 번호를 나라와 입력칸 표기(앞 0 없는 숫자)로 푼다.
+ * 읽을 수 없는 예전 값은 고객이 고칠 수 있게 그대로 둔다
+ */
 export function initialPhoneInput(stored: string | null | undefined, fallback: PhoneCountry): { country: PhoneCountry; value: string } {
   const p = parseStoredPhone(stored)
-  return p ? { country: p.country, value: groupNational(p.national, p.country) } : { country: fallback, value: (stored ?? '').trim() }
+  return p ? { country: p.country, value: clampPhoneInput(p.national, p.country) } : { country: fallback, value: (stored ?? '').trim() }
 }
 
 /**

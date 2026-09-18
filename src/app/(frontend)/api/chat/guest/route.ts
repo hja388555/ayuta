@@ -4,7 +4,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { getSessionUser } from '@/lib/dal'
 import { clientIp, creationWindowStart, generateGuestToken, GUEST_COOKIE, guestCookieOptions, GuestStartSchema, hashClientIp, isCreationLimited } from '@/lib/chat/guest'
-import { createGuestThread, guestThreadFromCookie, jsonError, readJson, sendMessage, threadView } from '@/lib/chat/service'
+import { createGuestThread, guestThreadFromCookie, jsonError, readJson, sendGreeting, sendMessage, threadView } from '@/lib/chat/service'
 
 /**
  * 비회원: 로그인 없이 채팅 시작(Figma [v2] 12-B 285:2). 이름·이메일·연락처 + 개인정보 동의(필수)를 받고
@@ -39,6 +39,7 @@ export async function POST(req: Request): Promise<Response> {
   // 문의 내용을 그대로 첫 메시지로 넣는다(2026-09-17 사용자) — 담당자는 방을 열자마자 무엇을
   // 묻는지 본다. 번역·도배 제한은 일반 메시지와 같은 경로를 타므로 sendMessage 를 쓴다
   await sendMessage(payload, thread, 'customer', { userId: null, email }, body)
+  await sendGreeting(payload, thread)
   ;(await cookies()).set(GUEST_COOKIE, token, guestCookieOptions())
   return NextResponse.json({ ok: true, thread: threadView(thread) })
 }
