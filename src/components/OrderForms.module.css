@@ -274,6 +274,8 @@
 .split, .choices { display: contents; }
 @media (min-width: 768px) {
   .body, .bodyWide { gap: 48px; max-width: 1264px; }
+  /* 푸터 위 여백을 표지(cover-split 아래 120)와 같게 — 1~5번이 좁아 보인다는 지적(2026-09-18) */
+  .body { padding-bottom: 120px; }
   .split { display: grid; grid-template-columns: 740px 420px; column-gap: 40px; align-items: start; }
   .choices { display: flex; flex-direction: column; gap: 64px; min-width: 0; }
   /* 결제 패널: 흰 바탕 · 선 · 모서리 20, 스크롤을 따라간다(주문 화면 PC 헤더는 숨김이라 화면 위에서 24px).

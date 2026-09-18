@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isHeaderHidden, isPcHeaderHidden } from './header-visibility'
+import { isHeaderHidden, isOwnAuthPage, isPcHeaderHidden } from './header-visibility'
 
 describe('헤더 숨김 판정(6라운드)', () => {
   it('1~4번 주문 화면(digital-sns·local-video·press-blog·transit)은 헤더를 숨긴다', () => {
@@ -37,5 +37,20 @@ describe('PC 헤더 숨김 판정(메인에만 헤더)', () => {
     expect(isPcHeaderHidden('/ko/mypage')).toBe(false)
     expect(isPcHeaderHidden('/ko/login')).toBe(false)
     expect(isPcHeaderHidden('/ko/orders')).toBe(false)
+  })
+})
+
+describe('로그인·가입 화면의 같은 버튼 숨김 판정', () => {
+  it('보고 있는 화면으로 다시 보내는 버튼만 숨긴다', () => {
+    expect(isOwnAuthPage('/ko/login', 'login')).toBe(true)
+    expect(isOwnAuthPage('/ja/signup', 'signup')).toBe(true)
+    expect(isOwnAuthPage('/ko/login', 'signup')).toBe(false)
+    expect(isOwnAuthPage('/ja/signup', 'login')).toBe(false)
+  })
+
+  it('다른 화면과 하위 경로는 그대로 보여준다', () => {
+    expect(isOwnAuthPage('/ko', 'login')).toBe(false)
+    expect(isOwnAuthPage('/ko/mypage', 'login')).toBe(false)
+    expect(isOwnAuthPage('/ko/login/reset', 'login')).toBe(false)
   })
 })
