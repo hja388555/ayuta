@@ -81,8 +81,8 @@
 .gateBtn { width: 100%; max-width: 420px; height: 52px; font-size: 16px; }
 .gateInquiry { margin-top: 4px; border: 0; background: none; font: inherit; font-size: 15px; color: var(--c-text2); text-decoration: underline; cursor: pointer; }
 @media (min-width: 768px) {
-  /* 채팅 창이 화면을 다 쓰면 말풍선 줄이 너무 길다 — 폭을 반으로 줄여 가운데 둔다(2026-09-18) */
-  .page { width: 50%; margin-inline: auto; }
+  /* 1440 기준 내용 폭 1344 의 절반 — Figma [v2] 12 232:438 (2026-09-18) */
+  .page { width: 672px; max-width: 100%; margin-inline: auto; }
   .gate { padding: 64px 20px 56px; gap: 14px; }
   .gateTitle { font-size: 26px; }
   .gateDesc { font-size: 18px; }
