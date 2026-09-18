@@ -391,10 +391,9 @@ body {
  * ────────────────────────────────────────────────────────────────────────── */
 .cover-brand-image, .cover-brand-lettering { display: none; }
 @media (min-width: 768px) {
-  /* 왼쪽은 화면에서 24px — 오른쪽 상담 버튼 밖 여백(24)과 같게 맞춰 시각적으로 대칭으로 보이게 한다.
-     오른쪽은 118px 비워 둔다(버튼 밖 24 + 버튼 70 + 버튼 앞 24) — 버튼이 폼 위로 올라타지 않는다.
-     calc 은 Shell 의 var(--side) 패딩을 상쇄해 뷰포트 기준 고정 여백을 만든다(2026-09-18 피그마 524:2) */
-  .cover-split { display: grid; grid-template-columns: 486px minmax(0, 1fr); column-gap: 30px; align-items: start; width: auto; max-width: none; margin-inline: calc(24px - var(--side)) calc(118px - var(--side)); padding: 80px 0; }
+  /* 1200 한 덩어리를 가운데 두고 좌우를 비운다 — 화면 끝까지 늘리니 표지가 너무 커 보인다는
+     지적(2026-09-19 고객). 상담 버튼 여백에 맞춰 끝까지 늘렸던 배치를 되돌린다 */
+  .cover-split { display: grid; grid-template-columns: 486px 684px; column-gap: 30px; align-items: start; width: 1200px; max-width: 100%; padding: 80px 0; }
   /* 손글씨(400)가 이미지(486)보다 좁아 — 이미지 가운데선에 맞춘다(2026-09-18 고객 요청) */
   .cover-aside { display: flex; flex-direction: column; align-items: center; gap: 24px; }
   /* 로고·문구는 오른쪽 칸 맨 위(2026-09-18 피그마 492:2). 로고는 작게, 문구는 그 오른쪽 위 */
