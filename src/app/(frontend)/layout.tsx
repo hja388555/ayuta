@@ -10,13 +10,14 @@ import './globals.css'
 export const viewport: Viewport = { themeColor: BRAND_BLUE }
 
 // canonical·hreflang 을 상대 경로로 적어도 절대 주소로 나가게 하는 기준(큐 Q27). 도메인을 받으면
-// NEXT_PUBLIC_SITE_URL 만 바꾼다. 네이버 소유확인 토큰도 도메인 연결 후 환경변수로 넣는다
+// NEXT_PUBLIC_SITE_URL 만 바꾼다.
+// 네이버 서치어드바이저 소유확인 토큰. 공개 메타태그라 비밀값이 아니다 — 환경변수로도 덮어쓸 수 있게 둔다
+const NAVER_VERIFICATION = process.env.NAVER_SITE_VERIFICATION ?? 'b94f156ae0334a4d20086a54cce4cd6fac0e9b7d'
+
 export const metadata: Metadata = {
   metadataBase: siteUrl(),
   title: 'AYUTA',
-  ...(process.env.NAVER_SITE_VERIFICATION
-    ? { verification: { other: { 'naver-site-verification': process.env.NAVER_SITE_VERIFICATION } } }
-    : {}),
+  verification: { other: { 'naver-site-verification': NAVER_VERIFICATION } },
 }
 
 // /manage 는 이 트리 아래이지만 [locale] 세그먼트 밖이다 — proxy 의 matcher 가
