@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import { LoginRequiredModal } from './LoginRequiredModal'
-import { isHeaderHidden, isPcHeaderHidden } from '../lib/header-visibility'
+import { isHeaderHidden, isOwnAuthPage, isPcHeaderHidden } from '../lib/header-visibility'
 
 type Labels = {
   logo: string
@@ -113,12 +113,16 @@ export function SiteHeader({
             </>
           ) : (
             <>
-              <Link href={`${home}/login`} className="btn btn-secondary">
-                {labels.login}
-              </Link>
-              <Link href={`${home}/signup`} className="btn btn-primary">
-                {labels.signup}
-              </Link>
+              {isOwnAuthPage(pathname, 'login') ? null : (
+                <Link href={`${home}/login`} className="btn btn-secondary">
+                  {labels.login}
+                </Link>
+              )}
+              {isOwnAuthPage(pathname, 'signup') ? null : (
+                <Link href={`${home}/signup`} className="btn btn-primary">
+                  {labels.signup}
+                </Link>
+              )}
             </>
           )}
         </div>

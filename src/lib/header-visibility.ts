@@ -22,3 +22,12 @@ export function isHeaderHidden(pathname: string): boolean {
 export function isPcHeaderHidden(pathname: string): boolean {
   return /^\/(ko|ja)\/(order|quote)(\/|$)/.test(pathname)
 }
+
+/**
+ * 로그인·가입 화면에서 헤더의 같은 버튼을 숨길지 판정(2026-09-18 클라이언트 지적 — "로그인 두개").
+ * 지금 보고 있는 화면으로 다시 보내는 버튼만 숨기고 반대쪽 버튼은 남긴다 — 헤더에서 두 화면을
+ * 오가는 길이 끊기지 않게.
+ */
+export function isOwnAuthPage(pathname: string, page: 'login' | 'signup'): boolean {
+  return new RegExp(`^/(ko|ja)/${page}/?$`).test(pathname)
+}
