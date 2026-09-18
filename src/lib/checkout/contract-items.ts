@@ -66,6 +66,10 @@ export function buildContractItems(
     if (platforms.length > 0) {
       items.push({ label: TIER_ITEM_LABELS.platform, value: platforms.map((p) => PLATFORM_LABELS[p]?.[locale] ?? p).join(', ') })
     }
+    // 1번도 계약서 끝의 자동 채움 목록에 광고 국가를 싣는다(2026-09-18 대표님 요청) —
+    // 제1조 {{country}}와 같은 값이지만, 서명 바로 위에서 주문 내역을 한 번 더 확인한다
+    const country = formatCountries(asStringArray((sel as { country?: unknown }).country), locale)
+    if (country) items.push({ label: COUNTRY_ITEM_LABEL[locale], value: country })
     return items
   }
 

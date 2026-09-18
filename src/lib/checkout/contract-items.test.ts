@@ -70,6 +70,24 @@ describe('buildContractItems — 3번(대표신문·지역신문·블로그) 광
   })
 })
 
+describe('buildContractItems — 1번 자동 채움 목록', () => {
+  const def1 = CATEGORIES.find((c) => c.no === 1)!
+
+  it('등급·플랫폼 뒤에 광고 국가를 싣는다 (제10조 아래 자동 채움 표)', () => {
+    const items = buildContractItems(def1, emptyBook, { tiers: ['basic'], platforms: ['youtube'], country: ['jp', 'kr'] }, 'ko')
+    expect(items).toEqual([
+      { label: '등급', value: 'basic' },
+      { label: '플랫폼', value: '유튜브' },
+      { label: '광고 국가', value: '한국, 일본' },
+    ])
+  })
+
+  it('나라를 안 골랐으면 광고 국가 줄을 넣지 않는다', () => {
+    const items = buildContractItems(def1, emptyBook, { tiers: ['basic'], platforms: [] }, 'ko')
+    expect(items.some((i) => i.label === '광고 국가')).toBe(false)
+  })
+})
+
 describe('buildContractItems — 2번은 촬영 국가라는 별개 필드다 (광고 국가를 섞지 않는다)', () => {
   const def2 = CATEGORIES.find((c) => c.no === 2)!
 
