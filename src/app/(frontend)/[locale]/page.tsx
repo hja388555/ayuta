@@ -47,7 +47,7 @@ export default async function CoverPage({ params }: Props) {
       : Object.fromEntries(CATEGORIES.map((c) => [c.slug, t(`services.${c.slug}`)]))
 
   // 왼쪽 칸 이미지는 관리자 이미지 관리의 main 슬롯. 없거나 DB 를 못 읽으면 기본 서울 이미지
-  let asideImage = '/brand/ayuta-seoul.webp'
+  let asideImage = '/brand/ayuta-cover.webp'
   try {
     const payload = await getPayload({ config })
     const { docs } = await payload.find({ collection: 'band-images', where: { slot: { equals: 'main' } }, limit: 1, depth: 0, overrideAccess: true })
@@ -58,9 +58,20 @@ export default async function CoverPage({ params }: Props) {
     <main>
       <JsonLd data={organizationJsonLd(locale, await loadCompany(locale === 'ja' ? 'ja' : 'ko'))} />
       <Shell as="section">
-        {/* PC 는 왼쪽 400(로고·문구·브랜드 이미지, 스크롤 따라감) | 오른쪽 720(단계) 두 칸(2026-09-18 확정 PC 484:2). 모바일은 기존 세로 배치 그대로 */}
+        {/* PC 는 왼쪽 486(표지 이미지·손글씨) | 오른쪽 684(로고·문구·단계) 두 칸(2026-09-18 확정 PC 484:2). 모바일은 기존 세로 배치 그대로 */}
         <div className="v3-body cover-split">
           <div className="cover-aside">
+            <img className="cover-brand-image" src={asideImage} width={486} height={724} alt="" />
+            <img
+              className="cover-brand-lettering"
+              src="/brand/ayuta-lettering.webp"
+              width={400}
+              height={267}
+              alt="국경없는 광고의 시작"
+            />
+          </div>
+
+          <div className="cover-body">
             <div className="cover-brand">
               <span className="cover-logo" aria-hidden>{t('logo')}</span>
               <div className="cover-text">
@@ -78,10 +89,6 @@ export default async function CoverPage({ params }: Props) {
                 </p>
               </div>
             </div>
-            <img className="cover-brand-image" src={asideImage} width={400} height={596} alt="" />
-          </div>
-
-          <div className="cover-body">
             <CoverSteps
               locale={locale}
               categories={coverCategories}
