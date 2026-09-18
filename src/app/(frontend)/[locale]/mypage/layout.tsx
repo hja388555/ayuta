@@ -46,7 +46,6 @@ export default async function MypageLayout({ children, params }: { children: Rea
                 profile: t('nav.profile'),
                 password: t('nav.password'),
                 withdraw: t('nav.withdraw'),
-                logout: t('nav.logout'),
               }}
             />
           </aside>
