@@ -104,7 +104,23 @@ export function ContractDialog({
   contractText,
   seal,
   consentControl,
-}: Content & { open: boolean; onClose: () => void; onConfirm?: () => void; consentControl?: ConsentControl }) {
+  signature,
+  onSignatureChange,
+  expectedName,
+  signaturePrompt,
+  signatureMismatch,
+}: Content & {
+  open: boolean
+  onClose: () => void
+  onConfirm?: () => void
+  consentControl?: ConsentControl
+  /** 결제 화면에서만 쓴다(주문 완료·보관함의 보기 전용 팝업은 서명칸이 없다) */
+  signature?: string
+  onSignatureChange?: (value: string) => void
+  expectedName?: string
+  signaturePrompt?: string
+  signatureMismatch?: string
+}) {
   const t = useTranslations('modal')
   const ref = useRef<HTMLDialogElement>(null)
   const [read, setRead] = useState(false)
@@ -121,7 +137,13 @@ export function ContractDialog({
   // 본문 안에서 직접 체크하는 경우엔 하단에 "모두 확인했습니다" 줄을 또 두지 않는다
   const inlineCount = blocks.reduce((n, b) => ('consents' in b ? n + b.consents.length : n), 0)
   const inline = consentControl && consentControl.keys.length === inlineCount ? consentControl : null
-  const agreed = inline ? inline.keys.every((k) => inline.checked[k] === true) : read
+  const consentsAgreed = inline ? inline.keys.every((k) => inline.checked[k] === true) : read
+  // 서명칸이 있는 팝업(결제)에서는 동의뿐 아니라 이름이 주문자명과 같아야 확인 버튼이 열린다
+  const hasSignatureField = onSignatureChange !== undefined
+  const typed = signature ?? ''
+  const signatureOk = !hasSignatureField || (typed.trim() !== '' && typed.trim() === (expectedName ?? '').trim())
+  const showMismatch = hasSignatureField && typed.trim() !== '' && !signatureOk
+  const agreed = consentsAgreed && signatureOk
 
   return (
     <dialog
@@ -183,6 +205,24 @@ export function ContractDialog({
               <span>{t('contractConfirmCheck')}</span>
             </label>
           )}
+          {hasSignatureField ? (
+            <div className={s.signField}>
+              <label htmlFor="contract-signature" className={s.signLabel}>
+                {t('contractSignatureLabel')}
+              </label>
+              <input
+                id="contract-signature"
+                className={s.signInput}
+                value={typed}
+                required
+                aria-required
+                aria-invalid={showMismatch || undefined}
+                placeholder={signaturePrompt}
+                onChange={(e) => onSignatureChange?.(e.target.value)}
+              />
+              {showMismatch ? <p className={s.signMismatch}>{signatureMismatch}</p> : null}
+            </div>
+          ) : null}
           <button type="button" className={`btn btn-primary btn-block ${s.confirmBtn}`} disabled={!agreed} onClick={onConfirm}>
             {t('contractConfirm')}
           </button>

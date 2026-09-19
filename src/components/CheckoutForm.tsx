@@ -88,17 +88,16 @@ export function canSubmit(
   signature: string,
 ): boolean {
   if (Object.keys(validateOrderer(orderer)).length > 0) return false
-  if (!signature.trim()) return false
+  if (!signatureReady(signature, orderer.name)) return false
   return requiredConsentsChecked(consentDefs, checked)
 }
 
 /**
- * 전자서명은 손으로 그리는 게 아니라 동의 체크 시 주문자 이름이 자동 기입된다.
- * 모든 필수 동의가 체크된 순간에만 서명이 채워지고, 하나라도 풀리면 다시 비운다 —
- * 부분적으로 동의한 상태에서 서명만 남는 걸 막는다.
+ * 서명은 자동 기입하지 않는다 — 고객이 계약서 팝업에서 주문자명을 직접 타이핑해야 하고,
+ * 앞뒤 공백을 뺀 값이 주문자명과 정확히 같을 때만 서명으로 인정한다.
  */
-export function autoSignature(orderer: OrdererFormState, consentDefs: readonly ConsentDef[], checked: Readonly<Record<string, boolean>>): string {
-  return requiredConsentsChecked(consentDefs, checked) ? orderer.name : ''
+export function signatureReady(typed: string, ordererName: string): boolean {
+  return typed.trim() !== '' && typed.trim() === ordererName.trim()
 }
 
 function formatAmount(amount: number, currency: PriceBook['currency']): string {
@@ -161,6 +160,9 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
   const [touched, setTouched] = useState<Partial<Record<OrdererField, boolean>>>({})
   const [attempted, setAttempted] = useState(false)
   const [showContract, setShowContract] = useState<string | null>(null)
+  // 서명은 자동 기입되지 않는다 — 고객이 팝업에서 직접 타이핑한 값을 그대로 갖고 있다가
+  // 팝업을 닫고 다시 열어도 유지한다(값은 이 폼에, 팝업은 보여주기만 한다)
+  const [signature, setSignature] = useState('')
   const [viewDoc, setViewDoc] = useState<LegalKind | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -172,7 +174,6 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
   const errors = useMemo(() => validateOrderer(orderer), [orderer])
   const errorCount = Object.keys(errors).length
   const consentsDone = requiredConsentsChecked(template.consents, checked)
-  const signature = useMemo(() => autoSignature(orderer, template.consents, checked), [orderer, template.consents, checked])
   const canPay = useMemo(() => canSubmit(orderer, template.consents, checked, signature), [orderer, template.consents, checked, signature])
   // 주문 내역 확인(2)은 볼 것만 있는 단계라 주문자 정보가 끝나면 곧바로 계약서 동의(3)로 넘어간다
   const currentStep = errorCount > 0 ? 1 : !consentsDone ? 3 : 4
@@ -228,7 +229,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
             businessNo: orderer.businessNo || undefined,
             representative: orderer.representative || undefined,
           },
-          signature,
+          signature: signature.trim(),
           idempotencyKey,
         }),
       })
@@ -416,11 +417,11 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
                 {labels.contractNeedsOrderer}
               </p>
             ) : null}
-            {/* 입력칸을 직접 고치게 하지 않는다 — 필수 동의가 끝나면 주문자명이 자동 기입된다 */}
-            <div className={signature ? `${s.sign} ${s.signOn}` : s.sign} aria-live="polite">
+            {/* 서명은 계약서 팝업에서 고객이 직접 입력한 값이다 — 여기서는 그 결과만 보여준다 */}
+            <div className={signatureReady(signature, orderer.name) ? `${s.sign} ${s.signOn}` : s.sign} aria-live="polite">
               <span className={s.signBox} aria-hidden />
               <span className={s.signText}>{keepTail(labels.signatureLabel)}</span>
-              <span className={s.signName}>{signature || '—'}</span>
+              <span className={s.signName}>{signature.trim() || labels.signatureEmpty}</span>
             </div>
           </section>
 
@@ -436,6 +437,11 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
               checked,
               onToggle: (key, next) => setChecked((prev) => ({ ...prev, [key]: next })),
             }}
+            signature={signature}
+            onSignatureChange={setSignature}
+            expectedName={orderer.name}
+            signaturePrompt={labels.signaturePrompt}
+            signatureMismatch={labels.signatureMismatch}
             title={template.title}
             closeLabel={labels.close}
             contractText={

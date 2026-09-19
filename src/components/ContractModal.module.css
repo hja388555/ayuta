@@ -35,6 +35,13 @@
 .check:has(input:focus-visible) { outline: 2px solid var(--brand-600); outline-offset: 2px; }
 .confirmBtn { height: 58px; border-radius: 12px; font-size: 17px; }
 
+/* 서명 입력칸 — 자동 기입하지 않는다. 고객이 직접 타이핑한다는 걸 눈에 띄게 굵은 테두리·글씨로 표시 */
+.signField { display: flex; flex-direction: column; gap: 8px; }
+.signLabel { font-size: 15px; font-weight: 700; color: var(--ink-900); }
+.signInput { height: 56px; padding: 0 18px; border: 2px solid var(--brand-600); border-radius: 12px; font-size: 18px; font-weight: 700; color: var(--ink-900); }
+.signInput::placeholder { font-weight: 400; color: var(--ink-400); }
+.signMismatch { margin: 0; font-size: 13px; font-weight: 600; color: var(--danger-600); }
+
 @media (max-width: 767px) {
   .dialog { max-height: calc(100vh - 48px); }
   .head { padding: 16px 18px; }
