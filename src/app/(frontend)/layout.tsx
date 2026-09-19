@@ -12,7 +12,11 @@ export const viewport: Viewport = { themeColor: BRAND_BLUE }
 // canonical·hreflang 을 상대 경로로 적어도 절대 주소로 나가게 하는 기준(큐 Q27). 도메인을 받으면
 // NEXT_PUBLIC_SITE_URL 만 바꾼다.
 // 네이버 서치어드바이저 소유확인 토큰. 공개 메타태그라 비밀값이 아니다 — 환경변수로도 덮어쓸 수 있게 둔다
-const NAVER_VERIFICATION = process.env.NAVER_SITE_VERIFICATION ?? 'b94f156ae0334a4d20086a54cce4cd6fac0e9b7d'
+// 앞이 www.ayuta.kr, 뒤가 기존 www.아유타.com 사이트
+const NAVER_VERIFICATION = process.env.NAVER_SITE_VERIFICATION ?? [
+  '9b6d4d1d4e33606bca4788ec7f553e7b8e8dad22',
+  'b94f156ae0334a4d20086a54cce4cd6fac0e9b7d',
+]
 // 구글 서치콘솔 소유확인 토큰. 앞이 www.ayuta.kr 속성, 뒤는 기존 www.아유타.com 속성 — 빼면 그 속성 인증이 풀린다
 const GOOGLE_VERIFICATION = process.env.GOOGLE_SITE_VERIFICATION ?? [
   'fQHWQO_yG5fj4KfZywj7Br-rPXmlhciwppONds-zM3A',
