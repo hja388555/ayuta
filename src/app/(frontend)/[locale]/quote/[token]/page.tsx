@@ -24,7 +24,7 @@ import s from '@/components/InquiryQuote.module.css'
  *   만료·회수는 링크를 받은 사람만 볼 수 있으므로 견적번호와 상태를 보여준다.
  * - 검색 엔진·Referer 로 링크가 새지 않게 noindex · no-referrer.
  * - 주문자·동의·서명·결제 버튼은 카테고리 결제와 같은 CheckoutForm 을 쓴다. 버튼은 /api/quote/order 로
- *   pending 주문을 만든다 — 실제 결제(PortOne)는 카테고리 결제와 마찬가지로 아직 붙지 않았다.
+ *   pending 주문을 만든다 — 실제 결제(엑심베이)는 카테고리 결제와 마찬가지로 아직 붙지 않았다.
  */
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { robots: { index: false, follow: false }, referrer: 'no-referrer' }

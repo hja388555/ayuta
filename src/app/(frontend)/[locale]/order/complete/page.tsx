@@ -135,7 +135,7 @@ export default async function OrderCompletePage({ params, searchParams }: Props)
               </div>
               <div className={s.tableRow}>
                 <dt>{t('payMethodLabel')}</dt>
-                {/* 결제 수단은 PortOne 연동 후 실제 값으로 바뀐다. 지금은 카드 한 가지뿐이다 */}
+                {/* 결제 수단은 엑심베이 연동 후 실제 값으로 바뀐다. 지금은 카드 한 가지뿐이다 */}
                 <dd>{paid ? t('payMethodCard') : t('payMethodPending')}</dd>
               </div>
               <div className={s.tableRow}>

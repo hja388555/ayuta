@@ -17,7 +17,7 @@ import s from '@/components/Mypage.module.css'
 
 /**
  * 주문 상세(Figma [v2] 09-B 215:242 / 215:346). 회원 본인 주문만 연다 — 남의 주문번호는 없는 주문과 똑같이 404.
- * 환불 신청은 PortOne 연동 후 열린다. 그 전까지 버튼은 꺼 두고 1:1 문의로 안내한다.
+ * 환불 신청은 엑심베이 연동 후 열린다. 그 전까지 버튼은 꺼 두고 1:1 문의로 안내한다.
  */
 export const dynamic = 'force-dynamic'
 export const metadata: Metadata = { robots: { index: false, follow: false } }

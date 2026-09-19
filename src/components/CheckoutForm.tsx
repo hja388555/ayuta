@@ -448,7 +448,7 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
 
           <section className={`${s.card} ${s.payCard}`} aria-labelledby="co-pay">
             <StepTitle id="co-pay" title={labels.payTitle} />
-            {/* 결제수단은 지금 카드 하나뿐이다. PortOne 연동 전이라 선택값은 서버로 보내지 않는다 */}
+            {/* 결제수단은 지금 카드 하나뿐이다. 엑심베이 연동 전이라 선택값은 서버로 보내지 않는다 */}
             <div className={s.pay}>
               <ChoiceCard type="radio" name="payMethod" checked>
                 <span className={s.payOption}>

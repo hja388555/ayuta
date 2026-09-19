@@ -335,7 +335,7 @@ export async function persistOrder(args: PersistOrderArgs): Promise<CreateOrderR
       overrideAccess: true,
       data: {
         orderNumber,
-        // 실제 결제 연동(PortOne)은 이 계획 밖이다(Q17 나머지). 결제창을 아직 부르지 않았으므로
+        // 실제 결제 연동(엑심베이)은 이 계획 밖이다(Q17 나머지). 결제창을 아직 부르지 않았으므로
         // paymentId 는 임시로 주문번호 기반 자리표시자를 쓰고, 결제 단계가 실제 식별자로 덮어쓴다
         paymentId: `pending-${orderNumber}`,
         status: 'pending',
