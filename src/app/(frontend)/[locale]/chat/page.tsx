@@ -62,7 +62,6 @@ export default async function ChatPage({ params, searchParams }: Props) {
                   limitTitle: t('guestLimitTitle'),
                   limitDesc: t('guestLimitDesc'),
                   limitSignup: t('guestLimitSignup'),
-                  limitLogin: t('guestLimitLogin'),
                 }
           } />
       </Shell>
@@ -76,7 +75,7 @@ export default async function ChatPage({ params, searchParams }: Props) {
       <ChatFrame title={t('title')} badge={t('badge')} notices={[t('notice1'), t('guestNotice2')]}>
         <GuestChatGate
           locale={chatLocale}
-          labels={{ title: t('gateTitle'), desc: t('gateDesc'), signup: t('gateSignup'), login: t('gateLogin'), inquiry: t('gateInquiry') }}
+          labels={{ title: t('gateTitle'), desc: t('gateDesc'), signup: t('gateSignup'), inquiry: t('gateInquiry') }}
         >
         <GuestChatStart
           locale={chatLocale}
@@ -97,8 +96,6 @@ export default async function ChatPage({ params, searchParams }: Props) {
             consentView: t('guestConsentView'),
             start: t('guestStart'),
             starting: t('guestStarting'),
-            memberHint: t('guestMemberHint'),
-            login: t('guestLogin'),
             linkInvalid: t('guestLinkInvalid'),
             errors: Object.fromEntries(errorCodes.map((code) => [code, t(`guestErrors.${code}`)])),
           }}

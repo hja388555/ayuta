@@ -8,7 +8,6 @@ export type GuestGateLabels = {
   title: string
   desc: string
   signup: string
-  login: string
   inquiry: string
 }
 
@@ -27,9 +26,7 @@ export function GuestChatGate({ locale, labels, children }: { locale: 'ko' | 'ja
       <Link href={`/${locale}/signup?next=/${locale}/chat`} className={`btn btn-primary ${c.gateBtn}`}>
         {labels.signup}
       </Link>
-      <Link href={`/${locale}/login?next=/${locale}/chat`} className={`btn btn-secondary ${c.gateBtn}`}>
-        {labels.login}
-      </Link>
+      {/* 2026-09-19 클라이언트 요청 — 한 화면에 같은 기능 버튼 하나. 로그인은 헤더에 있으므로 여기서 뺀다 */}
       <button type="button" className={c.gateInquiry} onClick={() => setShowForm(true)}>
         {labels.inquiry}
       </button>

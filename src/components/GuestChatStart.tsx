@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useRef, useState } from 'react'
 import { validateGuestStart, type GuestStartErrors } from '@/lib/chat/guest-form'
@@ -27,8 +26,6 @@ export type GuestStartLabels = {
   consentView: string
   start: string
   starting: string
-  memberHint: string
-  login: string
   linkInvalid: string
   errors: Record<string, string>
 }
@@ -185,10 +182,6 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
         <button type="submit" disabled={busy} className={`btn btn-primary btn-block ${c.startSubmit}`}>
           {busy ? labels.starting : labels.start}
         </button>
-        <p className={c.startHint}>
-          {labels.memberHint}{' '}
-          <Link href={`/${locale}/login?next=${next}`}>{labels.login}</Link>
-        </p>
       </form>
     </section>
   )

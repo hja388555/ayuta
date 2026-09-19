@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Shell } from '@/components/Shell'
@@ -36,9 +35,6 @@ export default async function SignupPage({ params }: Props) {
           <p className={s.sub}>{t('sub')}</p>
           <p className={s.info}>{t('info')}</p>
           <SignupForm locale={locale} labels={{ ...labels, errors: t.raw('errors') }} />
-          <p className={s.sub} style={{ fontSize: 15, textAlign: 'center' }}>
-            {t('haveAccount')} <Link href={`/${locale}/login`}>{t('loginLink')}</Link>
-          </p>
         </div>
       </Shell>
     </main>

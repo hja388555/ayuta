@@ -41,8 +41,6 @@
 .findPwNote a { font-weight: 700; color: var(--brand-600); white-space: nowrap; }
 .primary { height: 58px; border-radius: var(--radius-md); font-size: 17px; }
 .outline { height: 58px; border-color: var(--line-strong); border-radius: var(--radius-md); font-size: 17px; }
-.divider { display: flex; align-items: center; gap: 12px; font-size: 14px; line-height: 1.5; color: var(--ink-400); }
-.divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--line); }
 .lookupBtn { height: 58px; gap: 9px; border-radius: var(--radius-md); color: var(--ink-900); font-size: 17px; }
 .lookupBtn img { width: 20px; height: 20px; }
 

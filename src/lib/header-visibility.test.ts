@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { isHeaderHidden, isOwnAuthPage, isPcHeaderHidden } from './header-visibility'
+import { hideHeaderSignup, isHeaderHidden, isOwnAuthPage, isPcHeaderHidden } from './header-visibility'
 
 describe('헤더 숨김 판정(6라운드)', () => {
   it('1~4번 주문 화면(digital-sns·local-video·press-blog·transit)은 헤더를 숨긴다', () => {
@@ -52,5 +52,18 @@ describe('로그인·가입 화면의 같은 버튼 숨김 판정', () => {
     expect(isOwnAuthPage('/ko', 'login')).toBe(false)
     expect(isOwnAuthPage('/ko/mypage', 'login')).toBe(false)
     expect(isOwnAuthPage('/ko/login/reset', 'login')).toBe(false)
+  })
+})
+
+describe('헤더 회원가입 숨김 판정(2026-09-19 클라이언트 요청 — 한 화면에 같은 기능 버튼 하나)', () => {
+  it('/signup 과 채팅 화면에서는 헤더 회원가입을 숨긴다', () => {
+    expect(hideHeaderSignup('/ko/chat')).toBe(true)
+    expect(hideHeaderSignup('/ja/chat/abc')).toBe(true)
+    expect(hideHeaderSignup('/ja/signup')).toBe(true)
+  })
+
+  it('그 외 화면은 헤더 회원가입을 유지한다', () => {
+    expect(hideHeaderSignup('/ko')).toBe(false)
+    expect(hideHeaderSignup('/ko/login')).toBe(false)
   })
 })

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import { LoginRequiredModal } from './LoginRequiredModal'
-import { isHeaderHidden, isOwnAuthPage, isPcHeaderHidden } from '../lib/header-visibility'
+import { hideHeaderSignup, isHeaderHidden, isOwnAuthPage, isPcHeaderHidden } from '../lib/header-visibility'
 
 type Labels = {
   logo: string
@@ -118,7 +118,9 @@ export function SiteHeader({
                   {labels.login}
                 </Link>
               )}
-              {isOwnAuthPage(pathname, 'signup') ? null : (
+              {/* 2026-09-19 클라이언트 요청 — 한 화면에 같은 기능 버튼 하나. 채팅은 본문의
+                  「30초 회원가입하고 상담하기」를 남기므로 헤더 쪽을 숨긴다 */}
+              {hideHeaderSignup(pathname) ? null : (
                 <Link href={`${home}/signup`} className="btn btn-primary">
                   {labels.signup}
                 </Link>

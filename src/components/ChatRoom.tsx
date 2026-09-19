@@ -189,7 +189,7 @@ export function ChatRoom({
   locale: ChatLocale
   labels: Labels
   // 비회원일 때만 넘어온다 — 나가기와, 2회를 다 썼을 때 보여 줄 가입 안내 문구
-  guest?: { leave: string; leaveConfirm: string; limitTitle: string; limitDesc: string; limitSignup: string; limitLogin: string }
+  guest?: { leave: string; leaveConfirm: string; limitTitle: string; limitDesc: string; limitSignup: string }
 }) {
   const router = useRouter()
   const [leaving, setLeaving] = useState(false)
@@ -303,11 +303,9 @@ export function ChatRoom({
         <div className={s.signupGate} role="alert">
           <p className={s.signupTitle}>{guest.limitTitle}</p>
           <p className={s.signupDesc}>{guest.limitDesc}</p>
+          {/* 2026-09-19 클라이언트 요청 — 한 화면에 같은 기능 버튼 하나. 로그인은 헤더와 중복이라 뺀다 */}
           <a className={`btn btn-primary ${s.signupBtn}`} href={`/${locale}/signup?next=/${locale}/chat`}>
             {guest.limitSignup}
-          </a>
-          <a className={`btn btn-secondary ${s.signupBtn}`} href={`/${locale}/login?next=/${locale}/chat`}>
-            {guest.limitLogin}
           </a>
         </div>
       ) : (

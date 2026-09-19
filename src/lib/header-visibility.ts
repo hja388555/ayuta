@@ -31,3 +31,12 @@ export function isPcHeaderHidden(pathname: string): boolean {
 export function isOwnAuthPage(pathname: string, page: 'login' | 'signup'): boolean {
   return new RegExp(`^/(ko|ja)/${page}/?$`).test(pathname)
 }
+
+/**
+ * 헤더 회원가입 버튼을 숨길지 판정(2026-09-19 클라이언트 요청 — 한 화면에 같은 기능 버튼 하나).
+ * /signup 화면은 기존 isOwnAuthPage 규칙 그대로 숨기고, 채팅 화면은 본문의
+ * 「30초 회원가입하고 상담하기」를 남기기로 클라이언트가 지정했으므로 헤더 쪽을 숨긴다.
+ */
+export function hideHeaderSignup(pathname: string): boolean {
+  return isOwnAuthPage(pathname, 'signup') || /^\/(ko|ja)\/chat(\/|$)/.test(pathname)
+}

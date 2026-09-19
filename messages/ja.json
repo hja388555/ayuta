@@ -255,7 +255,6 @@
     "loggingIn": "確認中...",
     "loginFailed": "メールアドレスまたはパスワードが正しくありません。5回間違えると10分間ロックされます。",
     "noAccount": "まだ会員ではありませんか？",
-    "signupLink": "会員登録",
     "guestTitle": "会員登録なしの注文照会",
     "guestHint": "会員登録なしでお支払いされた場合、以下の3項目を入力すると注文内容をご確認いただけます。",
     "orderNumber": "注文番号",
@@ -268,7 +267,6 @@
     "keepLogin": "ログイン状態を保持",
     "findPassword": "パスワードをお忘れの方",
     "findPasswordSoon": "パスワード再設定は準備中です。1:1チャットまたは代表番号までお問い合わせください。",
-    "or": "または",
     "orderNumberPh": "AY-20260918-0001",
     "phonePh": "090-0000-0000",
     "findPasswordChat": "1:1チャットで問い合わせ"
@@ -287,8 +285,6 @@
     "agreePrivacy": "［必須］個人情報の収集・利用に同意します",
     "submit": "登録する",
     "submitting": "登録中...",
-    "haveAccount": "すでに会員の方は",
-    "loginLink": "ログイン",
     "errors": {
       "consent_required": "必須の規約にすべて同意してください。",
       "invalid_input": "入力内容をご確認ください。",
@@ -851,8 +847,6 @@
     "guestConsentView": "内容を見る",
     "guestStart": "チャットを始める",
     "guestStarting": "開始しています…",
-    "guestMemberHint": "会員の方ですか？ログインすると、これまでの会話を続けてご覧いただけます。",
-    "guestLogin": "ログイン →",
     "guestNotice2": "· お名前・ご連絡先・ご住所などの個人情報は翻訳サービスに送信されません。",
     "guestLinkInvalid": "チャットリンクの有効期限が切れたか、新しいリンクに切り替わりました。担当者に新しいリンクをお問い合わせいただくか、下のフォームから新しく始めてください。",
     "guestErrors": {
@@ -870,14 +864,12 @@
     "gateTitle": "ご相談はログイン後にご利用いただけます",
     "gateDesc": "会話の記録と書類を安全に保管するため、会員登録が必要です",
     "gateSignup": "30秒で会員登録して相談する",
-    "gateLogin": "ログイン",
     "gateInquiry": "急ぎのお問い合わせだけ残す",
     "guestBody": "お問い合わせ内容",
     "guestBodyPlaceholder": "ご質問をご記入ください",
     "guestBodyNotice": "ご記入の内容は相談の最初のメッセージとして送信されます。",
     "guestLimitTitle": "続けてご相談いただくには会員登録が必要です",
     "guestLimitDesc": "未会員のお問い合わせは2回までです。ファイル添付と相談の継続は会員のみご利用いただけます。",
-    "guestLimitSignup": "会員登録して相談を続ける",
-    "guestLimitLogin": "すでにアカウントをお持ちです"
+    "guestLimitSignup": "会員登録して相談を続ける"
   }
 }

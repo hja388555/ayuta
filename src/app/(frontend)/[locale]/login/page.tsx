@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { getTranslations, setRequestLocale } from 'next-intl/server'
 import { Shell } from '@/components/Shell'
@@ -53,10 +52,7 @@ export default async function LoginPage({ params, searchParams }: Props) {
               findPasswordChat: t('findPasswordChat'),
             }}
           />
-          <div className={s.divider}>{t('or')}</div>
-          <Link href={`/${locale}/signup`} className={`btn btn-outline btn-block ${s.outline}`}>
-            {t('signupLink')}
-          </Link>
+          {/* 2026-09-19 클라이언트 요청 — 한 화면에 같은 기능 버튼 하나. 회원가입은 헤더에 있으므로 여기서 뺀다 */}
           <GuestLookupForm
             locale={locale}
             labels={{
