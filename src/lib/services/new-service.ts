@@ -12,6 +12,27 @@ export function nextServiceNo(existing: number[]): number {
   return existing.reduce((max, n) => (Number.isInteger(n) && n > max ? n : max), 0) + 1
 }
 
+export type SortableService = { sortOrder: number; model: string }
+
+/**
+ * 새 서비스의 기본 순서(2026-09-19).
+ *
+ * 「기타」는 이름이 아니라 계산 방식(model: 'inquiry')으로 찾는다 — 이름은 관리자가 언제든
+ * 고칠 수 있어 못 믿는다. 「기타」 뒤에 새 서비스를 붙이면 메인 목록 마지막 자리를 「기타」한테서
+ * 뺏는다(문제의 원인). 그래서 기존 서비스 중 「기타」가 아닌 것들의 순서 다음, 「기타」 앞자리를
+ * 기본값으로 준다 — 관리자가 폼에서 숫자를 그대로 두면 항상 이 자리에 들어간다.
+ */
+export function defaultSortOrderForNew(existing: SortableService[]): number {
+  const others = existing.filter((s) => s.model !== 'inquiry')
+  const maxOthers = others.reduce((max, s) => Math.max(max, s.sortOrder), 0)
+  const inquiry = existing.filter((s) => s.model === 'inquiry')
+  if (inquiry.length === 0) return maxOthers + 10
+
+  const minInquiry = inquiry.reduce((min, s) => Math.min(min, s.sortOrder), Infinity)
+  const mid = Math.floor((maxOthers + minInquiry) / 2)
+  return mid > maxOthers ? mid : maxOthers + 1
+}
+
 /**
  * 이름에서 주소를 만든다. 한국어 이름이 대부분이라 남는 글자가 없을 때가 많아,
  * 그때는 번호를 그대로 쓴다(service-6 처럼 뜻 없는 이름보다 짧고 고치기 쉽다).

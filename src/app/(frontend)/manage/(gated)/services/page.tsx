@@ -71,7 +71,10 @@ export default async function ServicesPage() {
         {canEdit ? null : ' (중간관리자는 조회만 할 수 있습니다)'}
       </p>
 
-      <NewServiceForm canEdit={canEdit} />
+      <NewServiceForm
+        canEdit={canEdit}
+        existing={docs.map((d) => ({ sortOrder: d.sortOrder as number, model: d.model as string }))}
+      />
 
       {docs.length === 0 ? (
         <p className={s.note}>등록된 서비스가 없습니다.</p>

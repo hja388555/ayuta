@@ -7,6 +7,7 @@ import { JsonLd, organizationJsonLd } from '@/components/JsonLd'
 import { loadCompany } from '@/lib/company-settings'
 import { CATEGORIES } from '@/lib/categories'
 import { loadServices } from '@/lib/services/load'
+import { numberByListPosition } from '@/lib/services/list-numbering'
 import { COUNTRY_CODES, PURPOSE_CODES } from '@/lib/cover-selection'
 import { getPayload } from 'payload'
 import config from '@payload-config'
@@ -41,10 +42,15 @@ export default async function CoverPage({ params }: Props) {
   // 기존 상수와 화면 문구로 떨어진다 — 전환 도중에도 목록이 비지 않게 한다
   const services = await loadServices()
   const coverCategories = services.length > 0 ? services.map((s) => ({ slug: s.slug })) : CATEGORIES
-  const serviceNames =
+  // 이름 안에 저장된 번호("5. 기타")는 목록 순서와 어긋날 수 있다(관리자가 서비스를 늘리면
+  // 「기타」가 마지막 자리인데도 이름 속 숫자는 그대로 5). 여기서 떼고 놓인 순서로 다시 매긴다
+  const slugs = services.length > 0 ? services.map((s) => s.slug) : CATEGORIES.map((c) => c.slug)
+  const rawNames =
     services.length > 0
-      ? Object.fromEntries(services.map((s) => [s.slug, locale === 'ja' ? s.nameJa : s.nameKo]))
-      : Object.fromEntries(CATEGORIES.map((c) => [c.slug, t(`services.${c.slug}`)]))
+      ? services.map((s) => (locale === 'ja' ? s.nameJa : s.nameKo))
+      : CATEGORIES.map((c) => t(`services.${c.slug}`))
+  const numberedNames = numberByListPosition(rawNames)
+  const serviceNames = Object.fromEntries(slugs.map((slug, i) => [slug, numberedNames[i]!]))
 
   // 왼쪽 칸 이미지는 관리자 이미지 관리의 main 슬롯. 없거나 DB 를 못 읽으면 기본 서울 이미지
   let asideImage = '/brand/ayuta-cover.webp'

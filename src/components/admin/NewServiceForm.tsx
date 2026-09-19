@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Toast } from '@/components/ui'
 import { NoPermission } from './AdminConfirm'
+import { defaultSortOrderForNew, type SortableService } from '@/lib/services/new-service'
 import s from './admin-v2.module.css'
 
 const MODELS = [
@@ -20,18 +21,20 @@ const MODELS = [
  * 번호와 주소는 여기서 정하지 않는다 — 서버가 기존 최대 번호 다음을 주고, 주소는 이름에서 만든다.
  * 계산 방식은 만들 때만 고른다. 만든 뒤에는 바꾸지 못한다(이미 받은 주문과 금액이 어긋난다).
  */
-export function NewServiceForm({ canEdit }: { canEdit: boolean }) {
+export function NewServiceForm({ canEdit, existing }: { canEdit: boolean; existing: SortableService[] }) {
   const router = useRouter()
   const [open, setOpen] = useState(false)
   const [denied, setDenied] = useState(false)
   const [busy, setBusy] = useState(false)
   const [toast, setToast] = useState<{ kind: 'success' | 'error'; text: string } | null>(null)
+  // 「기타」(model: 'inquiry') 뒤에 붙이면 항상 마지막이어야 할 「기타」가 마지막 자리를
+  // 잃는다 — 그래서 기본값을 「기타」 바로 앞으로 준다(2026-09-19). 관리자가 고칠 수 있다
   const [form, setForm] = useState({
     nameKo: '',
     nameJa: '',
     model: 'sum' as (typeof MODELS)[number]['value'],
     contractMode: 'fixed' as 'fixed' | 'perQuote',
-    sortOrder: '60',
+    sortOrder: String(defaultSortOrderForNew(existing)),
   })
 
   async function create() {
