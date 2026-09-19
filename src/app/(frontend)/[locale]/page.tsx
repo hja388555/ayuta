@@ -75,7 +75,11 @@ export default async function CoverPage({ params }: Props) {
             <div className="cover-brand">
               <span className="cover-logo" aria-hidden>{t('logo')}</span>
               <div className="cover-text">
-                <h1 className="cover-headline">{t('headline')}</h1>
+                <h1 className="cover-headline">
+                  {/* 검색엔진이 첫 화면 제목에서 한글·영문 브랜드명을 읽게 한다. 화면에는 원형 로고로 이미 보인다 */}
+                  <span className="sr-only">{t('brandName')} </span>
+                  {t('headline')}
+                </h1>
                 <p className="cover-tagline">
                   {taglineTail ? (
                     <>

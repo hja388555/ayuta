@@ -10,9 +10,9 @@ export const BRAND_BLUE = '#132A4A'
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'AYUTA 아유타 — 한국·일본 광고 견적',
+    name: '아유타 AYUTA | 일본 바이어 연결',
     short_name: '아유타',
-    description: '한국과 일본의 광고 견적을 바로 확인하고 온라인으로 계약하세요.',
+    description: '아유타(AYUTA)는 한국 기업과 일본 바이어를 연결하는 한일 사업 소개 서비스입니다.',
     start_url: '/ko',
     scope: '/',
     display: 'standalone',
