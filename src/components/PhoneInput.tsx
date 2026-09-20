@@ -20,7 +20,7 @@ type Props = {
 
 /**
  * 연락처 입력(Figma v2 상태 모음 — 한국 +82 ▾ | 번호). 나라는 기본 select 로 고른다.
- * 칸을 벗어나면 올바른 번호를 국내 표기로 정리하고, +81·+82 를 적었으면 나라도 맞춘다.
+ * 칸에는 국가번호와 앞자리 0 을 뺀 숫자만 남는다. 칸을 벗어날 때 정리하고, +81·+82 를 적었으면 나라도 맞춘다.
  */
 export function PhoneInput({ id, country, value, onChange, onBlur, invalid, describedBy, disabled, required }: Props) {
   const t = useTranslations('phone')

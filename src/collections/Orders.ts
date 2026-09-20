@@ -52,7 +52,7 @@ export const Orders: CollectionConfig = {
   },
   fields: [
     { name: 'orderNumber', type: 'text', required: true, unique: true, index: true, access: IMMUTABLE },
-    // 포트원에 넘긴 결제 식별자. 웹훅과 복귀 경로가 이 값으로 주문을 찾는다
+    // 결제사에 넘긴 결제 식별자. 웹훅과 복귀 경로가 이 값으로 주문을 찾는다
     { name: 'paymentId', type: 'text', required: true, unique: true, index: true },
     // 결제 버튼 더블클릭·재시도로 같은 요청이 두 번 와도 주문이 두 벌 생기지 않도록
     // createOrder가 이 값으로 기존 주문을 먼저 찾는다(Ruling 15). 없을 수도 있으므로
