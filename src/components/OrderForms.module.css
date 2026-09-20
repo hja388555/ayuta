@@ -152,28 +152,22 @@
   .step[data-group='community'] .price { grid-column: 1; grid-row: 2; }
 }
 @media (min-width: 768px) {
-  /* 가독성: PC 보조 문구 키움 */
-  .desc { font-size: 20px; line-height: 1.5; }
-  .chip2 { font-size: 22px; padding: 10px 16px; }
-  .chip2 img, .chip2 :global(.icon-mask) { width: 20px; height: 20px; }
-  .videoNote { font-size: 20px; padding: 14px 18px; }
-  .posterNote { font-size: 18px; }
+  /* 글자 크기는 아래 「글자 크기 단계(PC)」 블록이 정한다 — 여기는 줄 간격·안쪽 여백만 */
+  .desc { line-height: 1.5; }
+  .chip2 { padding: 10px 16px; }
+  .videoNote { padding: 14px 18px; }
 }
 @media (min-width: 768px) {
-  /* 2026-09-15 클라이언트: 1~5번 내용 글씨를 섹션 제목(40px)보다 살짝 작게 키우고 진하지 않게 */
-  .body :global(.choice) { font-size: 34px; font-weight: 500; }
-  .body :global(.choice-sub) { font-size: 30px; font-weight: 500; }
-  .body .price { font-size: 30px; font-weight: 500; }
-  .desc { font-size: 30px; font-weight: 400; }
-  .table, .table thead th, .table thead th:first-child, .priceRow td:first-child { font-size: 34px; font-weight: 500; }
-  .priceRow td { font-size: 30px; font-weight: 500; }
-  .chip2 { font-size: 30px; font-weight: 500; }
-  .chip2 img, .chip2 :global(.icon-mask) { width: 26px; height: 26px; }
-  .videoNote { font-size: 28px; font-weight: 500; }
-  .posterNote { font-size: 26px; }
-  .countryHead { font-size: 34px; }
-  /* 글씨가 커져 한 줄에 3개가 안 들어가는 지하철 광고 위치는 2개씩 */
-  .step[data-group='subwaySpot'] :global(.choice-grid) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* 2026-09-15 클라이언트: 1~5번 내용 글씨를 진하지 않게.
+     크기는 2026-09-18 폭 조정 때 아래 「글자 크기 단계(PC)」로 다시 잡았다 */
+  .body :global(.choice) { font-weight: 500; }
+  .body :global(.choice-sub) { font-weight: 500; }
+  .body .price { font-weight: 500; }
+  .desc { font-weight: 400; }
+  .table, .table thead th, .table thead th:first-child, .priceRow td:first-child { font-weight: 500; }
+  .priceRow td { font-weight: 500; }
+  .chip2 { font-weight: 500; }
+  .videoNote { font-weight: 500; }
 }
 @media (min-width: 768px) {
   .body :global(.choice):has(input:checked) { font-weight: 500; }
@@ -252,19 +246,6 @@
 }
 /* 2026-09-16 사용자: PC 글자가 커서 여백이 없어 보인다 — 내용 글씨를 한 단계 줄이고 묶음 사이를 80px 로 */
 @media (min-width: 768px) {
-  .body, .bodyWide { gap: 80px; }
-  .body :global(.choice) { font-size: 24px; }
-  .body :global(.choice-sub) { font-size: 20px; }
-  .body .price { font-size: 22px; }
-  .desc { font-size: 20px; }
-  .countryHead { font-size: 26px; }
-  .table, .table thead th, .table thead th:first-child, .priceRow td:first-child { font-size: 24px; }
-  .priceRow td { font-size: 22px; }
-  :global(:lang(ja)) .table thead th:not(:first-child) { font-size: 22px; }
-  .chip2 { font-size: 22px; }
-  .chip2 img, .chip2 :global(.icon-mask) { width: 20px; height: 20px; }
-  .videoNote { font-size: 20px; }
-  .posterNote { font-size: 18px; }
   .itemsLabel, .itemsValue, .totalRowLabel, .totalRowAmount { font-size: 22px; }
   .pay .payBtn { font-size: 22px; height: 56px; }
   .payBtn img, .payBtn :global(.icon-mask) { width: 44px !important; height: 44px !important; }
