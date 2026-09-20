@@ -66,7 +66,7 @@ export function validateOrderer(orderer: OrdererFormState): Partial<Record<Order
   return errors
 }
 
-/** 입력칸 처음 상태 — 회원·문의 때 저장된 연락처(E.164)를 나라·국내 표기로 풀고, 없으면 표지 국가·언어로 나라를 정한다 */
+/** 입력칸 처음 상태 — 회원·문의 때 저장된 연락처(E.164)를 나라와 입력칸 숫자로 풀고, 없으면 표지 국가·언어로 나라를 정한다 */
 export function initialOrdererState(initial: Partial<Omit<OrdererFormState, 'phoneCountry'>> | undefined, coverCountries: readonly string[], locale: string): OrdererFormState {
   const fallback = defaultPhoneCountry({ stored: initial?.phone, coverCountries, locale })
   const phone = initialPhoneInput(initial?.phone, fallback)

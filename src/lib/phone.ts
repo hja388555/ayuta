@@ -183,13 +183,14 @@ export function defaultPhoneCountry(opts: { stored?: string | null; coverCountri
  * 입력칸 처음 값 — 저장된 번호를 나라와 입력칸 표기(앞 0 없는 숫자)로 푼다.
  * 읽을 수 없는 예전 값은 고객이 고칠 수 있게 그대로 둔다
  */
+/** 저장된 E.164 를 입력칸 상태로 — 나라는 선택칸이, 숫자만 남긴 값은 입력칸이 받는다 */
 export function initialPhoneInput(stored: string | null | undefined, fallback: PhoneCountry): { country: PhoneCountry; value: string } {
   const p = parseStoredPhone(stored)
   return p ? { country: p.country, value: clampPhoneInput(p.national, p.country) } : { country: fallback, value: (stored ?? '').trim() }
 }
 
 /**
- * 입력칸을 벗어날 때 값 정리 — 올바른 번호면 국내 표기로 바꾸고, 국가번호를 적었으면 그 나라로 옮긴다.
+ * 입력칸을 벗어날 때 값 정리 — 올바른 번호면 국가번호·앞자리 0 을 떼고, 국가번호를 적었으면 그 나라로 옮긴다.
  * 올바르지 않으면 null(고객이 적은 그대로 둔다)
  */
 export function tidyPhoneInput(raw: string, selected: PhoneCountry): { country: PhoneCountry; value: string } | null {
