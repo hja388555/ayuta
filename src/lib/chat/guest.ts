@@ -41,6 +41,7 @@ export const GuestStartSchema = z
     body: z.string().trim().min(1).max(500),
     consent: z.literal(true),
     locale: z.enum(['ko', 'ja']),
+    recaptchaToken: z.string().max(4000).optional().default(''),
   })
   .strict()
   .transform((d, ctx) => {

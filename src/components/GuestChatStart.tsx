@@ -1,12 +1,13 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { validateGuestStart, type GuestStartErrors } from '@/lib/chat/guest-form'
 import { phoneCountryForLocale, type PhoneCountry } from '@/lib/phone'
 import { focusFirstInvalid } from '@/lib/ui/focus-invalid'
 import { LegalConsentModal } from './LegalConsentModal'
 import { PhoneInput, phoneForSubmit, usePhoneErrorText } from './PhoneInput'
+import { preloadRecaptcha, recaptchaToken } from '@/lib/recaptcha-client'
 import c from './Chat.module.css'
 import s from './InquiryQuote.module.css'
 
@@ -51,6 +52,9 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
   const [error, setError] = useState<string | null>(linkInvalid ? labels.linkInvalid : null)
   const err = (code: string) => labels.errors[code] ?? labels.errors.generic ?? ''
 
+  // 리캡차 스크립트를 화면이 열릴 때 미리 받는다 — 보내기 누른 뒤 기다리지 않게
+  useEffect(preloadRecaptcha, [])
+
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (busy) return
@@ -63,10 +67,11 @@ export function GuestChatStart({ locale, linkInvalid, labels }: { locale: 'ko' |
     setBusy(true)
     setError(null)
     try {
+      const token = await recaptchaToken('chat_guest')
       const res = await fetch('/api/chat/guest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone: phoneForSubmit(phone, phoneCountry), body: body.trim(), consent: true, locale }),
+        body: JSON.stringify({ name, email, phone: phoneForSubmit(phone, phoneCountry), body: body.trim(), consent: true, locale, recaptchaToken: token }),
       })
       const json = (await res.json().catch(() => ({}))) as { ok?: boolean; error?: string }
       if (res.status === 409) return router.refresh()

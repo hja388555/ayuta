@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ChoiceCard, ChoiceGrid } from './ui'
 import { defaultPhoneCountry, initialPhoneInput, isValidPhone, type PhoneCountry } from '../lib/phone'
 import { LegalConsentModal } from './LegalConsentModal'
 import { PhoneInput, phoneForSubmit, usePhoneErrorText } from './PhoneInput'
+import { preloadRecaptcha, recaptchaToken } from '@/lib/recaptcha-client'
 import s from './InquiryQuote.module.css'
 
 type Labels = {
@@ -150,6 +151,9 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
     el?.focus()
   }
 
+  // 리캡차 스크립트를 화면이 열릴 때 미리 받는다 — 보내기 누른 뒤 기다리지 않게
+  useEffect(preloadRecaptcha, [])
+
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (busy) return
@@ -166,6 +170,7 @@ export function InquiryForm({ locale, initialType, initialContact, initialCountr
     setError(null)
     try {
       const fd = new FormData()
+      fd.append('recaptchaToken', await recaptchaToken('inquiry'))
       if (initialType) fd.set('type', initialType)
       for (const c of country) fd.append('country', c)
       fd.set('body', body)

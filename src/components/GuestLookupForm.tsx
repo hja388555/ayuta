@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { preloadRecaptcha, recaptchaToken } from '@/lib/recaptcha-client'
 import s from './Auth.module.css'
 
 type Labels = {
@@ -31,16 +32,20 @@ export function GuestLookupForm({ locale, labels }: { locale: string; labels: La
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  // 리캡차 스크립트를 화면이 열릴 때 미리 받는다 — 보내기 누른 뒤 기다리지 않게
+  useEffect(preloadRecaptcha, [])
+
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (busy) return
     setBusy(true)
     setError(null)
     try {
+      const token = await recaptchaToken('order_lookup')
       const res = await fetch('/api/order-lookup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderNumber: orderNumber.trim(), email: email.trim(), phone: phone.trim(), locale }),
+        body: JSON.stringify({ orderNumber: orderNumber.trim(), email: email.trim(), phone: phone.trim(), locale, recaptchaToken: token }),
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok || !body?.ok) {

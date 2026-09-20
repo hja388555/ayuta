@@ -8,6 +8,7 @@ import { getSessionUser } from '@/lib/dal'
 import { EXTENSION_FOR, sniffFileType } from '@/lib/file-sniff'
 import { INQUIRY_COUNTRIES } from '@/collections/Inquiries'
 import { normalizePhoneInput, phoneCountryForLocale } from '@/lib/phone'
+import { verifyRecaptcha } from '@/lib/recaptcha'
 
 /**
  * 5번(기타 광고) 문의 접수. 로그인을 요구하지 않는다(요구사항 1-12: 비회원 비중이 높다).
@@ -52,6 +53,7 @@ export async function POST(req: Request): Promise<Response> {
     type: str(form.get('type')),
   })
   if (!parsed.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
+  if (!(await verifyRecaptcha(str(form.get('recaptchaToken')), 'inquiry'))) return NextResponse.json({ error: 'captcha_failed' }, { status: 400 })
   const fields = parsed.data
   // 화면은 E.164 로 보낸다. 국가번호가 없으면 문의 언어의 나라 → 다른 나라 순으로 본다(lib/phone)
   const phone = normalizePhoneInput(fields.phone, phoneCountryForLocale(fields.locale))

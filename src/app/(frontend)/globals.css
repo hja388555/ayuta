@@ -423,3 +423,9 @@ body {
   /* 주문 화면 상단 이미지 1200×240, 모서리 20 */
   .image-full { height: 240px; margin-top: 40px; border-radius: 20px; }
 }
+
+/* reCAPTCHA v3 배지는 오른쪽 아래에 고정으로 뜬다. 모바일에서는 하단 탭바 위로 올린다 */
+.grecaptcha-badge { z-index: 30; }
+@media (max-width: 767px) {
+  .grecaptcha-badge { bottom: calc(var(--tabbar-h) + 14px) !important; }
+}

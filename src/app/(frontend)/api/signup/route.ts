@@ -4,6 +4,7 @@ import config from '@payload-config'
 import { z } from 'zod'
 import { passwordIssue } from '@/lib/password-policy'
 import { normalizePhoneInput } from '@/lib/phone'
+import { verifyRecaptcha } from '@/lib/recaptcha'
 
 /**
  * 회원가입. Payload 기본 REST(POST /api/users)를 화면에서 쓰지 않고 이 경로를 둔다 —
@@ -28,6 +29,7 @@ const BodySchema = z.object({
   agreeTerms: z.literal(true),
   agreePrivacy: z.literal(true),
   agreeMarketing: z.boolean().optional().default(false),
+  recaptchaToken: z.string().max(4000).optional().default(''),
 })
 const CONSENTS = new Set(['agreeAge', 'agreeTerms', 'agreePrivacy'])
 
@@ -44,6 +46,7 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ error: consentMissing ? 'consent_required' : 'invalid_input' }, { status: 400 })
   }
   const d = parsed.data
+  if (!(await verifyRecaptcha(d.recaptchaToken, 'signup'))) return NextResponse.json({ error: 'captcha_failed' }, { status: 400 })
   if (passwordIssue(d.password)) return NextResponse.json({ error: 'weak_password' }, { status: 400 })
   // 화면은 E.164(+82…·+81…)로 보낸다. 국가번호가 없으면 한국 → 일본 번호 규칙 순으로 본다(lib/phone)
   const phone = normalizePhoneInput(d.phone, 'KR')

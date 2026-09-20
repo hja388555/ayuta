@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 import { findOwnedOrder } from '@/lib/order-lookup'
 import { createGuestProofCookie } from '@/lib/checkout/guest-proof'
+import { verifyRecaptcha } from '@/lib/recaptcha'
 
 /**
  * 비회원 주문 조회. 주문번호 + 이메일 + 연락처 세 가지가 모두 맞아야 한다(큐 Q21).
@@ -15,6 +16,7 @@ const BodySchema = z.object({
   email: z.string().trim().email().max(200),
   phone: z.string().trim().min(1).max(40),
   locale: z.enum(['ko', 'ja']).optional().default('ko'),
+  recaptchaToken: z.string().max(4000).optional().default(''),
 })
 
 export async function POST(req: Request): Promise<Response> {
@@ -27,6 +29,8 @@ export async function POST(req: Request): Promise<Response> {
   const parsed = BodySchema.safeParse(raw)
   if (!parsed.success) return NextResponse.json({ error: 'not_found' }, { status: 404 })
   const { orderNumber, email, phone, locale } = parsed.data
+  // 주문번호 대입을 자동으로 두드리는 것을 막는다. 실패도 조회 실패와 같은 응답으로 묶는다
+  if (!(await verifyRecaptcha(parsed.data.recaptchaToken, 'order_lookup'))) return NextResponse.json({ error: 'not_found' }, { status: 404 })
 
   const order = await findOwnedOrder(orderNumber, { kind: 'guest', email, phone })
   if (!order) return NextResponse.json({ error: 'not_found' }, { status: 404 })

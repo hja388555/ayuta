@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { passwordIssue, PASSWORD_MAX, PASSWORD_MIN } from '@/lib/password-policy'
 import { isValidPhone, phoneCountryForLocale, type PhoneCountry } from '@/lib/phone'
@@ -8,6 +8,7 @@ import { focusFirstInvalid } from '@/lib/ui/focus-invalid'
 import { AddressSearch } from './AddressSearch'
 import { PhoneInput, phoneForSubmit, usePhoneErrorText } from './PhoneInput'
 import { LegalConsentModal, type LegalKind } from './LegalConsentModal'
+import { preloadRecaptcha, recaptchaToken } from '@/lib/recaptcha-client'
 import s from './Auth.module.css'
 
 export type SignupLabels = Record<
@@ -53,6 +54,9 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
   const msg = (code: string) => labels.errors[code] ?? labels.errors.generic ?? ''
   const allOn = c.age && c.terms && c.privacy && c.marketing
 
+  // 리캡차 스크립트를 화면이 열릴 때 미리 받는다 — 보내기 누른 뒤 기다리지 않게
+  useEffect(preloadRecaptcha, [])
+
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (busy) return
@@ -71,10 +75,11 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
     setError(null)
     try {
       const { passwordConfirm: _, ...rest } = f
+      const token = await recaptchaToken('signup')
       const res = await fetch('/api/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...rest, phone: phoneForSubmit(f.phone, phoneCountry), agreeAge: c.age, agreeTerms: c.terms, agreePrivacy: c.privacy, agreeMarketing: c.marketing }),
+        body: JSON.stringify({ ...rest, phone: phoneForSubmit(f.phone, phoneCountry), agreeAge: c.age, agreeTerms: c.terms, agreePrivacy: c.privacy, agreeMarketing: c.marketing, recaptchaToken: token }),
       })
       const body = await res.json().catch(() => ({}))
       if (!res.ok || !body?.ok) {

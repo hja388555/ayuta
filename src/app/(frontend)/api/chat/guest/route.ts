@@ -5,6 +5,7 @@ import config from '@payload-config'
 import { getSessionUser } from '@/lib/dal'
 import { clientIp, creationWindowStart, generateGuestToken, GUEST_COOKIE, guestCookieOptions, GuestStartSchema, hashClientIp, isCreationLimited } from '@/lib/chat/guest'
 import { createGuestThread, guestThreadFromCookie, jsonError, readJson, sendGreeting, sendMessage, threadView } from '@/lib/chat/service'
+import { verifyRecaptcha } from '@/lib/recaptcha'
 
 /**
  * 비회원: 로그인 없이 채팅 시작(Figma [v2] 12-B 285:2). 이름·이메일·연락처 + 개인정보 동의(필수)를 받고
@@ -18,6 +19,7 @@ export async function POST(req: Request): Promise<Response> {
     const consent = raw && typeof raw === 'object' ? (raw as { consent?: unknown }).consent : undefined
     return jsonError(consent !== true ? 'consent_required' : 'invalid_input', 400)
   }
+  if (!(await verifyRecaptcha(parsed.data.recaptchaToken, 'chat_guest'))) return jsonError('captcha_failed', 400)
   if (await getSessionUser()) return jsonError('already_member', 409)
 
   const payload = await getPayload({ config })
