@@ -1,9 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { isAdminRole } from '@/lib/roles'
+import { preloadRecaptcha, recaptchaToken } from '@/lib/recaptcha-client'
 import s from './Auth.module.css'
 
 type Labels = {
@@ -35,6 +36,7 @@ export function LoginForm({ locale, next, labels }: { locale: string; next?: str
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [findOpen, setFindOpen] = useState(false)
+  useEffect(preloadRecaptcha, [])
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -45,7 +47,7 @@ export function LoginForm({ locale, next, labels }: { locale: string; next?: str
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email.trim(), password, keep }),
+        body: JSON.stringify({ email: email.trim(), password, keep, recaptchaToken: await recaptchaToken('login') }),
       })
       if (!res.ok) {
         // 없는 계정·틀린 비밀번호·잠김을 구분해 보여주지 않는다

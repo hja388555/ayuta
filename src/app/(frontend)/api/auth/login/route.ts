@@ -3,6 +3,7 @@ import { APIError, getPayload, jwtSign } from 'payload'
 import config from '@payload-config'
 import { z } from 'zod'
 import { loginSessionPlan } from '@/lib/login-session'
+import { verifyRecaptcha } from '@/lib/recaptcha'
 
 /**
  * 로그인(요구사항 1-16) + "로그인 상태 유지".
@@ -19,6 +20,7 @@ const BodySchema = z.object({
   email: z.string().max(320),
   password: z.string().max(128),
   keep: z.boolean().optional(),
+  recaptchaToken: z.string().max(4000).optional().default(''),
 })
 
 const failed = (status: number) => NextResponse.json({ error: 'login_failed' }, { status })
@@ -36,7 +38,9 @@ export async function POST(req: Request): Promise<Response> {
   }
   const parsed = BodySchema.safeParse(raw)
   if (!parsed.success) return NextResponse.json({ error: 'invalid_input' }, { status: 400 })
-  const { email, password, keep = false } = parsed.data
+  const { email, password, keep = false, recaptchaToken } = parsed.data
+  // 자동 대입 로그인을 막는다. 틀린 비밀번호와 같은 응답이라 봇이 무엇에 걸렸는지 알 수 없다
+  if (!(await verifyRecaptcha(recaptchaToken, 'login'))) return failed(401)
 
   const payload = await getPayload({ config })
   let result
