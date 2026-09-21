@@ -239,6 +239,10 @@ body {
   .round-contact-btn .icon-mask { width: 36px; height: 36px; }
   .round-contact-chat-text { width: auto; height: auto; border: 0; font-size: 14px; font-weight: 800; color: #000; line-height: 1.1; text-align: center; word-break: keep-all; }
   .round-contact-fixed { position: fixed; right: 24px; bottom: 24px; z-index: 50; flex-direction: column; gap: 12px; }
+  /* PC 에서 전화 버튼을 누르면 번호가 왼쪽으로 펼쳐진다 — 데스크톱은 tel: 로 걸리지 않는 경우가 많다 */
+  .round-contact-phone { position: relative; display: flex; align-items: center; }
+  .round-contact-phone .round-contact-btn { padding: 0; cursor: pointer; }
+  .round-contact-number { position: absolute; right: calc(100% + 10px); white-space: nowrap; padding: 10px 14px; border-radius: 999px; background: #fff; border: 1px solid var(--c-line); box-shadow: 0 4px 12px rgba(11, 11, 12, 0.12); font-size: 16px; font-weight: 700; color: var(--c-title); user-select: all; }
 }
 
 @media (max-width: 767px) {
