@@ -6,6 +6,7 @@ import { poolConfig } from './lib/db-pool'
 import { s3Storage } from '@payloadcms/storage-s3'
 import { S3_PREFIX, s3ClientConfig, s3Enabled } from './lib/uploads/s3-config'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
+import { resendAdapter } from '@payloadcms/email-resend'
 import { integer, pgTable, serial, text, unique } from 'drizzle-orm/pg-core'
 
 import { Users } from './collections/Users'
@@ -60,6 +61,16 @@ export default buildConfig({
   ],
   globals: [PricingSettings, CompanySettings],
   editor: lexicalEditor(),
+  // 메일(큐 Q28)은 Resend 로 보낸다. 키가 없는 로컬·CI 는 Payload 기본값(콘솔 출력)으로 둔다
+  ...(process.env.RESEND_API_KEY
+    ? {
+        email: resendAdapter({
+          apiKey: process.env.RESEND_API_KEY,
+          defaultFromAddress: mailAddress(process.env.MAIL_FROM).address,
+          defaultFromName: mailAddress(process.env.MAIL_FROM).name,
+        }),
+      }
+    : {}),
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: { outputFile: path.resolve(dirname, 'payload-types.ts') },
   // 업로드(문의 첨부·도장)를 Supabase Storage 비공개 버킷에 저장한다(큐 Q31 2단계). Vercel 은 디스크가
@@ -117,3 +128,10 @@ export default buildConfig({
   }),
   sharp: undefined,
 })
+
+/** "AYUTA <support@ayuta.kr>" 를 이름과 주소로 나눈다. 주소만 적혀 있어도 된다 */
+function mailAddress(raw: string | undefined): { name: string; address: string } {
+  const m = raw?.match(/^\s*"?([^"<]*?)"?\s*<([^>]+)>\s*$/)
+  if (m) return { name: m[1] || 'AYUTA', address: m[2]! }
+  return { name: 'AYUTA', address: raw?.trim() || 'support@ayuta.kr' }
+}

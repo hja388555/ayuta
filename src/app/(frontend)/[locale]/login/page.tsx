@@ -50,8 +50,6 @@ export default async function LoginPage({ params, searchParams }: Props) {
               loginFailed: t('loginFailed'),
               keepLogin: t('keepLogin'),
               findPassword: t('findPassword'),
-              findPasswordSoon: t('findPasswordSoon'),
-              findPasswordChat: t('findPasswordChat'),
             }}
           />
           {/* 2026-09-19 클라이언트 요청 — 한 화면에 같은 기능 버튼 하나. 회원가입은 헤더에 있으므로 여기서 뺀다 */}

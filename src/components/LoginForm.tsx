@@ -20,8 +20,6 @@ type Labels = {
   findPassword: string
   showPassword: string
   hidePassword: string
-  findPasswordSoon: string
-  findPasswordChat: string
 }
 
 /**
@@ -38,7 +36,6 @@ export function LoginForm({ locale, next, labels }: { locale: string; next?: str
   const [keep, setKeep] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [findOpen, setFindOpen] = useState(false)
   useEffect(preloadRecaptcha, [])
 
   async function submit(e: React.FormEvent) {
@@ -99,16 +96,10 @@ export function LoginForm({ locale, next, labels }: { locale: string; next?: str
           <span className={s.box} aria-hidden />
           {labels.keepLogin}
         </label>
-        {/* 비밀번호 재설정 메일(큐 Q28)이 아직 없다. 터치 기기에는 title 툴팁이 안 보이므로 누르면 안내 문구를 펼친다 */}
-        <button type="button" className={s.findPw} aria-expanded={findOpen} aria-controls="login-findpw-note" onClick={() => setFindOpen((v) => !v)}>
+        <Link href={`/${locale}/forgot-password`} className={s.findPw}>
           {labels.findPassword}
-        </button>
+        </Link>
       </div>
-      {findOpen ? (
-        <p id="login-findpw-note" role="status" className={s.findPwNote}>
-          {labels.findPasswordSoon} <Link href={`/${locale}/chat`}>{labels.findPasswordChat}</Link>
-        </p>
-      ) : null}
       {error ? (
         <p role="alert" className={s.banner}>
           <img src="/ui/alert.svg" alt="" width={18} height={18} />
