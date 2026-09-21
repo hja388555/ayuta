@@ -303,6 +303,7 @@
   .price { font-size: 14px; letter-spacing: -0.02em; }
 }
 @media (min-width: 768px) {
-  /* 2026-09-19 클라이언트: 블로그 카드 설명 글씨만 키움 */
+  /* 2026-09-19 클라이언트: 블로그 카드 설명 글씨만 키움. 2026-09-21 항목 제목도 함께 키움 */
   .step[data-group='blog'] .desc { font-size: 20px; font-weight: 500; line-height: 1.5; }
+  .step[data-group='blog'] :global(.choice) { font-size: 22px; }
 }
