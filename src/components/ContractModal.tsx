@@ -146,10 +146,13 @@ export function ContractDialog({
   const showMismatch = hasSignatureField && typed.trim() !== '' && !signatureOk
   const agreed = consentsAgreed && signatureOk
 
+  // 계약서는 법적 문서다 — 브라우저 자동 번역이 원문을 덮으면 고객이 본 글과 체결한 글이
+  // 달라지고, 번역기가 React 가 관리하는 글자 노드를 갈아치워 서명칸이 먹통이 된다(2026-09-21)
   return (
     <dialog
+      translate="no"
       ref={ref}
-      className={`modal ${s.dialog}`}
+      className={`modal notranslate ${s.dialog}`}
       aria-label={title}
       onClose={onClose}
       onClick={(e) => {
