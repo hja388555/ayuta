@@ -34,7 +34,6 @@ export function NewServiceForm({ canEdit, existing }: { canEdit: boolean; existi
     nameJa: '',
     model: 'sum' as (typeof MODELS)[number]['value'],
     contractMode: 'fixed' as 'fixed' | 'perQuote',
-    sortOrder: String(defaultSortOrderForNew(existing)),
   })
 
   async function create() {
@@ -42,11 +41,6 @@ export function NewServiceForm({ canEdit, existing }: { canEdit: boolean; existi
     if (!form.nameKo.trim() || !form.nameJa.trim()) {
       return setToast({ kind: 'error', text: '서비스 이름을 한국어·일본어 모두 적어 주세요.' })
     }
-    const order = Number(form.sortOrder)
-    if (!Number.isInteger(order) || order < 0) {
-      return setToast({ kind: 'error', text: '순서는 0 이상 정수로 적어 주세요.' })
-    }
-
     setBusy(true)
     const res = await fetch('/api/admin/services', {
       method: 'POST',
@@ -56,7 +50,7 @@ export function NewServiceForm({ canEdit, existing }: { canEdit: boolean; existi
         nameJa: form.nameJa.trim(),
         model: form.model,
         contractMode: form.contractMode,
-        sortOrder: order,
+        sortOrder: defaultSortOrderForNew(existing),
         // 새 서비스는 묶음·항목을 채운 뒤에 열어야 한다. 빈 화면이 고객에게 먼저 보이면 안 된다
         active: false,
       }),
@@ -125,17 +119,9 @@ export function NewServiceForm({ canEdit, existing }: { canEdit: boolean; existi
               <option value="perQuote">견적 발행 때마다 작성</option>
             </select>
           </label>
-          <label className={s.field}>
-            <span>순서</span>
-            <input
-              inputMode="numeric"
-              value={form.sortOrder}
-              onChange={(e) => setForm({ ...form, sortOrder: e.target.value })}
-            />
-          </label>
         </div>
         <p className={s.note}>
-          번호와 주소는 저장할 때 자동으로 정해집니다. 만든 서비스는 비공개로 시작하니, 묶음과 항목을 채운 뒤 공개로 바꾸세요.
+          번호·주소·순서는 저장할 때 자동으로 정해집니다(순서는 목록 화면에서 위·아래 버튼으로 바꿉니다). 만든 서비스는 비공개로 시작하니, 묶음과 항목을 채운 뒤 공개로 바꾸세요.
         </p>
         <div className={s.actions}>
           <button type="button" className={s.primaryBtn} onClick={create} disabled={busy}>

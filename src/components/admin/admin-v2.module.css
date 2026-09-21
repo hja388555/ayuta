@@ -181,3 +181,9 @@
 .addRowBtn { height: 48px; border: 1px dashed var(--line-strong); border-radius: 12px; background: #fff; color: var(--ink-500); font: inherit; font-size: 15px; cursor: pointer; }
 .addRowBtn:hover { border-color: var(--brand-600); color: var(--brand-900); }
 .addRowBtn:disabled { opacity: 0.6; cursor: default; }
+
+/* 순서 바꾸기 버튼(목록 줄 왼쪽, 항목 표의 순서 칸) */
+.orderBtns { flex: none; display: flex; flex-direction: column; gap: 2px; }
+.orderBtn { width: 28px; height: 20px; padding: 0; border: 1px solid var(--line-strong); border-radius: 6px; background: #fff; color: var(--ink-500); font: inherit; font-size: 11px; line-height: 1; cursor: pointer; }
+.orderBtn:hover:not(:disabled) { border-color: var(--brand-600); color: var(--brand-900); }
+.orderBtn:disabled { opacity: 0.35; cursor: default; }

@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation'
-import Link from 'next/link'
 import { AuthError, requireAdmin } from '@/lib/dal'
 import { isSuperRole } from '@/lib/roles'
 import { authedPayload } from '@/lib/admin/orders-data'
 import { NewServiceForm } from '@/components/admin/NewServiceForm'
+import { ServiceOrderList } from '@/components/admin/ServiceOrderList'
 import s from '@/components/admin/admin-v2.module.css'
 
 /**
@@ -12,19 +12,6 @@ import s from '@/components/admin/admin-v2.module.css'
  * 조회는 관리자 전부, 편집·추가는 최고관리자만(저장 API 가 최종 판정한다).
  * 서비스 정의(번호·이름·계산 방식·계약서 방식·순서·공개)는 ad-services 가 정본이다.
  */
-const MODEL_LABELS: Record<string, string> = {
-  tier: '등급 선택',
-  sum: '항목 합산',
-  sumMultiplier: '항목 합산 + 기간',
-  videoPairs: '종류 × 길이',
-  inquiry: '문의형',
-}
-
-const CONTRACT_LABELS: Record<string, string> = {
-  fixed: '고정 계약서',
-  perQuote: '견적 발행 때 작성',
-}
-
 export default async function ServicesPage() {
   let user
   try {
@@ -79,29 +66,25 @@ export default async function ServicesPage() {
       {docs.length === 0 ? (
         <p className={s.note}>등록된 서비스가 없습니다.</p>
       ) : (
-        <section className={s.card}>
-          {docs.map((d) => (
-            <div key={d.id as number} className={`${s.listRow} ${s.listRowLine}`}>
-              <div className={s.listMain}>
-                {/* 이름에 이미 번호가 들어 있다("1. 디지털/SNS광고") — 화면에서 또 붙이면 겹친다.
-                    이름이 정본이므로 관리자가 고친 그대로 보여 준다 */}
-                <Link className={s.listLink} href={`/manage/services/${d.id}`}>
-                  {d.nameKo as string}
-                </Link>
-                <p className={s.hint}>
-                  {String(d.no)}번 · {MODEL_LABELS[d.model as string] ?? (d.model as string)} ·{' '}
-                  {CONTRACT_LABELS[d.contractMode as string] ?? (d.contractMode as string)} ·
-                  묶음 {groupCount.get(d.id as number) ?? 0}개 · 순서 {String(d.sortOrder)} · /order/{d.slug as string}
-                </p>
-              </div>
-              <span className={s.pillGray}>{d.active ? '공개' : '비공개'}</span>
-            </div>
-          ))}
-        </section>
+        <ServiceOrderList
+          canEdit={canEdit}
+          rows={docs.map((d) => ({
+            id: d.id as number,
+            no: d.no as number,
+            slug: d.slug as string,
+            nameKo: d.nameKo as string,
+            nameJa: d.nameJa as string,
+            contractMode: d.contractMode as 'fixed' | 'perQuote',
+            model: d.model as string,
+            active: Boolean(d.active),
+            sortOrder: d.sortOrder as number,
+            groupCount: groupCount.get(d.id as number) ?? 0,
+          }))}
+        />
       )}
 
       <p className={s.note}>
-        항목과 금액은 단가 관리 화면에서 고칩니다. 서비스 추가와 묶음 편집은 다음 단계에서 열립니다.
+        순서는 각 줄 왼쪽의 위·아래 버튼으로 바꿉니다. 항목과 금액은 단가 관리 화면에서 고칩니다.
       </p>
     </div>
   )

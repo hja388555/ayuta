@@ -80,7 +80,6 @@ export function ServiceBoard({
     descKo: service.descKo,
     descJa: service.descJa,
     contractMode: service.contractMode,
-    sortOrder: String(service.sortOrder),
     active: service.active,
   })
   const [cards, setCards] = useState(groups)
@@ -98,6 +97,31 @@ export function ServiceBoard({
       prev.map((g) =>
         g.id === groupId ? { ...g, items: g.items.map((i) => (i.id === itemId ? { ...i, ...patch } : i)) } : g,
       ),
+    )
+  }
+
+  /**
+   * 항목 순서 바꾸기. 이웃과 sortOrder 값을 맞바꾸고 그 순서대로 다시 늘어놓는다 —
+   * 화면 순서와 저장될 값이 늘 같다. 저장은 아래 「저장」 버튼이 바뀐 줄만 보낸다.
+   */
+  function moveItem(groupId: number, itemId: number, delta: -1 | 1) {
+    if (!canEdit) return setDenied(true)
+    setCards((prev) =>
+      prev.map((g) => {
+        if (g.id !== groupId) return g
+        const at = g.items.findIndex((i) => i.id === itemId)
+        const other = at + delta
+        if (at < 0 || other < 0 || other >= g.items.length) return g
+        const items = [...g.items]
+        const a = items[at]
+        const b = items[other]
+        if (!a || !b) return g
+        // 값이 같으면(옛 자료) 맞바꿔도 자리가 그대로다 — 그때만 새 값을 만든다
+        const [orderA, orderB] = a.sortOrder === b.sortOrder ? [b.sortOrder + delta, b.sortOrder] : [b.sortOrder, a.sortOrder]
+        items[at] = { ...b, sortOrder: orderB }
+        items[other] = { ...a, sortOrder: orderA }
+        return { ...g, items: items.sort((x, y) => x.sortOrder - y.sortOrder) }
+      }),
     )
   }
 
@@ -162,8 +186,6 @@ export function ServiceBoard({
 
   function askSave() {
     if (!canEdit) return setDenied(true)
-    const order = Number(info.sortOrder)
-    if (!Number.isInteger(order) || order < 0) return setToast({ kind: 'error', text: '순서는 0 이상 정수로 적어 주세요.' })
     if (!info.nameKo.trim() || !info.nameJa.trim()) return setToast({ kind: 'error', text: '서비스 이름을 한국어·일본어 모두 적어 주세요.' })
 
     for (const g of cards) {
@@ -197,7 +219,7 @@ export function ServiceBoard({
         ...(info.descKo.trim() ? { descKo: info.descKo.trim() } : {}),
         ...(info.descJa.trim() ? { descJa: info.descJa.trim() } : {}),
         contractMode: info.contractMode,
-        sortOrder: Number(info.sortOrder),
+        sortOrder: service.sortOrder,
         active: info.active,
       }),
     })
@@ -302,12 +324,8 @@ export function ServiceBoard({
           </label>
           <label className={s.field}>
             <span>순서</span>
-            <input
-              inputMode="numeric"
-              value={info.sortOrder}
-              onChange={(e) => setInfo({ ...info, sortOrder: e.target.value })}
-              disabled={!canEdit}
-            />
+            <input value={`${service.sortOrder}번째`} readOnly disabled />
+            <span className={s.fieldHint}>목록 화면에서 위·아래 버튼으로 바꿉니다.</span>
           </label>
           <label className={s.field}>
             <span>주소 (자동 생성)</span>
@@ -389,12 +407,26 @@ export function ServiceBoard({
                         />
                       </td>
                       <td>
-                        <input
-                          inputMode="numeric"
-                          value={String(i.sortOrder)}
-                          onChange={(e) => patchItem(g.id, i.id, { sortOrder: Number(e.target.value) || 0 })}
-                          disabled={!canEdit}
-                        />
+                        <div className={s.orderBtns}>
+                          <button
+                            type="button"
+                            className={s.orderBtn}
+                            onClick={() => moveItem(g.id, i.id, -1)}
+                            disabled={!canEdit || g.items[0]?.id === i.id}
+                            aria-label={`${i.labelKo} 위로`}
+                          >
+                            ▲
+                          </button>
+                          <button
+                            type="button"
+                            className={s.orderBtn}
+                            onClick={() => moveItem(g.id, i.id, 1)}
+                            disabled={!canEdit || g.items.at(-1)?.id === i.id}
+                            aria-label={`${i.labelKo} 아래로`}
+                          >
+                            ▼
+                          </button>
+                        </div>
                       </td>
                       <td>
                         <select
