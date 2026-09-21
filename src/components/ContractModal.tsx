@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { splitContractBlocks, type ContractItemsBlock } from '../lib/contract-text'
 import { parseBoldSegments } from '../lib/contract-bold'
+import { signatureMatches } from '../lib/checkout/signature'
 import s from './ContractModal.module.css'
 
 /** 조항 본문의 `**강조**`만 굵게 그린다 — 저장된 글자는 그대로, 화면 모양만 바꾼다(contract-bold.ts) */
@@ -141,7 +142,7 @@ export function ContractDialog({
   // 서명칸이 있는 팝업(결제)에서는 동의뿐 아니라 이름이 주문자명과 같아야 확인 버튼이 열린다
   const hasSignatureField = onSignatureChange !== undefined
   const typed = signature ?? ''
-  const signatureOk = !hasSignatureField || (typed.trim() !== '' && typed.trim() === (expectedName ?? '').trim())
+  const signatureOk = !hasSignatureField || signatureMatches(typed, expectedName)
   const showMismatch = hasSignatureField && typed.trim() !== '' && !signatureOk
   const agreed = consentsAgreed && signatureOk
 

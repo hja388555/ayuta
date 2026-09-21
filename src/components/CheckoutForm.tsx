@@ -7,6 +7,7 @@ import type { ConsentDef } from '@/lib/checkout/consents'
 import { fillBuyerPreview } from '../lib/checkout/contract-preview'
 import { clearOrdererDraft, readOrdererDraft, writeOrdererDraft } from '../lib/checkout/orderer-draft'
 import type { CheckoutLabels } from '@/lib/checkout/labels'
+import { signatureMatches } from '@/lib/checkout/signature'
 import { defaultPhoneCountry, initialPhoneInput, isPhoneCountry, isValidPhone, type PhoneCountry } from '../lib/phone'
 import { ChoiceCard, StepTitle, TotalBar } from './ui'
 import { PhoneInput, phoneForSubmit, usePhoneErrorText } from './PhoneInput'
@@ -94,10 +95,10 @@ export function canSubmit(
 
 /**
  * 서명은 자동 기입하지 않는다 — 고객이 계약서 팝업에서 주문자명을 직접 타이핑해야 하고,
- * 앞뒤 공백을 뺀 값이 주문자명과 정확히 같을 때만 서명으로 인정한다.
+ * 공백·유니코드 표기를 맞춘 값이 주문자명과 같을 때만 서명으로 인정한다(signatureKey).
  */
 export function signatureReady(typed: string, ordererName: string): boolean {
-  return typed.trim() !== '' && typed.trim() === ordererName.trim()
+  return signatureMatches(typed, ordererName)
 }
 
 function formatAmount(amount: number, currency: PriceBook['currency']): string {

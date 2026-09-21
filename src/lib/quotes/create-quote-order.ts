@@ -5,6 +5,7 @@ import { z } from 'zod'
 import type { Currency } from '@ayuta/pricing'
 import { OrdererSchema, normalizeOrdererPhone } from '../checkout/orderer'
 import { persistOrder, type CreateOrderResult } from '../checkout/create-order'
+import { signatureMatches } from '../checkout/signature'
 import { hashQuoteToken, isQuoteTokenShape } from './token'
 import { parseQuoteLines } from './lines'
 import { isSameOrderer, quoteAccess, quoteOrderKey, quoteOrderLines } from './quote-order'
@@ -54,7 +55,7 @@ export async function createQuoteOrder(rawInput: unknown, customerId: number | n
   if (!parsed.success) return { ok: false, reason: 'invalid_input', detail: parsed.error.flatten() }
   const input = parsed.data
 
-  if (input.signature !== input.orderer.name) return { ok: false, reason: 'signature_mismatch' }
+  if (!signatureMatches(input.signature, input.orderer.name)) return { ok: false, reason: 'signature_mismatch' }
 
   const payload = await getPayload({ config })
   const quote = await loadQuoteByToken(payload, input.token)

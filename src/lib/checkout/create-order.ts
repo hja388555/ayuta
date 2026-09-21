@@ -15,6 +15,7 @@ import { nextOrderNumber } from '../order-counter'
 import { loadCompanyContractFields } from '../company-settings'
 import { OrdererSchema, buyerContractFields, normalizeOrdererPhone, type Orderer } from './orderer'
 import { markConsentBoxes } from './contract-preview'
+import { signatureMatches } from './signature'
 import { allRequiredChecked, withBaseConsents, type ConsentDef } from './consents'
 import { consentSnapshot } from './consent-snapshot'
 import { buildContractItems, categoryContractFacts, type ContractItem } from './contract-items'
@@ -178,9 +179,9 @@ export async function createOrder(rawInput: unknown, customerId: number | null =
   if (!parsed.success) return { ok: false, reason: 'invalid_input', detail: parsed.error.flatten() }
   const input = parsed.data
 
-  // 전자서명은 손으로 그리는 서명이 아니라 동의 체크 시 자동 기입되는 이름이다 — 여기서
+  // 전자서명은 손으로 그리는 서명이 아니라 고객이 직접 친 주문자명이다 — 여기서
   // 다르면 화면을 거치지 않고 API 를 직접 호출해 남의 이름으로 서명한 것이다
-  if (input.signature !== input.orderer.name) return { ok: false, reason: 'signature_mismatch' }
+  if (!signatureMatches(input.signature, input.orderer.name)) return { ok: false, reason: 'signature_mismatch' }
 
   // 2. 카테고리 확인 — 없는 슬러그면 거부
   const def = categoryBySlug(input.categorySlug)
