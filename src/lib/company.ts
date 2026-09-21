@@ -4,6 +4,8 @@
 // 있다(2번 계약서 원문 오타) — 여러 곳에 값을 복사해 두면 한 곳만 고치고 나머지가 오타로
 // 남는 사고가 반복된다. 계약서 본문은 {{companyName}} 등 플레이스홀더만 두고, 실제 값은
 // 관리자 설정(company-settings global, 큐 Q25)에서 읽는다. 아래 상수는 그 설정의 기본값이다.
+import { formatPhoneIntl } from './phone'
+
 export type CompanyInfo = {
   name: string
   ceo: string
@@ -53,7 +55,7 @@ export function companyFromSettings(row: CompanySettingsRow | null | undefined, 
     ceo: pick(row?.ceo, d.ceo),
     businessNo: pick(row?.businessNo, d.businessNo),
     address: pick(locale === 'ja' ? row?.addressJa : row?.addressKo, d.address),
-    phone: pick(row?.phone, d.phone),
+    phone: locale === 'ja' ? formatPhoneIntl(pick(row?.phone, d.phone)) : pick(row?.phone, d.phone),
     email: pick(row?.email, d.email),
   }
 }

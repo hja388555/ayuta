@@ -1,6 +1,7 @@
 import 'server-only'
 import { getPayload } from 'payload'
 import config from '@payload-config'
+import { formatPhoneIntl } from './phone'
 import { companyFromSettings, contractFieldsOf, type CompanyInfo, type CompanySettingsRow } from './company'
 
 /**
@@ -25,5 +26,6 @@ export async function loadFooterInfo(locale: 'ko' | 'ja') {
   const row = await loadRow()
   const c = companyFromSettings(row, locale)
   const opt = (v: string | null | undefined) => (typeof v === 'string' && v.trim() ? v.trim() : null)
-  return { ...c, contactPhone: opt(row.contactPhone), mailOrderNo: opt(row.mailOrderNo) }
+  const contact = opt(row.contactPhone)
+  return { ...c, contactPhone: contact && locale === 'ja' ? formatPhoneIntl(contact) : contact, mailOrderNo: opt(row.mailOrderNo) }
 }

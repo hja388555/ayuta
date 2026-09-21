@@ -200,3 +200,16 @@ export function tidyPhoneInput(raw: string, selected: PhoneCountry): { country: 
 
 /** 페이지 언어에서 서버가 쓸 기본 나라(국가번호 없이 들어온 값에만 쓰인다) */
 export const phoneCountryForLocale = (locale: string | undefined): PhoneCountry => (locale === 'ja' ? 'JP' : 'KR')
+
+/**
+ * 해외에서 그대로 누를 수 있는 표기(+82-2-3394-8838). 일본어 화면의 회사 연락처에 쓴다 —
+ * 국내 표기(02-...)만 적혀 있으면 일본에서 국제전화로 걸 수 없다.
+ * 이미 +로 시작하거나 읽을 수 없는 값은 건드리지 않는다.
+ */
+export function formatPhoneIntl(value: string | null | undefined): string {
+  const v = (value ?? '').trim()
+  if (!v || v.startsWith('+')) return v
+  const p = splitPhone(v, 'KR')
+  if (!p || !validNational(p.national, p.country)) return v
+  return `+${DIAL[p.country]}-${groupNational(p.national, p.country).replace(/^0/, '')}`
+}

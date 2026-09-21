@@ -3,6 +3,7 @@ import {
   defaultPhoneCountry,
   formatPhone,
   formatPhoneForContract,
+  formatPhoneIntl,
   clampPhoneInput,
   initialPhoneInput,
   isValidPhone,
@@ -182,5 +183,17 @@ describe('scrollTargetTop', () => {
   it('고정 헤더와 여백만큼 덜 올리고 0 밑으로 내려가지 않는다', () => {
     expect(scrollTargetTop(300, 1000, 80)).toBe(1204)
     expect(scrollTargetTop(10, 0, 80)).toBe(0)
+  })
+})
+
+describe('formatPhoneIntl', () => {
+  it('국내 표기를 국제 표기로 바꾼다', () => {
+    expect(formatPhoneIntl('02-3394-8838')).toBe('+82-2-3394-8838')
+    expect(formatPhoneIntl('010-1234-5678')).toBe('+82-10-1234-5678')
+  })
+  it('이미 국제 표기거나 읽을 수 없으면 그대로 둔다', () => {
+    expect(formatPhoneIntl('+82-2-3394-8838')).toBe('+82-2-3394-8838')
+    expect(formatPhoneIntl('대표번호 없음')).toBe('대표번호 없음')
+    expect(formatPhoneIntl(null)).toBe('')
   })
 })
