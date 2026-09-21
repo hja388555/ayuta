@@ -14,7 +14,7 @@ type Props = { params: Promise<{ locale: string }> }
 
 const KEYS = [
   'accountTitle', 'ordererTitle', 'ordererHint', 'consentTitle',
-  'email', 'emailPh', 'emailHelp', 'password', 'passwordHint', 'passwordConfirm', 'passwordConfirmPh',
+  'email', 'emailPh', 'emailHelp', 'password', 'passwordHint', 'passwordConfirm', 'passwordConfirmPh', 'showPassword', 'hidePassword',
   'name', 'namePh', 'phone', 'phonePh', 'postalCode', 'postalCodePh', 'address1', 'address1Ph', 'address2', 'address2Ph',
   'businessNo', 'businessNoPh', 'addressSearch',
   'agreeAll', 'agreeAge', 'agreeTerms', 'agreePrivacy', 'agreeMarketing', 'view', 'submit', 'submitting',

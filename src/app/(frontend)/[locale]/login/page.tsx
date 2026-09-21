@@ -43,6 +43,8 @@ export default async function LoginPage({ params, searchParams }: Props) {
             labels={{
               ...common,
               password: t('password'),
+              showPassword: t('showPassword'),
+              hidePassword: t('hidePassword'),
               loginButton: t('loginButton'),
               loggingIn: t('loggingIn'),
               loginFailed: t('loginFailed'),

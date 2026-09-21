@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { PasswordInput } from './PasswordInput'
 import { passwordIssue, PASSWORD_MAX, PASSWORD_MIN } from '@/lib/password-policy'
 import { isValidPhone, phoneCountryForLocale, type PhoneCountry } from '@/lib/phone'
 import { focusFirstInvalid } from '@/lib/ui/focus-invalid'
@@ -14,6 +15,7 @@ import s from './Auth.module.css'
 export type SignupLabels = Record<
   | 'accountTitle' | 'ordererTitle' | 'ordererHint' | 'consentTitle'
   | 'email' | 'emailPh' | 'emailHelp' | 'password' | 'passwordHint' | 'passwordConfirm' | 'passwordConfirmPh'
+  | 'showPassword' | 'hidePassword'
   | 'name' | 'namePh' | 'phone' | 'phonePh' | 'postalCode' | 'postalCodePh' | 'address1' | 'address1Ph' | 'address2' | 'address2Ph'
   | 'businessNo' | 'businessNoPh' | 'addressSearch'
   | 'agreeAll' | 'agreeAge' | 'agreeTerms' | 'agreePrivacy' | 'agreeMarketing' | 'view' | 'submit' | 'submitting',
@@ -133,6 +135,20 @@ export function SignupForm({ locale, labels }: { locale: string; labels: SignupL
                 // 나라나 번호를 고치면 지난 형식 오류 문구를 지운다(다른 나라 기준 문구가 남지 않게)
                 if (fieldErr.phone) setFieldErr((prev) => ({ ...prev, phone: undefined }))
               }}
+            />
+          ) : attrs.type === 'password' ? (
+            <PasswordInput
+              id={id}
+              className={s.input}
+              placeholder={ph}
+              value={f[key]}
+              onChange={(e) => setF({ ...f, [key]: e.target.value })}
+              disabled={busy}
+              aria-invalid={err ? true : undefined}
+              aria-describedby={describedBy}
+              showLabel={labels.showPassword}
+              hideLabel={labels.hidePassword}
+              {...attrs}
             />
           ) : (
             <input

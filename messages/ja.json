@@ -269,7 +269,9 @@
     "findPasswordSoon": "パスワード再設定は準備中です。1:1チャットまたは代表番号までお問い合わせください。",
     "orderNumberPh": "AY-20260918-0001",
     "phonePh": "090-0000-0000",
-    "findPasswordChat": "1:1チャットで問い合わせ"
+    "findPasswordChat": "1:1チャットで問い合わせ",
+    "showPassword": "パスワードを表示",
+    "hidePassword": "パスワードを隠す"
   },
   "signup": {
     "title": "会員登録",
@@ -318,7 +320,9 @@
     "addressSearch": "住所検索",
     "agreeAll": "すべてに同意",
     "agreeAge": "［必須］14歳以上です",
-    "agreeMarketing": "［任意］広告・特典情報の受信に同意します"
+    "agreeMarketing": "［任意］広告・特典情報の受信に同意します",
+    "showPassword": "パスワードを表示",
+    "hidePassword": "パスワードを隠す"
   },
   "mypage": {
     "title": "マイページ",
@@ -722,7 +726,9 @@
       "errRequired": "必須項目です。",
       "errWeak": "8文字以上で入力してください。",
       "errMismatch": "新しいパスワードが一致しません。",
-      "errSame": "現在のパスワードと異なるパスワードを入力してください。"
+      "errSame": "現在のパスワードと異なるパスワードを入力してください。",
+      "showPassword": "パスワードを表示",
+      "hidePassword": "パスワードを隠す"
     },
     "withdraw": {
       "title": "退会",

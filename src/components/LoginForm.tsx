@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { isAdminRole } from '@/lib/roles'
 import { preloadRecaptcha, recaptchaToken } from '@/lib/recaptcha-client'
+import { PasswordInput } from './PasswordInput'
 import s from './Auth.module.css'
 
 type Labels = {
@@ -17,6 +18,8 @@ type Labels = {
   network: string
   keepLogin: string
   findPassword: string
+  showPassword: string
+  hidePassword: string
   findPasswordSoon: string
   findPasswordChat: string
 }
@@ -77,7 +80,18 @@ export function LoginForm({ locale, next, labels }: { locale: string; next?: str
         <label htmlFor="login-password" className={s.label}>
           {labels.password} *
         </label>
-        <input id="login-password" className={s.input} type="password" autoComplete="current-password" placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={busy} />
+        <PasswordInput
+          id="login-password"
+          className={s.input}
+          autoComplete="current-password"
+          placeholder="••••••••"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          disabled={busy}
+          showLabel={labels.showPassword}
+          hideLabel={labels.hidePassword}
+        />
       </div>
       <div className={s.keepRow}>
         <label className={s.keep}>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { adminErrorMessage } from '@/lib/admin/error-messages'
 import { passwordIssue } from '@/lib/password-policy'
 import { Badge } from '@/components/ui'
+import { PasswordInput } from '@/components/PasswordInput'
 import { AdminConfirm, NoPermission } from './AdminConfirm'
 import s from './admin-v2.module.css'
 
@@ -417,9 +418,8 @@ export function AdminPasswordForm() {
       {fields.map((f) => (
         <label key={f.key} className={s.field}>
           <span>{f.label}</span>
-          <input
+          <PasswordInput
             className={s.input}
-            type="password"
             value={v[f.key]}
             placeholder={f.placeholder}
             autoComplete={f.autoComplete}

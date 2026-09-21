@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { ChoiceCard, Modal, Toast } from '@/components/ui'
 import { AddressSearch } from '@/components/AddressSearch'
+import { PasswordInput } from '@/components/PasswordInput'
 import { passwordIssue } from '@/lib/password-policy'
 import { isProfileDirty } from '@/lib/mypage/profile-dirty'
 import { defaultPhoneCountry, initialPhoneInput, isValidPhone } from '@/lib/phone'
@@ -317,10 +318,11 @@ export function PasswordForm({ locale = 'ko', labels, errors }: { locale?: strin
 
   const pw = (id: string, key: 'current' | 'next' | 'confirm', value: string, set: (v: string) => void, autoComplete: string) => (
     <Field id={id} label={tx(labels, key)} required error={errs[key]}>
-      <input
+      <PasswordInput
         id={id}
         className={s.input}
-        type="password"
+        showLabel={tx(labels, 'showPassword')}
+        hideLabel={tx(labels, 'hidePassword')}
         autoComplete={autoComplete}
         placeholder={tx(labels, `${key}Ph`)}
         value={value}

@@ -268,7 +268,9 @@
     "findPasswordSoon": "비밀번호 찾기는 준비 중입니다. 1:1 채팅이나 대표번호로 문의해 주세요.",
     "orderNumberPh": "AY-20260918-0001",
     "phonePh": "010-0000-0000",
-    "findPasswordChat": "1:1 채팅 문의"
+    "findPasswordChat": "1:1 채팅 문의",
+    "showPassword": "비밀번호 표시",
+    "hidePassword": "비밀번호 숨기기"
   },
   "signup": {
     "title": "회원가입",
@@ -317,7 +319,9 @@
     "addressSearch": "주소 검색",
     "agreeAll": "전체 동의",
     "agreeAge": "[필수] 만 14세 이상입니다",
-    "agreeMarketing": "[선택] 광고·혜택 정보 수신에 동의합니다"
+    "agreeMarketing": "[선택] 광고·혜택 정보 수신에 동의합니다",
+    "showPassword": "비밀번호 표시",
+    "hidePassword": "비밀번호 숨기기"
   },
   "mypage": {
     "title": "마이페이지",
@@ -721,7 +725,9 @@
       "errRequired": "필수 입력 항목입니다.",
       "errWeak": "8자 이상으로 입력해 주세요.",
       "errMismatch": "새 비밀번호가 서로 다릅니다.",
-      "errSame": "현재 비밀번호와 다른 비밀번호를 입력해 주세요."
+      "errSame": "현재 비밀번호와 다른 비밀번호를 입력해 주세요.",
+      "showPassword": "비밀번호 표시",
+      "hidePassword": "비밀번호 숨기기"
     },
     "withdraw": {
       "title": "회원 탈퇴",
