@@ -425,7 +425,8 @@ body {
 }
 
 /* reCAPTCHA v3 배지는 오른쪽 아래에 고정으로 뜬다. 모바일에서는 하단 탭바 위로 올린다 */
-.grecaptcha-badge { z-index: 30; }
+/* 구글 기본값은 접힌 상태(right: -186px)라 「보호됨」 손잡이만 보인다 — 항상 펼쳐 둔다 */
+.grecaptcha-badge { z-index: 30; right: 14px !important; }
 @media (max-width: 767px) {
   .grecaptcha-badge { bottom: calc(var(--tabbar-h) + 14px) !important; }
 }
