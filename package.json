@@ -10,7 +10,7 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "vercel-build": "payload migrate && pnpm db:bootstrap && pnpm db:rls && next build",
+    "vercel-build": "payload migrate --force-accept-warning && pnpm db:bootstrap && pnpm db:rls && next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "vitest run src",
