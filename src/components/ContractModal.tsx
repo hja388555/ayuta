@@ -224,7 +224,14 @@ export function ContractDialog({
                 placeholder={signaturePrompt}
                 onChange={(e) => onSignatureChange?.(e.target.value)}
               />
-              {showMismatch ? <p className={s.signMismatch}>{signatureMismatch}</p> : null}
+              {/* 안 맞을 때 쳐야 할 이름을 같이 보여준다 — "일치하지 않습니다"만으로는
+                  고객이 무엇을 고쳐야 하는지 알 수 없어 그대로 결제를 포기한다 */}
+              {showMismatch ? (
+                <p className={s.signMismatch}>
+                  {signatureMismatch}
+                  {expectedName ? ` (${expectedName})` : ''}
+                </p>
+              ) : null}
             </div>
           ) : null}
           <button type="button" className={`btn btn-primary btn-block ${s.confirmBtn}`} disabled={!agreed} onClick={onConfirm}>

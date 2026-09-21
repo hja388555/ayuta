@@ -306,8 +306,10 @@ export function CheckoutForm({ locale, endpoint, requestBody, amount, currency, 
 
   const steps = [labels.stepOrderer, labels.stepReview, labels.stepContract, labels.stepPay]
 
+  // 브라우저 자동 번역이 이 화면의 글자 노드를 갈아치우면 주문자명·서명 입력이 먹통이 되고
+  // 계약 내용도 원문과 달라진다 — 계약서 팝업과 같은 이유로 결제 화면 전체를 번역에서 뺀다
   return (
-    <div className={s.stack}>
+    <div translate="no" className={`notranslate ${s.stack}`}>
       <ol className={s.stepper}>
         {steps.map((label, i) => {
           const n = i + 1
